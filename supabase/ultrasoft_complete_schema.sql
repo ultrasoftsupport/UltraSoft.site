@@ -1233,21 +1233,54 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION public.reset_system_data()
 RETURNS void AS $$
 BEGIN
+    -- 1. التحقق من صلاحية المنفذ (للمالك فقط)
     IF public.get_my_role() <> 'owner' THEN
-        RAISE EXCEPTION 'غير مصرح بك بتنفيذ هذه العملية.';
+        RAISE EXCEPTION 'غير مصرح لك بتنفيذ هذه العملية. هذه الصلاحية للمالك فقط.';
     END IF;
 
-    DELETE FROM public.order_items;
-    DELETE FROM public.orders;
-    DELETE FROM public.inbound_invoice_items;
-    DELETE FROM public.inbound_invoices;
-    DELETE FROM public.stock_movements;
-    DELETE FROM public.returns;
-    DELETE FROM public.return_items;
-    DELETE FROM public.system_notifications;
-    DELETE FROM public.inventory_audits;
-    DELETE FROM public.inventory_audit_items;
-    UPDATE public.model_inventory SET available_series = 0;
+    -- 2. مسح سجلات تحضير الطلبات واللوجز والمرتجعات المرتبطة بالطلبات
+    DELETE FROM public.order_item_preparation WHERE true;
+    DELETE FROM public.preparation_status_log WHERE true;
+    DELETE FROM public.order_logs WHERE true;
+    DELETE FROM public.return_items WHERE true;
+    DELETE FROM public.returns WHERE true;
+    DELETE FROM public.order_items WHERE true;
+    DELETE FROM public.orders WHERE true;
+
+    -- 3. مسح فواتير الوارد وعناصرها وحركات المخزون والجرد
+    DELETE FROM public.inbound_invoice_items WHERE true;
+    DELETE FROM public.inbound_invoices WHERE true;
+    DELETE FROM public.stock_movements WHERE true;
+    DELETE FROM public.inventory_audit_items WHERE true;
+    DELETE FROM public.inventory_audits WHERE true;
+    DELETE FROM public.invoice_items WHERE true;
+    DELETE FROM public.invoices WHERE true;
+    DELETE FROM public.inventory_notification_queue WHERE true;
+
+    -- 4. مسح الإشعارات وبطاقات الترويج
+    DELETE FROM public.system_notifications WHERE true;
+    DELETE FROM public.promo_cards WHERE true;
+
+    -- 5. مسح الموديلات وجميع تفاصيلها وصورها ومخزونها بالكامل
+    DELETE FROM public.model_colors_inventory WHERE true;
+    DELETE FROM public.model_inventory WHERE true;
+    DELETE FROM public.model_sizes WHERE true;
+    DELETE FROM public.model_images WHERE true;
+    DELETE FROM public.models WHERE true;
+
+    -- 6. مسح التعريفات الأساسية (الفئات، التصنيفات، الألوان، المقاسات)
+    DELETE FROM public.class_sizes WHERE true;
+    DELETE FROM public.classes WHERE true;
+    DELETE FROM public.categories WHERE true;
+    DELETE FROM public.colors WHERE true;
+    DELETE FROM public.sizes WHERE true;
+
+    -- 7. إعادة تصفير المتتاليات (Sequences) للأرقام التلقائية
+    ALTER SEQUENCE public.invoices_invoice_number_seq RESTART WITH 1001;
+    ALTER SEQUENCE public.invoice_number_seq RESTART WITH 1;
+    ALTER SEQUENCE public.audit_number_seq RESTART WITH 1;
+    ALTER SEQUENCE public.return_number_seq RESTART WITH 1001;
+
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -1770,42 +1803,4 @@ CREATE POLICY "stock_movements_admin_all" ON public.stock_movements
     FOR ALL TO authenticated 
     USING (public.get_my_role() IN ('owner', 'admin')) 
     WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
--- =========================================================================
--- 🛠️ تحديث دالة إعادة التهيئة الشاملة للتوافق مع شروط الأمان في Supabase
--- =========================================================================
-
-CREATE OR REPLACE FUNCTION public.reset_system_data()
-RETURNS void AS $$
-BEGIN
-    -- التحقق من صلاحية المنفذ (للمالك فقط)
-    IF public.get_my_role() <> 'owner' THEN
-        RAISE EXCEPTION 'غير مصرح لك بتنفيذ هذه العملية. هذه الصلاحية للمالك فقط.';
-    END IF;
-
-    -- مسح سجلات تحضير الطلبات واللوجز
-    DELETE FROM public.order_item_preparation WHERE true;
-    DELETE FROM public.preparation_status_log WHERE true;
-    DELETE FROM public.order_logs WHERE true;
-
-    -- مسح الطلبات وعناصرها
-    DELETE FROM public.order_items WHERE true;
-    DELETE FROM public.orders WHERE true;
-
-    -- مسح فواتير الوارد وعناصرها وحركات المخزون
-    DELETE FROM public.inbound_invoice_items WHERE true;
-    DELETE FROM public.inbound_invoices WHERE true;
-    DELETE FROM public.stock_movements WHERE true;
-
-    -- مسح المرتجعات والإشعارات والجرد
-    DELETE FROM public.returns WHERE true;  
-    DELETE FROM public.return_items WHERE true;
-    DELETE FROM public.system_notifications WHERE true;
-    DELETE FROM public.inventory_audit_items WHERE true;
-    DELETE FROM public.inventory_audits WHERE true;
-    DELETE FROM public.invoice_items WHERE true;
-    DELETE FROM public.invoices WHERE true;
-    
-    -- تصفير رصيد السيريات المتاحة في المخزون
-    UPDATE public.model_inventory SET available_series = 0 WHERE true;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- (دالة reset_system_data تم تحديثها وتعريفها أعلاه في القسم 22)
