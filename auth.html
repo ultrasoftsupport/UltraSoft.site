@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraSoft | تسجيل الدخول</title>
+    <link rel="icon" type="image/png" href="./src/assets/icons/ultrasoft_transparent.png">
+    
+    <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="ألترا سوفت">
+<link rel="apple-touch-icon" href="./src/assets/icons/ultrasoft_transparent.png">
+
+<script>
+  // تسجيل الـ Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('UltraSoft PWA Ready!', reg))
+        .catch(err => console.log('PWA Error:', err));
+    });
+  }
+</script>
+    <script>
+        // Prevent FOUC: load and apply theme variables from LocalStorage immediately
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                if (savedTheme) {
+                    const theme = JSON.parse(savedTheme);
+                    const colors = theme.colors;
+                    if (colors) {
+                        const styleEl = document.createElement('style');
+                        styleEl.id = 'devo-theme-styles-early';
+                        const bgHex = colors.page?.bg || '#0b1329';
+                        const isLight = bgHex !== '#0b1329' && bgHex !== '#0f172a' && bgHex !== '#0a0a0a' && bgHex !== '#171717';
+                        const defaultGray = isLight ? (colors.brand?.secondary || '#e1effe') : '#1e293b';
+                        const defaultGrayHover = isLight ? (colors.brand?.secondary_hover || '#bae6fd') : '#334155';
+                        const devoGray = colors.borders?.color || defaultGray;
+                        const devoGrayHover = colors.brand?.secondary_hover || defaultGrayHover;
+
+                        let cssText = `
+                            :root {
+                                --devo-black: ${colors.page?.bg || '#0b1329'};
+                                --devo-dark: ${colors.page?.bg_secondary || colors.page?.surface || '#0f172a'};
+                                --devo-gray: ${devoGray};
+                                --devo-gray-hover: ${devoGrayHover};
+                                --devo-orange: ${colors.brand?.primary || '#0284c7'};
+                                --devo-orange-hover: ${colors.brand?.primary_hover || '#0369a1'};
+                                --devo-text: ${colors.page?.text || '#f8fafc'};
+                                --devo-muted: ${colors.page?.text_muted || '#cbd5e1'};
+                                --devo-success: ${colors.alerts?.success?.text || '#10b981'};
+                                --devo-error: ${colors.alerts?.error?.text || '#ef4444'};
+                                --devo-warning: ${colors.alerts?.warning?.text || '#f59e0b'};
+                                --devo-info: ${colors.alerts?.info?.text || '#38bdf8'};
+                                --selection-bg: ${colors.page?.selection_bg || '#0284c7'};
+                                --selection-text: ${colors.page?.selection_text || '#ffffff'};
+                                --border-color: ${devoGray};
+                                --border-width: ${colors.borders?.width || '1px'};
+                                --border-radius-base: ${colors.borders?.radius || '12px'};
+                                --shadow-color: ${colors.shadows?.color || 'rgba(0,0,0,0.8)'};
+                                --shadow-size: ${colors.shadows?.size || '10px'};
+                                --shadow-blur: ${colors.shadows?.blur || '40px'};
+                                --scrollbar-track: ${colors.scrollbar?.track || '#0b1329'};
+                                --scrollbar-thumb: ${colors.scrollbar?.thumb || '#1e293b'};
+                                --scrollbar-thumb-hover: ${colors.scrollbar?.thumb_hover || '#0284c7'};
+                            }
+                        `;
+                        styleEl.innerHTML = cssText;
+                        document.head.appendChild(styleEl);
+                    }
+                }
+            } catch(e) { console.error('Theme early load error:', e); }
+        })();
+    </script>
+    <script>
+        const withOpacity = (variableName, fallback) => {
+            return ({ opacityValue }) => {
+                if (opacityValue !== undefined) {
+                    return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
+                }
+                return `var(${variableName}, ${fallback})`;
+            };
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ultra: {
+                            50: '#F0F9FF',
+                            100: '#E0F2FE',
+                            200: '#BAE6FD',
+                            300: '#7DD3FC',
+                            400: '#38BDF8',
+                            500: '#0EB5D4',
+                            600: '#0284C7',
+                            700: '#0369A1',
+                            800: '#075985',
+                            900: '#0C4A6E',
+                            950: '#082F49'
+                        },
+                        darkbg: {
+                            800: '#1E293B',
+                            900: '#0B1329',
+                            950: '#060B14'
+                        },
+                        devo: {
+                            black: withOpacity('--devo-black', '#0b1329'),
+                            dark: withOpacity('--devo-dark', '#0f172a'),
+                            gray: withOpacity('--devo-gray', '#1e293b'),
+                            grayHover: withOpacity('--devo-gray-hover', '#334155'),
+                            orange: withOpacity('--devo-orange', '#0284c7'),
+                            orangeHover: withOpacity('--devo-orange-hover', '#0369a1'),
+                            text: withOpacity('--devo-text', '#f8fafc'),
+                            muted: withOpacity('--devo-muted', '#cbd5e1'),
+                            success: withOpacity('--devo-success', '#10b981'),
+                            error: withOpacity('--devo-error', '#ef4444'),
+                            warning: withOpacity('--devo-warning', '#f59e0b'),
+                            info: withOpacity('--devo-info', '#38bdf8')
+                        }
+                    },
+                    fontFamily: { sans: ['Cairo', 'Tajawal', 'Inter', 'sans-serif'] },
+                    boxShadow: { 'devo-float': 'var(--shadow-devo-float, 0 10px 40px -10px rgba(0,0,0,0.8))' }
+                }
+            }
+        }
+    </script>
+    
+    <style> body { font-family: 'Cairo', 'Tajawal', sans-serif; } </style>
+</head>
+<body class="bg-devo-black min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-ultra-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div id="login-container" class="w-full max-w-md bg-devo-dark border border-devo-gray rounded-2xl p-8 shadow-2xl relative z-10">
+        
+        <div class="text-center mb-8">
+            <img src="./logo_transparnt.png" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'" alt="UltraSoft Logo" class="h-14 w-auto object-contain mx-auto mb-3 drop-shadow-[0_0_15px_rgba(2,132,199,0.5)]">
+            <h1 class="text-3xl font-black tracking-wider text-white mb-1">
+                Ultra<span class="text-ultra-400">Soft</span>
+            </h1>
+            <p class="text-devo-muted text-sm font-medium">نظام إدارة المبيعات والمخازن</p>
+        </div>
+
+        <form id="auth-form" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-devo-muted mb-2">اسم المستخدم</label>
+                <div class="relative">
+                    <i class="ph ph-user absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-muted"></i>
+                    <input type="text" id="username" required autocomplete="off"
+                        class="w-full bg-devo-black border border-devo-gray rounded-lg pr-12 pl-4 py-3 text-white focus:outline-none focus:border-devo-orange transition-colors"
+                        placeholder="أدخل اسم المستخدم" dir="ltr" style="text-align: right;">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-devo-muted mb-2">كلمة المرور</label>
+                <div class="relative">
+                    <i class="ph ph-lock-key absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-muted"></i>
+                    <input type="password" id="password" required autocomplete="current-password"
+                        class="w-full bg-devo-black border border-devo-gray rounded-lg pr-12 pl-4 py-3 text-white focus:outline-none focus:border-devo-orange transition-colors"
+                        placeholder="أدخل كلمة المرور" dir="ltr" style="text-align: right;">
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-devo-orange hover:bg-devo-orangeHover text-white font-bold py-3.5 rounded-lg transition-colors flex justify-center items-center gap-2 mt-4 shadow-lg shadow-devo-orange/20">
+                <span id="btn-text">تسجيل الدخول</span>
+                <i id="btn-icon" class="ph ph-sign-in text-xl"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- بوابة اختيار الوجهة بعد تسجيل الدخول -->
+    <div id="destination-container" class="w-full max-w-md bg-devo-dark border border-devo-gray rounded-2xl p-8 shadow-2xl relative z-10 hidden opacity-0 transition-all duration-300">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-black text-white mb-2">اختر <span class="text-devo-orange">وجهتك</span></h1>
+            <p class="text-devo-muted text-xs font-medium">مرحباً بك، يرجى اختيار الوجهة المطلوبة للدخول</p>
+        </div>
+        
+        <div class="space-y-4" id="destination-buttons">
+            <!-- سيتم توليد الأزرار ديناميكياً هنا -->
+        </div>
+        
+        <button id="portal-logout-btn" class="w-full bg-devo-gray/50 hover:bg-devo-error/20 hover:text-devo-error text-devo-muted font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mt-6 border border-devo-gray">
+            <span>تسجيل الخروج</span>
+            <i class="ph ph-sign-out text-lg"></i>
+        </button>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 left-6 z-[500] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script type="module">
+        import { loginUser, getCurrentSession, logoutUser } from './src/js/services/auth.js';
+        import { showToast } from './src/js/components/toast.js';
+        import { supabase } from './src/js/config/supabase.js';
+        import { syncActiveTheme } from './src/js/services/theme.js';
+
+        // تزامن المظهر النشط من قاعدة البيانات
+        syncActiveTheme();
+
+        const form = document.getElementById('auth-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+
+        // Logout handler for destination portal
+        window.handleLogout = () => {
+            logoutUser();
+        };
+
+        function handleUserRedirection(user) {
+            const role = user.role;
+            const workerJob = user.worker_job;
+            
+            const destinations = [];
+            
+            if (role === 'owner' || role === 'admin') {
+                destinations.push({
+                    name: 'لوحة الإدارة',
+                    url: 'admin.html',
+                    icon: 'ph-shield-check',
+                    color: 'bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30'
+                });
+                destinations.push({
+                    name: 'الصفحة الرئيسية (المعرض)',
+                    url: 'index.html',
+                    icon: 'ph-storefront',
+                    color: 'bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30'
+                });
+            } else if (role === 'worker') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            if (destinations.length > 1) {
+                // Show selection screen
+                document.getElementById('login-container').classList.add('hidden');
+                const destContainer = document.getElementById('destination-container');
+                destContainer.classList.remove('hidden');
+                setTimeout(() => destContainer.classList.remove('opacity-0'), 10);
+                
+                const btnContainer = document.getElementById('destination-buttons');
+                btnContainer.innerHTML = destinations.map(d => `
+                    <a href="${d.url}" class="w-full flex items-center justify-between p-4 rounded-xl transition-all font-bold ${d.color} group shadow-md text-sm sm:text-base">
+                        <span class="flex items-center gap-3">
+                            <i class="ph ${d.icon} text-2xl group-hover:scale-110 transition-transform"></i>
+                            <span>${d.name}</span>
+                        </span>
+                        <i class="ph ph-arrow-left text-lg group-hover:-translate-x-1.5 transition-transform font-bold"></i>
+                    </a>
+                `).join('');
+            } else if (destinations.length === 1) {
+                window.location.href = destinations[0].url;
+            } else {
+                showToast('لا تملك صلاحية الوصول لأي جزء في النظام. راجع الإدارة.', 'error');
+            }
+        }
+
+        // Check if already logged in and refresh session from DB
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { session } = getCurrentSession();
+            if (session && session.user) {
+                try {
+                    // Fetch fresh permissions to handle state changes or deactivations
+                    const { data: user, error } = await supabase
+                        .from('system_users')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    if (error || !user || !user.is_active) {
+                        logoutUser();
+                        return;
+                    }
+                    
+                    const freshSession = {
+                        id: user.id,
+                        username: user.username,
+                        full_name: user.full_name,
+                        role: user.role,
+                        worker_job: user.worker_job
+                    };
+                    localStorage.setItem('devo_session', JSON.stringify(freshSession));
+                    handleUserRedirection(freshSession);
+                } catch (e) {
+                    handleUserRedirection(session.user);
+                }
+            }
+        });
+
+        // Handle Login Submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            // Set Loading State
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            btnText.textContent = 'جاري التحقق...';
+            btnIcon.className = 'ph ph-spinner animate-spin text-xl';
+
+            // Attempt Login
+            const { user, error } = await loginUser(username, password);
+
+            if (error) {
+                // Reset UI on error
+                showToast(error.message || 'بيانات الدخول غير صحيحة.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                btnText.textContent = 'تسجيل الدخول';
+                btnIcon.className = 'ph ph-sign-in text-xl';
+            } else {
+                // Success route
+                showToast('تم تسجيل الدخول بنجاح، جاري التوجيه...', 'success');
+                
+                setTimeout(() => {
+                    handleUserRedirection(user);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

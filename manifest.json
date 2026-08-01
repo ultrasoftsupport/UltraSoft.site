@@ -1,0 +1,23 @@
+{
+  "short_name": "ألترا سوفت",
+  "name": "ألترا سوفت - UltraSoft",
+  "description": "نظام إدارة المبيعات والمخازن لشركة UltraSoft",
+  "icons": [
+    {
+      "src": "./src/assets/icons/ultrasoft_transparent.png",
+      "sizes": "192x192 256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "./src/assets/icons/ultrasoft.png",
+      "sizes": "512x512 1024x1024",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./auth.html",
+  "display": "standalone",
+  "theme_color": "#0b1329",
+  "background_color": "#0b1329",
+  "dir": "rtl",
+  "lang": "ar"
+}

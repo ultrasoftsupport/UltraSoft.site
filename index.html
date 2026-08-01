@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraSoft | المعرض</title>
+    <link rel="icon" type="image/png" href="./src/assets/icons/ultrasoft_transparent.png">
+    
+    <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest-index.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="ألترا سوفت">
+<link rel="apple-touch-icon" href="./src/assets/icons/ultrasoft_transparent.png">
+
+<script>
+  // تسجيل الـ Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('UltraSoft PWA Ready!', reg))
+        .catch(err => console.log('PWA Error:', err));
+    });
+  }
+</script>
+    <script>
+        // Prevent FOUC: load and apply theme variables from LocalStorage immediately
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                if (savedTheme) {
+                    const theme = JSON.parse(savedTheme);
+                    const colors = theme.colors;
+                    if (colors) {
+                        const styleEl = document.createElement('style');
+                        styleEl.id = 'devo-theme-styles-early';
+                        const bgHex = colors.page?.bg || '#0b1329';
+                        const isLight = bgHex !== '#0b1329' && bgHex !== '#0f172a' && bgHex !== '#0a0a0a' && bgHex !== '#171717';
+                        const defaultGray = isLight ? (colors.brand?.secondary || '#e1effe') : '#1e293b';
+                        const defaultGrayHover = isLight ? (colors.brand?.secondary_hover || '#bae6fd') : '#334155';
+                        const devoGray = colors.borders?.color || defaultGray;
+                        const devoGrayHover = colors.brand?.secondary_hover || defaultGrayHover;
+
+                        let cssText = `
+                            :root {
+                                --devo-black: ${colors.page?.bg || '#0b1329'};
+                                --devo-dark: ${colors.page?.bg_secondary || colors.page?.surface || '#0f172a'};
+                                --devo-gray: ${devoGray};
+                                --devo-gray-hover: ${devoGrayHover};
+                                --devo-orange: ${colors.brand?.primary || '#0284c7'};
+                                --devo-orange-hover: ${colors.brand?.primary_hover || '#0369a1'};
+                                --devo-text: ${colors.page?.text || '#f8fafc'};
+                                --devo-muted: ${colors.page?.text_muted || '#cbd5e1'};
+                                --devo-success: ${colors.alerts?.success?.text || '#10b981'};
+                                --devo-error: ${colors.alerts?.error?.text || '#ef4444'};
+                                --devo-warning: ${colors.alerts?.warning?.text || '#f59e0b'};
+                                --devo-info: ${colors.alerts?.info?.text || '#38bdf8'};
+                                --selection-bg: ${colors.page?.selection_bg || '#0284c7'};
+                                --selection-text: ${colors.page?.selection_text || '#ffffff'};
+                                --border-color: ${devoGray};
+                                --border-width: ${colors.borders?.width || '1px'};
+                                --border-radius-base: ${colors.borders?.radius || '12px'};
+                                --shadow-color: ${colors.shadows?.color || 'rgba(0,0,0,0.8)'};
+                                --shadow-size: ${colors.shadows?.size || '10px'};
+                                --shadow-blur: ${colors.shadows?.blur || '40px'};
+                                --scrollbar-track: ${colors.scrollbar?.track || '#0b1329'};
+                                --scrollbar-thumb: ${colors.scrollbar?.thumb || '#1e293b'};
+                                --scrollbar-thumb-hover: ${colors.scrollbar?.thumb_hover || '#0284c7'};
+                            }
+                        `;
+                        styleEl.innerHTML = cssText;
+                        document.head.appendChild(styleEl);
+                    }
+                }
+            } catch(e) { console.error('Theme early load error:', e); }
+        })();
+    </script>
+    <script>
+        const withOpacity = (variableName, fallback) => {
+            return ({ opacityValue }) => {
+                if (opacityValue !== undefined) {
+                    return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
+                }
+                return `var(${variableName}, ${fallback})`;
+            };
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ultra: {
+                            50: '#F0F9FF',
+                            100: '#E0F2FE',
+                            200: '#BAE6FD',
+                            300: '#7DD3FC',
+                            400: '#38BDF8',
+                            500: '#0EB5D4',
+                            600: '#0284C7',
+                            700: '#0369A1',
+                            800: '#075985',
+                            900: '#0C4A6E',
+                            950: '#082F49'
+                        },
+                        darkbg: {
+                            800: '#1E293B',
+                            900: '#0B1329',
+                            950: '#060B14'
+                        },
+                        devo: {
+                            black: withOpacity('--devo-black', '#0b1329'),
+                            dark: withOpacity('--devo-dark', '#0f172a'),
+                            gray: withOpacity('--devo-gray', '#1e293b'),
+                            grayHover: withOpacity('--devo-gray-hover', '#334155'),
+                            orange: withOpacity('--devo-orange', '#0284c7'),
+                            orangeHover: withOpacity('--devo-orange-hover', '#0369a1'),
+                            text: withOpacity('--devo-text', '#f8fafc'),
+                            muted: withOpacity('--devo-muted', '#cbd5e1'),
+                            success: withOpacity('--devo-success', '#10b981'),
+                            error: withOpacity('--devo-error', '#ef4444'),
+                            warning: withOpacity('--devo-warning', '#f59e0b'),
+                            info: withOpacity('--devo-info', '#38bdf8')
+                        }
+                    },
+                    fontFamily: { sans: ['Cairo', 'Tajawal', 'Inter', 'sans-serif'] },
+                    boxShadow: { 'devo-float': 'var(--shadow-devo-float, 0 10px 40px -10px rgba(0,0,0,0.8))' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', 'Tajawal', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1329; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
+        .hero-bg {
+            background-image: linear-gradient(to bottom, rgba(10,10,10,0.4), rgba(10,10,10,1)), url('');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .card-hover:hover {
+            box-shadow: 0 0 20px rgba(2, 132, 199, 0.25);
+            border-color: rgba(2, 132, 199, 0.4);
+        }
+        /* إعدادات الطباعة الاحترافية للفاتورة */
+        @media print {
+            body { background: white !important; color: black !important; }
+            /* إخفاء كل الموقع */
+            nav, footer, #mobile-menu, #floating-cart-btn, .site-view-section, .no-print { 
+                display: none !important; 
+            }
+            main { padding: 0 !important; margin: 0 !important; }
+            
+            /* إظهار الفاتورة فقط */
+            #invoice-modal { 
+                display: block !important; 
+                position: absolute !important; 
+                left: 0; top: 0; width: 100%; height: 100%;
+                background: white !important; 
+                transform: none !important;
+                padding: 0 !important;
+            }
+            
+            /* إجبار الطابعة على طباعة الألوان والخلفيات */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            @page { margin: 1cm; size: A4; }
+        }
+        @keyframes laser {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        .animate-laser {
+            animation: laser 2s infinite linear;
+        }
+        /* إخفاء arrows الـ number input وتوسيط الرقم */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+        input[type="number"][readonly] { 
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; line-height: 1; padding: 0;
+        }
+        
+        /* Scrollbar Hiding Utility */
+        .scrollbar-none::-webkit-scrollbar { display: none !important; }
+        .scrollbar-none { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+
+        /* Ken Burns Effect for Product Images */
+        @keyframes kenburns {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        .animate-kenburns {
+            animation: kenburns 25s infinite ease-in-out;
+        }
+
+        /* Drift Effect for Blur Backgrounds */
+        @keyframes drift {
+            0% { transform: scale(1.25) translate(0, 0); }
+            50% { transform: scale(1.32) translate(1%, 1%); }
+            100% { transform: scale(1.25) translate(0, 0); }
+        }
+        .animate-drift {
+            animation: drift 30s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-devo-black text-devo-text overflow-x-hidden flex flex-col min-h-screen">
+
+    <!-- Header Container — يُملأ ديناميكياً من header_layouts.js -->
+    <div id="site-header"></div>
+
+    <main class="flex-1 pt-20 md:pt-24">
+        
+        <div id="view-home" class="site-view-section animate-fade-in block">
+            <section class="hero-bg h-[80vh] min-h-[500px] flex items-center justify-center relative overflow-hidden bg-devo-black">
+                <!-- Layer 1: Background Image Layer -->
+                <div id="hero-bg-image-layer" class="absolute inset-0 bg-cover bg-center transition-all duration-300 pointer-events-none"></div>
+
+                <!-- Layer 2: Dark Overlay Layer -->
+                <div id="hero-bg-overlay-layer" class="absolute inset-0 transition-all duration-300 pointer-events-none z-[1]"></div>
+
+                <!-- Layer 3: Top & Bottom Seamless Edge Merging Fades -->
+                <div id="hero-bg-top-fade" class="absolute top-0 left-0 right-0 pointer-events-none z-[2] transition-all duration-300"></div>
+                <div id="hero-bg-bottom-fade" class="absolute bottom-0 left-0 right-0 pointer-events-none z-[2] transition-all duration-300"></div>
+
+                <!-- Content Container (with optional glass card) -->
+                <div id="hero-content-card" class="text-center z-10 px-6 py-8 md:px-12 md:py-12 max-w-3xl mx-auto rounded-3xl transition-all duration-300">
+                    <span class="text-ultra-400 font-bold tracking-widest text-sm md:text-base uppercase mb-4 block">ULTRASOFT COLLECTION</span>
+                    <h1 id="display-hero-title" class="text-4xl md:text-6xl font-black leading-tight mb-6 transition-colors duration-300">
+                        Ultra<span class="text-ultra-400">Soft</span>
+                    </h1>
+                    <p id="display-hero-subtitle" class="md:text-lg mb-10 max-w-2xl mx-auto transition-colors duration-300">
+                        أحدث الموديلات والتصاميم العصرية بأفضل الأسعار
+                    </p>
+                    <button onclick="switchSiteView('view-gallery')" class="inline-flex items-center justify-center gap-2 ultrasoft-btn-primary font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
+                        <span>تصفح الموديلات</span>
+                        <i class="ph ph-arrow-left text-xl"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section class="py-16 px-0 sm:px-6 lg:px-8 max-w-7xl mx-auto -mt-16 relative z-20">
+                <div id="display-promo-cards" class="flex md:grid md:grid-cols-2 lg:grid-cols-3 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-4 sm:gap-6 pb-4 md:pb-0 scrollbar-none w-full px-4 md:px-0">
+                </div>
+            </section>
+        </div>
+<div id="view-gallery" class="site-view-section hidden animate-fade-in pb-20">
+    <div class="bg-devo-black border-b border-devo-gray sticky top-20 md:top-20 py-2 md:py-4 mb-3 shadow-md z-[100000]">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row gap-2 md:items-center">
+                
+                <div class="flex w-full md:flex-[2] gap-2 items-center">
+                    <div class="relative flex-1">
+                        <i class="ph ph-magnifying-glass absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-devo-muted text-sm md:text-xl"></i>
+                        <input type="number" id="gal-search" placeholder="بحث بالكود..." 
+                            class="w-full bg-devo-dark border border-devo-gray rounded-lg md:rounded-xl pr-8 md:pr-12 pl-2 md:pl-4 py-2 md:py-3 text-white focus:outline-none focus:border-devo-orange transition-all text-xs md:text-sm h-[38px] md:h-auto">
+                    </div>
+                    <button onclick="toggleGalleryFilters()" class="md:hidden bg-devo-dark border border-devo-gray text-devo-muted hover:text-white px-3 py-2 rounded-lg transition-all h-[38px] flex items-center justify-center shrink-0">
+                        <i class="ph ph-faders text-lg"></i>
+                    </button>
+                </div>
+                
+                <div id="gallery-advanced-filters" class="hidden md:flex w-full md:flex-1 gap-2 flex-col md:flex-row mt-1 md:mt-0 transition-all">
+                    <div class="flex gap-2 w-full">
+                        <select id="gal-category" class="flex-1 bg-devo-dark border border-devo-gray rounded-lg md:rounded-xl px-1 md:px-3 py-1.5 md:py-3 text-white outline-none focus:border-devo-orange cursor-pointer text-[11px] md:text-sm h-[34px] md:h-auto">
+                            <option value="">جميع التصنيفات</option>
+                        </select>
+                        <select id="gal-sort" class="flex-1 bg-devo-dark border border-devo-gray rounded-lg md:rounded-xl px-1 md:px-3 py-1.5 md:py-3 text-white outline-none focus:border-devo-orange cursor-pointer text-[11px] md:text-sm h-[34px] md:h-auto">
+                            <option value="newest">الأحدث أولاً</option>
+                            <option value="price_asc">السعر (أقل)</option>
+                            <option value="price_desc">السعر (أعلى)</option>
+                        </select>
+                    </div>
+                    <button onclick="clearGalleryFilters()" class="bg-devo-dark border border-devo-gray text-devo-error hover:bg-devo-error hover:text-white py-1.5 md:py-3 px-3 md:px-4 rounded-lg md:rounded-xl transition-all text-xs md:text-sm flex items-center justify-center shrink-0 h-[34px] md:h-auto w-full md:w-auto" title="مسح الفلاتر">
+                        <i class="ph ph-eraser text-sm md:text-xl ml-1 md:ml-0"></i> <span class="md:hidden">مسح الفلاتر</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <section class="px-2 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[50vh]">
+        <div id="gallery-pagination-top" class="flex justify-center items-center gap-1.5 md:gap-3 mb-3 col-span-full"></div>
+        
+        <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
+        </div>
+
+        <div id="gallery-pagination-bottom" class="flex justify-center items-center gap-1.5 md:gap-3 mt-8 mb-4 col-span-full"></div>
+    </section>
+</div>
+<button id="floating-cart-btn" onclick="switchSiteView('view-cart'); window.refreshCartView();" class="fixed bottom-8 right-8 z-[100] ultrasoft-btn-primary rounded-full w-16 h-16 flex items-center justify-center shadow-[0_10px_25px_rgba(2,132,199,0.4)] transition-all transform hover:scale-110 hidden">
+        <div class="relative">
+            <i class="ph ph-shopping-cart text-3xl"></i>
+            <span id="floating-cart-count" class="absolute -top-2 -right-3 bg-white text-ultra-600 text-xs font-black w-6 h-6 flex items-center justify-center rounded-full shadow-md border-2 border-ultra-600">0</span>
+        </div>
+    </button>
+
+    <div id="model-viewer-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] hidden flex items-end md:items-center justify-center p-0 md:p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-devo-dark border border-devo-gray rounded-t-2xl md:rounded-2xl w-full h-[92vh] md:h-auto md:max-h-[90vh] md:max-w-5xl flex flex-col shadow-2xl transform scale-95 md:scale-100 transition-transform duration-300 relative overflow-hidden">
+            
+            <div class="p-3 md:p-4 border-b border-devo-gray flex justify-between items-center bg-devo-black/90 sticky top-0 z-20">
+                <h3 class="text-base md:text-lg font-bold text-white flex items-center gap-2">
+                    <i class="ph ph-t-shirt text-devo-orange text-lg md:text-xl"></i> تفاصيل الموديل
+                </h3>
+                <button onclick="closeModelViewer()" class="text-devo-muted hover:text-white bg-devo-gray/30 p-1.5 md:p-2 rounded-full transition-colors"><i class="ph ph-x text-lg md:text-xl"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-6" id="model-viewer-content">
+                </div>
+        </div>
+    </div>
+<div id="view-barcode" class="site-view-section hidden animate-fade-in pb-20">
+    <div class="max-w-md mx-auto w-full px-4 py-4 text-center">
+        <div class="bg-devo-dark border border-devo-gray rounded-2xl p-4 shadow-lg mb-6 relative overflow-hidden">
+            <!-- Laser scanning effect overlay -->
+            <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-black border border-neutral-800">
+                <!-- Scanner container -->
+                <div id="barcode-reader" class="w-full h-full"></div>
+                
+                <!-- Laser line -->
+                <div id="barcode-scanner-laser" class="absolute left-0 right-0 h-0.5 bg-devo-orange shadow-[0_0_10px_#f97316] animate-laser top-0 pointer-events-none hidden"></div>
+            </div>
+            
+            <!-- Camera control buttons -->
+            <div class="mt-4 flex flex-col gap-2">
+                <button id="btn-toggle-scan" class="w-full bg-devo-orange hover:bg-devo-orangeHover text-white py-3 px-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-sm shadow-md">
+                    <i class="ph ph-camera"></i>
+                    <span id="txt-toggle-scan">تشغيل الكاميرا</span>
+                </button>
+                <select id="select-camera" class="w-full bg-devo-black border border-devo-gray rounded-xl px-3 py-3 text-white outline-none focus:border-devo-orange cursor-pointer text-xs h-[48px] hidden">
+                    <option value="">جاري البحث عن الكاميرات...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="bg-devo-dark border border-devo-gray rounded-2xl p-5 shadow-lg space-y-4 text-right">
+            <div class="flex items-center justify-between border-b border-devo-gray/30 pb-2">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="ph ph-keyboard text-devo-info"></i>
+                    إدخال الكود يدوياً
+                </h3>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggle-manual-input" class="sr-only peer">
+                    <div class="w-11 h-6 bg-devo-black border border-devo-gray rounded-full peer peer-checked:bg-devo-info after:content-[''] after:absolute after:top-0.5 after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:-translate-x-full shadow-inner"></div>
+                </label>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="barcode-manual-input" disabled placeholder="تفعيل الإدخال اليدوي أولاً..." class="flex-1 bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-devo-black/50">
+                <button id="btn-submit-manual-code" disabled class="bg-devo-info hover:bg-blue-600 text-white font-bold px-5 py-3 rounded-xl transition-all text-sm shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-devo-info/50">
+                    <span>بحث</span>
+                    <i class="ph ph-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="view-cart" class="site-view-section hidden animate-fade-in pb-20">
+            <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+                
+                <div class="flex justify-between items-center mb-8 border-b border-devo-gray pb-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="ph ph-shopping-cart text-devo-orange"></i> سلة المشتريات</h2>
+                    <span class="text-devo-info font-bold text-sm bg-devo-info/10 px-3 py-1 rounded-lg" id="cart-items-count">0 موديلات في الأوردر</span>
+                </div>
+
+                <div id="empty-cart-state" class="hidden flex-col items-center justify-center py-20 text-center bg-devo-dark border border-devo-gray rounded-2xl">
+                    <div class="w-24 h-24 bg-devo-gray/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="ph ph-shopping-cart text-5xl text-devo-muted"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">السلة فارغة!</h2>
+                    <p class="text-devo-muted mb-6 text-sm">لم تقم بإضافة أي موديلات حتى الآن.</p>
+                    <button onclick="switchSiteView('view-gallery')" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg">الذهاب للمعرض</button>
+                </div>
+
+                <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+<div class="lg:col-span-2 space-y-4">
+    <div id="cart-edit-mode-banner" class="hidden"></div>
+    <div class="flex gap-2">
+        <div class="relative flex-1">
+            <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted text-lg"></i>
+            <input type="text" id="cart-search-input" oninput="filterCartItems()" placeholder="بحث بكود الموديل أو الاسم داخل السلة..." class="w-full bg-devo-dark border border-devo-gray rounded-xl pr-10 pl-4 py-3 text-white focus:border-devo-orange outline-none text-sm transition-all shadow-sm">
+        </div>
+        <button type="button" id="btn-clear-cart" onclick="clearEntireCart()" class="bg-devo-error/10 text-devo-error border border-devo-error/30 hover:bg-devo-error hover:text-white px-4 md:px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all font-bold whitespace-nowrap shadow-sm" title="إفراغ السلة">
+            <i id="btn-clear-cart-icon" class="ph ph-trash text-xl"></i>
+            <span id="btn-clear-cart-text" class="hidden sm:block">إفراغ السلة</span>
+        </button>
+    </div>
+
+    <!-- فلاتر السلة -->
+    <div class="flex flex-wrap items-center justify-between gap-2 bg-devo-dark border border-devo-gray/60 p-2 rounded-xl text-xs sm:text-sm">
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" id="btn-cart-filter-all" onclick="setCartFilter('all')" class="px-4 py-2 rounded-lg font-bold transition-all bg-devo-orange text-white flex items-center gap-1.5 shadow-sm">
+                <i class="ph ph-list text-base"></i>
+                <span>الكل</span>
+            </button>
+            <button type="button" id="btn-cart-filter-ok" onclick="setCartFilter('ok')" class="px-4 py-2 rounded-lg font-bold transition-all text-devo-muted hover:text-white hover:bg-devo-gray/20 flex items-center gap-1.5">
+                <i class="ph ph-check-circle text-base text-devo-success"></i>
+                <span>الموديلات السليمة</span>
+            </button>
+            <button type="button" id="btn-cart-filter-error" onclick="setCartFilter('error')" class="px-4 py-2 rounded-lg font-bold transition-all text-devo-muted hover:text-white hover:bg-devo-gray/20 flex items-center gap-1.5">
+                <i class="ph ph-warning-circle text-base text-devo-error"></i>
+                <span>الموديلات التي بها مشاكل</span>
+                <span id="cart-error-badge" class="hidden bg-devo-error text-white text-[10px] px-1.5 py-0.5 rounded-full font-black">0</span>
+            </button>
+        </div>
+    </div>
+    
+    <div id="cart-items-container" class="space-y-3">
+        </div>
+</div>
+
+                    <div class="space-y-6">
+                        <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold text-white mb-4"><i class="ph ph-receipt text-devo-orange"></i> ملخص الأوردر</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between text-devo-muted"><span>إجمالي الموديلات:</span> <span id="sum-models" class="text-white font-bold">0</span></div>
+                                <div class="flex justify-between text-devo-muted"><span>إجمالي السريات:</span> <span id="sum-series" class="text-white font-bold">0</span></div>
+                                <div class="flex justify-between text-lg pt-3 border-t border-devo-gray mt-3">
+                                    <span class="text-white font-bold">الإجمالي الكلي:</span> 
+                                    <span class="text-devo-orange font-black"><span id="sum-price">0</span> ج.م</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="checkout-form" class="bg-devo-dark border border-devo-gray rounded-2xl p-6 shadow-sm space-y-4">
+                            <h3 class="text-lg font-bold text-white mb-2"><i class="ph ph-user text-devo-info"></i> بيانات العميل</h3>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">اسم العميل / المحل <span class="text-devo-error">*</span></label>
+                                <input type="text" id="c-name" required class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-colors">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رقم الهاتف <span class="text-devo-error">*</span></label>
+                                    <input type="tel" id="c-phone1" required class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رقم إضافي</label>
+                                    <input type="tel" id="c-phone2" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-colors">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">العنوان <span class="text-devo-error">*</span></label>
+                                <input type="text" id="c-address" required class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-colors">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-devo-gray">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">العربون (المدفوع)</label>
+                                    <input type="number" id="c-deposit" value="0" min="0" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-devo-success font-bold focus:border-devo-orange outline-none text-sm transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">مستلم العربون</label>
+                                    <input type="text" id="c-receiver" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-colors">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">ملاحظات إضافية</label>
+                                <textarea id="c-notes" rows="2" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-sm resize-none"></textarea>
+                            </div>
+                            <button type="submit" id="btn-save-order" class="w-full ultrasoft-btn-primary font-bold py-3.5 rounded-xl shadow-[0_10px_20px_rgba(2,132,199,0.3)] transition-all flex justify-center items-center gap-2 mt-6">
+                                <span>حفظ وإصدار الفاتورة</span>
+                                <i class="ph ph-receipt text-xl"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirm-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300">
+                <div class="w-16 h-16 rounded-full bg-devo-error/10 flex items-center justify-center text-devo-error mx-auto mb-4">
+                    <i class="ph ph-warning-circle text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">حذف الموديل</h3>
+                <p class="text-sm text-devo-muted mb-6">هل تريد بالتأكيد إزالة هذا الموديل من السلة؟</p>
+                <div class="flex gap-3">
+                    <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-lg border border-devo-gray text-white font-bold hover:bg-devo-gray transition-colors">إلغاء</button>
+                    <button id="btn-confirm-delete" class="flex-1 py-2.5 rounded-lg bg-devo-error text-white font-bold hover:bg-red-600 shadow-lg transition-colors">نعم، احذف</button>
+                </div>
+            </div>
+        </div>
+        <div id="invoice-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[300] hidden flex items-center justify-center p-0 md:p-6 opacity-0 transition-opacity duration-300">
+            <div class="w-full h-full md:h-auto md:max-h-[95vh] md:max-w-4xl flex flex-col transform scale-95 transition-transform duration-300 relative overflow-hidden bg-white shadow-2xl md:rounded-xl">
+                
+                <div class="p-3 bg-devo-dark border-b border-devo-gray flex justify-between items-center no-print">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="ph ph-printer text-devo-orange"></i> معاينة الطباعة</h3>
+                    <div class="flex gap-2">
+                        <button onclick="executeInvoicePrint()" class="bg-devo-info hover:bg-blue-600 text-white px-4 py-1.5 rounded text-xs font-bold transition-colors flex items-center gap-1"><i class="ph ph-printer"></i> طباعة</button>
+                        <button onclick="finishOrderAndRedirect()" class="bg-devo-success hover:bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold transition-colors flex items-center gap-1"><i class="ph ph-check-circle"></i> أوردر جديد</button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 text-black bg-white" id="invoice-print-area">
+                    
+                    <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-2">
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-3xl font-black tracking-widest text-black leading-none">DEVO <span class="text-[10px] font-bold text-gray-800 bg-gray-200 px-1 rounded inline-block">Collection</span></h1>
+                            <div>
+                                <p class="text-[10px] text-gray-600 font-bold mt-0.5"><i class="ph-fill ph-phone"></i> +20 12 12751111 </p>
+                            </div>
+                        </div>
+                        <div class="text-left flex items-center gap-4 text-[10px]">
+                            <p class="font-bold">رقم: <span id="inv-number" class="text-red-600 font-mono text-sm font-black">---</span></p>
+                            <p class="text-gray-600">التاريخ: <span id="inv-date" class="font-bold text-black">---</span></p>
+                            <p class="text-gray-600 hidden md:inline">الكاشير: <span id="inv-worker" class="font-bold text-black">---</span></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 p-1.5 px-3 rounded flex flex-wrap justify-between items-center border border-gray-300 text-xs mb-2">
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-gray-500">العميل:</span>
+                            <span class="font-black text-sm" id="inv-cust-name">---</span>
+                            <span class="mx-1 text-gray-400">|</span>
+                            <span class="text-gray-700" id="inv-cust-address">---</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-gray-500">هاتف:</span>
+                            <span class="font-black" dir="ltr" id="inv-cust-phone">---</span>
+                        </div>
+                    </div>
+
+                    <div class="border border-black mb-2">
+                        <table id="invoice-items-table" class="w-full text-right text-[11px]">
+                            <thead class="bg-gray-100 text-black border-b border-gray-300">
+                                <tr>
+                                    <th class="p-1 border-l border-gray-300 w-8 text-center">م</th>
+                                    <th class="p-1 border-l border-gray-300">الموديل</th>
+                                    <th class="p-1 border-l border-gray-300 text-center">اللون</th>
+                                    <th class="p-1 text-center border-l border-gray-300">الكمية</th>
+                                    <th class="p-1 text-center border-l border-gray-300">السعر</th>
+                                    <th class="p-1 text-center">الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inv-items-body" class="divide-y divide-gray-300 bg-white">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <div class="w-2/3 md:w-1/3 border-2 border-black rounded overflow-hidden">
+                            <div class="flex justify-between p-1.5 border-b border-gray-300 bg-white text-xs">
+                                <span class="font-bold text-gray-700">الإجمالي:</span>
+                                <span class="font-black text-black" id="inv-total-price">0</span>
+                            </div>
+                            <div class="flex justify-between p-1.5 border-b border-gray-300 bg-gray-100 text-xs">
+                                <span class="font-bold text-gray-700">المدفوع:</span>
+                                <span class="font-black text-green-700" id="inv-deposit">0</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-100 text-black border-t border-gray-300">
+                                <span class="font-bold text-xs">المتبقي:</span>
+                                <span class="font-black text-sm" id="inv-remaining">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-2 border-t border-dashed border-gray-400 flex justify-center items-center text-[9px] text-gray-500 gap-1">
+                        <span>Developed by</span>
+                        <a href="https://www.facebook.com/share/1NiodPNtXF/" target="_blank" class="font-black text-black hover:underline">UltraSoft</a>
+                        <span>- +201140409832</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div id="view-orders" class="site-view-section hidden animate-fade-in pb-12">
+            <div class="max-w-7xl mx-auto w-full px-2 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-6">
+                
+                <!-- Top Compact Header & Main Actions -->
+                <div class="flex items-center justify-between mb-3 border-b border-devo-gray pb-3 gap-2">
+                    <div>
+                        <h2 class="text-lg sm:text-2xl font-black text-white flex items-center gap-2">
+                            <i class="ph ph-receipt text-devo-orange text-xl sm:text-2xl"></i> الأوردرات الخاصة بي
+                        </h2>
+                    </div>
+                    <button onclick="switchSiteView('view-gallery')" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-3 sm:px-5 py-2 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-1.5 text-xs sm:text-sm shrink-0">
+                        <i class="ph ph-plus-circle text-base sm:text-lg"></i>
+                        <span>أوردر جديد</span>
+                    </button>
+                </div>
+
+                <!-- Tabs & Search Toolbar -->
+                <div class="bg-devo-dark border border-devo-gray p-2.5 sm:p-4 rounded-xl sm:rounded-2xl mb-4 shadow-sm space-y-2.5">
+                    <div class="flex items-center justify-between border-b border-devo-gray/60 pb-2">
+                        <div class="flex gap-1 sm:gap-2">
+                            <button onclick="switchOrdersTab('active')" id="tab-orders-active" class="px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all">الأوردرات الحالية</button>
+                            <button onclick="switchOrdersTab('archived')" id="tab-orders-archived" class="px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all">الأرشيف</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                        <div class="relative sm:col-span-6">
+                            <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted text-base"></i>
+                            <input type="text" id="ord-search" placeholder="بحث برقم الأوردر، العميل، الهاتف..." 
+                                class="w-full bg-devo-black border border-devo-gray rounded-lg sm:rounded-xl pr-9 pl-3 py-2 text-white focus:border-devo-orange outline-none transition-all text-xs sm:text-sm h-[38px]">
+                        </div>
+                        
+                        <div class="sm:col-span-3">
+                            <select id="ord-status" class="w-full bg-devo-black border border-devo-gray rounded-lg sm:rounded-xl px-2 py-2 text-white outline-none focus:border-devo-orange cursor-pointer text-xs sm:text-sm h-[38px]">
+                                <option value="">كل الحالات</option>
+                                <option value="created">تم إنشاء الأوردر</option>
+                                <option value="in_progress">جاري العمل</option>
+                                <option value="editing">جاري التعديل</option>
+                                <option value="registered">تم التسجيل على السيستم</option>
+                                <option value="preparing">جاري تجهيز الأوردر</option>
+                                <option value="shipped">تم الشحن</option>
+                                <option value="delivered">تم التسليم</option>
+                            </select>
+                        </div>
+
+                        <div class="sm:col-span-3 flex items-center gap-1 bg-devo-black border border-devo-gray rounded-lg sm:rounded-xl px-2 py-1 h-[38px]">
+                            <span class="text-[10px] sm:text-xs text-devo-muted shrink-0">من:</span>
+                            <input type="date" id="ord-date-from" class="bg-transparent text-white outline-none text-[10px] sm:text-xs py-1 w-full cursor-pointer">
+                            <span class="text-[10px] sm:text-xs text-devo-muted border-r border-devo-gray pr-1 shrink-0">إلى:</span>
+                            <input type="date" id="ord-date-to" class="bg-transparent text-white outline-none text-[10px] sm:text-xs py-1 w-full cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="orders-container">
+                    <div class="hidden md:block bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden shadow-sm">
+                        <table id="customer-orders-table" class="w-full text-right text-sm">
+                            <thead class="bg-devo-black border-b border-devo-gray text-devo-muted">
+                                <tr>
+                                    <th class="p-4 font-medium">رقم الأوردر</th>
+                                    <th class="p-4 font-medium">اسم العميل</th>
+                                    <th class="p-4 font-medium">الموديلات</th>
+                                    <th class="p-4 font-medium">التاريخ</th>
+                                    <th class="p-4 font-medium">الحالة</th>
+                                    <th class="p-4 font-medium text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="divide-y divide-devo-gray">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="orders-cards-body" class="md:hidden space-y-3">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="order-details-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[250] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300">
+                <div class="p-4 border-b border-devo-gray flex justify-between items-center bg-devo-black/80">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="ph ph-receipt text-devo-orange"></i> تفاصيل الأوردر</h3>
+                    <button onclick="closeOrderDetailsModal()" class="text-devo-muted hover:text-white p-1 rounded-full"><i class="ph ph-x text-xl"></i></button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6" id="order-details-content">
+                    </div>
+            </div>
+        </div>
+
+        <div id="edit-warning-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[300] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-md p-6 text-center transform scale-95 transition-transform duration-300">
+                <div class="w-16 h-16 rounded-full bg-devo-orange/10 flex items-center justify-center text-devo-orange mx-auto mb-4">
+                    <i class="ph ph-warning text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">تعديل الأوردر</h3>
+                <p class="text-sm text-devo-muted mb-6 leading-relaxed">
+                    سيتم تحميل منتجات هذا الأوردر إلى السلة لتعديلها.<br>
+                    <span class="text-devo-error font-bold">أي منتجات موجودة حالياً في السلة سيتم مسحها.</span><br>
+                    هل تريد الاستمرار؟
+                </p>
+                <div class="flex gap-3">
+                    <button onclick="closeEditWarningModal()" class="flex-1 py-3 rounded-xl border border-devo-gray text-white font-bold hover:bg-devo-gray transition-colors">إلغاء</button>
+                    <button id="btn-confirm-edit" class="flex-1 py-3 rounded-xl bg-devo-orange text-white font-bold hover:bg-devo-orangeHover shadow-lg transition-colors">متابعة للتعديل</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<!-- Footer Container — يُملأ ديناميكياً من footer_layouts.js -->
+    <div id="site-footer"></div>
+    <div id="toast-container" class="fixed bottom-6 left-6 z-[500] flex flex-col gap-3 pointer-events-none"></div>
+    <script type="module" src="./src/js/components/searchable_select.js"></script>
+    <script type="module" src="./src/js/components/table_sorter.js"></script>
+    <script type="module" src="./src/js/pages/home/index.js?v=8.0"></script>
+</body>
+</html>

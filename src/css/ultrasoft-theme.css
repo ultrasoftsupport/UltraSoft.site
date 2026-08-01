@@ -1,0 +1,229 @@
+/* ============================================================
+   ULTRASOFT BRAND SYSTEM - DESIGN TOKENS & CSS VARIABLES
+   ============================================================ */
+:root {
+  /* Brand Core Colors */
+  --us-ultra-50: #f0f9ff;
+  --us-ultra-100: #e0f2fe;
+  --us-ultra-200: #bae6fd;
+  --us-ultra-300: #7dd3fc;
+  --us-ultra-400: #38bdf8;
+  --us-ultra-500: #0eb5d4;
+  --us-ultra-600: #0284c7;
+  --us-ultra-700: #0369a1;
+  --us-ultra-800: #075985;
+  --us-ultra-900: #0c4a6e;
+  --us-ultra-950: #082f49;
+
+  /* Light Theme Specifics */
+  --us-bg-light: #f7fbff;
+  --us-surface-light: rgba(255, 255, 255, 0.85);
+  --us-border-light: rgba(225, 239, 254, 0.9);
+  --us-text-primary-light: #0f172a;
+  --us-text-muted-light: #475569;
+
+  /* Dark Theme Specifics */
+  --us-bg-dark: #0b1329;
+  --us-surface-dark: rgba(15, 23, 42, 0.85);
+  --us-border-dark: rgba(30, 41, 59, 0.8);
+  --us-text-primary-dark: #ffffff;
+  --us-text-muted-dark: #cbd5e1;
+
+  /* Button Gradients */
+  --us-btn-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #0284c7 100%);
+  --us-btn-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0369a1 100%);
+  
+  /* Neon FX */
+  --us-neon-cyan: #00f0ff;
+  --us-neon-magenta: #d946ef;
+  
+  /* Typography */
+  --us-font-family-arabic: 'Cairo', 'Tajawal', sans-serif;
+  --us-font-family-sans: 'Inter', 'Cairo', system-ui, sans-serif;
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+  --us-bg: #f7fbff;
+  --us-surface: #ffffff;
+  --us-border: #e1effe;
+  --us-text-primary: #0f172a;
+  --us-text-muted: #475569;
+  --us-brand-primary: #0284c7;
+  --us-brand-hover: #0369a1;
+  --us-brand-secondary: #f0f9ff;
+  --us-brand-secondary-hover: #e0f2fe;
+
+  --devo-black: #f7fbff;
+  --devo-dark: #ffffff;
+  --devo-gray: #e1effe;
+  --devo-gray-hover: #f0f9ff;
+  --devo-orange: #0284c7;
+  --devo-orange-hover: #0369a1;
+  --devo-text: #0f172a;
+  --devo-muted: #475569;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+  --us-bg: #0b1329;
+  --us-surface: #0f172a;
+  --us-border: #1e293b;
+  --us-text-primary: #f8fafc;
+  --us-text-muted: #cbd5e1;
+  --us-brand-primary: #0284c7;
+  --us-brand-hover: #0369a1;
+  --us-brand-secondary: #1e293b;
+  --us-brand-secondary-hover: #334155;
+
+  --devo-black: #0b1329;
+  --devo-dark: #0f172a;
+  --devo-gray: #1e293b;
+  --devo-gray-hover: #334155;
+  --devo-orange: #0284c7;
+  --devo-orange-hover: #0369a1;
+  --devo-text: #f8fafc;
+  --devo-muted: #cbd5e1;
+}
+
+/* Glassmorphism Panel Classes */
+.ultrasoft-glass-light {
+  background: var(--us-surface-light);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--us-border-light);
+  box-shadow: 0 10px 30px -5px rgba(2, 132, 199, 0.06);
+}
+
+.ultrasoft-glass-dark {
+  background: var(--us-surface-dark);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--us-border-dark);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* UltraSoft Primary Button */
+.ultrasoft-btn-primary {
+  background: var(--us-btn-gradient);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 0.75rem 1.75rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+}
+
+.ultrasoft-btn-primary:hover {
+  background: var(--us-btn-gradient-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5);
+}
+
+/* Enforce UltraSoft Soft Ice Silver for Hero Subtitle */
+#display-hero-subtitle,
+#display-hero-subtitle * {
+  color: #e0f2fe !important;
+  font-weight: 500;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Light Theme Visual Sharpness & Card Contrast Overrides */
+[data-theme="light"] body,
+body.light-theme {
+  background-color: #ebf3fa !important;
+}
+
+[data-theme="light"] .product-card,
+body.light-theme .product-card,
+[data-theme="light"] .bg-devo-dark,
+body.light-theme .bg-devo-dark {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] .product-card:hover,
+body.light-theme .product-card:hover {
+  border-color: #0284c7 !important;
+  box-shadow: 0 12px 28px -4px rgba(2, 132, 199, 0.20) !important;
+}
+
+[data-theme="light"] .bg-devo-black,
+body.light-theme .bg-devo-black {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ===================================================================
+   🌟 SIGNATURE HOVER BORDER FLOW ANIMATION 🌟
+   (Bottom-Center -> Splits Left & Right -> Meets at Top-Center)
+   =================================================================== */
+
+.product-card,
+.card-hover,
+[data-card-type="product"] {
+  position: relative !important;
+}
+
+.product-card::before,
+.product-card::after,
+.card-hover::before,
+.card-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2.5px solid var(--devo-orange, #0284c7);
+  box-shadow: 0 0 12px var(--devo-orange, #0284c7), inset 0 0 6px var(--devo-orange, rgba(2, 132, 199, 0.3));
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+  clip-path: polygon(50% 100%, 50% 100%, 50% 100%, 50% 100%);
+  transition: opacity 0.2s ease;
+}
+
+.product-card:hover::before,
+.card-hover:hover::before {
+  opacity: 1;
+  animation: borderFlowLeft 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.product-card:hover::after,
+.card-hover:hover::after {
+  opacity: 1;
+  animation: borderFlowRight 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Stream 1 (Left): Bottom-Center (50% 100%) -> Bottom-Left -> Top-Left -> Top-Center (50% 0%) */
+@keyframes borderFlowLeft {
+  0% {
+    clip-path: polygon(50% 100%, 50% 100%, 50% 100%, 50% 100%);
+  }
+  33% {
+    clip-path: polygon(50% 100%, 0% 100%, 0% 100%, 0% 100%);
+  }
+  66% {
+    clip-path: polygon(50% 100%, 0% 100%, 0% 0%, 0% 0%);
+  }
+  100% {
+    clip-path: polygon(50% 100%, 0% 100%, 0% 0%, 50% 0%);
+  }
+}
+
+/* Stream 2 (Right): Bottom-Center (50% 100%) -> Bottom-Right -> Top-Right -> Top-Center (50% 0%) */
+@keyframes borderFlowRight {
+  0% {
+    clip-path: polygon(50% 100%, 50% 100%, 50% 100%, 50% 100%);
+  }
+  33% {
+    clip-path: polygon(50% 100%, 100% 100%, 100% 100%, 100% 100%);
+  }
+  66% {
+    clip-path: polygon(50% 100%, 100% 100%, 100% 0%, 100% 0%);
+  }
+  100% {
+    clip-path: polygon(50% 100%, 100% 100%, 100% 0%, 50% 0%);
+  }
+}
+
+
+
