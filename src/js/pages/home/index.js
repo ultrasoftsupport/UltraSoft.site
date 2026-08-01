@@ -5,6 +5,7 @@ import { initCart } from './cart.js?v=8.0';
 import { initOrdersView } from './orders.js?v=8.0';
 import { initBarcode } from './barcode.js';
 import { initFooter } from './footer_renderer.js';
+import { initLandingPage } from './ultrasoft_landing.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
 
@@ -14,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // تزامن المظهر النشط من قاعدة البيانات
     syncActiveTheme();
+
+    // تهيئة واجهة ألتراسوفت التسويقية والاشتراكات
+    initLandingPage();
     
     // التحقق من الجلسة وصلاحية البائع/المبيعات إن وجدت
     const sessionStr = localStorage.getItem('devo_session');
@@ -30,8 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (currentUser) {
         const role = currentUser.role;
         const workerJob = currentUser.worker_job;
-        
-
         
         // التحقق من الصلاحيات الأخرى، إن كانت غير معروفة يتم تسجيل الخروج والتعامل كزائر
         const isManager = (role === 'owner' || role === 'admin');

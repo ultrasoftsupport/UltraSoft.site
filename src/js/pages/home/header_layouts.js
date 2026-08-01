@@ -58,6 +58,7 @@ export const HEADER_LAYOUTS = [
 function buildNavLinks(user) {
     if (user) {
         return [
+            { id: 'view-landing', label: 'عن النظام والاشتراكات', action: `window.location.href='landing.html'`, icon: 'ph-sparkle' },
             { id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' },
             { id: 'view-gallery', label: 'المعرض', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
             { id: 'view-barcode', label: 'الباركود', action: `switchSiteView('view-barcode')`, icon: 'ph-qr-code' },
@@ -66,8 +67,9 @@ function buildNavLinks(user) {
         ];
     } else {
         return [
+            { id: 'view-landing', label: 'عن النظام والاشتراكات', action: `window.location.href='landing.html'`, icon: 'ph-sparkle' },
             { id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' },
-            { id: 'view-gallery', label: 'المعرض', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
+            { id: 'view-gallery', label: 'المعرض التجريبي', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
         ];
     }
 }
@@ -121,6 +123,7 @@ function buildMobileMenu(user) {
     let links = '';
     if (user) {
         links = `
+            <a href="landing.html" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl text-ultra-400"></i> عن النظام والاشتراكات</a>
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
             <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
@@ -132,8 +135,9 @@ function buildMobileMenu(user) {
         `;
     } else {
         links = `
+            <a href="landing.html" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-sparkle text-xl text-ultra-400"></i> عن النظام والاشتراكات</a>
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
-            <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
+            <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
             <a href="auth.html" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
         `;
     }
