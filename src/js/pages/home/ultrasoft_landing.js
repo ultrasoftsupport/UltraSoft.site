@@ -297,23 +297,23 @@ function renderLandingHTML() {
                     </div>
 
                     <!-- Pricing Cards Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto mb-16">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto mb-16 pt-4">
                         
                         <!-- PLAN 1: 3 MONTHS - EMERALD GREEN THEME -->
-                        <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative overflow-hidden">
+                        <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                             
-                            <!-- Top Header Badge -->
-                            <div class="flex justify-between items-center mb-6 pt-2">
-                                <span class="px-3.5 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 whitespace-nowrap">
-                                    <i class="ph-fill ph-sparkle text-slate-950"></i>
-                                    <span>باقة البداية الاقتصادية</span>
-                                </span>
-                                <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold whitespace-nowrap">ربع سنوي</span>
+                            <!-- Original Top Header Badge -->
+                            <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="ph-fill ph-sparkle text-slate-950"></i>
+                                <span>باقة البداية الاقتصادية</span>
                             </div>
 
                             <div>
-                                <h3 class="text-2xl font-black text-devo-text mb-2">اشتراك 3 أشهر</h3>
-                                
+                                <div class="flex justify-between items-center mb-3 pt-3">
+                                    <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 3 أشهر</h3>
+                                    <span class="px-2.5 py-1 rounded-full bg-emerald-400 text-slate-950 text-xs font-black shadow-sm whitespace-nowrap">ربع سنوي</span>
+                                </div>
+
                                 <div class="mb-6">
                                     <div class="flex items-baseline gap-1.5">
                                         <span class="text-4xl sm:text-5xl font-black text-emerald-400">7,000</span>
@@ -322,19 +322,19 @@ function renderLandingHTML() {
                                     <p class="text-xs text-emerald-400 font-bold mt-1">الباقة الأساسية للمحلات والمتاجر الناشئة</p>
                                 </div>
 
-                                <!-- Spec Box (High Contrast Readable Badges) -->
-                                <div class="bg-devo-black/70 border border-emerald-500/30 p-4 rounded-2xl mb-6 space-y-3 text-xs">
+                                <!-- Spec Box (Solid High-Contrast Readable Badges) -->
+                                <div class="bg-devo-black/80 border border-emerald-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">الموديلات النشطة:</span>
-                                        <span class="font-black text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-3 py-1 rounded-lg whitespace-nowrap">حتى 200 موديل</span>
+                                        <span class="text-devo-muted font-bold">الموديلات النشطة بالمعرض:</span>
+                                        <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">حتى 200 موديل</span>
                                     </div>
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">رصيد Excel:</span>
-                                        <span class="font-black text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-3 py-1 rounded-lg whitespace-nowrap">200 كريديت / شهرياً</span>
+                                        <span class="text-devo-muted font-bold">رصيد الرفع والتعديل (Excel):</span>
+                                        <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">200 كريديت / شهرياً</span>
                                     </div>
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">المستخدمين:</span>
-                                        <span class="font-black text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-3 py-1 rounded-lg whitespace-nowrap">حتى 4 مستخدمين</span>
+                                        <span class="text-devo-muted font-bold">مستخدمو فريق العمل:</span>
+                                        <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">حتى 4 مستخدمين</span>
                                     </div>
                                 </div>
 
@@ -366,24 +366,25 @@ function renderLandingHTML() {
                         </div>
 
                         <!-- PLAN 2: 6 MONTHS - CYAN / SKY BLUE THEME (RECOMMENDED) -->
-                        <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative overflow-hidden transform md:-translate-y-3">
+                        <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
                             
-                            <!-- Top Badges Row -->
-                            <div class="flex justify-between items-center mb-6 pt-2">
-                                <!-- Top Main Badge -->
-                                <span class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-xs font-black tracking-wide shadow-sm flex items-center gap-1.5 whitespace-nowrap">
-                                    <i class="ph-fill ph-lightning text-amber-300"></i>
-                                    <span>الباقة الأكثر طلباً</span>
-                                </span>
+                            <!-- Original Top Header Badge -->
+                            <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="ph-fill ph-lightning text-amber-300"></i>
+                                <span>الباقة الأكثر طلباً</span>
+                            </div>
 
-                                <!-- Top Corner Discount Tag (Single line, High contrast) -->
-                                <span class="px-3 py-1.5 rounded-xl bg-sky-400 text-slate-950 font-black text-xs shadow-md border border-sky-300 whitespace-nowrap inline-block">
-                                    خصم 28% (توفير 4,000 ج.م)
-                                </span>
+                            <!-- Top-Left Corner Discount Badge (Solid High Contrast Tag) -->
+                            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-sky-400 text-slate-950 font-black text-xs shadow-md border border-sky-300 whitespace-nowrap z-10">
+                                خصم 28%
                             </div>
 
                             <div>
-                                <h3 class="text-2xl font-black text-devo-text mb-2">اشتراك 6 أشهر</h3>
+                                <div class="flex justify-between items-center mb-3 pt-3">
+                                    <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 6 أشهر</h3>
+                                    <!-- Dedicated Savings Tag (Solid High Contrast) -->
+                                    <span class="px-2.5 py-1 rounded-full bg-sky-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">توفير 4,000 ج.م</span>
+                                </div>
 
                                 <div class="mb-6">
                                     <div class="flex items-baseline gap-1.5">
@@ -393,19 +394,19 @@ function renderLandingHTML() {
                                     <p class="text-xs text-sky-400 font-bold mt-1">الباقة المتكاملة لنشاط تجاري متوسط ومتوسع</p>
                                 </div>
 
-                                <!-- Spec Box (High Contrast Readable Badges) -->
-                                <div class="bg-devo-black/70 border border-sky-500/30 p-4 rounded-2xl mb-6 space-y-3 text-xs">
+                                <!-- Spec Box (Solid High-Contrast Readable Badges) -->
+                                <div class="bg-devo-black/80 border border-sky-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">الموديلات النشطة:</span>
-                                        <span class="font-black text-slate-950 bg-sky-300 px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">حتى 600 موديل (3 أضعاف)</span>
+                                        <span class="text-devo-muted font-bold">الموديلات النشطة بالمعرض:</span>
+                                        <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">حتى 600 موديل (3 أضعاف)</span>
                                     </div>
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">رصيد Excel:</span>
-                                        <span class="font-black text-slate-950 bg-sky-300 px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">500 كريديت / شهرياً (2.5x)</span>
+                                        <span class="text-devo-muted font-bold">رصيد الرفع والتعديل (Excel):</span>
+                                        <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">500 كريديت / شهرياً (2.5x)</span>
                                     </div>
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">المستخدمين:</span>
-                                        <span class="font-black text-slate-950 bg-sky-300 px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">حتى 10 مستخدمين</span>
+                                        <span class="text-devo-muted font-bold">مستخدمو فريق العمل:</span>
+                                        <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">حتى 10 مستخدمين</span>
                                     </div>
                                 </div>
 
@@ -437,46 +438,48 @@ function renderLandingHTML() {
                         </div>
 
                         <!-- PLAN 3: 1 YEAR - GOLD / AMBER THEME (BEST VALUE) -->
-                        <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative overflow-hidden">
+                        <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                             
-                            <!-- Top Badges Row -->
-                            <div class="flex justify-between items-center mb-6 pt-2">
-                                <!-- Top Main Badge -->
-                                <span class="px-3.5 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-sm flex items-center gap-1.5 whitespace-nowrap">
-                                    <i class="ph-fill ph-crown text-slate-950"></i>
-                                    <span>الباقة الملكية الأوفر</span>
-                                </span>
+                            <!-- Original Top Header Badge -->
+                            <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="ph-fill ph-crown text-slate-950"></i>
+                                <span>أفضل قيمة وتوفير</span>
+                            </div>
 
-                                <!-- Top Corner Discount Tag (Single line, High contrast) -->
-                                <span class="px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md border border-amber-300 whitespace-nowrap inline-block">
-                                    خصم 46% (توفير 13,000 ج.م)
-                                </span>
+                            <!-- Top-Left Corner Discount Badge (Solid High Contrast Tag) -->
+                            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md border border-amber-300 whitespace-nowrap z-10">
+                                خصم 46%
                             </div>
 
                             <div>
-                                <h3 class="text-2xl font-black text-devo-text mb-2">اشتراك سنة (12 شهر)</h3>
+                                <div class="flex justify-between items-center mb-3 pt-3">
+                                    <!-- Fixed Unbroken Title -->
+                                    <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك سنة كاملة</h3>
+                                    <!-- Dedicated Savings Tag (Solid High Contrast) -->
+                                    <span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">توفير 13,000 ج.م</span>
+                                </div>
 
                                 <div class="mb-6">
                                     <div class="flex items-baseline gap-1.5">
                                         <span class="text-4xl sm:text-5xl font-black text-amber-400">15,000</span>
                                         <span class="text-devo-muted text-sm font-bold">ج.م</span>
                                     </div>
-                                    <p class="text-xs text-amber-400 font-bold mt-1">الباقة الملكية الشاملة لكافة الإمكانيات بلا حدود</p>
+                                    <p class="text-xs text-amber-400/90 font-bold mt-1">الباقة الملكية الشاملة لكافة الإمكانيات بلا حدود</p>
                                 </div>
 
-                                <!-- Spec Box (High Contrast Readable Badges) -->
-                                <div class="bg-devo-black/70 border border-amber-500/30 p-4 rounded-2xl mb-6 space-y-3 text-xs">
+                                <!-- Spec Box (Solid High-Contrast Readable Badges) -->
+                                <div class="bg-devo-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">الموديلات النشطة:</span>
-                                        <span class="font-black text-slate-950 bg-amber-400 px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">غير محدود ∞</span>
+                                        <span class="text-devo-muted font-bold">الموديلات النشطة بالمعرض:</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">غير محدود ∞</span>
                                     </div>
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">رصيد Excel:</span>
-                                        <span class="font-black text-slate-950 bg-amber-400 px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">غير محدود ∞</span>
+                                        <span class="text-devo-muted font-bold">رصيد الرفع والتعديل (Excel):</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">غير محدود ∞</span>
                                     </div>
                                     <div class="flex justify-between items-center text-devo-text">
-                                        <span class="text-devo-muted font-bold">المستخدمين:</span>
-                                        <span class="font-black text-slate-950 bg-amber-400 px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">حتى 25 مستخدم</span>
+                                        <span class="text-devo-muted font-bold">مستخدمو فريق العمل:</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">حتى 25 مستخدم</span>
                                     </div>
                                 </div>
 
