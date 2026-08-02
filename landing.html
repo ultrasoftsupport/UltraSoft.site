@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -108,13 +108,13 @@
                             info: withOpacity('--devo-info', '#38bdf8')
                         }
                     },
-                    fontFamily: { sans: ['Cairo', 'Tajawal', 'Inter', 'sans-serif'] }
+                    fontFamily: { sans: ['Alexandria', 'Cairo', 'Tajawal', 'Inter', 'sans-serif'] }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Cairo', 'Tajawal', sans-serif; }
+        body { font-family: 'Alexandria', 'Cairo', 'Tajawal', sans-serif; letter-spacing: -0.01em; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--devo-black, #0b1329); }
         ::-webkit-scrollbar-thumb { background: var(--devo-gray, #1e293b); border-radius: 4px; }
@@ -123,36 +123,49 @@
 </head>
 <body class="bg-devo-black text-devo-text overflow-x-hidden flex flex-col min-h-screen">
 
-    <!-- Header / Navigation Bar -->
+    <!-- Header Navigation Bar -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-devo-black/80 backdrop-blur-xl border-b border-devo-gray/60 h-20 flex items-center px-4 sm:px-8">
-        <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-            <a href="landing.html" class="flex items-center gap-2.5">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-4">
+            
+            <!-- Right: Logo -->
+            <a href="landing.html" class="flex items-center gap-2.5 shrink-0">
                 <img src="./logo_transparnt.png" onerror="this.src='./logo.png';" alt="UltraSoft Logo" class="h-9 w-auto object-contain">
-                <h1 class="text-2xl font-black tracking-wider text-devo-text">
+                <h1 class="text-xl sm:text-2xl font-black tracking-wider text-devo-text">
                     Ultra<span class="text-ultra-400">Soft</span>
                 </h1>
             </a>
 
-            <div class="hidden md:flex items-center gap-3">
-                <a href="#features-section" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-colors">المميزات والقدرات</a>
-                <a href="#pricing-section" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-colors">خطط الأسعار</a>
-                <a href="#contact-section" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-colors">تواصل معنا</a>
+            <!-- Center: Interactive Module Navigation Links -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <button id="nav-link-overview" onclick="window.switchLandingModule?.('overview')" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-ultra-400 border-b-2 border-ultra-400 transition-all">
+                    المميزات والقدرات
+                </button>
+
+                <button id="nav-link-pricing" onclick="window.switchLandingModule?.('pricing')" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all">
+                    خطط الأسعار
+                </button>
+
+                <button onclick="window.scrollToContact?.()" class="hidden sm:block px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all">
+                    تواصل معنا
+                </button>
             </div>
 
-            <div class="flex items-center gap-2.5">
+            <!-- Left: Action Buttons -->
+            <div class="flex items-center gap-2.5 shrink-0">
                 <a href="index.html" class="px-4 py-2 bg-devo-dark hover:bg-devo-gray border border-devo-gray text-white rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="ph ph-storefront text-sky-400"></i>
+                    <i class="ph ph-storefront text-sky-400 text-base"></i>
                     <span>المعرض التجريبي</span>
                 </a>
-                <a href="admin.html" class="px-4 py-2 bg-ultra-600 hover:bg-ultra-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-md">
-                    <i class="ph ph-shield-check"></i>
+                <a href="admin.html" class="px-4 py-2 bg-ultra-600 hover:bg-ultra-500 text-white rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-md">
+                    <i class="ph ph-shield-check text-base"></i>
                     <span>لوحة الأدمن</span>
                 </a>
             </div>
+
         </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- Main Content Container -->
     <main class="flex-1 pt-24">
         <div id="view-landing" class="block"></div>
     </main>
