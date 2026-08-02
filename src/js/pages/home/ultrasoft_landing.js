@@ -99,11 +99,6 @@ function renderLandingHTML() {
                                     <span>تصفح المعرض التجريبي (Live Demo)</span>
                                 </a>
 
-                                <a href="admin.html" class="px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl bg-devo-dark hover:bg-devo-gray border border-devo-gray text-devo-text font-bold text-xs sm:text-sm md:text-base transition-all transform hover:-translate-y-1 flex items-center gap-2 shadow-md">
-                                    <i class="ph-fill ph-shield-check text-sky-400 text-lg sm:text-xl"></i>
-                                    <span>معاينة لوحة الأدمن</span>
-                                </a>
-
                                 <button onclick="switchLandingModule('pricing')" class="px-5 py-3.5 sm:py-4 rounded-2xl bg-devo-black hover:bg-devo-dark border border-ultra-500/30 text-ultra-400 font-bold text-xs sm:text-sm md:text-base transition-all flex items-center gap-2">
                                     <i class="ph ph-tag text-lg"></i>
                                     <span>خطط الأسعار</span>
