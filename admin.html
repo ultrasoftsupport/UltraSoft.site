@@ -568,8 +568,10 @@
                 <!-- Date Period Select -->
                 <div class="min-w-[150px]">
                     <select id="dr-period-select" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white outline-none focus:border-devo-orange cursor-pointer text-xs font-bold">
-                        <option value="today" selected>اليوم (Default)</option>
-                        <option value="week">هذا الأسبوع</option>
+                        <option value="all" selected>جميع الأوقات (الكل)</option>
+                        <option value="today">اليوم فقط</option>
+                        <option value="week">آخر 7 أيام</option>
+                        <option value="month">هذا الشهر</option>
                         <option value="custom">من تاريخ - إلى تاريخ</option>
                     </select>
                 </div>
@@ -2387,11 +2389,15 @@
 <div id="view-settings" class="view-section hidden h-full overflow-y-auto custom-scrollbar pb-10">
     <div class="animate-fade-in relative space-y-6">
         
-        <!-- Sub Navigation Bar (Sub-Menu / Bar) -->
-        <div class="bg-devo-dark border border-devo-gray p-2 rounded-xl flex items-center gap-2 overflow-x-auto shadow-sm">
+        <!-- Sub Navigation Bar (Sticky Top Sub-Menu) -->
+        <div class="sticky top-0 z-30 bg-devo-dark/95 backdrop-blur-md border border-devo-gray p-2 rounded-xl flex items-center gap-2 overflow-x-auto shadow-md mb-6">
             <button type="button" data-settings-subtab="view-home-settings" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer">
                 <i class="ph ph-browser text-base"></i>
                 <span>واجهة الموقع</span>
+            </button>
+            <button type="button" data-settings-subtab="view-invoice-settings" id="settingsSubtabInvoiceBtn" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
+                <i class="ph ph-receipt text-base text-devo-orange"></i>
+                <span>التحكم في الفواتير</span>
             </button>
             <button type="button" data-settings-subtab="view-theme-manager" id="settingsSubtabThemeBtn" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
                 <i class="ph ph-palette text-base"></i>
@@ -2401,13 +2407,13 @@
                 <i class="ph ph-qr-code text-base"></i>
                 <span>إعدادات الباركود والـ QR</span>
             </button>
+            <button type="button" data-settings-subtab="view-telegram-settings" id="settingsSubtabTelegramBtn" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
+                <i class="ph ph-telegram-logo text-base text-blue-400"></i>
+                <span>بوت التليجرام والإشعارات</span>
+            </button>
             <button type="button" data-settings-subtab="view-backup-restore" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
                 <i class="ph ph-database text-base"></i>
                 <span>النسخ الاحتياطي والاستعادة</span>
-            </button>
-            <button type="button" data-settings-subtab="view-system-reset" id="settingsSubtabResetBtn" class="settings-subtab-btn hidden px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer">
-                <i class="ph ph-warning-octagon text-base"></i>
-                <span>إعادة تهيئة النظام</span>
             </button>
         </div>
 
@@ -2431,6 +2437,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-4">
                             <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-text-t"></i> نصوص الغلاف</h4>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">العنوان العلوي الصغير (Hero Badge / Collection Title)</label>
+                                <input type="text" id="hs-hero-badge" placeholder="مثال: ULTRASOFT COLLECTION" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm font-bold">
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-devo-muted mb-1">العنوان الرئيسي</label>
                                 <input type="text" id="hs-hero-title" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
@@ -2690,6 +2700,23 @@
                         </div>
                     </div>
 
+                    <!-- تخصيص نصوص الفوتر للمصنع -->
+                    <div class="bg-devo-black/40 p-4 rounded-xl border border-devo-gray/50 space-y-4">
+                        <h4 class="text-sm font-bold text-devo-orange flex items-center gap-2">
+                            <i class="ph ph-text-align-right text-lg"></i> تخصيص نصوص ووصف الفوتر للمصنع
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">وصف/نبذة المصنع بالفوتر (Footer Bio / Description)</label>
+                                <textarea id="hs-footer-bio" rows="2" placeholder="مثال: شركة UltraSoft للملابس والأنظمة الذكية. نلتزم بتقديم أفضل الخدمات لعملائنا." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs custom-scrollbar resize-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">نص الحقوق المخصص بالفوتر (Footer Custom Copyright)</label>
+                                <textarea id="hs-footer-copyright" rows="2" placeholder="مثال: جميع الحقوق محفوظة لشركة UltraSoft © 2026." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs font-bold custom-scrollbar resize-none"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Themes Grid List -->
                     <div id="themes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
                         <div class="col-span-full py-12 text-center text-devo-muted">
@@ -2738,7 +2765,186 @@
                         </div>
                     </div>
                 </div>
-            </div><!-- /view-barcode-settings -->
+            </div><!-- /view-home-settings (or barcode-settings) -->
+
+            <!-- 🌟 2. التحكم في الفواتير وهيدر/بيانات الطباعة 🌟 -->
+            <div id="view-invoice-settings" class="settings-subview hidden space-y-6">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm space-y-6">
+                    
+                    <div class="flex justify-between items-center border-b border-devo-gray pb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                                <i class="ph ph-receipt text-xl"></i> التحكم في الفواتير وهيدر البيانات المطبوعة
+                            </h3>
+                            <p class="text-xs text-devo-muted mt-1">تخصيص البيانات الظاهرة أعلى الفواتير، العنوان، الهاتف، مسميات فواتير العميل والإدارة والشروط المثبتة</p>
+                        </div>
+                        <button onclick="saveInvoiceSettings()" id="btn-save-invoice-settings" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer">
+                            <i class="ph ph-floppy-disk"></i> حفظ إعدادات الفاتورة
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- الخيارات والمُدخلات -->
+                        <div class="space-y-4">
+                            <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2 flex items-center gap-2">
+                                <i class="ph ph-pencil-line text-devo-orange"></i> بيانات الهيدر والعناوين
+                            </h4>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">اسم المصنع / المطبوع بالفاتورة (Factory / Store Name)</label>
+                                <input type="text" id="hs-inv-factory-name" oninput="updateInvoicePreview()" placeholder="مثال: UltraSoft Collection" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm font-bold">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">الوصف الفرعي ورقم الهاتف (Subtitle & Contact)</label>
+                                <input type="text" id="hs-inv-subtitle" oninput="updateInvoicePreview()" placeholder="مثال: Phone: +20 12 12751111" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">عنوان فاتورة العميل</label>
+                                    <input type="text" id="hs-inv-customer-title" oninput="updateInvoicePreview()" placeholder="مثال: فاتورة تفصيلية للعميل" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">عنوان فاتورة الإدارة</label>
+                                    <input type="text" id="hs-inv-admin-title" oninput="updateInvoicePreview()" placeholder="مثال: فاتورة تفصيلية للإدارة" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">شروط وملاحظات الفاتورة المثبتة</label>
+                                <textarea id="hs-inv-notes" rows="2" oninput="updateInvoicePreview()" placeholder="مثال: البضاعة المباعة لا تُرد بعد 14 يوماً من تاريخ الفاتورة." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs custom-scrollbar resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- كارت المعاينة الحية للفاتورة Live Preview -->
+                        <div class="space-y-3">
+                            <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2 flex items-center gap-2">
+                                <i class="ph ph-eye text-devo-info"></i> المعاينة الحية لهيدر وفوتر الفاتورة المطبوعة
+                            </h4>
+
+                            <div class="bg-white text-black rounded-xl p-4 shadow-lg border border-gray-300 font-sans text-xs space-y-3 dir-rtl select-none">
+                                <!-- Top Header Preview -->
+                                <div class="flex justify-between items-start border-b-2 border-black pb-2">
+                                    <div>
+                                        <h2 id="prev-inv-factory-name" class="text-lg font-black text-black leading-none">UltraSoft Collection</h2>
+                                        <p id="prev-inv-subtitle" class="text-[10px] text-gray-700 font-bold mt-1 dir-ltr text-right">Phone: +20 12 12751111</p>
+                                    </div>
+                                    <div class="text-left bg-gray-100 px-2 py-1 rounded border border-gray-300">
+                                        <span id="prev-inv-admin-title" class="text-xs font-bold block text-black">فاتورة تفصيلية للإدارة</span>
+                                        <span class="text-[10px] text-red-600 font-mono font-bold block">رقم الأوردر: #1002</span>
+                                    </div>
+                                </div>
+
+                                <!-- Customer Info Mock -->
+                                <div class="bg-gray-100 p-2 rounded text-[11px] flex justify-between border border-gray-200">
+                                    <span><b>العميل:</b> عميل تجربـي</span>
+                                    <span><b>التاريخ:</b> 2026/08/03</span>
+                                    <span><b>الكاشير:</b> موظف المبيعات</span>
+                                </div>
+
+                                <!-- Items Table Mock -->
+                                <div class="border border-gray-400 rounded overflow-hidden">
+                                    <div class="bg-gray-200 font-bold text-[10px] grid grid-cols-4 p-1 border-b border-gray-400 text-center">
+                                        <span>الصنف</span><span>الكمية</span><span>السعر</span><span>الإجمالي</span>
+                                    </div>
+                                    <div class="grid grid-cols-4 p-1 text-[10px] text-center border-b border-gray-200">
+                                        <span>قميص كلاسيك</span><span>2</span><span>150</span><span>300 ج.م</span>
+                                    </div>
+                                </div>
+
+                                <!-- Fixed Terms Preview -->
+                                <div id="prev-inv-notes-container" class="text-[9px] text-gray-600 border-t border-dashed border-gray-300 pt-1 text-center font-bold">
+                                    <span id="prev-inv-notes">البضاعة المباعة لا تُرد بعد 14 يوماً من تاريخ الفاتورة.</span>
+                                </div>
+
+                                <!-- Footer UltraSoft Fixed Banner -->
+                                <div class="border-t border-gray-400 pt-2 text-center text-[9px] text-gray-700 bg-gray-50 p-1.5 rounded">
+                                    <span class="text-[10px] font-bold block text-black" > جميع الحقوق محفوظة لدي ©  شركة UltraSoft للبرمجيات  </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div><!-- /view-invoice-settings -->
+
+            <!-- 4. إعدادات بوت التليجرام والربط والإشعارات -->
+            <div id="view-telegram-settings" class="settings-subview hidden space-y-6">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm space-y-6">
+                    
+                    <div class="border-b border-devo-gray pb-4">
+                        <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                            <i class="ph ph-telegram-logo text-blue-400 text-xl"></i> إعدادات مركز الإشعارات وبوت التليجرام
+                        </h3>
+                        <p class="text-xs text-devo-muted mt-1">تحديد قنوات بث وتلقي الإشعارات اللحظية، توكن البوت، ومعرفات مجموعات الطلبات والمخزن لكل مصنع بشكل منفصل</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-devo-black/40 p-4 rounded-xl border border-devo-gray/50">
+                        <div class="flex items-center justify-between bg-devo-dark border border-devo-gray rounded-lg p-3">
+                            <label class="text-xs font-bold text-white cursor-pointer" for="telegram-enabled">تفعيل بوت الطلبات (Orders Bot)</label>
+                            <input type="checkbox" id="telegram-enabled" class="rounded border-devo-gray text-devo-orange focus:ring-devo-orange bg-devo-black w-4 h-4 cursor-pointer">
+                        </div>
+
+                        <div class="flex items-center justify-between bg-devo-dark border border-devo-gray rounded-lg p-3">
+                            <label class="text-xs font-bold text-white cursor-pointer" for="telegram-stock-enabled">تفعيل بوت المخزن (Stock Bot)</label>
+                            <input type="checkbox" id="telegram-stock-enabled" class="rounded border-devo-gray text-devo-orange focus:ring-devo-orange bg-devo-black w-4 h-4 cursor-pointer">
+                        </div>
+
+                        <div class="flex items-center justify-between bg-devo-dark border border-devo-gray rounded-lg p-3">
+                            <label class="text-xs font-bold text-white cursor-pointer" for="web-notifications-enabled">بث الإشعارات داخل الموقع</label>
+                            <input type="checkbox" id="web-notifications-enabled" class="rounded border-devo-gray text-devo-orange focus:ring-devo-orange bg-devo-black w-4 h-4 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-1">
+                                <i class="ph ph-key text-devo-orange"></i> توكن البوت (Bot Token)
+                            </label>
+                            <input type="password" id="telegram-bot-token" placeholder="أدخل Bot Token من @BotFather (مثال: 123456789:ABCdefGhI...)" 
+                                class="w-full bg-devo-black border border-devo-gray rounded-lg px-4 py-2.5 text-sm text-white placeholder-devo-muted/40 focus:border-devo-orange outline-none font-mono">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-devo-muted flex items-center gap-1">
+                                    <i class="ph ph-users text-blue-400"></i> معرّف مجموعة الطلبات (Orders Chat ID)
+                                </label>
+                                <input type="text" id="telegram-chat-id" placeholder="مثال: -100123456789" 
+                                    class="w-full bg-devo-black border border-devo-gray rounded-lg px-4 py-2.5 text-sm text-white placeholder-devo-muted/40 focus:border-devo-orange outline-none font-mono text-left" dir="ltr">
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-devo-muted flex items-center gap-1">
+                                    <i class="ph ph-package text-purple-400"></i> معرّف مجموعة المخزون (Stock Chat ID)
+                                </label>
+                                <input type="text" id="telegram-stock-chat-id" placeholder="مثال: -100123456789" 
+                                    class="w-full bg-devo-black border border-devo-gray rounded-lg px-4 py-2.5 text-sm text-white placeholder-devo-muted/40 focus:border-devo-orange outline-none font-mono text-left" dir="ltr">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-devo-gray pt-4">
+                        <button onclick="saveTelegramSettings()" id="save-tg-btn" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer">
+                            <i class="ph ph-floppy-disk"></i> حفظ الإعدادات
+                        </button>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="testTelegramConnection('orders')" id="test-tg-orders-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md cursor-pointer">
+                                <i class="ph ph-shopping-bag-open text-sm"></i> تجربة جروب الطلبات
+                            </button>
+                            <button onclick="testTelegramConnection('stock')" id="test-tg-stock-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md cursor-pointer">
+                                <i class="ph ph-package text-sm"></i> تجربة جروب المخزون
+                            </button>
+                            <button onclick="testTelegramConnection('all')" id="test-tg-btn" class="bg-devo-gray hover:bg-white/15 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border border-devo-gray shadow-md cursor-pointer">
+                                <i class="ph ph-paper-plane-tilt text-sm"></i> تجربة الاثنين معاً
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- /view-telegram-settings -->
 
             <!-- 4. النسخ الاحتياطي والاستعادة -->
             <div id="view-backup-restore" class="settings-subview hidden space-y-6">
@@ -2756,23 +2962,6 @@
                     </div>
                 </div>
             </div><!-- /view-backup-restore -->
-
-            <!-- 5. إعادة تهيئة النظام (OWNER ONLY) -->
-            <div id="view-system-reset" class="settings-subview hidden space-y-6">
-                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-devo-gray pb-4 mb-6">
-                        <h3 class="text-lg font-bold text-red-400 flex items-center gap-2">
-                            <i class="ph ph-warning-octagon text-xl"></i> إعادة تهيئة وتفريغ النظام
-                        </h3>
-                    </div>
-                    <div id="reset-view-content">
-                        <!-- يتم حقن المحتوى بواسطة system_reset.js -->
-                        <div class="flex items-center justify-center h-48">
-                            <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
-                        </div>
-                    </div>
-                </div>
-            </div><!-- /view-system-reset -->
 
         </div> <!-- End of settings-subviews-container -->
     </div> <!-- End of animate-fade-in -->
@@ -2880,61 +3069,6 @@
                     
                     <button onclick="broadcastCustomNotification()" id="broadcast-btn" class="w-full py-2.5 rounded-lg bg-devo-orange hover:bg-devo-orangeHover text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md">
                         <i class="ph ph-paper-plane-tilt text-base"></i> بث التنبيه الآن
-                    </button>
-                </div>
-            </div>
-
-            <!-- Telegram Settings Card (Hidden by default for security) -->
-            <div id="telegram-settings-card" class="bg-devo-dark border border-devo-gray p-5 rounded-xl shadow-sm space-y-4 hidden animate-fade-in">
-                <div>
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-telegram-logo text-blue-400 text-lg"></i> إعدادات مركز الإشعارات والربط
-                    </h3>
-                    <p class="text-[11px] text-devo-muted mt-1">تحديد قنوات بث وتلقي الإشعارات اللحظية وحالة ربط بوت التليجرام.</p>
-                </div>
-                
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <label class="text-[11px] font-bold text-devo-muted">تفعيل بوت الطلبات (Orders Bot)</label>
-                        <input type="checkbox" id="telegram-enabled" class="rounded border-devo-gray text-devo-orange focus:ring-devo-orange bg-devo-black w-4 h-4 cursor-pointer">
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <label class="text-[11px] font-bold text-devo-muted">تفعيل بوت المخزن (Stock Bot)</label>
-                        <input type="checkbox" id="telegram-stock-enabled" class="rounded border-devo-gray text-devo-orange focus:ring-devo-orange bg-devo-black w-4 h-4 cursor-pointer">
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <label class="text-[11px] font-bold text-devo-muted">بث الإشعارات داخل الموقع</label>
-                        <input type="checkbox" id="web-notifications-enabled" class="rounded border-devo-gray text-devo-orange focus:ring-devo-orange bg-devo-black w-4 h-4 cursor-pointer">
-                    </div>
-                    
-                    <div class="flex flex-col gap-1">
-                        <label class="text-[11px] font-bold text-devo-muted">توكن البوت (Bot Token)</label>
-                        <input type="password" id="telegram-bot-token" placeholder="أدخل Bot Token من @BotFather" 
-                            class="bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-xs text-white placeholder-devo-muted/50 focus:border-devo-orange outline-none">
-                    </div>
-                    
-                    <div class="flex flex-col gap-1">
-                        <label class="text-[11px] font-bold text-devo-muted">معرّف مجموعة الطلبات (Orders Chat ID)</label>
-                        <input type="text" id="telegram-chat-id" placeholder="مثال: -100123456789" 
-                            class="bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-xs text-white placeholder-devo-muted/50 focus:border-devo-orange outline-none">
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <label class="text-[11px] font-bold text-devo-muted">معرّف مجموعة المخزون (Stock Chat ID)</label>
-                        <input type="text" id="telegram-stock-chat-id" placeholder="مثال: -100123456789" 
-                            class="bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-xs text-white placeholder-devo-muted/50 focus:border-devo-orange outline-none">
-                    </div>
-                    
-                    <div class="flex gap-2 pt-2">
-                        <button onclick="saveTelegramSettings()" id="save-tg-btn" class="flex-1 py-2.5 rounded-lg bg-devo-gray hover:bg-white/10 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border border-devo-gray shadow-md">
-                            <i class="ph ph-floppy-disk text-base"></i> حفظ الإعدادات
-                        </button>
-                        <button onclick="testTelegramConnection()" id="test-tg-btn" class="flex-1 py-2.5 rounded-lg bg-devo-orange hover:bg-devo-orangeHover text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border border-devo-orange shadow-md">
-                            <i class="ph ph-paper-plane-tilt text-base"></i> تجربة البوت
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -3320,34 +3454,6 @@
                             <option value="Cairo, sans-serif">خط القاهرة (Cairo)</option>
                             <option value="Alexandria, sans-serif">خط الإسكندرية (Alexandria)</option>
                             <option value="Outfit, sans-serif">خط أوتفت (Outfit)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hero Banner Customization -->
-            <div class="space-y-4">
-                <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2 flex items-center gap-2"><i class="ph ph-image text-devo-orange"></i> صورة خلفية البانر الرئيسي (Hero BG Image)</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Show/Hide Hero Image -->
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1.5">عرض صورة الخلفية في البانر</label>
-                        <select id="theme-hero-show-image" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
-                            <option value="true">نعم - تفعيل صورة الخلفية</option>
-                            <option value="false">لا - الاكتفاء بلون الخلفية فقط</option>
-                        </select>
-                    </div>
-                    <!-- Hero Image Blend Mode -->
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1.5">طريقة دمج الصورة مع اللون (Blend Mode)</label>
-                        <select id="theme-hero-image-blend" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
-                            <option value="normal">عادي (Normal)</option>
-                            <option value="overlay">تراكب (Overlay - مدمج متناسق)</option>
-                            <option value="multiply">مضاعفة (Multiply - دمج داكن)</option>
-                            <option value="screen">شاشة (Screen - دمج فاتح)</option>
-                            <option value="luminosity">إضاءة نسبية (Luminosity - أحادي مدمج)</option>
-                            <option value="darken">تغميق (Darken)</option>
-                            <option value="lighten">تفتيح (Lighten)</option>
                         </select>
                     </div>
                 </div>
@@ -3960,13 +4066,13 @@
 
 <footer class="bg-devo-black border-t border-devo-gray py-3 px-6 shrink-0 flex flex-col md:flex-row items-center justify-between text-[11px] z-10">
     <div class="text-devo-muted font-medium mb-2 md:mb-0">
-        &copy; <span id="current-year"></span> DEVO Collection. جميع الحقوق محفوظة للمصنع.
+        &copy; <span id="current-year"></span> جميع الحقوق محفوظة لدى مصنع <span id="admin-footer-factory-name">المصنع</span>.
     </div>
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     
     <div class="flex flex-wrap items-center justify-center gap-1.5 text-devo-muted bg-devo-dark py-1 px-3 rounded-full border border-devo-gray/50 shadow-sm">
         <i class="ph-fill ph-code text-devo-orange text-sm"></i>
-        <span class="text-white font-medium text-[11px]">Developed by <a href="https://www.facebook.com/share/1NiodPNtXF/" target="_blank" class="text-devo-orange font-bold hover:underline transition-colors tracking-wide">UltraSoft</a></span>
+        <span class="text-white font-medium text-[11px]">Powered by <a href="https://www.facebook.com/share/1NiodPNtXF/" target="_blank" class="text-devo-orange font-bold hover:underline transition-colors tracking-wide">UltraSoft</a></span>
     </div>
 </footer>
 

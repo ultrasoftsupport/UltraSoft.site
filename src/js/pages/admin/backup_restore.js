@@ -1,14 +1,24 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
+import { confirmDialog } from '../../components/modal.js';
 import { requireAuth } from '../../services/auth.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 // ============================================================
 // 📦 تعريف الهيكل وثوابت الجداول والمستويات
 // ============================================================
 const APP_VERSION = '2.5.0';
-const BACKUP_FORMAT_IDENTIFIER = 'DEVO_SYSTEM_BACKUP';
+const BACKUP_FORMAT_IDENTIFIER = 'ULTRASOFT_SYSTEM_BACKUP';
 const STORAGE_BUCKET_NAME = 'system_backups';
 const RETENTION_DAYS = 30; // الاحتفاظ التلقائي بآخر 30 يوماً
+
+// الجداول التي تمتلك عمود tenant_id صريح في قواعد البيانات
+const TABLES_WITH_TENANT_ID = [
+    'categories', 'classes', 'sizes', 'colors', 'models',
+    'system_users', 'home_settings', 'invoices', 'inbound_invoices',
+    'orders', 'returns', 'inventory_audits', 'promo_cards',
+    'system_notifications', 'stock_movements', 'order_logs', 'system_backups_log'
+];
 
 // خريطة المفاتيح الرئيسية لكل جدول لمنع التعارضات في الدفعات الكبيرة
 const PRIMARY_KEY_CONFIG = {
@@ -16,6 +26,7 @@ const PRIMARY_KEY_CONFIG = {
     model_sizes: 'model_id, size_id',
     model_inventory: 'model_id, color_id',
     model_colors_inventory: 'model_id, color_id',
+    colors: 'tenant_id, color_code',
     home_settings: 'setting_key',
     default: 'id'
 };
@@ -81,7 +92,6 @@ const RESTORE_TABLE_ORDER = [
     'classes',
     'sizes',
     'colors',
-    'system_users',
     'themes',
     'class_sizes',
     'home_settings',
@@ -148,9 +158,8 @@ export async function initBackupRestoreView() {
     renderBackupRestoreView();
     attachBackupRestoreEvents();
     
-    // تحميل وجدولة النسخ السحابية وحذف القديم
+    // تحميل سجل النسخ السحابية اليدوية فقط للمصنع
     await fetchCloudBackups();
-    await checkAutoCloudBackupMidnight();
 }
 
 // ============================================================
@@ -324,53 +333,6 @@ function renderBackupRestoreView() {
                     </button>
                 </div>
 
-            </div>
-
-            <!-- ☁️ قسم النسخ الاحتياطية السحابية المجدولة والسجل -->
-            <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-5 shadow-md">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-devo-gray pb-4">
-                    <div>
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="ph ph-cloud-arrow-up text-devo-orange text-xl"></i>
-                            النسخ الاحتياطية السحابية والتنبيهات المجدولة
-                        </h3>
-                        <p class="text-xs text-devo-muted mt-1">يتم التخزين تلقائياً في السحابة مع الاحتفاظ التلقائي بأحدث 30 يوماً والتنبيه على Telegram</p>
-                    </div>
-
-                    <button
-                        id="btn-create-cloud-backup"
-                        class="px-4 py-2.5 bg-devo-orange/15 hover:bg-devo-orange text-devo-orange hover:text-white border border-devo-orange/30 hover:border-devo-orange rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
-                    >
-                        <i class="ph ph-cloud-plus text-base"></i>
-                        <span>إنشاء نسخة سحابية وتنبيه التليجرام الآن</span>
-                    </button>
-                </div>
-
-                <!-- جدول النسخ السحابية المحفوظة -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-devo-black/60 text-devo-muted border-b border-devo-gray">
-                                <th class="p-3 font-bold">اسم النسخة السحابية</th>
-                                <th class="p-3 font-bold">تاريخ الإنشاء</th>
-                                <th class="p-3 font-bold">نوع النسخة</th>
-                                <th class="p-3 font-bold">إجمالي السجلات</th>
-                                <th class="p-3 font-bold">الحجم</th>
-                                <th class="p-3 font-bold text-center">الإجراءات والتحكم</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cloud-backups-table-body" class="divide-y divide-devo-gray/40">
-                            <tr>
-                                <td colspan="6" class="p-6 text-center text-devo-muted">
-                                    <div class="flex flex-col items-center gap-2">
-                                        <i class="ph ph-spinner animate-spin text-2xl text-devo-orange"></i>
-                                        <span>جاري تحميل قائمة النسخ السحابية المحفوظة...</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
 
         </div>
@@ -936,6 +898,35 @@ async function handleSelectiveRestoreExecution() {
     });
 }
 
+// دالة جلب اسم المصنع الحالي للمصنع المعني بالنسخة
+async function getTenantName() {
+    const currentTenantId = getCurrentTenantId();
+    if (!currentTenantId) return 'المصنع';
+
+    try {
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('name')
+            .eq('id', currentTenantId)
+            .maybeSingle();
+
+        if (tenant && tenant.name) return tenant.name;
+    } catch (e) {}
+
+    try {
+        const { data: setting } = await supabase
+            .from('home_settings')
+            .select('setting_value')
+            .eq('tenant_id', currentTenantId)
+            .eq('setting_key', 'site_title')
+            .maybeSingle();
+
+        if (setting && setting.setting_value) return setting.setting_value;
+    } catch (e) {}
+
+    return `مصنع_${currentTenantId.substring(0, 6)}`;
+}
+
 // ============================================================
 // 📤 عملية تصدير النسخة الاحتياطية المحلية
 // ============================================================
@@ -946,49 +937,30 @@ async function handleExportProcess() {
         return;
     }
 
+    const currentTenantId = getCurrentTenantId();
+    const tenantName = await getTenantName();
+    const safeTenantName = tenantName.replace(/[\s\/\\]+/g, '_');
+
     const backupPayload = await generateBackupPayload(preset);
     if (!backupPayload) return;
 
-    // 1. تنزيل الملف محلياً للمستخدم على جهازه
-    const filename = `devo_backup_${preset.id}_${getFormattedDateStr()}.json`;
+    if (backupPayload.meta) {
+        backupPayload.meta.tenant_id = currentTenantId;
+        backupPayload.meta.tenant_name = tenantName;
+    }
+
+    // 1. تنزيل الملف محلياً للمستخدم على جهازه باسم المصنع والتاريخ
+    const filename = `backup_${safeTenantName}_${preset.id}_${getFormattedDateStr()}.json`;
     downloadJsonFile(backupPayload, filename);
 
-    // 2. رفع النسخة وتدوينها بالسحابة وإرسال التنبيه اللحظي للتليجرام
+    // 2. إرسال ملف النسخة الاحتياطية المباشر فورياً إلى جروب/بوت التليجرام الخاص بالمصنع لحفظه هناك مجاناً وبدون استهلاك مساحة Supabase
     try {
         const jsonContent = JSON.stringify(backupPayload, null, 2);
         const fileBlob = new Blob([jsonContent], { type: 'application/json' });
         const fileSize = fileBlob.size;
 
-        // الرفع لـ Storage
-        const { error: uploadErr } = await supabase.storage
-            .from(STORAGE_BUCKET_NAME)
-            .upload(filename, fileBlob, { upsert: true, contentType: 'application/json' });
-
-        let publicUrl = '';
-        if (!uploadErr) {
-            const { data: publicUrlData } = supabase.storage
-                .from(STORAGE_BUCKET_NAME)
-                .getPublicUrl(filename);
-            publicUrl = publicUrlData?.publicUrl || '';
-
-            // تدوين النسخة في جدول السجلات
-            await supabase.from('system_backups_log').insert([{
-                filename: filename,
-                backup_type: preset.id,
-                total_records: backupPayload.meta.total_records,
-                file_size_bytes: fileSize,
-                storage_path: filename,
-                exported_by: localStorage.getItem('devo_current_username') || 'admin',
-                metadata: backupPayload.meta
-            }]);
-
-            // تحديث الجدول باللوحة
-            fetchCloudBackups();
-        }
-
-        // إرسال الإشعار اللحظي وإرفاق المستند المباشر إلى Telegram
-        await sendTelegramBackupNotification(backupPayload.meta, fileSize, publicUrl, fileBlob, filename);
-        showToast('تم تصدير وتنزيل النسخة وإرسال الإشعار لـ Telegram بنجاح ☁️📱✅', 'success');
+        await sendTelegramBackupNotification(backupPayload.meta, fileSize, '', fileBlob, filename);
+        showToast('تم تنزيل النسخة محلياً وإرسال الملف المباشر إلى Telegram بنجاح 📱📥✅', 'success');
 
     } catch (tgErr) {
         console.warn('Could not auto-send export to Telegram:', tgErr);
@@ -996,10 +968,164 @@ async function handleExportProcess() {
     }
 }
 
+const SYSTEM_SECURITY_SALT = 'ULTRASOFT_SECURE_BACKUP_TOKEN_v2.5';
+
+// ============================================================
+// 🔐 المحرك التشفيري المتقدم المعتمد على Web Crypto API (AES-256-GCM)
+// ============================================================
+
+// 1. جلب المفتاح السري المخصص لمصنع المستخدم لحظياً من الداتابيز
+async function fetchTenantEncryptionKey() {
+    const currentTenantId = getCurrentTenantId();
+    if (!currentTenantId) return null;
+
+    try {
+        const { data: key, error } = await supabase
+            .rpc('get_tenant_backup_encryption_key', { p_tenant_id: currentTenantId });
+
+        if (error || !key) {
+            console.warn('RPC key fetch notice, using fallback hash key:', error?.message);
+            return `ULTRASOFT_SALT_${currentTenantId.replace(/-/g, '')}`;
+        }
+        return key;
+    } catch (e) {
+        console.error('Error fetching tenant encryption key:', e);
+        return `ULTRASOFT_SALT_${currentTenantId.replace(/-/g, '')}`;
+    }
+}
+
+// 2. اشتقاق مفتاح التشفير CryptoKey من السلسلة النصية
+async function deriveCryptoKey(secretKeyStr, saltUint8) {
+    const encoder = new TextEncoder();
+    const keyMaterial = await window.crypto.subtle.importKey(
+        'raw',
+        encoder.encode(secretKeyStr),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+    );
+
+    return await window.crypto.subtle.deriveKey(
+        {
+            name: 'PBKDF2',
+            salt: saltUint8,
+            iterations: 100000,
+            hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+    );
+}
+
+// 3. تشفير البيانات النصية بـ AES-256-GCM وتدمير المفتاح فوراً من الذاكرة
+async function encryptBackupPayload(payloadObj) {
+    let secretKeyStr = await fetchTenantEncryptionKey();
+    if (!secretKeyStr) return payloadObj;
+
+    try {
+        const salt = window.crypto.getRandomValues(new Uint8Array(16));
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const cryptoKey = await deriveCryptoKey(secretKeyStr, salt);
+
+        const encoder = new TextEncoder();
+        const jsonStr = JSON.stringify(payloadObj.tables);
+        const encodedData = encoder.encode(jsonStr);
+
+        const encryptedBuffer = await window.crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            cryptoKey,
+            encodedData
+        );
+
+        // 🔒 تدمير المفتاح النصي فوراً من الذاكرة للحماية
+        secretKeyStr = null;
+
+        const encryptedArray = Array.from(new Uint8Array(encryptedBuffer));
+        const encryptedHex = encryptedArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+        const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        return {
+            meta: {
+                ...payloadObj.meta,
+                is_encrypted: true,
+                crypto: {
+                    algo: 'AES-256-GCM',
+                    iv: ivHex,
+                    salt: saltHex
+                }
+            },
+            encrypted_data: encryptedHex
+        };
+    } catch (err) {
+        console.error('Encryption error:', err);
+        secretKeyStr = null;
+        return payloadObj;
+    }
+}
+
+// 4. فك تشفير البيانات بـ AES-256-GCM وتدمير المفتاح فوراً من الذاكرة
+async function decryptBackupPayload(encryptedFileObj) {
+    if (!encryptedFileObj.meta?.is_encrypted || !encryptedFileObj.encrypted_data) {
+        return encryptedFileObj; // غير مشفر
+    }
+
+    let secretKeyStr = await fetchTenantEncryptionKey();
+    if (!secretKeyStr) {
+        throw new Error('تعذر جلب مفتاح التشفير المخصص لمصنعك لفك التشفير.');
+    }
+
+    try {
+        const cryptoInfo = encryptedFileObj.meta.crypto || {};
+        const salt = new Uint8Array(cryptoInfo.salt.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const iv = new Uint8Array(cryptoInfo.iv.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const encryptedBytes = new Uint8Array(encryptedFileObj.encrypted_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+        const cryptoKey = await deriveCryptoKey(secretKeyStr, salt);
+        secretKeyStr = null; // 🔒 تدمير المفتاح النصي فوراً من الذاكرة
+
+        const decryptedBuffer = await window.crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: iv },
+            cryptoKey,
+            encryptedBytes
+        );
+
+        const decoder = new TextDecoder();
+        const decryptedJsonStr = decoder.decode(decryptedBuffer);
+        const tablesObj = JSON.parse(decryptedJsonStr);
+
+        return {
+            meta: encryptedFileObj.meta,
+            tables: tablesObj
+        };
+    } catch (err) {
+        console.error('Decryption failed:', err);
+        secretKeyStr = null;
+        throw new Error('فشل فك تشفير الملف! مفتاح المصنع غير مطابق أو تم العبث ببيانات الملف.');
+    }
+}
+
+function generateBackupSecurityHash(tenantId, createdAt, recordsCount) {
+    const raw = `${tenantId || 'global'}:${createdAt}:${recordsCount}:${SYSTEM_SECURITY_SALT}`;
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+        const char = raw.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0;
+    }
+    return 'USSEC_' + Math.abs(hash).toString(16);
+}
+
 // مولّد بيانات الـ JSON للنسخة الاحتياطية
 async function generateBackupPayload(preset) {
     openProgressModal('تصدير نسخة احتياطية', `جاري تصدير: ${preset.label}`);
     updateProgressUI(0, 'جاري البدء...', '0 / 0');
+
+    const currentTenantId = getCurrentTenantId();
+    const tenantName = await getTenantName();
 
     const backupPayload = {
         meta: {
@@ -1009,6 +1135,8 @@ async function generateBackupPayload(preset) {
             preset_name: preset.label,
             created_at: new Date().toISOString(),
             exported_by: localStorage.getItem('devo_current_username') || 'admin',
+            tenant_id: currentTenantId,
+            tenant_name: tenantName,
             total_records: 0,
             tables_count: preset.tables.length
         },
@@ -1056,6 +1184,11 @@ async function generateBackupPayload(preset) {
 
         clearInterval(timerInterval);
         backupPayload.meta.total_records = overallTotalRecords;
+        backupPayload.meta.security_signature = generateBackupSecurityHash(
+            currentTenantId,
+            backupPayload.meta.created_at,
+            overallTotalRecords
+        );
 
         updateProgressUI(100, 'تم التصدير بنجاح!', `${overallTotalRecords.toLocaleString('ar-EG')} سجل إجمالي`);
 
@@ -1068,7 +1201,10 @@ async function generateBackupPayload(preset) {
             showProgressErrors(errorsList);
         }
 
-        return backupPayload;
+        // 🔒 تشفير محتوى النسخة بالكامل مفتاح المصنع AES-256-GCM قبل إرجاعها
+        updateProgressUI(100, 'جاري التشفير والأمان...', 'جاري تشفير البيانات بـ AES-256...');
+        const finalEncryptedPayload = await encryptBackupPayload(backupPayload);
+        return finalEncryptedPayload;
 
     } catch (globalErr) {
         clearInterval(timerInterval);
@@ -1087,9 +1223,18 @@ async function fetchAllTableRecords(tableName, onProgress = null) {
     let hasMore = true;
 
     const sortCol = PRIMARY_KEY_CONFIG[tableName] ? PRIMARY_KEY_CONFIG[tableName].split(',')[0].trim() : 'id';
+    const currentTenantId = getCurrentTenantId();
 
     while (hasMore) {
         let query = supabase.from(tableName).select('*');
+
+        // تطبيق الفلترة بـ tenant_id فقط للجداول التي تمتلك هذا العمود في قاعدة البيانات لعدم التسبب في خطأ 400
+        if (currentTenantId && TABLES_WITH_TENANT_ID.includes(tableName)) {
+            query = query.eq('tenant_id', currentTenantId);
+        } else if (currentTenantId && tableName === 'themes') {
+            query = query.or(`is_system.eq.true,tenant_id.eq.${currentTenantId},tenant_id.is.null`);
+        }
+
         if (sortCol) {
             query = query.order(sortCol, { ascending: true });
         }
@@ -1097,6 +1242,7 @@ async function fetchAllTableRecords(tableName, onProgress = null) {
         const { data, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
 
         if (error) {
+            console.warn(`Query warning on table ${tableName}:`, error.message);
             const { data: fbData, error: fbErr } = await supabase
                 .from(tableName)
                 .select('*')
@@ -1132,18 +1278,26 @@ async function fetchAllTableRecords(tableName, onProgress = null) {
 // ============================================================
 async function executeCloudAutoBackup(isManualClick = false) {
     const preset = EXPORT_PRESETS.full_system;
+    const currentTenantId = getCurrentTenantId();
+    const tenantName = await getTenantName();
+    const safeTenantName = tenantName.replace(/[\s\/\\]+/g, '_');
     
     const backupPayload = await generateBackupPayload(preset);
     if (!backupPayload) return;
 
+    if (backupPayload.meta) {
+        backupPayload.meta.tenant_id = currentTenantId;
+        backupPayload.meta.tenant_name = tenantName;
+    }
+
     try {
         const dateStr = getFormattedDateStr();
-        const filename = `devo_auto_backup_${dateStr}.json`;
+        const filename = `backup_${safeTenantName}_cloud_${dateStr}.json`;
         const jsonContent = JSON.stringify(backupPayload, null, 2);
         const fileBlob = new Blob([jsonContent], { type: 'application/json' });
         const fileSize = fileBlob.size;
 
-        // 1. الرفع لـ Supabase Storage (مع معالجة استباقية لعدم وجود الباكت)
+        // 1. الرفع لـ Supabase Storage
         let publicUrl = '';
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from(STORAGE_BUCKET_NAME)
@@ -1161,17 +1315,18 @@ async function executeCloudAutoBackup(isManualClick = false) {
             publicUrl = publicUrlData?.publicUrl || '';
         }
 
-        // 2. تدوين النسخة في جدول system_backups_log
+        // 2. تدوين النسخة في جدول system_backups_log مع tenant_id واسم المصنع
         const { error: logInsertError } = await supabase
             .from('system_backups_log')
             .insert([{
+                tenant_id: currentTenantId,
                 filename: filename,
                 backup_type: preset.id,
                 total_records: backupPayload.meta.total_records,
                 file_size_bytes: fileSize,
                 storage_path: filename,
                 exported_by: isManualClick ? (localStorage.getItem('devo_current_username') || 'admin') : 'system_auto',
-                metadata: backupPayload.meta
+                metadata: { ...backupPayload.meta, tenant_name: tenantName }
             }]);
 
         if (logInsertError) {
@@ -1247,10 +1402,17 @@ async function enforceBackupRetentionPolicy() {
 // إرسال إشعار لحظي لمالك النظام عبر Telegram وإرفاق الملف مباشرة
 async function sendTelegramBackupNotification(meta, fileSize, publicUrl = '', fileBlob = null, filename = '') {
     try {
-        const { data: settings } = await supabase
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase
             .from('home_settings')
             .select('*')
             .in('setting_key', ['telegram_bot_token', 'telegram_chat_id']);
+
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data: settings } = await query;
 
         if (!settings || settings.length === 0) return;
 
@@ -1264,15 +1426,17 @@ async function sendTelegramBackupNotification(meta, fileSize, publicUrl = '', fi
 
         const formattedSize = (fileSize / 1024).toFixed(1) + ' KB';
         const formattedDate = new Date().toLocaleString('ar-EG');
+        const tenantDisplayName = meta.tenant_name || (await getTenantName());
 
         const captionText = 
 `🛡️ <b>تأكيد النسخ الاحتياطي للنظام</b>
 
+🏢 <b>المصنع / الجهة:</b> ${tenantDisplayName}
 📅 <b>التاريخ والوقت:</b> ${formattedDate}
 📦 <b>نوع النسخة:</b> ${meta.preset_name || 'كاملة'}
 📊 <b>إجمالي السجلات:</b> ${meta.total_records.toLocaleString('ar-EG')} سجل
 💾 <b>حجم الملف:</b> ${formattedSize}
-🌐 <b>النظام:</b> DEVO Collection v${meta.version || '2.5.0'}
+🌐 <b>النظام:</b> UltraSoft System v${meta.version || '2.5.0'}
 ${publicUrl ? `\n🔗 <a href="${publicUrl}">اضغط هنا لتنزيل النسخة المباشرة من السحابة (.json)</a>` : ''}`;
 
         // 1. المحاولة الأولى: إرسال ملف الـ JSON المباشر كمستند مرفق في شات التليجرام (sendDocument)
@@ -1317,16 +1481,20 @@ ${publicUrl ? `\n🔗 <a href="${publicUrl}">اضغط هنا لتنزيل الن
     }
 }
 
-// جلب وعرض قائمة النسخ السحابية المحفوظة
+// جلب وعرض قائمة النسخ السحابية المحفوظة للمصنع الحالي فقط
 async function fetchCloudBackups() {
     const tableBody = document.getElementById('cloud-backups-table-body');
     if (!tableBody) return;
 
     try {
-        const { data, error } = await supabase
-            .from('system_backups_log')
-            .select('*')
-            .order('created_at', { ascending: false });
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase.from('system_backups_log').select('*');
+
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) {
             if (error.code === '42P01' || error.message?.includes('does not exist')) {
@@ -1480,7 +1648,11 @@ async function restoreDirectFromCloud(filename) {
 
     } catch (e) {
         console.error('Direct cloud restore error:', e);
-        showToast(`⚠️ تعذر جلب ملف السحابة: ${e.message}`, 'error', 7000);
+        if (e.message?.includes('Bucket not found') || e.message?.includes('400') || e.message?.includes('404')) {
+            showToast('⚠️ الملف غير متوفر في التخزين السحابي بالسيرفر. يرجى رفع ملف النسخة المحترفة (.json) من جهازك محلياً أو تشغيل سكريبت إنشاء Bucket التخزين.', 'warning', 7000);
+        } else {
+            showToast(`⚠️ تعذر جلب ملف السحابة: ${e.message}`, 'error', 7000);
+        }
     }
 }
 
@@ -1492,15 +1664,18 @@ async function downloadCloudBackup(filename) {
             .getPublicUrl(filename);
 
         if (urlData?.publicUrl) {
-            const a = document.createElement('a');
-            a.href = urlData.publicUrl;
-            a.download = filename;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast('تم بدء تنزيل الملف سحابياً 📥', 'success');
-            return;
+            const res = await fetch(urlData.publicUrl, { method: 'HEAD' });
+            if (res.ok) {
+                const a = document.createElement('a');
+                a.href = urlData.publicUrl;
+                a.download = filename;
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast('تم بدء تنزيل الملف سحابياً 📥', 'success');
+                return;
+            }
         }
 
         const { data, error } = await supabase.storage
@@ -1517,13 +1692,20 @@ async function downloadCloudBackup(filename) {
         URL.revokeObjectURL(url);
     } catch (e) {
         console.error('Download backup error:', e);
-        showToast('فشل تنزيل الملف من السحابة', 'error');
+        showToast('⚠️ تعذر تنزيل الملف من السحابة (تنبيه: يلزم تشغيل ملف SQL v35 لإنشاء حاوية system_backups في Supabase Storage)', 'warning', 7000);
     }
 }
 
 // حذف نسخة سحابية
 async function deleteCloudBackup(id, filename) {
-    if (!confirm(`هل أنت متأكد من حذف النسخة السحابية (${filename})؟`)) return;
+    const confirmResult = await confirmDialog({
+        title: 'تأكيد حذف النسخة السحابية',
+        message: `هل أنت متأكد من حذف النسخة السحابية (${filename})؟`,
+        confirmText: 'نعم، أحذف الملف',
+        cancelText: 'إلغاء',
+        isDestructive: true
+    });
+    if (!confirmResult) return;
 
     try {
         await supabase.storage.from(STORAGE_BUCKET_NAME).remove([filename]);
@@ -1547,10 +1729,21 @@ function handleFileSelection(file) {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const content = JSON.parse(e.target.result);
-            validateAndInspectBackupContent(file.name, content);
+            if (content.meta?.is_encrypted) {
+                try {
+                    showToast('🔐 جاري جلب مفتاح تشفير المصنع آمنياً وفك التشفير...', 'info', 3500);
+                    const decryptedContent = await decryptBackupPayload(content);
+                    validateAndInspectBackupContent(file.name, decryptedContent);
+                } catch (decryptErr) {
+                    showToast(`🚫 ${decryptErr.message}`, 'error', 8000);
+                    resetFileInspection();
+                }
+            } else {
+                validateAndInspectBackupContent(file.name, content);
+            }
         } catch (err) {
             console.error('Invalid JSON file:', err);
             showToast('الملف المرفوع ليس ملف JSON صالحاً أو تالف', 'error');
@@ -1567,9 +1760,36 @@ function validateAndInspectBackupContent(fileName, data) {
         return;
     }
 
+    const currentTenantId = getCurrentTenantId();
+    const meta = data.meta || {};
+
+    // 🔒 1. التحقق من تنسيق ومصدر النظام الأصلي
+    if (meta.format !== BACKUP_FORMAT_IDENTIFIER && meta.format !== 'DEVO_SYSTEM_BACKUP') {
+        showToast('🚫 تنبيه أمني: الملف المرفوع غير معتمد أو صادر من نظام خارجي غير معروف.', 'error', 7000);
+        resetFileInspection();
+        return;
+    }
+
+    // 🔒 2. التحقق من التوقيع الرقمي للمسند ومنع الملفات المفتعلة
+    if (meta.security_signature && meta.tenant_id && meta.created_at && meta.total_records !== undefined) {
+        const computedHash = generateBackupSecurityHash(meta.tenant_id, meta.created_at, meta.total_records);
+        if (computedHash !== meta.security_signature) {
+            showToast('🚫 تنبيه أمني: التوقيع الرقمي للملف غير صالح أو تم التعديل عليه.', 'error', 7000);
+            resetFileInspection();
+            return;
+        }
+    }
+
+    // 🔒 3. التحقق المشدد من هوية المصنع (Tenant Authorization Check)
+    if (currentTenantId && meta.tenant_id && meta.tenant_id !== currentTenantId) {
+        const otherTenantName = meta.tenant_name || 'مصنع مختلف';
+        showToast(`🚫 تنبيه أمني حاسم: هذا الملف خاص بـ (${otherTenantName}). لا يمكنك استعادة بيانات مصنع آخر على حساب مصنعك الحالي!`, 'error', 8000);
+        resetFileInspection();
+        return;
+    }
+
     loadedBackupData = data;
 
-    const meta = data.meta || {};
     const tables = data.tables || {};
     const tableKeys = Object.keys(tables);
 
@@ -1615,11 +1835,23 @@ async function handleRestoreProcess(customDataPayload = null) {
         return;
     }
 
+    const currentTenantId = getCurrentTenantId();
+    if (currentTenantId && dataToRestore.meta?.tenant_id && dataToRestore.meta.tenant_id !== currentTenantId) {
+        showToast('🚫 تم حظر الاستعادة: الملف يتبع لمصنع آخر ولا يُسمح باستعادته على حساب مصنعك.', 'error', 8000);
+        return;
+    }
+
     const modeRadio = document.querySelector('input[name="restore-mode"]:checked');
     currentRestoreMode = modeRadio ? modeRadio.value : 'upsert';
 
     if (currentRestoreMode === 'replace' && !customDataPayload) {
-        const confirmResult = confirm('⚠️ تحذير شديد الخطورة:\nاخترت خيار "إعادة استبدال كاملة". ستقوم العملية بتفريغ وحذف البيانات الحالية للجداول المستهدفة واستبدالها بالبيانات الموجودة بالملف!\n\nهل أنت متأكد تماماً من المتابعة؟');
+        const confirmResult = await confirmDialog({
+            title: '⚠️ تحذير شديد الخطورة (إعادة استبدال)',
+            message: 'اخترت خيار "إعادة استبدال كاملة". ستقوم العملية بتفريغ وحذف البيانات الحالية للجداول المستهدفة واستبدالها بالبيانات الموجودة بالملف!\n\nهل أنت متأكد تماماً من المتابعة؟',
+            confirmText: 'نعم، قم بالاستبدال',
+            cancelText: 'تراجع وإلغاء',
+            isDestructive: true
+        });
         if (!confirmResult) return;
     }
 
@@ -1689,6 +1921,31 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
     if (!row || typeof row !== 'object') return row;
     let cleaned = { ...row };
 
+    const currentTenantId = getCurrentTenantId();
+
+    // 🔒 1. حظر استعادة حسابات الموظفين والمستخدمين الخاصة بمصانع أخرى
+    if (tableName === 'system_users') {
+        return null; // استثناء وتجاهل كلي لاستعادة الحسابات
+    }
+
+    // 🔒 2. حظر استعادة إعدادات التليجرام والتنبيهات السرية الخاصة بمصانع أخرى
+    if (tableName === 'home_settings') {
+        const SENSITIVE_KEYS = [
+            'telegram_bot_token', 'telegram_chat_id', 'telegram_stock_chat_id',
+            'telegram_enabled', 'telegram_stock_enabled', 'web_notifications_enabled'
+        ];
+        if (SENSITIVE_KEYS.includes(cleaned.setting_key)) {
+            return null; // استثناء وتجاهل إعدادات التليجرام الحساسة
+        }
+    }
+
+    // 🔒 3. إجبار ربط وتأمين البيانات المستعادة للجداول المعتمدة بـ tenant_id المباشر
+    if (currentTenantId && TABLES_WITH_TENANT_ID.includes(tableName)) {
+        cleaned.tenant_id = currentTenantId;
+    } else {
+        delete cleaned.tenant_id;
+    }
+
     // تنظيف المعرفات التابعة للمستخدمين إذا كانت غير موجودة في قاعدة البيانات للحفاظ على سلامة القيود الخارجية
     if (validUserIds && validUserIds.size > 0) {
         if (tableName === 'orders') {
@@ -1757,6 +2014,10 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
             if (cleaned[col] !== undefined) {
                 filtered[col] = cleaned[col];
             }
+        }
+
+        if (currentTenantId && tableName !== 'themes') {
+            filtered.tenant_id = currentTenantId;
         }
         return filtered;
     }
@@ -1836,6 +2097,20 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                                 } else {
                                     console.error(`Failed to restore row in ${tableName}:`, safeErr.message, row);
                                     errorsList.push(`جدول ${arabicName} (أوردر #${row.invoice_number || row.id}): ${safeErr.message}`);
+                                }
+                            } else if (tableName === 'colors' && rowErr.message?.includes('colors_tenant_code_key')) {
+                                // محاولة التحديث المباشر لاسم اللون الموجود بنفس الكود لمنع تعارض القيود الفريدة
+                                const { error: updateColorErr } = await supabase
+                                    .from('colors')
+                                    .update({ name: row.name })
+                                    .eq('tenant_id', row.tenant_id)
+                                    .eq('color_code', row.color_code);
+
+                                if (!updateColorErr) {
+                                    singleSuccessCount++;
+                                } else {
+                                    console.error(`Failed to restore row in ${tableName}:`, updateColorErr.message, row);
+                                    errorsList.push(`جدول ${arabicName} (لون ${row.name}): ${updateColorErr.message}`);
                                 }
                             } else if (tableName === 'model_inventory') {
                                 // محاولة التحديث المباشر للرصيد واللون لتجاوز حلقة التنبيهات

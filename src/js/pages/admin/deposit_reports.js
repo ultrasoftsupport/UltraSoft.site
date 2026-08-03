@@ -1,6 +1,6 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { printHtmlInIframe } from '../../utils/print.js';
+import { printHtmlInIframe, fetchInvoicePrintSettings, getUltraSoftBarcodeSVG } from '../../utils/print.js';
 import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
@@ -152,7 +152,7 @@ function setupRealtimeSubscription() {
 }
 
 export function applyDepositFilters() {
-    const periodValue = document.getElementById('dr-period-select')?.value || 'today';
+    const periodValue = document.getElementById('dr-period-select')?.value || 'all';
     const dateFromVal = document.getElementById('dr-date-from')?.value;
     const dateToVal = document.getElementById('dr-date-to')?.value;
     const searchVal = (document.getElementById('dr-search-input')?.value || '').trim().toLowerCase();
@@ -161,7 +161,10 @@ export function applyDepositFilters() {
     let startDate = null;
     let endDate = null;
 
-    if (periodValue === 'today') {
+    if (periodValue === 'all') {
+        startDate = null;
+        endDate = null;
+    } else if (periodValue === 'today') {
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
         endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     } else if (periodValue === 'week') {
@@ -169,6 +172,9 @@ export function applyDepositFilters() {
         temp.setDate(temp.getDate() - 7);
         startDate = new Date(temp.getFullYear(), temp.getMonth(), temp.getDate(), 0, 0, 0, 0);
         endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    } else if (periodValue === 'month') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     } else if (periodValue === 'custom') {
         if (dateFromVal) {
             const df = new Date(dateFromVal);
@@ -304,11 +310,13 @@ function updateDepositStats(orders) {
     if (avgDepositEl) avgDepositEl.textContent = `${Math.round(avg).toLocaleString('ar-EG')} ج.م`;
 }
 
-function printDepositReport() {
+async function printDepositReport() {
     if (!filteredDepositOrders || filteredDepositOrders.length === 0) {
         showToast('لا توجد بيانات مطابقة للطباعة!', 'warning');
         return;
     }
+
+    const invSettings = await fetchInvoicePrintSettings();
 
     const periodSelect = document.getElementById('dr-period-select');
     const periodText = periodSelect ? periodSelect.options[periodSelect.selectedIndex].text : 'اليوم';
@@ -429,28 +437,26 @@ function printDepositReport() {
                     -webkit-print-color-adjust: exact;
                 }
                 .report-footer {
-                    margin-top: 15px;
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 11px;
-                    font-weight: 600;
+                    margin-top: 20px;
                     border-top: 1px solid #ccc;
                     padding-top: 6px;
+                    text-align: center;
+                    font-size: 10px;
+                    color: #444;
                 }
             </style>
         </head>
         <body>
             <div class="report-header">
                 <div>
-                    <div class="brand-title">DEVO Collection</div>
-                    <div class="meta-info">تقرير العربونات المالية المفلترة</div>
+                    <div class="brand-title">${invSettings.factoryName}</div>
+                    <div class="meta-info">${invSettings.subtitle}</div>
                 </div>
                 <div class="report-title">
-                    <div>تقرير تفاصـيل العـربـون</div>
-                    <div style="font-size: 11px; font-weight: normal; margin-top: 2px;">${periodSubtitle}</div>
+                    تقرير تحصيل العربون
                 </div>
                 <div class="meta-info" style="text-align: left;">
-                    <div>تاريخ الطباعة:</div>
+                    <div>${periodSubtitle}</div>
                     <div><b>${currentDateStr}</b></div>
                 </div>
             </div>
@@ -484,10 +490,7 @@ function printDepositReport() {
                 </tfoot>
             </table>
 
-            <div class="report-footer">
-                <div>إعداد لوحة التحكم | DEVO Systems</div>
-                <div>اعتماد المسؤول: .......................................</div>
-            </div>
+            ${getUltraSoftBarcodeSVG(invSettings.siteUrl)}
         </body>
         </html>
     `;

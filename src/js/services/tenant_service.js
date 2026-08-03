@@ -10,17 +10,25 @@ export function getTenantSlugFromURL() {
     const hostname = window.location.hostname;
     const urlParams = new URLSearchParams(window.location.search);
 
-    // 1. التجاوز في البيئة المحلية Localhost عبر معلمة ?tenant=slug
-    if (urlParams.has('tenant')) {
-        return urlParams.get('tenant').toLowerCase();
+    // 1. التجاوز عبر معلمة ?tenant=slug
+    if (urlParams.has('tenant') && urlParams.get('tenant').trim() !== '') {
+        const paramTenant = urlParams.get('tenant').trim().toLowerCase();
+        if (paramTenant !== '127' && paramTenant !== '127.0.0.1' && paramTenant !== 'localhost') {
+            return paramTenant;
+        }
     }
 
-    // 2. التحقق مما إذا كان النطاق هو Super Admin
+    // 2. البيئة المحلية (IP/Localhost) بدون معلمة تينانت صريحة -> المصنع الرئيسي default فوراً
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+        return 'default';
+    }
+
+    // 3. التحقق مما إذا كان النطاق هو Super Admin
     if (hostname.startsWith('admin.') || window.location.pathname.startsWith('/super-admin')) {
         return 'super_admin';
     }
 
-    // 3. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
+    // 4. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
     const parts = hostname.split('.');
     if (parts.length >= 3) {
         const subdomain = parts[0].toLowerCase();
@@ -29,7 +37,7 @@ export function getTenantSlugFromURL() {
         }
     }
 
-    // 4. النمط الافتراضي (المصنع الرئيسي)
+    // 5. النمط الافتراضي (المصنع الرئيسي)
     return 'default';
 }
 

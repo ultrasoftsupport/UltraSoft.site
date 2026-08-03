@@ -72,11 +72,16 @@ function buildSocialIcons(settings, size = 'md') {
     `;
 }
 
-function buildCopyrightBar() {
+function buildCopyrightBar(settings = {}) {
+    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const copyrightContent = settings.footer_copyright_text 
+        ? settings.footer_copyright_text 
+        : `&copy; <span id="footer-current-year">${new Date().getFullYear()}</span> جميع الحقوق محفوظة لدى مصنع ${factoryName}.`;
+
     return `
         <div class="border-t border-devo-gray/50 mt-8 pt-4 flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-[11px] gap-3">
             <div class="text-devo-muted font-medium text-center md:text-right">
-                &copy; <span id="footer-current-year">${new Date().getFullYear()}</span> UltraSoft Collection. جميع الحقوق محفوظة لشركة UltraSoft.
+                ${copyrightContent}
             </div>
             <div class="flex flex-wrap items-center justify-center gap-1.5 text-devo-muted bg-devo-black py-1.5 px-3 rounded-full border border-devo-gray/60 shadow-sm">
                 <i class="ph-fill ph-code text-ultra-400 text-sm"></i>
@@ -105,16 +110,21 @@ function buildQuickLinks() {
 // ===================================================================
 
 function renderSimple(settings) {
+    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const copyrightContent = settings.footer_copyright_text 
+        ? settings.footer_copyright_text 
+        : `&copy; <span id="footer-current-year">${new Date().getFullYear()}</span> جميع الحقوق محفوظة لدى مصنع ${factoryName}.`;
+
     return `
         <footer class="bg-devo-dark border-t border-devo-gray py-6 mt-auto" data-layout="simple">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div class="cursor-pointer flex-shrink-0 flex items-center gap-2.5" onclick="switchSiteView('view-home')">
                         <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-8 md:h-10 w-auto object-contain">
-                        <h2 class="text-2xl font-black tracking-wider text-devo-text">Ultra<span class="text-ultra-400">Soft</span> <span class="text-[10px] font-bold text-ultra-400 bg-ultra-500/10 px-2 py-0.5 rounded-full uppercase">Collection</span></h2>
+                        <h2 class="text-2xl font-black tracking-wider text-devo-text">${factoryName}</h2>
                     </div>
                     <p class="text-devo-muted text-xs font-medium text-center">
-                        &copy; <span id="footer-current-year">${new Date().getFullYear()}</span> UltraSoft — جميع الحقوق محفوظة.
+                        ${copyrightContent}
                     </p>
                     <div class="flex items-center gap-2">
                         ${buildSocialIcons(settings)}
@@ -126,35 +136,40 @@ function renderSimple(settings) {
 }
 
 function renderMinimal(settings) {
+    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const bioText = settings.footer_bio_text || 'الشركة الرائدة للأنظمة الذكية والحلول التقنية المتكاملة';
+
     return `
         <footer class="bg-devo-dark border-t border-devo-gray py-10 mt-auto text-center" data-layout="minimal">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4">
                 <div class="cursor-pointer flex flex-col items-center justify-center" onclick="switchSiteView('view-home')">
                     <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-12 sm:h-16 w-auto object-contain mb-2 drop-shadow-md">
-                    <h2 class="text-3xl font-black tracking-wider text-devo-text">Ultra<span class="text-ultra-400">Soft</span></h2>
-                    <p class="text-[10px] tracking-[0.4em] text-ultra-400 uppercase font-bold mt-0.5">Collection</p>
+                    <h2 class="text-3xl font-black tracking-wider text-devo-text">${factoryName}</h2>
                 </div>
-                <p class="text-devo-muted text-xs max-w-xs leading-relaxed">الشركة الرائدة للأنظمة الذكية والحلول التقنية المتكاملة</p>
+                <p class="text-devo-muted text-xs max-w-xs leading-relaxed">${bioText}</p>
                 <div class="flex items-center gap-3 my-2">
                     ${buildSocialIcons(settings, 'lg')}
                 </div>
-                ${buildCopyrightBar()}
+                ${buildCopyrightBar(settings)}
             </div>
         </footer>
     `;
 }
 
 function renderColumns(settings) {
+    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const bioText = settings.footer_bio_text || `مصنع ${factoryName} للملابس والأنظمة الذكية. نلتزم بتقديم أفضل الخدمات وأعلى معايير الجودة لعملائنا بكل احترافية.`;
+
     return `
         <footer class="bg-devo-dark border-t border-devo-gray py-10 mt-auto relative overflow-hidden" data-layout="columns">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-right relative z-10">
                 <div>
                     <div class="cursor-pointer mb-3 inline-flex items-center gap-2.5" onclick="switchSiteView('view-home')">
                         <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-8 md:h-10 w-auto object-contain">
-                        <h2 class="text-2xl font-black tracking-wider text-devo-text">Ultra<span class="text-ultra-400">Soft</span></h2>
+                        <h2 class="text-2xl font-black tracking-wider text-devo-text">${factoryName}</h2>
                     </div>
                     <p class="text-devo-muted text-xs leading-relaxed">
-                        شركة UltraSoft للأنظمة والحلول الذكية.<br>نلتزم بتقديم أفضل الخدمات وأعلى معايير الجودة لعملائنا بكل احترافية.
+                        ${bioText}
                     </p>
                 </div>
                 ${buildQuickLinks()}
@@ -173,12 +188,15 @@ function renderColumns(settings) {
                     </div>
                 </div>
             </div>
-            ${buildCopyrightBar()}
+            ${buildCopyrightBar(settings)}
         </footer>
     `;
 }
 
 function renderLuxury(settings) {
+    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const bioText = settings.footer_bio_text || `نلتزم بتقديم أرقى الموديلات والأنظمة بمستويات جودة عالية لعملائنا في كافة المحافظات.`;
+
     return `
         <footer class="bg-devo-black border-t border-ultra-500/20 mt-auto relative overflow-hidden" data-layout="luxury">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6">
@@ -186,7 +204,7 @@ function renderLuxury(settings) {
                 <div class="bg-gradient-to-r from-devo-dark via-devo-black to-devo-dark border border-ultra-500/30 p-6 rounded-2xl mb-10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
                     <div>
                         <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="ph ph-sparkle text-ultra-400"></i> هل لديك استفسار أو طلب خاص؟</h3>
-                        <p class="text-devo-muted text-xs mt-1">تواصل مباشرة مع إدارة شركة UltraSoft وسيتم الرد عليك فوراً</p>
+                        <p class="text-devo-muted text-xs mt-1">تواصل مباشرة مع إدارة مصنع ${factoryName} وسيتم الرد عليك فوراً</p>
                     </div>
                     <a href="${settings.social_whatsapp || '#'}" target="_blank" class="ultrasoft-btn-primary text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-2 shrink-0">
                         <i class="ph ph-whatsapp-logo text-lg"></i>
@@ -197,10 +215,9 @@ function renderLuxury(settings) {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-right">
                     <div>
                         <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-12 w-auto object-contain mb-2 mx-auto md:mx-0">
-                        <h2 class="text-3xl font-black tracking-wider text-devo-text mb-1">Ultra<span class="text-ultra-400">Soft</span></h2>
-                        <p class="text-[10px] tracking-[0.4em] text-ultra-400 uppercase font-bold mb-3">Collection</p>
-                        <p class="text-devo-muted text-xs leading-relaxed max-w-xs mx-auto md:mx-0">
-                            نلتزم بتقديم أرقى الموديلات والأنظمة بمستويات جودة عالية لعملائنا في كافة المحافظات.
+                        <h2 class="text-3xl font-black tracking-wider text-devo-text mb-1">${factoryName}</h2>
+                        <p class="text-devo-muted text-xs leading-relaxed max-w-xs mx-auto md:mx-0 mt-2">
+                            ${bioText}
                         </p>
                     </div>
                     <div class="flex flex-col items-center justify-center">
@@ -217,7 +234,7 @@ function renderLuxury(settings) {
                     </div>
                 </div>
 
-                ${buildCopyrightBar()}
+                ${buildCopyrightBar(settings)}
             </div>
         </footer>
     `;
@@ -270,7 +287,7 @@ function renderContactOnly(settings) {
                         </div>
                     </a>
                 </div>
-                ${buildCopyrightBar()}
+                ${buildCopyrightBar(settings)}
             </div>
         </footer>
     `;
@@ -290,7 +307,7 @@ function renderBrandSocial(settings) {
                 <div class="flex items-center justify-center gap-3 mb-6">
                     ${buildSocialIcons(settings)}
                 </div>
-                ${buildCopyrightBar()}
+                ${buildCopyrightBar(settings)}
             </div>
         </footer>
     `;

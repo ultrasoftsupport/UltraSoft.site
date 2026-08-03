@@ -440,12 +440,19 @@ export function viewNotificationTarget(orderId) {
 }
 
 // 9. جلب إعدادات تليجرام من جدول home_settings
-async function loadTelegramSettings() {
+export async function loadTelegramSettings() {
     try {
-        const { data, error } = await supabase
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase
             .from('home_settings')
             .select('*')
             .in('setting_key', ['telegram_enabled', 'telegram_stock_enabled', 'web_notifications_enabled', 'telegram_bot_token', 'telegram_chat_id', 'telegram_stock_chat_id']);
+            
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data, error } = await query;
             
         if (error) throw error;
         
@@ -464,9 +471,31 @@ async function loadTelegramSettings() {
         if (enabledInput) enabledInput.checked = settings['telegram_enabled'] === 'true';
         if (stockEnabledInput) stockEnabledInput.checked = settings['telegram_stock_enabled'] !== 'false';
         if (webNotificationsInput) webNotificationsInput.checked = settings['web_notifications_enabled'] !== 'false';
-        if (tokenInput) tokenInput.value = settings['telegram_bot_token'] || '';
-        if (chatInput) chatInput.value = settings['telegram_chat_id'] || '';
-        if (stockChatInput) stockChatInput.value = settings['telegram_stock_chat_id'] || '';
+        
+        // 🔒 حماية بيانات البوت الحساسة: عدم إرسال القيم صريحاً للفرونت إند لمنع استخراجها
+        if (tokenInput) {
+            tokenInput.value = '';
+            const hasExistingToken = !!settings['telegram_bot_token'];
+            tokenInput.placeholder = hasExistingToken 
+                ? '•••••••••••••••• (التوكن محفوظ ومحمى بأمان بالخادم - أدخل توكن جديد فقط للتغيير)' 
+                : 'أدخل Bot Token من @BotFather';
+        }
+
+        if (chatInput) {
+            chatInput.value = '';
+            const hasExistingChat = !!settings['telegram_chat_id'];
+            chatInput.placeholder = hasExistingChat 
+                ? '•••••••••••• (معرّف المحادثة محفوظ بأمان بالخادم - أدخل معرّف جديد فقط للتغيير)' 
+                : 'مثال: -100123456789';
+        }
+
+        if (stockChatInput) {
+            stockChatInput.value = '';
+            const hasExistingStockChat = !!settings['telegram_stock_chat_id'];
+            stockChatInput.placeholder = hasExistingStockChat 
+                ? '•••••••••••• (معرّف المحادثة محفوظ بأمان بالخادم - أدخل معرّف جديد فقط للتغيير)' 
+                : 'مثال: -100123456789';
+        }
     } catch (e) {
         console.error('Error loading Telegram settings:', e);
     }
@@ -480,7 +509,7 @@ export async function saveTelegramSettings() {
     const tokenInput = document.getElementById('telegram-bot-token');
     const chatInput = document.getElementById('telegram-chat-id');
     const stockChatInput = document.getElementById('telegram-stock-chat-id');
-    const btn = document.getElementById('save-tg-btn');
+    const btn = document.getElementById('save-tg-btn') || document.getElementById('save-tg-btn-top');
     
     if (!enabledInput || !tokenInput || !chatInput || !stockChatInput) return;
     
@@ -491,40 +520,45 @@ export async function saveTelegramSettings() {
     const chat = chatInput.value.trim();
     const stockChat = stockChatInput.value.trim();
     
-    if (enabled === 'true' && (!token || !chat)) {
-        showToast('يرجى إدخال التوكن ومعرّف المحادثة لتفعيل التنبيهات', 'warning');
-        return;
-    }
-    
     if (btn) {
         btn.disabled = true;
         btn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري الحفظ...`;
     }
     
     try {
+        const currentTenantId = getCurrentTenantId();
         const updates = [
-            { setting_key: 'telegram_enabled', setting_value: enabled },
-            { setting_key: 'telegram_stock_enabled', setting_value: stockEnabled },
-            { setting_key: 'web_notifications_enabled', setting_value: webNotifications },
-            { setting_key: 'telegram_bot_token', setting_value: token },
-            { setting_key: 'telegram_chat_id', setting_value: chat },
-            { setting_key: 'telegram_stock_chat_id', setting_value: stockChat }
+            { tenant_id: currentTenantId, setting_key: 'telegram_enabled', setting_value: enabled },
+            { tenant_id: currentTenantId, setting_key: 'telegram_stock_enabled', setting_value: stockEnabled },
+            { tenant_id: currentTenantId, setting_key: 'web_notifications_enabled', setting_value: webNotifications }
         ];
+
+        // 🔒 تحديث البيانات الحساسة فقط إذا قام صاحب الحساب بكتابة قيم جديدة بالحقول
+        if (token) {
+            updates.push({ tenant_id: currentTenantId, setting_key: 'telegram_bot_token', setting_value: token });
+        }
+        if (chat) {
+            updates.push({ tenant_id: currentTenantId, setting_key: 'telegram_chat_id', setting_value: chat });
+        }
+        if (stockChat) {
+            updates.push({ tenant_id: currentTenantId, setting_key: 'telegram_stock_chat_id', setting_value: stockChat });
+        }
         
         const { error } = await supabase
             .from('home_settings')
-            .upsert(updates, { onConflict: 'setting_key' });
+            .upsert(updates, { onConflict: 'tenant_id,setting_key' });
             
         if (error) throw error;
         
-        showToast('تم حفظ إعدادات تليجرام بنجاح 💾', 'success');
+        showToast('تم حفظ وتحديث إعدادات تليجرام بأمان 🔒💾', 'success');
+        await loadTelegramSettings();
     } catch (e) {
         console.error('Error saving Telegram settings:', e);
         showToast('خطأ أثناء حفظ الإعدادات في قاعدة البيانات', 'error');
     } finally {
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = `<i class="ph ph-floppy-disk text-base"></i> حفظ إعدادات تليجرام`;
+            btn.innerHTML = `<i class="ph ph-floppy-disk text-base"></i> حفظ الإعدادات`;
         }
     }
 }
@@ -545,37 +579,71 @@ export function toggleTelegramSettingsCard() {
     }
 }
 
-// 12. تجربة وإرسال إشعار فحص فوري لبوت التليجرام (حل خطأ 7)
-export async function testTelegramConnection() {
+// 12. تجربة وإرسال إشعار فحص فوري لبوت التليجرام (مجموعة الطلبات، المخزون، أو الكل)
+export async function testTelegramConnection(targetType = 'all') {
     const tokenInput = document.getElementById('telegram-bot-token');
     const chatInput = document.getElementById('telegram-chat-id');
     const stockChatInput = document.getElementById('telegram-stock-chat-id');
-    const btn = document.getElementById('test-tg-btn');
+    
+    let activeBtn = document.getElementById('test-tg-btn');
+    if (targetType === 'orders') activeBtn = document.getElementById('test-tg-orders-btn') || activeBtn;
+    if (targetType === 'stock') activeBtn = document.getElementById('test-tg-stock-btn') || activeBtn;
 
-    const token = tokenInput ? tokenInput.value.trim() : '';
-    const chat = chatInput ? chatInput.value.trim() : '';
-    const stockChat = stockChatInput ? stockChatInput.value.trim() : '';
+    let token = tokenInput ? tokenInput.value.trim() : '';
+    let chat = chatInput ? chatInput.value.trim() : '';
+    let stockChat = stockChatInput ? stockChatInput.value.trim() : '';
+
+    // 🔒 إذا كانت القيم فارغة في الشاشة (لأنها محفوطة بأمان في الخادم)، نجلبها من الداتابيز لاختبار الاتصال
+    if (!token || (targetType !== 'stock' && !chat) || (targetType !== 'orders' && !stockChat)) {
+        try {
+            const currentTenantId = getCurrentTenantId();
+            let query = supabase
+                .from('home_settings')
+                .select('setting_key, setting_value')
+                .in('setting_key', ['telegram_bot_token', 'telegram_chat_id', 'telegram_stock_chat_id']);
+                
+            if (currentTenantId) query = query.eq('tenant_id', currentTenantId);
+
+            const { data } = await query;
+            if (data) {
+                const dbSettings = {};
+                data.forEach(item => dbSettings[item.setting_key] = item.setting_value);
+                if (!token && dbSettings['telegram_bot_token']) token = dbSettings['telegram_bot_token'];
+                if (!chat && dbSettings['telegram_chat_id']) chat = dbSettings['telegram_chat_id'];
+                if (!stockChat && dbSettings['telegram_stock_chat_id']) stockChat = dbSettings['telegram_stock_chat_id'];
+            }
+        } catch (err) {
+            console.error('Error fetching saved telegram credentials for test:', err);
+        }
+    }
 
     if (!token) {
-        showToast('يرجى كتابة Bot Token الخاص بك أولاً للتجربة', 'warning');
-        return;
-    }
-    if (!chat && !stockChat) {
-        showToast('يرجى تحديد معرف محادثة (Orders Chat ID أو Stock Chat ID) للتجربة', 'warning');
+        showToast('لم يتم العثور على Bot Token محفوظ أو مكتوب، يرجى كتابته أولاً وتجربته أو حفظه', 'warning');
         return;
     }
 
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري الاختبار...`;
+    const targetChats = [];
+    if ((targetType === 'all' || targetType === 'orders') && chat) {
+        targetChats.push({ id: chat, name: 'مجموعة الطلبات 🛍️' });
+    }
+    if ((targetType === 'all' || targetType === 'stock') && stockChat) {
+        targetChats.push({ id: stockChat, name: 'مجموعة المخزون 📦' });
+    }
+
+    if (targetChats.length === 0) {
+        const missingName = targetType === 'orders' ? 'معرّف مجموعة الطلبات (Orders Chat ID)' : (targetType === 'stock' ? 'معرّف مجموعة المخزون (Stock Chat ID)' : 'معرّف محادثة للتجربة');
+        showToast(`يرجى كتابة أو حفظ ${missingName} للتجربة`, 'warning');
+        return;
+    }
+
+    const originalBtnHtml = activeBtn ? activeBtn.innerHTML : '';
+    if (activeBtn) {
+        activeBtn.disabled = true;
+        activeBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري الاختبار...`;
     }
 
     let successCount = 0;
     let errorMsgs = [];
-
-    const targetChats = [];
-    if (chat) targetChats.push({ id: chat, name: 'مجموعة الطلبات' });
-    if (stockChat && stockChat !== chat) targetChats.push({ id: stockChat, name: 'مجموعة المخزون' });
 
     for (const target of targetChats) {
         try {
@@ -584,7 +652,7 @@ export async function testTelegramConnection() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: target.id,
-                    text: `🧪 <b>رسالة فحص من سيستم مصنع DEVO</b>\nتم اختبار فحص الاتصال ببوت التليجرام الخاص بـ (<b>${target.name}</b>) بنجاح! ✅\n\n⏰ <i>التاريخ: ${new Date().toLocaleString('ar-EG')}</i>`,
+                    text: `🧪 <b>رسالة فحص واختبار من سيستم UltraSoft</b>\nتم اختبار فحص الاتصال لبوت التليجرام الخاص بـ (<b>${target.name}</b>) بنجاح! ✅\n\n⏰ <i>التاريخ: ${new Date().toLocaleString('ar-EG')}</i>`,
                     parse_mode: 'HTML'
                 })
             });
@@ -600,9 +668,9 @@ export async function testTelegramConnection() {
         }
     }
 
-    if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = `<i class="ph ph-paper-plane-tilt text-base"></i> تجربة البوت`;
+    if (activeBtn) {
+        activeBtn.disabled = false;
+        activeBtn.innerHTML = originalBtnHtml;
     }
 
     if (successCount > 0 && errorMsgs.length === 0) {
@@ -610,6 +678,11 @@ export async function testTelegramConnection() {
     } else if (successCount > 0 && errorMsgs.length > 0) {
         showToast(`تم الإرسال بنجاح لـ ${successCount} محادثة مع وجود خطأ: ${errorMsgs.join(' | ')}`, 'warning');
     } else {
-        showToast(`فشل اختبار الاتصال ببوت التليجرام: ${errorMsgs.join(' | ')}`, 'error');
+        showToast('فشل اختبار التليجرام: ' + errorMsgs.join(' | '), 'error');
     }
 }
+
+// Global window bindings for HTML onclick handlers
+window.loadTelegramSettings = loadTelegramSettings;
+window.saveTelegramSettings = saveTelegramSettings;
+window.testTelegramConnection = testTelegramConnection;

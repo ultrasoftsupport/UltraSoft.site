@@ -86,6 +86,7 @@ export async function loadHeroSettings() {
     currentSettings = map; // كاش للاستخدام لاحقاً
 
     if (document.getElementById('hs-hero-title')) {
+        if (document.getElementById('hs-hero-badge')) document.getElementById('hs-hero-badge').value = map['hero_badge'] || 'ULTRASOFT COLLECTION';
         document.getElementById('hs-hero-title').value = map['hero_title'] || '';
         document.getElementById('hs-hero-subtitle').value = map['hero_subtitle'] || '';
         document.getElementById('hs-bg-desktop').value = map['hero_bg_desktop'] || '';
@@ -115,6 +116,18 @@ export async function loadHeroSettings() {
         if (document.getElementById('hs-bg-enable-orders')) document.getElementById('hs-bg-enable-orders').value = map['bg_enable_orders'] || 'false';
         if (document.getElementById('hs-barcode-scan-mode')) document.getElementById('hs-barcode-scan-mode').value = map['barcode_scan_mode'] || 'both';
         if (document.getElementById('hs-barcode-match-type')) document.getElementById('hs-barcode-match-type').value = map['barcode_match_type'] || 'both';
+
+        // تعبئة حقول إعدادات الفاتورة
+        if (document.getElementById('hs-inv-factory-name')) document.getElementById('hs-inv-factory-name').value = map['invoice_factory_name'] || 'UltraSoft Collection';
+        if (document.getElementById('hs-inv-subtitle')) document.getElementById('hs-inv-subtitle').value = map['invoice_subtitle'] || 'Phone: +20 12 12751111';
+        if (document.getElementById('hs-inv-customer-title')) document.getElementById('hs-inv-customer-title').value = map['invoice_customer_title'] || 'فاتورة تفصيلية للعميل';
+        if (document.getElementById('hs-inv-admin-title')) document.getElementById('hs-inv-admin-title').value = map['invoice_admin_title'] || 'فاتورة تفصيلية للإدارة';
+        if (document.getElementById('hs-inv-notes')) document.getElementById('hs-inv-notes').value = map['invoice_notes'] || 'البضاعة المباعة لا تُرد بعد 14 يوماً من تاريخ الفاتورة.';
+        
+        if (document.getElementById('hs-footer-bio')) document.getElementById('hs-footer-bio').value = map['footer_bio_text'] || '';
+        if (document.getElementById('hs-footer-copyright')) document.getElementById('hs-footer-copyright').value = map['footer_copyright_text'] || '';
+
+        updateInvoicePreview();
     }
 
     // تعبئة قوائم خيارات الهيدر والفوتر
@@ -124,6 +137,64 @@ export async function loadHeroSettings() {
     setupHeroPreviewListeners();
     updateAdminHeroPreview();
 }
+
+window.updateInvoicePreview = function() {
+    const factory = document.getElementById('hs-inv-factory-name')?.value.trim() || 'UltraSoft Collection';
+    const subtitle = document.getElementById('hs-inv-subtitle')?.value.trim() || 'Phone: +20 12 12751111';
+    const adminTitle = document.getElementById('hs-inv-admin-title')?.value.trim() || 'فاتورة تفصيلية للإدارة';
+    const notes = document.getElementById('hs-inv-notes')?.value.trim() || '';
+
+    if (document.getElementById('prev-inv-factory-name')) document.getElementById('prev-inv-factory-name').textContent = factory;
+    if (document.getElementById('prev-inv-subtitle')) document.getElementById('prev-inv-subtitle').textContent = subtitle;
+    if (document.getElementById('prev-inv-admin-title')) document.getElementById('prev-inv-admin-title').textContent = adminTitle;
+
+    // تحديث فوتر الأدمن السفلي باسم المصنع الحالي ديناميكياً
+    if (document.getElementById('admin-footer-factory-name')) document.getElementById('admin-footer-factory-name').textContent = factory;
+    if (document.getElementById('admin-footer-factory-name-2')) document.getElementById('admin-footer-factory-name-2').textContent = factory;
+
+    const notesContainer = document.getElementById('prev-inv-notes-container');
+    if (notesContainer) {
+        if (notes) {
+            notesContainer.style.display = 'block';
+            if (document.getElementById('prev-inv-notes')) document.getElementById('prev-inv-notes').textContent = notes;
+        } else {
+            notesContainer.style.display = 'none';
+        }
+    }
+};
+
+window.saveInvoiceSettings = async function() {
+    const btn = document.getElementById('btn-save-invoice-settings');
+    if (!btn) return;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري الحفظ...`;
+
+    try {
+        const currentTenantId = getCurrentTenantId();
+        const updates = [
+            { tenant_id: currentTenantId, setting_key: 'invoice_factory_name', setting_value: (document.getElementById('hs-inv-factory-name')?.value || '').trim() },
+            { tenant_id: currentTenantId, setting_key: 'invoice_subtitle', setting_value: (document.getElementById('hs-inv-subtitle')?.value || '').trim() },
+            { tenant_id: currentTenantId, setting_key: 'invoice_customer_title', setting_value: (document.getElementById('hs-inv-customer-title')?.value || '').trim() },
+            { tenant_id: currentTenantId, setting_key: 'invoice_admin_title', setting_value: (document.getElementById('hs-inv-admin-title')?.value || '').trim() },
+            { tenant_id: currentTenantId, setting_key: 'invoice_notes', setting_value: (document.getElementById('hs-inv-notes')?.value || '').trim() }
+        ];
+
+        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
+        if (error) throw error;
+
+        // مسح كاش الإعدادات المحلي
+        const cacheKey = `devo_cached_hero_settings_${currentTenantId}`;
+        localStorage.removeItem(cacheKey);
+
+        showToast('تم حفظ وتطبيق إعدادات الفاتورة بنجاح ✓', 'success');
+    } catch (err) {
+        showToast('حدث خطأ أثناء حفظ إعدادات الفاتورة: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+};
 
 // ==========================================
 // دالة تحديث المعاينة الحية المباشرة في أدمن
@@ -209,11 +280,16 @@ function updateAdminHeroPreview() {
     }
 
     // 5. النصوص والألوان
+    const badgeVal = document.getElementById('hs-hero-badge')?.value.trim();
     const titleVal = document.getElementById('hs-hero-title')?.value.trim();
     const subtitleVal = document.getElementById('hs-hero-subtitle')?.value.trim();
+    const prevBadge = document.getElementById('admin-hero-prev-badge');
     const prevTitle = document.getElementById('admin-hero-prev-title');
     const prevSubtitle = document.getElementById('admin-hero-prev-subtitle');
 
+    if (prevBadge) {
+        prevBadge.textContent = badgeVal || 'ULTRASOFT COLLECTION';
+    }
     if (prevTitle) {
         prevTitle.textContent = titleVal || 'العنوان الرئيسي';
         prevTitle.style.color = titleColor;
@@ -226,7 +302,7 @@ function updateAdminHeroPreview() {
 
 function setupHeroPreviewListeners() {
     const ids = [
-        'hs-hero-title', 'hs-hero-subtitle', 'hs-bg-desktop', 'hs-bg-mobile',
+        'hs-hero-badge', 'hs-hero-title', 'hs-hero-subtitle', 'hs-bg-desktop', 'hs-bg-mobile',
         'hs-bg-show', 'hs-bg-blend', 'hs-bg-glass', 'hs-title-color', 'hs-subtitle-color',
         'hs-bg-edge-feather', 'hs-bg-opacity', 'hs-bg-overlay', 'hs-bg-blur',
         'hs-glass-opacity', 'hs-glass-blur', 'hs-bg-enable-gallery', 'hs-bg-enable-barcode',
@@ -276,10 +352,14 @@ window.saveHeaderFooterLayouts = async () => {
         const currentTenantId = getCurrentTenantId();
         const headerVal = document.getElementById('hs-header-layout')?.value || 'classic';
         const footerVal = document.getElementById('hs-footer-layout')?.value || 'simple';
+        const footerBioVal = (document.getElementById('hs-footer-bio')?.value || '').trim();
+        const footerCopyrightVal = (document.getElementById('hs-footer-copyright')?.value || '').trim();
 
         const updates = [
             { tenant_id: currentTenantId, setting_key: 'header_layout', setting_value: headerVal },
-            { tenant_id: currentTenantId, setting_key: 'footer_layout', setting_value: footerVal }
+            { tenant_id: currentTenantId, setting_key: 'footer_layout', setting_value: footerVal },
+            { tenant_id: currentTenantId, setting_key: 'footer_bio_text', setting_value: footerBioVal },
+            { tenant_id: currentTenantId, setting_key: 'footer_copyright_text', setting_value: footerCopyrightVal }
         ];
 
         const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
@@ -287,6 +367,8 @@ window.saveHeaderFooterLayouts = async () => {
 
         currentSettings.header_layout = headerVal;
         currentSettings.footer_layout = footerVal;
+        currentSettings.footer_bio_text = footerBioVal;
+        currentSettings.footer_copyright_text = footerCopyrightVal;
 
         showToast('تم حفظ تصميم الهيدر والفوتر بنجاح ✓', 'success');
     } catch (err) {
@@ -309,6 +391,7 @@ window.saveHeroSettings = async () => {
     try {
         const currentTenantId = getCurrentTenantId();
         const updates = [
+            { tenant_id: currentTenantId, setting_key: 'hero_badge', setting_value: (document.getElementById('hs-hero-badge')?.value || '').trim() },
             { tenant_id: currentTenantId, setting_key: 'hero_title', setting_value: document.getElementById('hs-hero-title').value.trim() },
             { tenant_id: currentTenantId, setting_key: 'hero_subtitle', setting_value: document.getElementById('hs-hero-subtitle').value.trim() },
             { tenant_id: currentTenantId, setting_key: 'hero_bg_desktop', setting_value: document.getElementById('hs-bg-desktop').value.trim() },
@@ -343,9 +426,18 @@ window.saveHeroSettings = async () => {
         const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
         if (error) throw error;
 
-        showToast('تم تحديث إعدادات الموقع بنجاح', 'success');
+        // مسح الكاش المحلي فورياً للتاكيد
+        const cacheKey = `devo_cached_hero_settings_${currentTenantId}`;
+        localStorage.removeItem(cacheKey);
+
+        // إعادة تطبيق البيانات مباشرة بالواجهة والمعاينة الحية
+        if (typeof window.loadHeroSettings === 'function') {
+            await window.loadHeroSettings(true);
+        }
+
+        showToast('تم تحديث إعدادات الموقع بنجاح ✓', 'success');
     } catch (error) {
-        showToast('حدث خطأ أثناء الحفظ', 'error');
+        showToast('حدث خطأ أثناء الحفظ: ' + error.message, 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = `<i class="ph ph-floppy-disk"></i> حفظ الإعدادات`;
@@ -359,14 +451,20 @@ async function loadPromoCards() {
     const container = document.getElementById('promo-cards-container');
     container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-info"></i></div>`;
 
-    const { data, error } = await supabase.from('promo_cards').select('*').order('created_at', { ascending: true });
+    const currentTenantId = getCurrentTenantId();
+    let query = supabase.from('promo_cards').select('*');
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: true });
     
     if (error) {
         container.innerHTML = `<div class="col-span-full text-center text-devo-error">خطأ في تحميل الكروت</div>`;
         return;
     }
 
-    promoCards = data;
+    promoCards = data || [];
     renderPromoCards();
 }
 
@@ -421,16 +519,22 @@ window.openPromoModal = async (id = null) => {
     document.getElementById('pm-id').value = id || '';
     document.getElementById('promo-modal-title').textContent = id ? 'تعديل العرض' : 'إضافة عرض جديد';
 
-    // تعبئة قائمة الموديلات المتاحة للربط
+    // تعبئة قائمة الموديلات المتاحة للربط المفلترة بـ tenant_id للمصنع الحالي فقط
     const modelSelect = document.getElementById('pm-model-id');
     if (modelSelect) {
         modelSelect.innerHTML = `<option value="">جاري تحميل الموديلات...</option>`;
         try {
-            const { data: models } = await supabase
+            const currentTenantId = getCurrentTenantId();
+            let modelQuery = supabase
                 .from('models')
                 .select('id, name, factory_code, system_code')
-                .eq('is_active', true)
-                .order('name', { ascending: true });
+                .eq('is_active', true);
+
+            if (currentTenantId) {
+                modelQuery = modelQuery.eq('tenant_id', currentTenantId);
+            }
+
+            const { data: models } = await modelQuery.order('name', { ascending: true });
 
             let options = `<option value="">-- بدون ربط (تصفح المعرض فقط) --</option>`;
             if (models && models.length > 0) {
@@ -474,6 +578,7 @@ async function handleSavePromo(e) {
     const btn = e.target.querySelector('button[type="submit"]');
     const originalText = btn.innerHTML;
 
+    const currentTenantId = getCurrentTenantId();
     const selectedModelId = document.getElementById('pm-model-id')?.value || null;
 
     const payload = {
@@ -486,16 +591,24 @@ async function handleSavePromo(e) {
         is_active: document.getElementById('pm-status').checked
     };
 
+    if (currentTenantId) {
+        payload.tenant_id = currentTenantId;
+    }
+
     btn.disabled = true;
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> حفظ...`;
 
     try {
         if (id) {
-            const { error } = await supabase.from('promo_cards').update(payload).eq('id', id);
+            let query = supabase.from('promo_cards').update(payload).eq('id', id);
+            if (currentTenantId) query = query.eq('tenant_id', currentTenantId);
+            const { error } = await query;
             if (error) {
                 if (error.message && error.message.includes('model_id')) {
                     delete payload.model_id;
-                    const { error: err2 } = await supabase.from('promo_cards').update(payload).eq('id', id);
+                    let query2 = supabase.from('promo_cards').update(payload).eq('id', id);
+                    if (currentTenantId) query2 = query2.eq('tenant_id', currentTenantId);
+                    const { error: err2 } = await query2;
                     if (err2) throw err2;
                     showToast('تم الحفظ، لتشغيل ربط الموديل يرجى إضافة عمود model_id في جدول promo_cards', 'warning');
                 } else throw error;
@@ -526,7 +639,11 @@ window.deletePromoCard = async (id) => {
     const confirmed = await confirmDialog({ title: 'حذف العرض', message: 'هل أنت متأكد من حذف هذا الكارت الإعلاني؟', isDestructive: true });
     if (!confirmed) return;
 
-    const { error } = await supabase.from('promo_cards').delete().eq('id', id);
+    const currentTenantId = getCurrentTenantId();
+    let query = supabase.from('promo_cards').delete().eq('id', id);
+    if (currentTenantId) query = query.eq('tenant_id', currentTenantId);
+
+    const { error } = await query;
     if (error) {
         showToast('حدث خطأ أثناء الحذف', 'error');
     } else {

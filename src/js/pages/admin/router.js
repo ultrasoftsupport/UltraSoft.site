@@ -34,6 +34,9 @@ async function authenticateAdmin() {
         if (activeName) activeName.textContent = tenant.name;
         if (activeBadge) activeBadge.classList.remove('hidden');
         document.title = `لوحة تحكم ${tenant.name} | ألترا سوفت`;
+
+        const adminFooterEl = document.getElementById('admin-footer-factory-name');
+        if (adminFooterEl) adminFooterEl.textContent = tenant.name;
     }
 
     return true;
@@ -59,19 +62,6 @@ function updateUserProfileUI(profile) {
             usersLink.classList.remove('hidden'); // إظهار للمالك
         } else {
             usersLink.classList.add('hidden'); // إخفاء للمدير
-        }
-    }
-
-
-
-
-    // إخفاء/إظهار تبويب إعادة تهيئة النظام الفرعي (للمالك فقط)
-    const resetSubtabBtn = document.getElementById('settingsSubtabResetBtn');
-    if (resetSubtabBtn) {
-        if (profile.role === 'owner') {
-            resetSubtabBtn.classList.remove('hidden');
-        } else {
-            resetSubtabBtn.classList.add('hidden');
         }
     }
 }
@@ -230,10 +220,6 @@ async function loadViewLogic(targetId) {
             const { initBackupRestoreView } = await import('./backup_restore.js');
             initBackupRestoreView();
             break;
-        case 'view-system-reset':
-            const { initSystemResetView } = await import('./system_reset.js');
-            initSystemResetView();
-            break;
     }
 }
 
@@ -252,11 +238,7 @@ export async function switchSettingsSubtab(subtabId) {
         if (target === subtabId) {
             btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer';
         } else {
-            if (btn.id === 'settingsSubtabResetBtn') {
-                btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer';
-            } else {
-                btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer';
-            }
+            btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer';
         }
     });
 
@@ -276,13 +258,15 @@ export async function switchSettingsSubtab(subtabId) {
         case 'view-barcode-settings':
             await initHomeSettingsView();
             break;
+        case 'view-telegram-settings':
+            const { loadTelegramSettings } = await import('./notifications_view.js');
+            if (typeof loadTelegramSettings === 'function') {
+                await loadTelegramSettings();
+            }
+            break;
         case 'view-backup-restore':
             const { initBackupRestoreView } = await import('./backup_restore.js');
             initBackupRestoreView();
-            break;
-        case 'view-system-reset':
-            const { initSystemResetView } = await import('./system_reset.js');
-            initSystemResetView();
             break;
     }
 }

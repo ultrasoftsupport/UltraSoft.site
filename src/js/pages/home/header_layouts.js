@@ -51,27 +51,40 @@ export const HEADER_LAYOUTS = [
     },
 ];
 
+import { buildTenantUrl, getTenantSlugFromURL } from '../../services/tenant_service.js';
+
 // ===================================================================
 // 2. SHARED UTILITIES — أدوات مشتركة
 // ===================================================================
 
 function buildNavLinks(user) {
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMarketingDomain = (slug === 'default') && !urlParams.has('tenant');
+    const showLandingTab = !user && isMarketingDomain;
+
+    const links = [];
+
+    if (showLandingTab) {
+        links.push({ id: 'view-landing', label: 'عن النظام والاشتراكات', action: `window.location.href='landing.html'`, icon: 'ph-sparkle' });
+    }
+
+    links.push({ id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' });
+
     if (user) {
-        return [
-            { id: 'view-landing', label: 'عن النظام والاشتراكات', action: `window.location.href='landing.html'`, icon: 'ph-sparkle' },
-            { id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' },
+        links.push(
             { id: 'view-gallery', label: 'المعرض', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
             { id: 'view-barcode', label: 'الباركود', action: `switchSiteView('view-barcode')`, icon: 'ph-qr-code' },
             { id: 'view-cart', label: 'السلة', action: `switchSiteView('view-cart'); window.refreshCartView?.()`, icon: 'ph-shopping-cart' },
-            { id: 'view-orders', label: 'الأوردرات', action: `switchSiteView('view-orders')`, icon: 'ph-receipt' },
-        ];
+            { id: 'view-orders', label: 'الأوردرات', action: `switchSiteView('view-orders')`, icon: 'ph-receipt' }
+        );
     } else {
-        return [
-            { id: 'view-landing', label: 'عن النظام والاشتراكات', action: `window.location.href='landing.html'`, icon: 'ph-sparkle' },
-            { id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' },
-            { id: 'view-gallery', label: 'المعرض التجريبي', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
-        ];
+        links.push(
+            { id: 'view-gallery', label: 'المعرض التجريبي', action: `switchSiteView('view-gallery')`, icon: 'ph-images' }
+        );
     }
+
+    return links;
 }
 
 function buildNavBtns(links) {
@@ -82,8 +95,6 @@ function buildNavBtns(links) {
         </button>`
     ).join('');
 }
-
-import { buildTenantUrl } from '../../services/tenant_service.js';
 
 function buildUserArea(user) {
     const hasAdminAccess = user && (user.role === 'owner' || user.role === 'admin');

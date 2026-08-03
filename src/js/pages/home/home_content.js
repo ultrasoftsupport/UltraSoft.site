@@ -1,4 +1,5 @@
 import { supabase } from '../../config/supabase.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 export async function initHomeContent() {
     await Promise.all([
@@ -19,26 +20,34 @@ function resolveImageUrl(url) {
     return url; 
 }
 
-// جلب الإعدادات (نصوص، صور، سوشيال ميديا) مع الكاش الفوري
+// جلب الإعدادات (نصوص، صور، سوشيال ميديا) مع الكاش الفوري المعزول لكل مصنع
 async function loadHeroSettings() {
-    // ⚡ 1. التحميل الفوري السريع من الكاش (0ms Instant Load) ⚡
-    const cachedMap = localStorage.getItem('devo_cached_hero_settings');
+    const currentTenantId = getCurrentTenantId();
+    const cacheKey = `devo_cached_hero_settings_${currentTenantId || 'default'}`;
+
+    // ⚡ 1. التحميل الفوري السريع من الكاش الخاص بالمصنع ⚡
+    const cachedMap = localStorage.getItem(cacheKey);
     if (cachedMap) {
         try {
             applyHeroSettingsMap(JSON.parse(cachedMap));
         } catch (e) {}
     }
 
-    // 🔄 2. الجلب التحديثي من السيرفر في الخلفية 🔄
-    const { data, error } = await supabase.from('home_settings').select('*');
-    if (error || !data) return;
+    // 🔄 2. الجلب التحديثي من السيرفر المصفى بـ tenant_id الخاص بالمعرض والمصنع الحالي 🔄
+    let query = supabase.from('home_settings').select('*');
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query;
+    if (error || !data || data.length === 0) return;
 
     const map = {};
     data.forEach(item => map[item.setting_key] = item.setting_value);
 
     applyHeroSettingsMap(map);
     try {
-        localStorage.setItem('devo_cached_hero_settings', JSON.stringify(map));
+        localStorage.setItem(cacheKey, JSON.stringify(map));
     } catch (e) {}
 }
 
@@ -84,10 +93,15 @@ function applyHeroSettingsMap(map) {
     if (!map) return;
 
     // 1. حقن النصوص وتحديد ألوانها المخصصة المعتمدة لـ UltraSoft
+    const badgeEl = document.getElementById('display-hero-badge');
     const titleEl = document.getElementById('display-hero-title');
     const subtitleEl = document.getElementById('display-hero-subtitle');
     const titleColor = sanitizeBrandColor(map['hero_title_color'], '#ffffff');
     const subtitleColor = sanitizeBrandColor(map['hero_subtitle_color'], '#e0f2fe');
+
+    if (badgeEl && map['hero_badge']) {
+        badgeEl.textContent = map['hero_badge'];
+    }
 
     if (titleEl && map['hero_title']) {
         let cleanTitle = map['hero_title']
@@ -179,15 +193,23 @@ function applyHeroSettingsMap(map) {
         overlayLayer.style.backgroundColor = `rgba(0, 0, 0, ${overlayVal / 100})`;
     }
 
-    // تطبيق تدرج الاضمحلال العلوية والسفلية Edge Merging Fades بلون الثيم النشط
-    const activeBodyBg = (document.body && window.getComputedStyle(document.body).backgroundColor) || 'rgb(10, 10, 10)';
+    // تطبيق تدرج الاضمحلال العلوية والسفلية Edge Merging Fades بلون الثيم النشط المباشر عبر CSS variable
+    const fadeHeight = Math.max(15, edgeFeatherVal);
     if (topFadeLayer) {
-        topFadeLayer.style.height = `${edgeFeatherVal}%`;
-        topFadeLayer.style.backgroundImage = `linear-gradient(to bottom, ${activeBodyBg}, transparent)`;
+        topFadeLayer.style.height = `${fadeHeight}%`;
+        topFadeLayer.style.backgroundImage = `linear-gradient(to bottom, var(--devo-black) 0%, transparent 100%)`;
     }
     if (bottomFadeLayer) {
-        bottomFadeLayer.style.height = `${edgeFeatherVal}%`;
-        bottomFadeLayer.style.backgroundImage = `linear-gradient(to top, ${activeBodyBg}, transparent)`;
+        bottomFadeLayer.style.height = `${fadeHeight + 10}%`;
+        bottomFadeLayer.style.backgroundImage = `linear-gradient(to top, var(--devo-black) 0%, transparent 100%)`;
+    }
+
+    // تطبيق ماسك حواف الصورة الداخلي لجعل الصورة مدمجة بدون أي حواف حادة بالجانبين أو الأركان
+    if (imgLayer && showBg) {
+        const edgeFeatherRatio = Math.max(5, Math.min(45, edgeFeatherVal));
+        const maskGradient = `radial-gradient(ellipse at center, rgba(0,0,0,1) ${100 - (edgeFeatherRatio * 1.5)}%, rgba(0,0,0,0) 100%)`;
+        imgLayer.style.webkitMaskImage = maskGradient;
+        imgLayer.style.maskImage = maskGradient;
     }
 
     // تطبيق الخصائص المباشرة على كارت المحتوى الزجاجي
@@ -378,8 +400,11 @@ async function loadPromoCards() {
     const container = document.getElementById('display-promo-cards');
     if (!container) return;
 
+    const currentTenantId = getCurrentTenantId();
+    const cacheKey = 'devo_cached_promo_cards_' + (currentTenantId || 'default');
+
     // ⚡ 1. التحميل الفوري السريع من الكاش (0ms Instant Load) ⚡
-    const cachedCards = localStorage.getItem('devo_cached_promo_cards');
+    const cachedCards = localStorage.getItem(cacheKey);
     if (cachedCards) {
         try {
             renderPromoCardsUI(JSON.parse(cachedCards), container);
@@ -387,13 +412,18 @@ async function loadPromoCards() {
     }
 
     // 🔄 2. الجلب التحديثي من السيرفر في الخلفية 🔄
-    const { data, error } = await supabase.from('promo_cards').select('*').eq('is_active', true).order('created_at', { ascending: true });
+    let query = supabase.from('promo_cards').select('*').eq('is_active', true);
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: true });
 
     if (error || !data) return;
 
     renderPromoCardsUI(data, container);
     try {
-        localStorage.setItem('devo_cached_promo_cards', JSON.stringify(data));
+        localStorage.setItem(cacheKey, JSON.stringify(data));
     } catch (e) {}
 }
 

@@ -2,7 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { getCurrentSession } from '../../services/auth.js';
-import { printOrderCustomerInvoice } from '../../utils/print.js?v=2';
+import { printOrderCustomerInvoice, fetchInvoicePrintSettings, getUltraSoftBarcodeSVG } from '../../utils/print.js?v=2';
 import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
@@ -625,6 +625,8 @@ window.printAdminOrder = async (id, type) => {
         return;
     }
 
+    const invSettings = await fetchInvoicePrintSettings();
+
     showToast('جاري تحضير الفاتورة للطباعة...', 'info');
     const remaining = o.total_price - (o.deposit || 0);
     const printDate = new Date(o.created_at);
@@ -701,19 +703,20 @@ window.printAdminOrder = async (id, type) => {
             </head>
             <body>
                 <div class="erp-header">
-                    <div><h1>DEVO <span style="font-size:11px; font-weight:bold;">Collection</span></h1><p>Phone: +20 12 12751111</p></div>
-                    <div class="title-box"><h2>فاتورة تفصيلية للإدارة</h2><p style="margin-top: 4px;">رقم الأوردر: <span style="font-family: monospace; font-size: 12px; color: red;">${o.invoice_number}</span></p></div>
+                    <div><h1>${invSettings.factoryName}</h1><p dir="ltr" style="text-align: right;">${invSettings.subtitle}</p></div>
+                    <div class="title-box"><h2>${invSettings.adminTitle}</h2><p style="margin-top: 4px;">رقم الأوردر: <span style="font-family: monospace; font-size: 12px; color: red;">${o.invoice_number}</span></p></div>
                 </div>
                 <div class="erp-info">
                     <div><div><b>العميل:</b> ${o.customer_name}</div><div><b>الهاتف:</b> <span dir="ltr">${o.phone_1} ${o.phone_2 ? ' / ' + o.phone_2 : ''}</span></div><div><b>العنوان:</b> ${o.address || '-'}</div></div>
-                    <div class="left-col"><div><b>التاريخ:</b> ${new Date(o.created_at).toLocaleDateString('ar-EG')} &nbsp;|&nbsp; <b>الوقت:</b> ${new Date(o.created_at).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})}</div><div><b>الموظف:</b> ${o.system_users?.full_name}</div><div><b>العربون:</b> ${o.deposit} ج.م &nbsp;|&nbsp; <b>مستلم العربون:</b> ${o.deposit_receiver || '-'}</div></div>
+                    <div class="left-col"><div><b>التاريخ:</b> ${new Date(o.created_at).toLocaleDateString('ar-EG')} &nbsp;|&nbsp; <b>الوقت:</b> ${new Date(o.created_at).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})}</div><div><b>الموظف:</b> ${o.system_users?.full_name || 'غير معروف'}</div><div><b>العربون:</b> ${o.deposit} ج.م &nbsp;|&nbsp; <b>مستلم العربون:</b> ${o.deposit_receiver || '-'}</div></div>
                 </div>
                 <table class="erp-table">
                     <thead><tr><th style="width: 30px;">#</th><th>الموديل</th><th>تفصيل الألوان</th><th style="width: 80px;">الكمية</th><th style="width: 60px;">السعر</th><th style="width: 80px;">الإجمالي</th></tr></thead>
                     <tbody>${itemsHtml}</tbody>
                 </table>
                 <div class="erp-totals-wrapper"><div class="erp-totals"><div class="row"><b>الإجمالي الكلي:</b> <b>${o.total_price}</b></div><div class="row" style="background: #f9f9f9 !important; -webkit-print-color-adjust: exact;"><b>المدفوع:</b> <b>${o.deposit}</b></div><div class="row"><b>المتبقي:</b> <span>${remaining} ج.م</span></div></div></div>
-                <div class="erp-footer">Developed by <a href="https://www.facebook.com/share/1NiodPNtXF/" target="_blank" style="color: inherit; text-decoration: none; font-weight: bold;">UltraSoft</a> - +201140409832</div>
+                ${invSettings.notes ? `<div style="text-align: center; margin-top: 10px; font-size: 10px; color: #555; border-top: 1px dashed #ccc; padding-top: 4px; font-weight: bold;">${invSettings.notes}</div>` : ''}
+                ${getUltraSoftBarcodeSVG(invSettings.siteUrl)}
             </body>
             </html>
         `;

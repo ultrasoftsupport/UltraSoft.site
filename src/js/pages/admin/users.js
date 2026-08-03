@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allUsers = [];
@@ -25,14 +26,21 @@ export async function loadUsers() {
     const container = document.getElementById('users-container');
     container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i></div>`;
 
-    const { data, error } = await supabase
+    const currentTenantId = getCurrentTenantId();
+
+    let query = supabase
         .from('system_users')
-        .select('*')
-        .order('created_at', { ascending: true });
+        .select('*');
+
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: true });
 
     if (error) return showToast('خطأ في تحميل بيانات المستخدمين', 'error');
 
-    allUsers = data;
+    allUsers = data || [];
     updateUserStatistics();
     applyUserFilters();
 }

@@ -191,7 +191,7 @@
             <!-- سيتم توليد الأزرار ديناميكياً هنا -->
         </div>
         
-        <button id="portal-logout-btn" class="w-full bg-devo-gray/50 hover:bg-devo-error/20 hover:text-devo-error text-devo-muted font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mt-6 border border-devo-gray">
+        <button id="portal-logout-btn" onclick="handleLogout()" class="w-full bg-devo-gray/50 hover:bg-devo-error/20 hover:text-devo-error text-devo-muted font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mt-6 border border-devo-gray cursor-pointer">
             <span>تسجيل الخروج</span>
             <i class="ph ph-sign-out text-lg"></i>
         </button>
@@ -230,16 +230,20 @@
         const btnIcon = document.getElementById('btn-icon');
 
         // Logout handler for destination portal
-        window.handleLogout = () => {
-            logoutUser();
+        window.handleLogout = async () => {
+            await logoutUser();
         };
+
+        document.getElementById('portal-logout-btn')?.addEventListener('click', async () => {
+            await logoutUser();
+        });
 
         function handleUserRedirection(user) {
             const role = user.role;
             const workerJob = user.worker_job;
             
             const tenantParam = new URLSearchParams(window.location.search).get('tenant');
-            const appendTenant = (path) => path + (tenantParam ? '?tenant=' + tenantParam : '');
+            const appendTenant = (path) => path + (tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' ? '?tenant=' + tenantParam : '');
 
             const destinations = [];
             
@@ -287,9 +291,18 @@
 
         // Check if already logged in and refresh session from DB
         document.addEventListener('DOMContentLoaded', async () => {
+            const activeTenant = await initializeTenantContext();
             const { session } = getCurrentSession();
             if (session && session.user) {
                 try {
+                    // 🔒 حاجز الأمان الحاسم: إذا كانت الجلسة الحالية من مصنع آخر يتم حذفها فوراً
+                    if (session.user.role !== 'super_admin' && activeTenant && activeTenant.id && activeTenant.slug !== 'default' && activeTenant.slug !== 'super_admin') {
+                        if (session.user.tenant_id && session.user.tenant_id !== activeTenant.id) {
+                            logoutUser();
+                            return;
+                        }
+                    }
+
                     // Fetch fresh permissions to handle state changes or deactivations
                     const { data: user, error } = await supabase
                         .from('system_users')

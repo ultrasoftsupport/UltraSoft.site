@@ -626,8 +626,90 @@ export const DEFAULT_THEMES = {
       "show_hero_image": true,
       "hero_image_blend": "overlay"
     }
+  },
+  "Light Theme": {
+    "name": "Light Theme",
+    "description": "المظهر الفاتح الناصع والمريح للعين.",
+    "is_system": true,
+    "colors": {
+      "page": { "bg": "#ebf3fa", "bg_secondary": "#ffffff", "surface": "#ffffff", "text": "#0f172a", "text_muted": "#475569" },
+      "brand": { "primary": "#0284c7" },
+      "buttons": { "style_preset": "rounded-lg" },
+      "product_cards": { "style_preset": "modern-glass" }
+    }
+  },
+  "Dark Theme": {
+    "name": "Dark Theme",
+    "description": "المظهر الداكن الفاخر والسينمائي المعزز.",
+    "is_system": true,
+    "colors": {
+      "page": { "bg": "#0b1329", "bg_secondary": "#0f172a", "surface": "#0f172a", "text": "#f8fafc", "text_muted": "#cbd5e1" },
+      "brand": { "primary": "#0284c7" },
+      "buttons": { "style_preset": "rounded-lg" },
+      "product_cards": { "style_preset": "modern-glass" }
+    }
+  },
+  "Midnight Theme": {
+    "name": "Midnight Theme",
+    "description": "مظهر غامق بلون كحلي جذاب وتفاصيل فاخرة.",
+    "is_system": true,
+    "colors": {
+      "page": { "bg": "#090d16", "bg_secondary": "#0d1322", "surface": "#0d1322", "text": "#f1f5f9", "text_muted": "#94a3b8" },
+      "brand": { "primary": "#38bdf8" },
+      "buttons": { "style_preset": "rounded-lg" },
+      "product_cards": { "style_preset": "modern-glass" }
+    }
   }
 };
+
+// Aliases for system themes matching catalog names
+DEFAULT_THEMES["Light Theme"].colors = DEFAULT_THEMES["UltraSoft Light Theme"].colors;
+DEFAULT_THEMES["Dark Theme"].colors = DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
+DEFAULT_THEMES["Midnight Theme"].colors = DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
+
+/**
+ * Extract complete theme variables robustly regardless of structure wrapper
+ */
+export function extractThemeVariables(themeObj) {
+  if (!themeObj) return DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
+
+  // 1. Check parsed colors
+  const parsed = parseThemeColors(themeObj);
+  if (parsed && parsed.page && parsed.page.bg) {
+    return parsed;
+  }
+
+  // 2. Check themeObj.colors.colors
+  if (themeObj.colors && themeObj.colors.colors && themeObj.colors.colors.page) {
+    return themeObj.colors.colors;
+  }
+
+  // 3. Check themeObj.colors
+  if (themeObj.colors && themeObj.colors.page) {
+    return themeObj.colors;
+  }
+
+  // 4. Check themeObj.variables
+  if (themeObj.variables && themeObj.variables.page) {
+    return themeObj.variables;
+  }
+  if (themeObj.variables && themeObj.variables.colors && themeObj.variables.colors.page) {
+    return themeObj.variables.colors;
+  }
+
+  // 5. Check DEFAULT_THEMES by name or theme_key
+  const name = themeObj.name || themeObj.theme_key;
+  if (name && DEFAULT_THEMES[name] && DEFAULT_THEMES[name].colors) {
+    return DEFAULT_THEMES[name].colors;
+  }
+
+  // 6. Name match fallback
+  const strName = String(name || '');
+  if (strName.includes('Light')) return DEFAULT_THEMES["UltraSoft Light Theme"].colors;
+  if (strName.includes('Warm')) return DEFAULT_THEMES["Warm Theme"].colors;
+
+  return DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
+}
 
 DEFAULT_THEMES["Dark Theme"] = DEFAULT_THEMES["UltraSoft Dark Theme"];
 DEFAULT_THEMES["Light Theme"] = DEFAULT_THEMES["UltraSoft Light Theme"];
@@ -1257,6 +1339,11 @@ export function applyTheme(theme) {
   }
 
   styleEl.innerHTML = cssText;
+
+  // Re-apply Hero Background Fades & Settings to match new active theme colors immediately
+  if (typeof window.loadHeroSettings === 'function') {
+    try { window.loadHeroSettings(true); } catch (e) {}
+  }
 }
 
 /**
@@ -1282,22 +1369,26 @@ export async function syncActiveTheme() {
     }
 
     let theme = null;
-    if (activeThemeId) {
-      const { data } = await supabase
-        .from('themes')
-        .select('*')
-        .eq('id', activeThemeId)
-        .maybeSingle();
-      theme = data;
-    }
+    try {
+      if (activeThemeId) {
+        const { data } = await supabase
+          .from('themes')
+          .select('*')
+          .eq('id', activeThemeId)
+          .maybeSingle();
+        theme = data;
+      }
 
-    if (!theme) {
-      const { data } = await supabase
-        .from('themes')
-        .select('*')
-        .eq('is_active', true)
-        .maybeSingle();
-      theme = data;
+      if (!theme) {
+        const { data } = await supabase
+          .from('themes')
+          .select('*')
+          .eq('is_active', true)
+          .maybeSingle();
+        theme = data;
+      }
+    } catch(tErr) {
+      console.warn('Themes fetching warning (using fallback default theme):', tErr);
     }
 
     if (theme) {
@@ -1359,6 +1450,9 @@ function loadCachedOrFallback() {
 
 export async function loadAllThemes() {
   try {
+    const currentTenantId = getCurrentTenantId();
+    
+    // Fetch all themes from database
     const { data, error } = await supabase
       .from('themes')
       .select('*')
@@ -1366,52 +1460,63 @@ export async function loadAllThemes() {
 
     if (error) throw error;
 
-    // Auto-seed UltraSoft system themes if missing in database
-    if (data) {
+    let activeThemeIdFromSettings = null;
+    if (currentTenantId) {
       try {
-        const dbSystemThemeNames = data.map(t => t.name);
-        const systemKeysToSeed = ["UltraSoft Dark Theme", "UltraSoft Light Theme"].filter(name => !dbSystemThemeNames.includes(name));
-        
-        if (systemKeysToSeed.length > 0) {
-          const hasActiveInDb = data.some(t => t.is_active);
-          const inserts = systemKeysToSeed.map((name, idx) => ({
-            name: name,
-            theme_key: name.toLowerCase().replace(/\s+/g, '-'),
-            colors: DEFAULT_THEMES[name],
-            is_active: !hasActiveInDb && idx === 0
-          }));
-          
-          const { data: seeded, error: seedErr } = await supabase
-            .from('themes')
-            .insert(inserts)
-            .select();
-            
-          if (!seedErr && seeded) {
-            const combined = [...data, ...seeded];
-            combined.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
-            return combined;
-          }
+        const { data: setRes } = await supabase
+          .from('home_settings')
+          .select('setting_value')
+          .eq('tenant_id', currentTenantId)
+          .eq('setting_key', 'active_theme_id')
+          .maybeSingle();
+        if (setRes && setRes.setting_value) {
+          activeThemeIdFromSettings = setRes.setting_value;
         }
-      } catch (e) {
-        console.warn('Auto-seeding system themes failed:', e.message);
-      }
+      } catch (e) {}
     }
 
-    if (!data || data.length === 0) {
-      const systemNames = ["UltraSoft Dark Theme", "UltraSoft Light Theme"];
-      return systemNames.map((name, index) => ({
-        id: index === 0 ? '00000000-0000-0000-0000-000000000001' : '00000000-0000-0000-0000-000000000002',
-        name: name,
-        theme_key: name.toLowerCase().replace(/\s+/g, '-'),
-        description: DEFAULT_THEMES[name].description,
-        is_system: true,
-        is_active: index === 0,
-        variables: DEFAULT_THEMES[name],
-        colors: DEFAULT_THEMES[name].colors
-      }));
+    if (data && data.length > 0) {
+      // System themes show for everyone. Custom factory themes show ONLY to the factory that created them.
+      const processed = data
+        .filter(t => {
+          // If theme explicitly has a tenant_id or is marked as non-system, verify ownership
+          if (t.tenant_id || t.is_system === false) {
+            if (!currentTenantId) return false;
+            return String(t.tenant_id) === String(currentTenantId);
+          }
+          // Default unassigned system themes show for everyone
+          return true;
+        })
+        .map(t => {
+          const isSystemTheme = (t.is_system !== undefined && t.is_system !== null) 
+            ? Boolean(t.is_system) 
+            : !t.tenant_id;
+          const isActive = activeThemeIdFromSettings 
+            ? String(t.id) === String(activeThemeIdFromSettings)
+            : Boolean(t.is_active);
+          return {
+            ...t,
+            is_system: isSystemTheme,
+            is_active: isActive
+          };
+        });
+
+      return processed;
     }
 
-    return data;
+    // Default system themes fallback if table is empty
+    const systemNames = ["UltraSoft Dark Theme", "UltraSoft Light Theme"];
+    return systemNames.map((name, index) => ({
+      id: index === 0 ? '00000000-0000-0000-0000-000000000001' : '00000000-0000-0000-0000-000000000002',
+      name: name,
+      theme_key: name.toLowerCase().replace(/\s+/g, '-'),
+      description: DEFAULT_THEMES[name].description,
+      is_system: true,
+      is_active: activeThemeIdFromSettings ? String(activeThemeIdFromSettings).includes(String(index + 1)) : index === 0,
+      variables: DEFAULT_THEMES[name],
+      colors: DEFAULT_THEMES[name].colors
+    }));
+
   } catch (e) {
     console.warn('Using system themes list fallback. Error:', e.message);
     const systemNames = ["UltraSoft Dark Theme", "UltraSoft Light Theme"];
@@ -1429,24 +1534,48 @@ export async function loadAllThemes() {
 }
 
 export async function createNewTheme(name, baseOnThemeVariables, description = '') {
+  const currentTenantId = getCurrentTenantId();
   const fullThemeData = {
     ...baseOnThemeVariables,
     description: description || 'تم إنشاؤه مخصصاً بواسطة لوحة التحكم.'
   };
 
-  const { data, error } = await supabase
-    .from('themes')
-    .insert({
-      name: name,
-      theme_key: 'custom-' + Date.now(),
-      colors: fullThemeData,
-      is_active: false
-    })
-    .select()
-    .single();
+  const payload = {
+    name: name,
+    theme_key: 'custom-' + Date.now(),
+    colors: fullThemeData,
+    is_active: false,
+    is_system: false
+  };
 
-  if (error) throw error;
-  return data;
+  if (currentTenantId) {
+    payload.tenant_id = currentTenantId;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('themes')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.warn('Full payload insert fallback:', err.message);
+    const { data, error } = await supabase
+      .from('themes')
+      .insert({
+        name: name,
+        colors: fullThemeData,
+        is_active: false
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
 }
 
 export async function updateTheme(themeId, variables, description) {
@@ -1488,40 +1617,28 @@ export async function activateTheme(themeId) {
     }
   }
 
-  const isFallbackId = typeof themeId === 'string' && (themeId.startsWith('sys-') || themeId.startsWith('00000000-0000-0000-0000-'));
-
-  if (isFallbackId) {
-    const isLight = themeId.includes('2') || themeId.includes('light') || themeId.includes('sys-1');
-    const sysName = isLight ? "UltraSoft Light Theme" : "UltraSoft Dark Theme";
-    const targetTheme = DEFAULT_THEMES[sysName] || DEFAULT_THEMES["UltraSoft Dark Theme"];
-    const fullObj = {
-      id: themeId,
-      name: sysName,
-      theme_key: sysName.toLowerCase().replace(/\s+/g, '-'),
-      is_active: true,
-      is_system: true,
-      colors: targetTheme.colors,
-      variables: targetTheme
-    };
-    updateCacheAndApply(fullObj, currentTenantId);
-    return fullObj;
+  // 2. Update is_active flag in database gracefully
+  try {
+    await supabase.from('themes').update({ is_active: false }).neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('themes').update({ is_active: true }).eq('id', themeId);
+  } catch (e) {
+    console.warn('Theme is_active update notice:', e.message);
   }
 
+  // 3. Fetch and apply theme variables to DOM
   try {
-    const { data: updatedTheme, error: selectError } = await supabase
+    const { data: targetTheme } = await supabase
       .from('themes')
       .select('*')
       .eq('id', themeId)
       .maybeSingle();
 
-    if (selectError) throw selectError;
-
-    if (updatedTheme) {
-      updateCacheAndApply(updatedTheme, currentTenantId);
-      return updatedTheme;
+    if (targetTheme) {
+      updateCacheAndApply(targetTheme, currentTenantId);
+      return targetTheme;
     }
   } catch (err) {
-    console.warn('Database theme activation fallback:', err.message);
+    console.warn('Database theme activation lookup notice:', err.message);
   }
   const isLight = String(themeId).includes('light') || String(themeId).includes('2') || String(themeId).includes('sys-1');
   const sysName = isLight ? "UltraSoft Light Theme" : "UltraSoft Dark Theme";

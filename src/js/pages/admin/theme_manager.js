@@ -8,7 +8,8 @@ import {
   DEFAULT_THEMES,
   applyTheme,
   resetSystemTheme,
-  parseThemeColors
+  parseThemeColors,
+  extractThemeVariables
 } from '../../services/theme.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog, promptDialog } from '../../components/modal.js';
@@ -18,7 +19,14 @@ let allThemes = [];
 let activeThemeId = null;
 
 export async function initThemeManagerView() {
-  if (isInitialized) return;
+  const container = document.getElementById('view-theme-manager');
+  if (!container) return;
+
+  if (isInitialized) {
+    await loadThemes();
+    return;
+  }
+  isInitialized = true;
 
   // Form submit listeners
   document.getElementById('theme-create-form')?.addEventListener('submit', handleCreateTheme);
@@ -28,15 +36,16 @@ export async function initThemeManagerView() {
   
   // Load themes
   await loadThemes();
-  isInitialized = true;
 }
 
 // --- Load and Render Themes ---
-export async function loadThemes() {
+async function loadThemes() {
   const container = document.getElementById('themes-grid-container');
+  if (!container) return;
+
   container.innerHTML = `
-    <div class="col-span-full py-12 text-center text-devo-muted">
-      <i class="ph ph-spinner animate-spin text-4xl text-devo-orange mb-3 block mx-auto"></i>
+    <div class="col-span-full py-12 flex items-center justify-center text-devo-muted gap-3">
+      <i class="ph ph-spinner animate-spin text-2xl text-devo-orange"></i>
       جاري تحميل المظاهر المتاحة...
     </div>
   `;
@@ -118,35 +127,30 @@ function renderThemesGrid() {
       ? `<button onclick="window.triggerResetSystemTheme('${t.id}', '${t.name}')" class="w-10 h-10 bg-devo-black hover:bg-yellow-500/10 text-yellow-500 border border-devo-gray hover:border-yellow-500/30 rounded-lg flex items-center justify-center transition-colors" title="استعادة الإعدادات الافتراضية للمظهر"><i class="ph ph-arrow-counter-clockwise text-sm"></i></button>`
       : `<button onclick="window.triggerOpenCustomizer('${t.id}')" class="w-10 h-10 bg-devo-black hover:bg-devo-gray text-white border border-devo-gray rounded-lg flex items-center justify-center transition-colors" title="تخصيص وتعديل المتغيرات"><i class="ph ph-paint-brush-broad text-sm"></i></button>`;
 
-    const badgeClass = isSys 
-      ? 'bg-devo-gray text-devo-muted border border-devo-gray/40' 
-      : 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
-    const badgeText = isSys ? 'نظام (System)' : 'مخصص (Custom)';
-
     return `
-      <div class="bg-devo-dark border ${isAct ? 'border-devo-orange ring-1 ring-devo-orange' : 'border-devo-gray'} rounded-2xl p-5 flex flex-col gap-4 transition-all hover:border-devo-grayHover shadow-md relative group">
+      <div class="bg-devo-dark border ${isAct ? 'border-devo-orange ring-1 ring-devo-orange' : 'border-devo-gray'} rounded-xl p-5 shadow-sm flex flex-col justify-between relative transition-all hover:border-devo-orange/50">
         
-        <!-- Info -->
-        <div class="flex justify-between items-start">
-          <div class="space-y-1">
-            <h4 class="text-white font-bold text-base flex items-center gap-2">
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div>
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
               ${t.name}
-              ${isAct ? `<span class="w-2.5 h-2.5 rounded-full bg-devo-success shadow-[0_0_8px_rgba(16,185,129,0.6)]" title="نشط"></span>` : ''}
-            </h4>
-            <p class="text-devo-muted text-xs leading-relaxed max-w-[200px] block truncate" title="${finalDescription}">${finalDescription}</p>
+              ${isAct ? `<span class="w-2 h-2 rounded-full bg-devo-success animate-pulse"></span>` : ''}
+            </h3>
+            <p class="text-xs text-devo-muted line-clamp-2 mt-1 leading-relaxed">${finalDescription}</p>
           </div>
-          <span class="text-[10px] font-bold px-2 py-1 rounded ${badgeClass}">
-            ${badgeText}
+          <span class="px-2.5 py-1 rounded-md text-[10px] font-bold shrink-0 ${isSys ? 'bg-devo-warning/10 text-devo-warning border border-devo-warning/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'}">
+            ${isSys ? 'نظام (System)' : 'مخصص (Custom)'}
           </span>
         </div>
 
-        <!-- Color Previews Dots -->
-        <div class="bg-devo-black/40 border border-devo-gray/50 rounded-xl p-3.5 flex items-center justify-between">
+        <!-- Palette Preview -->
+        <div class="bg-devo-black/60 border border-devo-gray/50 rounded-lg p-3 my-4 flex items-center justify-between">
           <span class="text-xs text-devo-muted font-bold">لوحة الألوان الأساسية:</span>
-          <div class="flex gap-2">
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${pageBg}" title="خلفية الصفحة الرئيسية: ${pageBg}"></span>
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${surface}" title="الخلفية الفرعية: ${surface}"></span>
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${primary}" title="اللون المميز/البراند: ${primary}"></span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${pageBg}" title="خلفية الموقع: ${pageBg}"></span>
+            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${primary}" title="اللون الرئيسي: ${primary}"></span>
+            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${surface}" title="خلفية الكروت: ${surface}"></span>
             <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${text}" title="لون الخطوط: ${text}"></span>
           </div>
         </div>
@@ -214,7 +218,9 @@ async function handleCreateTheme(e) {
   showToast('جاري إنشاء المظهر...', 'info');
 
   try {
-    const data = await createNewTheme(name, baseTheme.variables, description);
+    const fullBaseData = extractThemeVariables(baseTheme);
+
+    const data = await createNewTheme(name, fullBaseData, description);
     showToast('تم إنشاء المظهر بنجاح ✓', 'success');
     closeCreateThemeModal();
     
@@ -375,7 +381,25 @@ const FIELD_MAP = {
 };
 
 function getNestedValue(obj, path) {
-  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  if (!obj) return undefined;
+  
+  // 1. Direct path lookup
+  let val = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  if (val !== undefined) return val;
+
+  // 2. If path has 'colors.' prefix but obj is already colors object
+  if (path.startsWith('colors.')) {
+    const subPath = path.replace(/^colors\./, '');
+    val = subPath.split('.').reduce((acc, part) => acc && acc[part], obj);
+    if (val !== undefined) return val;
+  }
+
+  // 3. Nested colors property check
+  if (obj.colors) {
+    return getNestedValue(obj.colors, path);
+  }
+
+  return undefined;
 }
 
 function setNestedValue(obj, path, value) {
@@ -444,15 +468,21 @@ window.triggerOpenCustomizer = function(id) {
     footerInfo.textContent = `ID: ${theme.id} | ${theme.is_system ? 'مظهر افتراضي بالنظام (محمي)' : 'مظهر مخصص للموقع'}`;
   }
 
-  // Populate values into form fields
-  const variables = theme.variables || {};
+  // Populate values into form fields from theme colors/variables or default system theme fallback
+  const variables = extractThemeVariables(theme);
+  
   
   for (const [fieldId, path] of Object.entries(FIELD_MAP)) {
     const el = document.getElementById(fieldId);
     let val = getNestedValue(variables, path);
     
     if (el) {
-      if (el.type === 'checkbox') {
+      if (el.tagName === 'SELECT') {
+        if (fieldId === 'theme-buttons-style') el.value = val || 'solid';
+        else if (fieldId === 'theme-cards-style') el.value = val || 'glass';
+        else if (fieldId === 'theme-font-family') el.value = val || 'Tajawal, sans-serif';
+        else el.value = val || (el.options[0] ? el.options[0].value : '');
+      } else if (el.type === 'checkbox') {
         el.checked = !!val;
       } else {
         el.value = val || '';
