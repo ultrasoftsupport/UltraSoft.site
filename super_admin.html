@@ -962,21 +962,24 @@
 
         // Helper to construct dynamic environment URLs
         function getTenantUrls(slug) {
-            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const hostPort = window.location.port ? `:${window.location.port}` : '';
+            const hostname = window.location.hostname;
+            const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+            const isVercel = hostname.endsWith('.vercel.app');
             const protocol = window.location.protocol;
 
-            const storeUrl = isLocalhost
-                ? `${protocol}//${window.location.hostname}${hostPort}/index.html?tenant=${slug}`
-                : `https://${slug}.ultrasoft.site/`;
+            // إذا كانت البيئة محلية أو على Vercel أو أي نطاق ديناميكي: نستخدم المعلمات القابلة للفتح المباشر 100%
+            if (isLocalhost || isVercel || !hostname.includes('ultrasoft.site')) {
+                const baseUrl = `${protocol}//${window.location.host}`;
+                const storeUrl = `${baseUrl}/index.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+                const adminUrl = `${baseUrl}/admin.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+                const authUrl = `${baseUrl}/auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+                return { storeUrl, adminUrl, authUrl };
+            }
 
-            const adminUrl = isLocalhost
-                ? `${protocol}//${window.location.hostname}${hostPort}/admin.html?tenant=${slug}`
-                : `https://${slug}.ultrasoft.site/admin.html`;
-
-            const authUrl = isLocalhost
-                ? `${protocol}//${window.location.hostname}${hostPort}/auth.html?tenant=${slug}`
-                : `https://${slug}.ultrasoft.site/auth.html`;
+            // في حال وجود نطاق خاص كاستوم ultrasoft.site
+            const storeUrl = `https://${slug}.ultrasoft.site/`;
+            const adminUrl = `https://${slug}.ultrasoft.site/admin.html`;
+            const authUrl = `https://${slug}.ultrasoft.site/auth.html`;
 
             return { storeUrl, adminUrl, authUrl };
         }
