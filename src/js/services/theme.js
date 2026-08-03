@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase.js';
+import { getCurrentTenantId } from './tenant_service.js';
 
 export function isHexColorLight(hex) {
   if (!hex || hex[0] !== '#') return false;
@@ -1264,35 +1265,57 @@ export function applyTheme(theme) {
  */
 export async function syncActiveTheme() {
   try {
-    const { data: theme, error } = await supabase
-      .from('themes')
-      .select('*')
-      .eq('is_active', true)
-      .maybeSingle();
+    const currentTenantId = getCurrentTenantId();
+    let activeThemeId = null;
 
-    if (error) {
-      console.warn('Supabase theme sync error:', error.message);
-      loadCachedOrFallback();
-      return;
+    if (currentTenantId) {
+      const { data: tenantSetting } = await supabase
+        .from('home_settings')
+        .select('setting_value')
+        .eq('tenant_id', currentTenantId)
+        .eq('setting_key', 'active_theme_id')
+        .maybeSingle();
+
+      if (tenantSetting && tenantSetting.setting_value) {
+        activeThemeId = tenantSetting.setting_value;
+      }
+    }
+
+    let theme = null;
+    if (activeThemeId) {
+      const { data } = await supabase
+        .from('themes')
+        .select('*')
+        .eq('id', activeThemeId)
+        .maybeSingle();
+      theme = data;
+    }
+
+    if (!theme) {
+      const { data } = await supabase
+        .from('themes')
+        .select('*')
+        .eq('is_active', true)
+        .maybeSingle();
+      theme = data;
     }
 
     if (theme) {
       const themeColors = theme.colors?.colors ? theme.colors : (theme.colors || {});
-      const cachedStr = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+      const cachedStr = localStorage.getItem(`ultrasoft_active_theme_${currentTenantId}`) || localStorage.getItem('devo_active_theme');
       if (cachedStr) {
         const cached = JSON.parse(cachedStr);
         const cachedColors = cached.colors?.colors ? cached.colors.colors : (cached.colors || {});
         const targetColors = themeColors.colors || themeColors;
         if (cached.id !== theme.id || JSON.stringify(cachedColors) !== JSON.stringify(targetColors)) {
-          updateCacheAndApply(theme);
+          updateCacheAndApply(theme, currentTenantId);
         } else {
           applyTheme(cached);
         }
       } else {
-        updateCacheAndApply(theme);
+        updateCacheAndApply(theme, currentTenantId);
       }
     } else {
-      // No active theme in DB, use Dark Theme default
       loadCachedOrFallback();
     }
   } catch (e) {
@@ -1301,7 +1324,7 @@ export async function syncActiveTheme() {
   }
 }
 
-function updateCacheAndApply(dbTheme) {
+function updateCacheAndApply(dbTheme, tenantId = '') {
   const themeData = dbTheme.colors?.colors ? dbTheme.colors : (dbTheme.colors || {});
   const themeObj = {
     id: dbTheme.id,
@@ -1313,7 +1336,8 @@ function updateCacheAndApply(dbTheme) {
     animations: themeData.animations || {},
     visuals: themeData.visuals || {}
   };
-  localStorage.setItem('ultrasoft_active_theme', JSON.stringify(themeObj));
+  const key = tenantId ? `ultrasoft_active_theme_${tenantId}` : 'ultrasoft_active_theme';
+  localStorage.setItem(key, JSON.stringify(themeObj));
   localStorage.setItem('devo_active_theme', JSON.stringify(themeObj));
   applyTheme(themeObj);
 }
@@ -1446,6 +1470,23 @@ export async function updateTheme(themeId, variables, description) {
 
 export async function activateTheme(themeId) {
   if (!themeId) return null;
+  const currentTenantId = getCurrentTenantId();
+
+  // 1. Save active theme for this tenant in home_settings
+  if (currentTenantId) {
+    try {
+      await supabase
+        .from('home_settings')
+        .upsert({
+          tenant_id: currentTenantId,
+          setting_key: 'active_theme_id',
+          setting_value: String(themeId),
+          description: 'المظهر المفعل لهذا المصنع'
+        }, { onConflict: 'tenant_id,setting_key' });
+    } catch (e) {
+      console.warn('Saving active_theme_id notice:', e.message);
+    }
+  }
 
   const isFallbackId = typeof themeId === 'string' && (themeId.startsWith('sys-') || themeId.startsWith('00000000-0000-0000-0000-'));
 
@@ -1462,48 +1503,40 @@ export async function activateTheme(themeId) {
       colors: targetTheme.colors,
       variables: targetTheme
     };
-    updateCacheAndApply(fullObj);
+    updateCacheAndApply(fullObj, currentTenantId);
     return fullObj;
   }
 
   try {
-    // 1. Deactivate other themes
-    const { error: resetError } = await supabase
-      .from('themes')
-      .update({ is_active: false })
-      .neq('id', themeId);
-      
-    if (resetError) console.warn('Reset active themes notice:', resetError.message);
-
-    // 2. Activate target theme
     const { data: updatedTheme, error: selectError } = await supabase
       .from('themes')
-      .update({ is_active: true })
+      .select('*')
       .eq('id', themeId)
-      .select()
-      .single();
+      .maybeSingle();
 
     if (selectError) throw selectError;
 
-    updateCacheAndApply(updatedTheme);
-    return updatedTheme;
+    if (updatedTheme) {
+      updateCacheAndApply(updatedTheme, currentTenantId);
+      return updatedTheme;
+    }
   } catch (err) {
     console.warn('Database theme activation fallback:', err.message);
-    const isLight = String(themeId).includes('light') || String(themeId).includes('2') || String(themeId).includes('sys-1');
-    const sysName = isLight ? "UltraSoft Light Theme" : "UltraSoft Dark Theme";
-    const targetTheme = DEFAULT_THEMES[sysName] || DEFAULT_THEMES["UltraSoft Dark Theme"];
-    const fullObj = {
-      id: themeId,
-      name: targetTheme.name,
-      theme_key: targetTheme.name.toLowerCase().replace(/\s+/g, '-'),
-      is_active: true,
-      is_system: true,
-      colors: targetTheme.colors,
-      variables: targetTheme
-    };
-    updateCacheAndApply(fullObj);
-    return fullObj;
   }
+  const isLight = String(themeId).includes('light') || String(themeId).includes('2') || String(themeId).includes('sys-1');
+  const sysName = isLight ? "UltraSoft Light Theme" : "UltraSoft Dark Theme";
+  const targetTheme = DEFAULT_THEMES[sysName] || DEFAULT_THEMES["UltraSoft Dark Theme"];
+  const fullObj = {
+    id: themeId,
+    name: targetTheme.name,
+    theme_key: targetTheme.name.toLowerCase().replace(/\s+/g, '-'),
+    is_active: true,
+    is_system: true,
+    colors: targetTheme.colors,
+    variables: targetTheme
+  };
+  updateCacheAndApply(fullObj, currentTenantId);
+  return fullObj;
 }
 
 export async function duplicateTheme(themeId, newName) {

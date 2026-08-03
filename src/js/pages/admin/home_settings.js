@@ -3,6 +3,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { HEADER_LAYOUTS } from '../home/header_layouts.js';
 import { FOOTER_LAYOUTS } from '../home/footer_layouts.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let promoCards = [];
@@ -36,7 +37,12 @@ export async function initHomeSettingsView() {
 // ==========================================
 
 export async function loadHeroSettings() {
-    const { data, error } = await supabase.from('home_settings').select('*');
+    const currentTenantId = getCurrentTenantId();
+    let query = supabase.from('home_settings').select('*');
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+    const { data, error } = await query;
     if (error || !data) return;
 
     const map = {};
@@ -231,15 +237,16 @@ window.saveHeaderFooterLayouts = async () => {
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري الحفظ...`;
 
     try {
+        const currentTenantId = getCurrentTenantId();
         const headerVal = document.getElementById('hs-header-layout')?.value || 'classic';
         const footerVal = document.getElementById('hs-footer-layout')?.value || 'simple';
 
         const updates = [
-            { setting_key: 'header_layout', setting_value: headerVal },
-            { setting_key: 'footer_layout', setting_value: footerVal }
+            { tenant_id: currentTenantId, setting_key: 'header_layout', setting_value: headerVal },
+            { tenant_id: currentTenantId, setting_key: 'footer_layout', setting_value: footerVal }
         ];
 
-        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'setting_key' });
+        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
         if (error) throw error;
 
         currentSettings.header_layout = headerVal;
@@ -264,39 +271,40 @@ window.saveHeroSettings = async () => {
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري الحفظ...`;
 
     try {
+        const currentTenantId = getCurrentTenantId();
         const updates = [
-            { setting_key: 'hero_title', setting_value: document.getElementById('hs-hero-title').value.trim() },
-            { setting_key: 'hero_subtitle', setting_value: document.getElementById('hs-hero-subtitle').value.trim() },
-            { setting_key: 'hero_bg_desktop', setting_value: document.getElementById('hs-bg-desktop').value.trim() },
-            { setting_key: 'hero_bg_mobile', setting_value: document.getElementById('hs-bg-mobile').value.trim() },
-            { setting_key: 'social_facebook', setting_value: document.getElementById('hs-social-fb').value.trim() },
-            { setting_key: 'social_whatsapp', setting_value: document.getElementById('hs-social-wa').value.trim() },
-            { setting_key: 'social_telegram', setting_value: (document.getElementById('hs-social-tg')?.value || '').trim() },
-            { setting_key: 'social_maps', setting_value: document.getElementById('hs-social-maps').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'hero_title', setting_value: document.getElementById('hs-hero-title').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'hero_subtitle', setting_value: document.getElementById('hs-hero-subtitle').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_desktop', setting_value: document.getElementById('hs-bg-desktop').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_mobile', setting_value: document.getElementById('hs-bg-mobile').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'social_facebook', setting_value: document.getElementById('hs-social-fb').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'social_whatsapp', setting_value: document.getElementById('hs-social-wa').value.trim() },
+            { tenant_id: currentTenantId, setting_key: 'social_telegram', setting_value: (document.getElementById('hs-social-tg')?.value || '').trim() },
+            { tenant_id: currentTenantId, setting_key: 'social_maps', setting_value: document.getElementById('hs-social-maps').value.trim() },
             
             // خصائص التحكم المتقدمة في الخلفية والنصوص
-            { setting_key: 'hero_bg_show', setting_value: document.getElementById('hs-bg-show')?.value || 'true' },
-            { setting_key: 'hero_bg_blend', setting_value: document.getElementById('hs-bg-blend')?.value || 'normal' },
-            { setting_key: 'hero_bg_glass', setting_value: document.getElementById('hs-bg-glass')?.value || 'soft' },
-            { setting_key: 'hero_title_color', setting_value: document.getElementById('hs-title-color')?.value || '#ffffff' },
-            { setting_key: 'hero_subtitle_color', setting_value: document.getElementById('hs-subtitle-color')?.value || '#a3a3a3' },
-            { setting_key: 'hero_bg_edge_feather', setting_value: document.getElementById('hs-bg-edge-feather')?.value || '25' },
-            { setting_key: 'hero_bg_opacity', setting_value: document.getElementById('hs-bg-opacity')?.value || '100' },
-            { setting_key: 'hero_bg_overlay_opacity', setting_value: document.getElementById('hs-bg-overlay')?.value || '40' },
-            { setting_key: 'hero_bg_blur', setting_value: document.getElementById('hs-bg-blur')?.value || '0' },
-            { setting_key: 'hero_glass_opacity', setting_value: document.getElementById('hs-glass-opacity')?.value || '30' },
-            { setting_key: 'hero_glass_blur', setting_value: document.getElementById('hs-glass-blur')?.value || '12' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_show', setting_value: document.getElementById('hs-bg-show')?.value || 'true' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_blend', setting_value: document.getElementById('hs-bg-blend')?.value || 'normal' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_glass', setting_value: document.getElementById('hs-bg-glass')?.value || 'soft' },
+            { tenant_id: currentTenantId, setting_key: 'hero_title_color', setting_value: document.getElementById('hs-title-color')?.value || '#ffffff' },
+            { tenant_id: currentTenantId, setting_key: 'hero_subtitle_color', setting_value: document.getElementById('hs-subtitle-color')?.value || '#a3a3a3' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_edge_feather', setting_value: document.getElementById('hs-bg-edge-feather')?.value || '25' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_opacity', setting_value: document.getElementById('hs-bg-opacity')?.value || '100' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_overlay_opacity', setting_value: document.getElementById('hs-bg-overlay')?.value || '40' },
+            { tenant_id: currentTenantId, setting_key: 'hero_bg_blur', setting_value: document.getElementById('hs-bg-blur')?.value || '0' },
+            { tenant_id: currentTenantId, setting_key: 'hero_glass_opacity', setting_value: document.getElementById('hs-glass-opacity')?.value || '30' },
+            { tenant_id: currentTenantId, setting_key: 'hero_glass_blur', setting_value: document.getElementById('hs-glass-blur')?.value || '12' },
             
             // خيارات تفعيل الخلفية في بقية الصفحات
-            { setting_key: 'bg_enable_gallery', setting_value: document.getElementById('hs-bg-enable-gallery')?.value || 'false' },
-            { setting_key: 'bg_enable_barcode', setting_value: document.getElementById('hs-bg-enable-barcode')?.value || 'false' },
-            { setting_key: 'bg_enable_cart', setting_value: document.getElementById('hs-bg-enable-cart')?.value || 'false' },
-            { setting_key: 'bg_enable_orders', setting_value: document.getElementById('hs-bg-enable-orders')?.value || 'false' },
-            { setting_key: 'barcode_scan_mode', setting_value: document.getElementById('hs-barcode-scan-mode')?.value || 'both' },
-            { setting_key: 'barcode_match_type', setting_value: document.getElementById('hs-barcode-match-type')?.value || 'both' }
+            { tenant_id: currentTenantId, setting_key: 'bg_enable_gallery', setting_value: document.getElementById('hs-bg-enable-gallery')?.value || 'false' },
+            { tenant_id: currentTenantId, setting_key: 'bg_enable_barcode', setting_value: document.getElementById('hs-bg-enable-barcode')?.value || 'false' },
+            { tenant_id: currentTenantId, setting_key: 'bg_enable_cart', setting_value: document.getElementById('hs-bg-enable-cart')?.value || 'false' },
+            { tenant_id: currentTenantId, setting_key: 'bg_enable_orders', setting_value: document.getElementById('hs-bg-enable-orders')?.value || 'false' },
+            { tenant_id: currentTenantId, setting_key: 'barcode_scan_mode', setting_value: document.getElementById('hs-barcode-scan-mode')?.value || 'both' },
+            { tenant_id: currentTenantId, setting_key: 'barcode_match_type', setting_value: document.getElementById('hs-barcode-match-type')?.value || 'both' }
         ];
 
-        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'setting_key' });
+        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
         if (error) throw error;
 
         showToast('تم تحديث إعدادات الموقع بنجاح', 'success');

@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
+import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl } from '../../services/tenant_service.js';
 
 let allModels = [];
 let currentCategories = new Set();
@@ -55,14 +56,17 @@ export async function initGallery() {
 }
 
 // ==========================================
-// 🌟 1. استدعاء البيانات مع تقنية الكاش الفوري (Stale-While-Revalidate) 🌟
+// 🌟 1. استدعاء البيانات مع تقنية الكاش الفوري وتصفية المصنع (Stale-While-Revalidate) 🌟
 // ==========================================
 async function fetchGalleryModels() {
     const container = document.getElementById('gallery-grid');
     if(!container) return;
     
-    // ⚡ 1. التحميل الفوري السريع من الـ LocalStorage إذا وجد (0ms Instant Load) ⚡
-    const cachedData = localStorage.getItem('devo_cached_gallery_models');
+    const currentTenantId = getCurrentTenantId();
+    const cacheKey = `devo_cached_gallery_models_${currentTenantId || 'default'}`;
+
+    // ⚡ 1. التحميل الفوري السريع من الـ LocalStorage إذا وجد ⚡
+    const cachedData = localStorage.getItem(cacheKey);
     if (cachedData && allModels.length === 0) {
         try {
             allModels = JSON.parse(cachedData);
@@ -77,8 +81,8 @@ async function fetchGalleryModels() {
         container.innerHTML = `<div class="col-span-full py-20 text-center"><i class="ph ph-spinner animate-spin text-5xl text-devo-orange"></i></div>`;
     }
 
-    // 🔄 2. التحديث الصامت في الخلفية من Supabase لتنقيح وحفظ البيانات الحديثة 🔄
-    const { data, error } = await supabase
+    // 🔄 2. التحديث الصامت من Supabase مقترناً بالمصنع النشط 🔄
+    let query = supabase
         .from('models')
         .select(`
             *,
@@ -88,16 +92,21 @@ async function fetchGalleryModels() {
             model_inventory(color_id, available_series, colors(name)),
             model_images(image_url)
         `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .eq('is_active', true);
+
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) return console.error(error);
 
-    allModels = data;
+    allModels = data || [];
 
-    // حفظ أحدث نسخة من البيانات في الـ LocalStorage
+    // حفظ أحدث نسخة من البيانات في الـ LocalStorage برابط المصنع
     try {
-        localStorage.setItem('devo_cached_gallery_models', JSON.stringify(data));
+        localStorage.setItem(cacheKey, JSON.stringify(allModels));
     } catch (e) {
         console.warn('فشل حفظ كاش المعرض بالـ LocalStorage:', e);
     }
@@ -122,8 +131,15 @@ function populateCategoryFilter() {
 // 🌟 2. الرادار اللحظي الشامل (Insert, Update, Delete) 🌟
 // ==========================================
 function setupGalleryRealtime() {
-    supabase.channel('public_gallery_sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'models' }, (payload) => {
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    supabase.channel('public_gallery_sync_' + (currentTenantId || 'default'))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'models', ...filterConfig }, (payload) => {
+            if (currentTenantId) {
+                if (payload.new && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
+                if (payload.old && payload.old.tenant_id && payload.old.tenant_id !== currentTenantId) return;
+            }
             
             // 🚨 حالة الحذف المباشر (DELETE) - تحدث فوراً ولا تحتاج انتظار 🚨
             if (payload.eventType === 'DELETE') {
@@ -177,16 +193,30 @@ function setupGalleryRealtime() {
             }, 800); // <-- زمن الانتظار الذكي
         })
         
-        // 🚨 حالة تعديل المخزون المباشر (سحب الكميات من السلة) 🚨
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'model_inventory' }, (payload) => {
-            const modelIndex = allModels.findIndex(m => m.id === payload.new.model_id);
-            if (modelIndex > -1) {
-                const invIndex = allModels[modelIndex].model_inventory.findIndex(i => i.color_id === payload.new.color_id);
-                if (invIndex > -1) {
-                    allModels[modelIndex].model_inventory[invIndex].available_series = payload.new.available_series;
-                    updateGalleryCardDOM(payload.new.model_id);
-                    updateModelViewerDOM(payload.new.model_id);
-                }
+        // 🚨 حالة تعديل المخزون المباشر (سحب الكميات، الحفظ، أو الاستيراد) 🚨
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'model_inventory' }, async (payload) => {
+            const targetModelId = payload.new?.model_id || payload.old?.model_id;
+            if (!targetModelId) return;
+
+            const modelIndex = allModels.findIndex(m => m.id === targetModelId);
+            if (modelIndex === -1) return;
+
+            // 🔄 جلب التحديث الفعلي للمخزون لهذا الموديل من السيرفر فوراً 🔄
+            const { data: freshInv } = await supabase
+                .from('model_inventory')
+                .select('color_id, available_series, colors(name)')
+                .eq('model_id', targetModelId);
+
+            if (freshInv) {
+                allModels[modelIndex].model_inventory = freshInv;
+
+                // ⚡ تحديث الكاش المحلي فوراً ⚡
+                const cacheKey = `devo_cached_gallery_models_${currentTenantId || 'default'}`;
+                try { localStorage.setItem(cacheKey, JSON.stringify(allModels)); } catch(e) {}
+
+                // ⚡ رسم وتحديث الكارت والنافذة المفتوحة لحظياً ⚡
+                updateGalleryCardDOM(targetModelId);
+                updateModelViewerDOM(targetModelId);
             }
         })
         .subscribe();
@@ -413,7 +443,10 @@ window.openModelViewer = (id, skipHistory = false) => {
     if (!model) return;
 
     if (!skipHistory) {
-        history.pushState({ modelId: id }, '', `?model=${id}`);
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('model', id);
+        const newUrl = window.location.pathname + '?' + urlParams.toString();
+        history.pushState({ modelId: id }, '', newUrl);
     }
 
     const classSizes = model.classes?.class_sizes || [];
@@ -511,7 +544,8 @@ window.openModelViewer = (id, skipHistory = false) => {
 };
 
 function getOwnedQtyForColor(modelId, colorId) {
-    const savedOrderData = localStorage.getItem('devo_edit_order_data');
+    const tenantId = getCurrentTenantId() || 'default';
+    const savedOrderData = localStorage.getItem(`devo_edit_order_data_${tenantId}`);
     if (!savedOrderData) return 0;
     try {
         const orderData = JSON.parse(savedOrderData);
@@ -599,7 +633,10 @@ window.closeModelViewer = (skipHistory = false) => {
         if (history.state && history.state.modelId) {
             history.back();
         } else {
-            history.replaceState(null, '', window.location.pathname);
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('model');
+            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            history.replaceState(null, '', newUrl);
         }
     }
 
@@ -613,10 +650,16 @@ window.closeModelViewer = (skipHistory = false) => {
 };
 
 window.shareModel = async (id) => {
-    const url = `${window.location.origin}${window.location.pathname}?model=${id}`;
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (slug && slug !== 'default' && slug !== 'super_admin') {
+        urlParams.set('tenant', slug);
+    }
+    urlParams.set('model', id);
+    const url = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
     try {
         await navigator.clipboard.writeText(url);
-        showToast('تم نسخ الرابط! يمكنك مشاركته الآن.', 'success');
+        showToast('تم نسخ رابط الموديل الخاص بالمصنع بنجاح!', 'success');
     } catch (err) {
         showToast('حدث خطأ أثناء نسخ الرابط', 'error');
     }
@@ -799,8 +842,14 @@ window.addToCart = (event, modelId, colorId, modelName, colorName, price, image,
     showToast(`تم إضافة الموديل للسلة`, 'success');
 };
 
+function getTenantCartKey() {
+    const tenantId = getCurrentTenantId() || 'default';
+    return `devo_cart_${tenantId}`;
+}
+
 function loadLocalCart() {
-    const saved = localStorage.getItem('devo_cart');
+    const key = getTenantCartKey();
+    const saved = localStorage.getItem(key);
     if (saved) {
         try { localCart = JSON.parse(saved); } catch(e) { localCart = []; }
     } else {
@@ -810,7 +859,8 @@ function loadLocalCart() {
 }
 
 function saveLocalCart() {
-    localStorage.setItem('devo_cart', JSON.stringify(localCart));
+    const key = getTenantCartKey();
+    localStorage.setItem(key, JSON.stringify(localCart));
     updateFloatingCart();
 }
 

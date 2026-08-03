@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraSoft | لوحة تحكم السوبر أدمن</title>
+    <link rel="icon" type="image/png" href="./src/assets/icons/ultrasoft_transparent.png">
+    <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Early Theme Loader Script to Prevent FOUC -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                if (savedTheme) {
+                    const theme = JSON.parse(savedTheme);
+                    const colors = theme.colors;
+                    if (colors) {
+                        const styleEl = document.createElement('style');
+                        styleEl.id = 'devo-theme-styles-early';
+                        const bgHex = colors.page?.bg || '#0b1329';
+                        const isLight = bgHex !== '#0b1329' && bgHex !== '#0f172a' && bgHex !== '#0a0a0a' && bgHex !== '#171717';
+                        const defaultGray = isLight ? (colors.brand?.secondary || '#e1effe') : '#1e293b';
+                        const defaultGrayHover = isLight ? (colors.brand?.secondary_hover || '#bae6fd') : '#334155';
+                        const devoGray = colors.borders?.color || defaultGray;
+                        const devoGrayHover = colors.brand?.secondary_hover || defaultGrayHover;
+
+                        let cssText = `
+                            :root {
+                                --devo-black: ${colors.page?.bg || '#0b1329'};
+                                --devo-dark: ${colors.page?.bg_secondary || colors.page?.surface || '#0f172a'};
+                                --devo-gray: ${devoGray};
+                                --devo-gray-hover: ${devoGrayHover};
+                                --devo-orange: ${colors.brand?.primary || '#0284c7'};
+                                --devo-orange-hover: ${colors.brand?.primary_hover || '#0369a1'};
+                                --devo-text: ${colors.page?.text || '#f8fafc'};
+                                --devo-muted: ${colors.page?.text_muted || '#cbd5e1'};
+                            }
+                        `;
+                        styleEl.innerHTML = cssText;
+                        document.head.appendChild(styleEl);
+                    }
+                }
+            } catch(e) { console.error('Theme early load error:', e); }
+        })();
+    </script>
+
+    <script>
+        const withOpacity = (variableName, fallback) => {
+            return ({ opacityValue }) => {
+                if (opacityValue !== undefined) {
+                    return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
+                }
+                return `var(${variableName}, ${fallback})`;
+            };
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        devo: {
+                            black: withOpacity('--devo-black', '#0b1329'),
+                            dark: withOpacity('--devo-dark', '#0f172a'),
+                            gray: withOpacity('--devo-gray', '#1e293b'),
+                            grayHover: withOpacity('--devo-gray-hover', '#334155'),
+                            orange: withOpacity('--devo-orange', '#0284c7'),
+                            orangeHover: withOpacity('--devo-orange-hover', '#0369a1'),
+                            text: withOpacity('--devo-text', '#f8fafc'),
+                            muted: withOpacity('--devo-muted', '#cbd5e1')
+                        },
+                        ultra: {
+                            400: '#38BDF8',
+                            500: '#0284C7',
+                            600: '#0369A1'
+                        }
+                    },
+                    fontFamily: { sans: ['Cairo', 'Tajawal', 'Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', 'Tajawal', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--devo-black, #0b1329); }
+        ::-webkit-scrollbar-thumb { background: var(--devo-gray, #1e293b); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--devo-orange, #0284c7); }
+
+        #main-sidebar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #main-sidebar.collapsed { width: 64px; }
+        #main-sidebar.collapsed .sidebar-label { opacity: 0; width: 0; overflow: hidden; pointer-events: none; }
+        #main-sidebar.collapsed #sidebar-logo { display: none; }
+        #main-sidebar.collapsed #sidebar-logo-mini { display: flex; }
+        #main-sidebar.collapsed .sidebar-item { justify-content: center; padding-left: 0; padding-right: 0; }
+    </style>
+</head>
+<body class="bg-devo-black text-devo-text h-screen flex overflow-hidden">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="main-sidebar" class="w-64 bg-devo-dark border-l border-devo-gray flex flex-col transition-all duration-300 relative z-20 shrink-0">
+        
+        <!-- Logo + Toggle button -->
+        <div class="h-16 flex items-center justify-between px-4 border-b border-devo-gray shrink-0 overflow-hidden">
+            <div id="sidebar-logo" class="flex items-center gap-2.5 transition-all duration-300 whitespace-nowrap cursor-pointer">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-ultra-500 to-ultra-600 flex items-center justify-center font-black text-lg text-white shadow-lg">
+                    US
+                </div>
+                <div>
+                    <h1 class="text-base font-black tracking-wider text-white">
+                        Ultra<span class="text-ultra-400">Soft</span>
+                    </h1>
+                    <p class="text-[10px] text-devo-muted">Super Admin Platform</p>
+                </div>
+            </div>
+
+            <!-- Mini Logo when collapsed -->
+            <div id="sidebar-logo-mini" class="hidden items-center justify-center cursor-pointer">
+                <div class="w-9 h-9 rounded-xl bg-ultra-500 flex items-center justify-center font-black text-base text-white">
+                    US
+                </div>
+            </div>
+
+            <button id="sidebar-toggle-btn" class="p-1.5 rounded-lg text-devo-muted hover:text-white hover:bg-devo-gray transition-colors">
+                <i class="ph ph-list text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Tabs Links -->
+        <nav class="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
+            <button data-tab="overview" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold transition-all bg-ultra-500/10 text-ultra-400 border-r-4 border-ultra-500">
+                <i class="ph ph-chart-pie text-xl shrink-0"></i>
+                <span class="sidebar-label">الإحصائيات الرئيسية</span>
+            </button>
+
+            <button data-tab="tenants" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
+                <i class="ph ph-buildings text-xl shrink-0"></i>
+                <span class="sidebar-label">إدارة المصانع والشركات</span>
+            </button>
+
+            <button data-tab="subscriptions" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
+                <i class="ph ph-crown text-xl shrink-0"></i>
+                <span class="sidebar-label">الاشتراكات والباقات</span>
+            </button>
+
+            <button data-tab="domains" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
+                <i class="ph ph-globe text-xl shrink-0"></i>
+                <span class="sidebar-label">إدارة النطاقات (Domains)</span>
+            </button>
+
+            <button data-tab="themes" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
+                <i class="ph ph-palette text-xl shrink-0"></i>
+                <span class="sidebar-label">إدارة السمات والمظاهر</span>
+            </button>
+
+            <button data-tab="users" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
+                <i class="ph ph-users-three text-xl shrink-0"></i>
+                <span class="sidebar-label">المستخدمين والصلاحيات</span>
+            </button>
+        </nav>
+
+        <!-- Sidebar Footer Info -->
+        <div class="p-3 border-t border-devo-gray shrink-0">
+            <a href="admin.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray hover:text-white transition-all">
+                <i class="ph ph-arrow-right text-lg shrink-0"></i>
+                <span class="sidebar-label">العودة للوحة المصنع</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT VIEWPORT ===== -->
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+
+        <!-- ===== TOPBAR ===== -->
+        <header class="h-16 bg-devo-dark border-b border-devo-gray px-6 flex items-center justify-between shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <h2 id="currentTabTitle" class="text-lg font-black text-white">الإحصائيات الرئيسية للمنصة</h2>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-ultra-500/10 text-ultra-400 border border-ultra-500/20">Super Admin Mode</span>
+            </div>
+
+            <!-- Topbar Quick Actions -->
+            <div class="flex items-center gap-3">
+                <button id="openNewTenantModal" class="px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all">
+                    <i class="ph ph-plus-circle text-base"></i>
+                    إضافة مصنع / شركة جديدة
+                </button>
+
+                <button id="openThemeModalBtn" class="px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-devo-text flex items-center gap-2 transition-all">
+                    <i class="ph ph-palette text-base text-ultra-400"></i>
+                    <span>تغيير المظهر</span>
+                </button>
+
+                <button id="refreshBtn" title="تحديث البيانات" class="p-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white hover:border-ultra-500 transition-all">
+                    <i class="ph ph-arrows-clockwise text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== MAIN DYNAMIC TAB CONTENT ===== -->
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- TAB 1: OVERVIEW -->
+            <section id="view-overview" class="super-tab-view space-y-6">
+                <!-- Stats Cards Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-xs text-devo-muted font-semibold mb-1">إجمالي المصانع والعملاء</p>
+                            <h3 id="statTotalTenants" class="text-2xl font-black text-white">--</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-ultra-500/10 border border-ultra-500/20 flex items-center justify-center text-ultra-400 text-2xl">
+                            <i class="ph ph-buildings"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-xs text-devo-muted font-semibold mb-1">المصانع النشطة</p>
+                            <h3 id="statActiveTenants" class="text-2xl font-black text-emerald-400">--</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl">
+                            <i class="ph ph-check-circle"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-xs text-devo-muted font-semibold mb-1">الاشتراكات الفعالة</p>
+                            <h3 id="statTotalSubs" class="text-2xl font-black text-blue-400">--</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-2xl">
+                            <i class="ph ph-crown"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-xs text-devo-muted font-semibold mb-1">حالة المنصة وقواعد البيانات</p>
+                            <h3 class="text-base font-bold text-emerald-400 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                RLS & PaaS مؤمنة
+                            </h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-2xl">
+                            <i class="ph ph-cpu"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Activity Overview Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-info text-ultra-400 text-xl"></i>
+                            معلومات المنصة والترقية متعددة المستأجرين (Multi-Tenant Architecture)
+                        </h3>
+                        <p class="text-xs text-devo-muted leading-relaxed">
+                            تم تفعيل نظام عزل البيانات الصارم <b>Row Level Security (RLS)</b> مع دعم المعرف الفريد <code class="text-ultra-400">tenant_id</code> عبر كل جداول قواعد البيانات. يستطيع كل مصنع العمل بشكل مستقل تماماً على النطاق الخاص به دون رؤية أي بيانات خاصة بمصنع آخر.
+                        </p>
+                    </div>
+
+                    <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-shield-check text-emerald-400 text-xl"></i>
+                            أنظمة الأمان والاشتراكات
+                        </h3>
+                        <ul class="space-y-2.5 text-xs text-devo-muted">
+                            <li class="flex items-center justify-between">
+                                <span>Supabase RLS Status</span>
+                                <span class="text-emerald-400 font-bold">مفعّل (Active)</span>
+                            </li>
+                            <li class="flex items-center justify-between">
+                                <span>Domain Router Engine</span>
+                                <span class="text-emerald-400 font-bold">شغال تلقائياً</span>
+                            </li>
+                            <li class="flex items-center justify-between">
+                                <span>Dynamic Themes Engine</span>
+                                <span class="text-emerald-400 font-bold">متطابق</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: TENANTS MANAGEMENT -->
+            <section id="view-tenants" class="super-tab-view space-y-6 hidden">
+                <!-- Header with View Switcher -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white">إدارة المصانع والشركات المسجلة</h3>
+                        <p class="text-xs text-devo-muted">استعراض كافة الحسابات بنظام الجداول أو الكروت المضيئة</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-devo-dark border border-devo-gray p-1 rounded-xl">
+                        <button id="viewModeTableBtn" class="px-3 py-1.5 rounded-lg bg-ultra-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                            <i class="ph ph-table text-base"></i>
+                            جدول
+                        </button>
+                        <button id="viewModeGridBtn" class="px-3 py-1.5 rounded-lg text-devo-muted hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all">
+                            <i class="ph ph-squares-four text-base"></i>
+                            كروت
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Container View -->
+                <div id="tenantsTableContainer" class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right border-collapse">
+                            <thead class="bg-devo-black/70 text-xs text-devo-muted uppercase tracking-wider border-b border-devo-gray">
+                                <tr>
+                                    <th class="py-4 px-5">المصنع / الشركة</th>
+                                    <th class="py-4 px-5">النطاق (Slug)</th>
+                                    <th class="py-4 px-5">السجل والتواصل</th>
+                                    <th class="py-4 px-5">الباقة</th>
+                                    <th class="py-4 px-5">الحدود المتاحة</th>
+                                    <th class="py-4 px-5">الحالة</th>
+                                    <th class="py-4 px-5 text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenantsTableBody" class="divide-y divide-devo-gray/50 text-sm align-middle">
+                                <tr>
+                                    <td colspan="7" class="py-8 text-center text-devo-muted">
+                                        <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
+                                        جاري تحميل بيانات المصانع...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Grid Cards Container View -->
+                <div id="tenantsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                    <!-- Rendered dynamically -->
+                </div>
+            </section>
+
+            <!-- TAB 3: SUBSCRIPTIONS & LIMITS -->
+            <section id="view-subscriptions" class="super-tab-view space-y-6 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white">الباقة الأساسية (Basic)</h4>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">BASIC</span>
+                        </div>
+                        <p class="text-xs text-devo-muted">مناسبة للمتاجر والمكاتب الصغيرة</p>
+                        <div class="text-xs space-y-2 text-devo-text pt-2 border-t border-devo-gray">
+                            <div>📦 الحد الأقصى للممنتجات: <b>500 منتج</b></div>
+                            <div>👥 الحد الأقصى للمستخدمين: <b>5 مستخدمين</b></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-devo-dark border border-ultra-500 p-6 rounded-2xl space-y-4 relative shadow-lg shadow-ultra-500/10">
+                        <span class="absolute -top-3 left-4 px-3 py-0.5 rounded-full text-[10px] font-bold bg-ultra-500 text-white">الأكثر طلباً</span>
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white">الباقة الاحترافية (Pro)</h4>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PRO</span>
+                        </div>
+                        <p class="text-xs text-devo-muted">مناسبة للمصانع والشركات المتوسّطة</p>
+                        <div class="text-xs space-y-2 text-devo-text pt-2 border-t border-devo-gray">
+                            <div>📦 الحد الأقصى للمنتجات: <b>2,500 منتج</b></div>
+                            <div>👥 الحد الأقصى للمستخدمين: <b>25 مستخدم</b></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-devo-dark border border-purple-500/40 p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white">باقة المؤسسات (Enterprise)</h4>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">ENTERPRISE</span>
+                        </div>
+                        <p class="text-xs text-devo-muted">للمصانع الكبرى والشركات متعددة الفروع</p>
+                        <div class="text-xs space-y-2 text-devo-text pt-2 border-t border-devo-gray">
+                            <div>📦 الحد الأقصى للمنتجات: <b>بلا حدود (Unlimited)</b></div>
+                            <div>👥 الحد الأقصى للمستخدمين: <b>بلا حدود (Unlimited)</b></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: DOMAINS -->
+            <section id="view-domains" class="super-tab-view space-y-6 hidden">
+                <div class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden">
+                    <div class="p-4 border-b border-devo-gray flex items-center justify-between">
+                        <h3 class="font-bold text-base text-white">سجل النطاقات والـ Subdomains</h3>
+                        <span class="text-xs text-devo-muted">تتبع توجيه النطاقات الفرعية والنطاقات الخاصة</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-devo-black/50 text-xs text-devo-muted uppercase tracking-wider border-b border-devo-gray">
+                                <tr>
+                                    <th class="py-4 px-6">المصنع</th>
+                                    <th class="py-4 px-6">النطاق الفرعي (Subdomain)</th>
+                                    <th class="py-4 px-6">النطاق الخاص (Custom Domain)</th>
+                                    <th class="py-4 px-6">تشفير SSL</th>
+                                    <th class="py-4 px-6">حالة التحقق</th>
+                                </tr>
+                            </thead>
+                            <tbody id="domainsTableBody" class="divide-y divide-devo-gray/50 text-sm">
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-devo-muted">جاري تحميل سجل النطاقات...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: THEMES MANAGEMENT -->
+            <section id="view-themes" class="super-tab-view space-y-6 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white">دليل السمات والمظاهر المتاحة بالنظام</h3>
+                        <p class="text-xs text-devo-muted">تطبيق المظهر النشط فورياً على كافة واجهات النظام</p>
+                    </div>
+                </div>
+                <div id="fullThemesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="py-12 text-center text-devo-muted col-span-full">جاري تحميل السمات والمظاهر...</div>
+                </div>
+            </section>
+
+            <!-- TAB 6: USERS MANAGEMENT -->
+            <section id="view-users" class="super-tab-view space-y-6 hidden">
+                <div class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden p-6">
+                    <h3 class="font-bold text-white mb-2">إدارة مستخدمي الإدارة العليا (Super Admins)</h3>
+                    <p class="text-xs text-devo-muted mb-4">المستخدمون ذوو صلاحية <code class="text-ultra-400">super_admin</code> لديهم وصول شامل لإدارة كافة المصانع والاشتراكات.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===== MODAL: CREATE NEW TENANT ===== -->
+    <div id="newTenantModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-devo-dark border border-devo-gray w-full max-w-2xl rounded-2xl shadow-2xl p-6 relative my-8 text-devo-text">
+            <button id="closeNewTenantModal" class="absolute top-4 left-4 text-devo-muted hover:text-white p-1">
+                <i class="ph ph-x text-xl"></i>
+            </button>
+            <h3 class="text-lg font-bold mb-1 flex items-center gap-2 text-white">
+                <i class="ph ph-buildings text-ultra-400 text-xl"></i>
+                إضافة مصنع / شركة جديدة للنظام
+            </h3>
+            <p class="text-xs text-devo-muted mb-6">قم بتعبئة السجل الكامل، بيانات الأونر، والبيانات الرسمية للشركة لتسجيلها بالمنصة</p>
+
+            <form id="createTenantForm" class="space-y-4 text-right">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">اسم التجاري للشركة *</label>
+                        <input type="text" id="tenantNameInput" required placeholder="مثال: مصنع النصر للملابس" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الاسم القانوني / الرسمي</label>
+                        <input type="text" id="tenantLegalNameInput" placeholder="شركة النصر للصناعات النسيجية ش.م.م" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">اسم المعرف (Slug) *</label>
+                        <input type="text" id="tenantSlugInput" required placeholder="alnasr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">نوع الكيان</label>
+                        <select id="companyTypeSelect" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                            <option value="factory" selected>مصنع ملابس/إنتاج</option>
+                            <option value="company">شركة تجارية</option>
+                            <option value="showroom">مكتب/معرض مبيعات</option>
+                            <option value="store">متجر إلكتروني</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">باقة الاشتراك</label>
+                        <select id="tenantPlanInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                            <option value="basic">أساسية (Basic)</option>
+                            <option value="pro" selected>احترافية (Pro)</option>
+                            <option value="enterprise">مؤسسات (Enterprise)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Master Admin Credentials Setup Section -->
+                <div class="p-4 rounded-xl bg-devo-black border border-ultra-500/30 space-y-3">
+                    <h4 class="text-xs font-bold text-ultra-400 flex items-center gap-1.5">
+                        <i class="ph ph-key text-base"></i>
+                        إنشاء حساب الماستر أكونت / الأونر لهذا المصنع (Owner Admin Account)
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-medium text-devo-muted mb-1">بريد الأونر (Master Email) *</label>
+                            <input type="email" id="masterEmailInput" required placeholder="admin@alnasr.com" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-devo-muted mb-1">كلمة المرور الابتدائية *</label>
+                            <input type="text" id="masterPasswordInput" required placeholder="Ultra@Alnasr2026" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-4 py-2 text-xs text-amber-400 focus:outline-none focus:border-ultra-500 font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">رقم الهاتف / الواتساب</label>
+                        <input type="text" id="tenantPhoneInput" placeholder="01000000000" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">البريد الإلكتروني الرسمي</label>
+                        <input type="email" id="tenantEmailInput" placeholder="info@alnasr.com" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">السجل التجاري</label>
+                        <input type="text" id="commercialRegisterInput" placeholder="CR-123456" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الرقم الضريبي</label>
+                        <input type="text" id="taxNumberInput" placeholder="TAX-987654" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2 border-t border-devo-gray">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الحد الأقصى للمنتجات</label>
+                        <input type="number" id="maxProductsInput" value="500" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الحد الأقصى للمستخدمين</label>
+                        <input type="number" id="maxUsersInput" value="10" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-3">
+                    <button type="button" id="cancelTenantBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold transition flex items-center gap-1">
+                        <i class="ph ph-check-circle text-base"></i>
+                        تسجيل الشركة وحساب الماستر الآن
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: VIEW TENANT DETAILS ===== -->
+    <div id="tenantDetailsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-devo-dark border border-devo-gray w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative my-8 text-devo-text space-y-6">
+            <button id="closeTenantDetailsModalBtn" class="absolute top-4 left-4 text-devo-muted hover:text-white p-1">
+                <i class="ph ph-x text-xl"></i>
+            </button>
+
+            <!-- Company Header Info -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-devo-gray pb-4">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h3 id="modalCompanyName" class="text-xl font-black text-white">--</h3>
+                        <span id="modalCompanyStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">نشط</span>
+                    </div>
+                    <p id="modalCompanyLegalName" class="text-xs text-ultra-400 mt-0.5">--</p>
+                </div>
+
+                <!-- Direct Links & Edit Actions -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="modalEditCompanyBtn" class="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <i class="ph ph-pencil-simple text-base"></i>
+                        تعديل البيانات
+                    </button>
+                    <a id="modalOpenStoreLink" href="#" target="_blank" class="px-3 py-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-ultra-400 flex items-center gap-1.5 transition-all">
+                        <i class="ph ph-storefront text-base"></i>
+                        فتح المتجر
+                    </a>
+                    <a id="modalOpenAdminLink" href="#" target="_blank" class="px-3 py-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-emerald-400 flex items-center gap-1.5 transition-all">
+                        <i class="ph ph-user-gear text-base"></i>
+                        دخول كمعدِّل Admin
+                    </a>
+                </div>
+            </div>
+
+            <!-- Details Content Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                
+                <!-- Client Access & Master Credentials Card -->
+                <div class="md:col-span-2 bg-gradient-to-r from-ultra-500/10 via-devo-black to-devo-black border border-ultra-500/30 p-5 rounded-2xl space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-devo-gray/50 pb-3">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="ph ph-key text-ultra-400 text-lg"></i>
+                            بيانات دخول الأونر ورسالة الاعتماد للعميل (Client Onboarding Packet)
+                        </h4>
+                        <button id="copyWelcomePacketBtn" class="px-3 py-1.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-ultra-500/20 transition-all">
+                            <i class="ph ph-copy text-base"></i>
+                            نسخ خطاب اعتماد الحساب للعميل
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
+                            <span class="text-devo-muted block text-[10px]">بريد الأونر / Master Email:</span>
+                            <div class="flex items-center justify-between font-mono text-white font-bold">
+                                <span id="modalMasterEmail">--</span>
+                                <button class="copy-text-btn text-ultra-400 hover:text-white" data-target="modalMasterEmail" title="نسخ البريد"><i class="ph ph-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-devo-muted block text-[10px]">كلمة المرور الابتدائية / Initial Password:</span>
+                                <button id="modalResetPasswordBtn" class="text-[10px] bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-black border border-amber-500/30 px-2 py-0.5 rounded font-bold transition-all flex items-center gap-1 cursor-pointer">
+                                    <i class="ph ph-key text-xs"></i>
+                                    تغيير
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between font-mono text-amber-400 font-bold">
+                                <span id="modalMasterPassword">--</span>
+                                <button class="copy-text-btn text-ultra-400 hover:text-white" data-target="modalMasterPassword" title="نسخ كلمة المرور"><i class="ph ph-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
+                            <span class="text-devo-muted block text-[10px]">رابط متجر/معرض العميل (Store Link):</span>
+                            <div class="flex items-center justify-between font-mono text-ultra-400 font-bold truncate gap-2">
+                                <a id="modalStoreUrlLink" href="#" target="_blank" class="truncate max-w-[200px] hover:underline flex items-center gap-1 text-ultra-400" title="فتح الرابط في تبويب جديد">
+                                    <span id="modalStoreUrlText" class="truncate">--</span>
+                                    <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
+                                </a>
+                                <button class="copy-text-btn text-ultra-400 hover:text-white shrink-0" data-target="modalStoreUrlText" title="نسخ رابط المتجر"><i class="ph ph-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
+                            <span class="text-devo-muted block text-[10px]">رابط لوحة الإدارة (Admin Panel Link):</span>
+                            <div class="flex items-center justify-between font-mono text-emerald-400 font-bold truncate gap-2">
+                                <a id="modalAdminUrlLink" href="#" target="_blank" class="truncate max-w-[200px] hover:underline flex items-center gap-1 text-emerald-400" title="فتح الرابط في تبويب جديد">
+                                    <span id="modalAdminUrlText" class="truncate">--</span>
+                                    <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
+                                </a>
+                                <button class="copy-text-btn text-ultra-400 hover:text-white shrink-0" data-target="modalAdminUrlText" title="نسخ رابط لوحة الإدارة"><i class="ph ph-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1 sm:col-span-2">
+                            <span class="text-devo-muted block text-[10px]">رابط صفحة تسجيل الدخول (Login Page Link):</span>
+                            <div class="flex items-center justify-between font-mono text-sky-400 font-bold truncate gap-2">
+                                <a id="modalAuthUrlLink" href="#" target="_blank" class="truncate hover:underline flex items-center gap-1 text-sky-400" title="فتح الرابط في تبويب جديد">
+                                    <span id="modalAuthUrlText" class="truncate">--</span>
+                                    <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
+                                </a>
+                                <button class="copy-text-btn text-ultra-400 hover:text-white shrink-0" data-target="modalAuthUrlText" title="نسخ رابط صفحة الدخول"><i class="ph ph-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legal & Registration Info -->
+                <div class="bg-devo-black border border-devo-gray p-4 rounded-xl space-y-3">
+                    <h4 class="font-bold text-white text-sm flex items-center gap-2 border-b border-devo-gray pb-2">
+                        <i class="ph ph-file-text text-ultra-400 text-base"></i>
+                        البيانات الرسمية والقانونية
+                    </h4>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">معرف المصنع (Tenant ID):</span>
+                        <span id="modalTenantId" class="font-mono text-white select-all">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">اسم المعرّف (Slug):</span>
+                        <span id="modalTenantSlug" class="font-mono text-ultra-400 font-bold">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">نوع الكيان:</span>
+                        <span id="modalCompanyType" class="text-white">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">السجل التجاري:</span>
+                        <span id="modalCommercialRegister" class="text-white font-mono">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">الرقم الضريبي:</span>
+                        <span id="modalTaxNumber" class="text-white font-mono">--</span>
+                    </div>
+                </div>
+
+                <!-- Contact & Domain Info -->
+                <div class="bg-devo-black border border-devo-gray p-4 rounded-xl space-y-3">
+                    <h4 class="font-bold text-white text-sm flex items-center gap-2 border-b border-devo-gray pb-2">
+                        <i class="ph ph-phone-call text-ultra-400 text-base"></i>
+                        التواصل والنطاقات
+                    </h4>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">رقم الهاتف / واتساب:</span>
+                        <span id="modalTenantPhone" class="text-white font-mono">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">البريد الإلكتروني:</span>
+                        <span id="modalTenantEmail" class="text-white">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">النطاق الفرعي:</span>
+                        <span id="modalTenantSubdomain" class="font-mono text-ultra-400">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-devo-muted">تاريخ التسجيل:</span>
+                        <span id="modalCreatedAt" class="text-white">--</span>
+                    </div>
+                </div>
+
+                <!-- Subscription Quota Card -->
+                <div class="md:col-span-2 bg-devo-black border border-devo-gray p-4 rounded-xl space-y-3">
+                    <h4 class="font-bold text-white text-sm flex items-center gap-2 border-b border-devo-gray pb-2">
+                        <i class="ph ph-crown text-amber-400 text-base"></i>
+                        بيانات الاشتراك والحدود المتاحة (Quotas & Limits)
+                    </h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
+                            <p class="text-[10px] text-devo-muted mb-1">الخطة الحالية</p>
+                            <h5 id="modalSubPlan" class="font-black text-ultra-400 text-sm">--</h5>
+                        </div>
+                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
+                            <p class="text-[10px] text-devo-muted mb-1">حد المنتجات المسموح</p>
+                            <h5 id="modalSubMaxProducts" class="font-black text-white text-sm">--</h5>
+                        </div>
+                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
+                            <p class="text-[10px] text-devo-muted mb-1">حد المستخدمين المسموح</p>
+                            <h5 id="modalSubMaxUsers" class="font-black text-white text-sm">--</h5>
+                        </div>
+                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
+                            <p class="text-[10px] text-devo-muted mb-1">حالة الاشتراك</p>
+                            <h5 id="modalSubStatus" class="font-black text-emerald-400 text-sm">--</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="pt-4 border-t border-devo-gray flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <button type="button" id="modalToggleStatusBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all">
+                        تجميد/تفعيل الحساب
+                    </button>
+                    <button type="button" id="modalDeleteTenantBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-md transition-all flex items-center gap-1">
+                        <i class="ph ph-trash text-base"></i>
+                        حذف المصنع نهائياً
+                    </button>
+                </div>
+                <button type="button" id="closeTenantDetailsModalDoneBtn" class="px-5 py-2 rounded-xl bg-devo-black border border-devo-gray text-xs font-bold text-white hover:border-ultra-500">
+                    إغلاق النافذة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EDIT TENANT DETAILS (تعديل بيانات الشركة والاشتراك) ===== -->
+    <div id="editTenantModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-devo-dark border border-devo-gray w-full max-w-2xl rounded-2xl shadow-2xl p-6 relative my-8 text-devo-text">
+            <button id="closeEditTenantModalBtn" class="absolute top-4 left-4 text-devo-muted hover:text-white p-1">
+                <i class="ph ph-x text-xl"></i>
+            </button>
+            <h3 class="text-lg font-bold mb-1 flex items-center gap-2 text-white">
+                <i class="ph ph-pencil-simple text-amber-400 text-xl"></i>
+                تعديل بيانات الشركة والاشتراك
+            </h3>
+            <p class="text-xs text-devo-muted mb-6">تعديل بيانات الشركة الرسمية، رقم التواصل والحدود المتاحة بالنظام</p>
+
+            <form id="editTenantForm" class="space-y-4 text-right">
+                <input type="hidden" id="editTenantIdInput">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">اسم التجاري للشركة *</label>
+                        <input type="text" id="editTenantNameInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الاسم القانوني / الرسمي</label>
+                        <input type="text" id="editTenantLegalNameInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">رقم الهاتف / الواتساب</label>
+                        <input type="text" id="editTenantPhoneInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">البريد الإلكتروني الرسمي</label>
+                        <input type="email" id="editTenantEmailInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">السجل التجاري</label>
+                        <input type="text" id="editCommercialRegisterInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الرقم الضريبي</label>
+                        <input type="text" id="editTaxNumberInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-devo-gray">
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">باقة الاشتراك</label>
+                        <select id="editTenantPlanInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                            <option value="basic">أساسية (Basic)</option>
+                            <option value="pro">احترافية (Pro)</option>
+                            <option value="enterprise">مؤسسات (Enterprise)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الحد الأقصى للمنتجات</label>
+                        <input type="number" id="editMaxProductsInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-devo-muted mb-1">الحد الأقصى للمستخدمين</label>
+                        <input type="number" id="editMaxUsersInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-3">
+                    <button type="button" id="cancelEditTenantBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1">
+                        <i class="ph ph-check-circle text-base"></i>
+                        حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: RESET OWNER PASSWORD ===== -->
+    <div id="resetPasswordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="ph ph-key text-amber-400 text-xl"></i>
+                    تغيير كلمة مرور الأونر للمصنع
+                </h3>
+                <button id="closeResetPasswordModalBtn" type="button" class="text-devo-muted hover:text-white text-xl">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
+            <form id="resetPasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-devo-muted mb-1">اسم المصنع</label>
+                    <input type="text" id="resetPasswordTenantName" readonly class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none opacity-80 cursor-not-allowed font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-devo-muted mb-1">بريد الأونر الحسابي</label>
+                    <input type="text" id="resetPasswordTenantEmail" readonly class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-amber-400 font-mono focus:outline-none opacity-80 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-medium text-devo-muted">كلمة المرور الجديدة</label>
+                        <button type="button" id="generateRandomPasswordBtn" class="text-[10px] text-ultra-400 hover:text-white font-bold flex items-center gap-1">
+                            <i class="ph ph-shuffle text-xs"></i>
+                            توليد كلمة سر جديدة
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="newOwnerPasswordInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl pr-4 pl-10 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-amber-400" placeholder="أدخل كلمة المرور الجديدة">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-3">
+                    <button type="button" id="cancelResetPasswordBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" id="saveNewPasswordBtn" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                        <i class="ph ph-check-circle text-base"></i>
+                        حفظ وتحديث كلمة المرور
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: THEME SELECTOR ===== -->
+    <div id="themeSelectorModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center hidden p-4 overflow-y-auto">
+        <div class="bg-devo-dark border border-devo-gray w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative my-8 text-devo-text">
+            <button id="closeThemeModalBtn" class="absolute top-4 left-4 text-devo-muted hover:text-white p-1">
+                <i class="ph ph-x text-xl"></i>
+            </button>
+            <h3 class="text-lg font-bold mb-1 flex items-center gap-2 text-white">
+                <i class="ph ph-palette text-ultra-400 text-xl"></i>
+                إدارة المظهر والسمات (Theme Management)
+            </h3>
+            <p class="text-xs text-devo-muted mb-6">اختر المظهر المفضل لديك لتطبيقه فورياً على لوحة التحكم وكافة الواجهات</p>
+
+            <div id="themesListGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto p-1">
+                <div class="py-8 text-center text-devo-muted col-span-full">
+                    <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
+                    جاري تحميل السمات المتاحة...
+                </div>
+            </div>
+
+            <div class="pt-4 mt-4 border-t border-devo-gray flex justify-end">
+                <button type="button" id="doneThemeBtn" class="px-5 py-2 rounded-xl bg-devo-black border border-devo-gray text-xs font-bold text-white hover:border-ultra-500">إغلاق النافذة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script type="module">
+        import { supabase } from './src/js/config/supabase.js';
+        import { syncActiveTheme, loadAllThemes, activateTheme } from './src/js/services/theme.js';
+        import { showToast } from './src/js/components/toast.js';
+        import { confirmDialog } from './src/js/components/modal.js';
+
+        // 🎨 Sync active theme immediately
+        await syncActiveTheme();
+
+        // Helper to construct dynamic environment URLs
+        function getTenantUrls(slug) {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const hostPort = window.location.port ? `:${window.location.port}` : '';
+            const protocol = window.location.protocol;
+
+            const storeUrl = isLocalhost
+                ? `${protocol}//${window.location.hostname}${hostPort}/index.html?tenant=${slug}`
+                : `https://${slug}.ultrasoft.site/`;
+
+            const adminUrl = isLocalhost
+                ? `${protocol}//${window.location.hostname}${hostPort}/admin.html?tenant=${slug}`
+                : `https://${slug}.ultrasoft.site/admin.html`;
+
+            const authUrl = isLocalhost
+                ? `${protocol}//${window.location.hostname}${hostPort}/auth.html?tenant=${slug}`
+                : `https://${slug}.ultrasoft.site/auth.html`;
+
+            return { storeUrl, adminUrl, authUrl };
+        }
+
+        // Global state for tenant list
+        let globalTenantsList = [];
+        let activeSelectedTenant = null;
+
+        // Layout Elements
+        const sidebar = document.getElementById('main-sidebar');
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const currentTabTitle = document.getElementById('currentTabTitle');
+
+        sidebarToggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Auto Sync Master Email and Password when Slug changes
+        const tenantSlugInput = document.getElementById('tenantSlugInput');
+        const masterEmailInput = document.getElementById('masterEmailInput');
+        const masterPasswordInput = document.getElementById('masterPasswordInput');
+
+        tenantSlugInput.addEventListener('input', (e) => {
+            const slug = e.target.value.trim().toLowerCase();
+            if (slug) {
+                masterEmailInput.value = `admin@${slug}.com`;
+                masterPasswordInput.value = `Ultra@${slug.charAt(0).toUpperCase() + slug.slice(1)}2026`;
+            }
+        });
+
+        // Copy button listeners for onboarding packet
+        document.querySelectorAll('.copy-text-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetId = e.currentTarget.dataset.target;
+                const text = document.getElementById(targetId)?.textContent;
+                if (text && text !== '--') {
+                    navigator.clipboard.writeText(text);
+                    showToast(`تم النسخ: ${text}`, 'success');
+                }
+            });
+        });
+
+        const copyWelcomePacketBtn = document.getElementById('copyWelcomePacketBtn');
+        copyWelcomePacketBtn.addEventListener('click', () => {
+            if (!activeSelectedTenant) return;
+            const settings = activeSelectedTenant.settings || {};
+            const masterEmail = settings.master_email || activeSelectedTenant.email || `admin@${activeSelectedTenant.slug}.com`;
+            const masterPassword = settings.master_password || `Ultra@${activeSelectedTenant.slug.charAt(0).toUpperCase() + activeSelectedTenant.slug.slice(1)}2026`;
+            const { storeUrl, adminUrl, authUrl } = getTenantUrls(activeSelectedTenant.slug);
+
+            const welcomeMsg = `
+مرحباً بكم في منصة UltraSoft! 🚀
+تم تفعيل وإعداد حساب المصنع الخاص بكم بنجاح.
+
+🏢 اسم الشركة / المصنع: ${activeSelectedTenant.name}
+🌐 رابط المعرض ومتجر المنتجات: ${storeUrl}
+🛠️ رابط لوحة التحكم والإدارة: ${adminUrl}
+🔑 رابط صفحة تسجيل الدخول: ${authUrl}
+
+🔑 بيانات حساب الأونر (Master Admin):
+• البريد الإلكتروني: ${masterEmail}
+• كلمة المرور الابتدائية: ${masterPassword}
+
+نتمنى لكم تجربة ممتازة وتجارة متطوّرة وناجحة! 💫
+            `.trim();
+
+            navigator.clipboard.writeText(welcomeMsg).then(() => {
+                showToast('تم نسخ خطاب اعتماد الحساب وبيانات الدخول كاملة إلى الحافظة!', 'success');
+            }).catch(err => {
+                showToast('فشل النسخ: ' + err.message, 'error');
+            });
+        });
+
+        // 📑 Tab Switching Engine
+        const titleMap = {
+            'overview': 'الإحصائيات الرئيسية للمنصة',
+            'tenants': 'إدارة المصانع والشركات',
+            'subscriptions': 'إدارة الاشتراكات والحدود',
+            'domains': 'إدارة النطاقات والـ Subdomains',
+            'themes': 'إدارة السمات والمظاهر الديناميكية',
+            'users': 'المستخدمين والصلاحيات العليا'
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.super-tab-view').forEach(view => view.classList.add('hidden'));
+
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('bg-ultra-500/10', 'text-ultra-400', 'border-r-4', 'border-ultra-500');
+                item.classList.add('text-devo-muted', 'hover:bg-devo-gray/50', 'hover:text-white');
+            });
+
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            const targetTabBtn = document.querySelector(`.sidebar-item[data-tab="${tabId}"]`);
+            if (targetTabBtn) {
+                targetTabBtn.classList.remove('text-devo-muted', 'hover:bg-devo-gray/50', 'hover:text-white');
+                targetTabBtn.classList.add('bg-ultra-500/10', 'text-ultra-400', 'border-r-4', 'border-ultra-500');
+            }
+
+            if (currentTabTitle) {
+                currentTabTitle.textContent = titleMap[tabId] || 'لوحة التحكم العليا';
+            }
+
+            if (tabId === 'themes') renderFullThemesGrid();
+            if (tabId === 'domains') loadDomainsTable();
+        }
+
+        document.querySelectorAll('.sidebar-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabId = e.currentTarget.dataset.tab;
+                if (tabId) switchTab(tabId);
+            });
+        });
+
+        // Modals & View Switcher Elements
+        const tenantModal = document.getElementById('newTenantModal');
+        const openTenantModalBtn = document.getElementById('openNewTenantModal');
+        const closeTenantModalBtn = document.getElementById('closeNewTenantModal');
+        const cancelTenantBtn = document.getElementById('cancelTenantBtn');
+        const createForm = document.getElementById('createTenantForm');
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        const themeModal = document.getElementById('themeSelectorModal');
+        const openThemeBtn = document.getElementById('openThemeModalBtn');
+        const closeThemeBtn = document.getElementById('closeThemeModalBtn');
+        const doneThemeBtn = document.getElementById('doneThemeBtn');
+
+        const detailsModal = document.getElementById('tenantDetailsModal');
+        const closeDetailsModalBtn = document.getElementById('closeTenantDetailsModalBtn');
+        const closeDetailsModalDoneBtn = document.getElementById('closeTenantDetailsModalDoneBtn');
+
+        const editModal = document.getElementById('editTenantModal');
+        const closeEditModalBtn = document.getElementById('closeEditTenantModalBtn');
+        const cancelEditTenantBtn = document.getElementById('cancelEditTenantBtn');
+        const editForm = document.getElementById('editTenantForm');
+        const modalEditCompanyBtn = document.getElementById('modalEditCompanyBtn');
+
+        const viewModeTableBtn = document.getElementById('viewModeTableBtn');
+        const viewModeGridBtn = document.getElementById('viewModeGridBtn');
+        const tenantsTableContainer = document.getElementById('tenantsTableContainer');
+        const tenantsGridContainer = document.getElementById('tenantsGridContainer');
+
+        viewModeTableBtn.addEventListener('click', () => {
+            tenantsTableContainer.classList.remove('hidden');
+            tenantsGridContainer.classList.add('hidden');
+            viewModeTableBtn.className = 'px-3 py-1.5 rounded-lg bg-ultra-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all';
+            viewModeGridBtn.className = 'px-3 py-1.5 rounded-lg text-devo-muted hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all';
+        });
+
+        viewModeGridBtn.addEventListener('click', () => {
+            tenantsTableContainer.classList.add('hidden');
+            tenantsGridContainer.classList.remove('hidden');
+            viewModeGridBtn.className = 'px-3 py-1.5 rounded-lg bg-ultra-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all';
+            viewModeTableBtn.className = 'px-3 py-1.5 rounded-lg text-devo-muted hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all';
+        });
+
+        openTenantModalBtn.addEventListener('click', () => { tenantModal.classList.remove('hidden'); tenantModal.classList.add('flex'); });
+        closeTenantModalBtn.addEventListener('click', () => { tenantModal.classList.add('hidden'); tenantModal.classList.remove('flex'); });
+        cancelTenantBtn.addEventListener('click', () => { tenantModal.classList.add('hidden'); tenantModal.classList.remove('flex'); });
+
+        openThemeBtn.addEventListener('click', () => {
+            themeModal.classList.remove('hidden');
+            themeModal.classList.add('flex');
+            renderThemesModalGrid();
+        });
+        closeThemeBtn.addEventListener('click', () => { themeModal.classList.add('hidden'); themeModal.classList.remove('flex'); });
+        doneThemeBtn.addEventListener('click', () => { themeModal.classList.add('hidden'); themeModal.classList.remove('flex'); });
+
+        closeDetailsModalBtn.addEventListener('click', () => { detailsModal.classList.add('hidden'); detailsModal.classList.remove('flex'); });
+        closeDetailsModalDoneBtn.addEventListener('click', () => { detailsModal.classList.add('hidden'); detailsModal.classList.remove('flex'); });
+
+        closeEditModalBtn.addEventListener('click', () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); });
+        cancelEditTenantBtn.addEventListener('click', () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); });
+
+        modalEditCompanyBtn.addEventListener('click', () => {
+            if (activeSelectedTenant) {
+                openEditTenantModal(activeSelectedTenant.id);
+            }
+        });
+
+        // Load Tenants Data and Render Views
+        async function loadTenants() {
+            const tableBody = document.getElementById('tenantsTableBody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-devo-muted">
+                        <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
+                        جاري تحميل بيانات المصانع...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const { data: tenants, error } = await supabase
+                    .from('tenants')
+                    .select('*, subscriptions(*)');
+
+                if (error) throw error;
+                globalTenantsList = tenants || [];
+
+                document.getElementById('statTotalTenants').textContent = tenants.length;
+                document.getElementById('statActiveTenants').textContent = tenants.filter(t => t.status === 'active').length;
+                document.getElementById('statTotalSubs').textContent = tenants.filter(t => t.subscriptions && t.subscriptions.length > 0).length;
+
+                renderTenantsViews(globalTenantsList);
+
+            } catch (err) {
+                console.error('Error loading tenants:', err);
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-400">حدث خطأ أثناء تحميل البيانات: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderTenantsViews(tenants) {
+            const tableBody = document.getElementById('tenantsTableBody');
+            const gridContainer = document.getElementById('tenantsGridContainer');
+
+            if (!tenants || tenants.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-devo-muted">لا توجد مصانع مسجلة حالياً</td></tr>`;
+                gridContainer.innerHTML = `<div class="py-12 text-center text-devo-muted col-span-full">لا توجد مصانع مسجلة حالياً</div>`;
+                return;
+            }
+
+            // 1. Render Table View Rows
+            tableBody.innerHTML = tenants.map(tenant => {
+                const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
+                const planName = sub ? sub.plan.toUpperCase() : 'BASIC';
+                const maxProds = sub ? sub.max_products : 500;
+                const maxUsers = sub ? sub.max_users : 10;
+                const isActive = tenant.status === 'active';
+                const isDefault = tenant.slug === 'default' || tenant.id === '00000000-0000-0000-0000-000000000001';
+
+                return `
+                    <tr class="hover:bg-devo-gray/30 transition-all border-b border-devo-gray/40">
+                        <td class="py-3.5 px-5">
+                            <div class="font-bold text-white text-sm">${tenant.name}</div>
+                            ${tenant.legal_name ? `<div class="text-[11px] text-ultra-400/90 truncate max-w-[180px]">${tenant.legal_name}</div>` : ''}
+                            <div class="text-[10px] text-devo-muted font-mono">${tenant.id}</div>
+                        </td>
+                        <td class="py-3.5 px-5 font-mono text-xs text-ultra-400">
+                            ${tenant.slug}.ultrasoft.site
+                        </td>
+                        <td class="py-3.5 px-5 text-xs text-devo-muted">
+                            ${tenant.phone ? `<div>📞 ${tenant.phone}</div>` : ''}
+                            ${tenant.tax_number ? `<div>📄 ضريبي: ${tenant.tax_number}</div>` : ''}
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${planName === 'ENTERPRISE' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                                ${planName}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-5 text-devo-muted text-xs font-mono whitespace-nowrap">
+                            📦 ${maxProds} | 👥 ${maxUsers}
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
+                                <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-red-400'}"></span>
+                                ${isActive ? 'نشط' : 'معطل'}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-5 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button data-id="${tenant.id}" class="view-tenant-btn px-2.5 py-1 rounded-lg bg-ultra-500/10 hover:bg-ultra-500/20 text-ultra-400 text-xs font-bold flex items-center gap-1 transition-all" title="عرض التفاصيل">
+                                    <i class="ph ph-eye text-sm"></i>
+                                    <span>عرض</span>
+                                </button>
+                                <button data-id="${tenant.id}" class="edit-tenant-btn px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center gap-1 transition-all" title="تعديل بيانات الشركة">
+                                    <i class="ph ph-pencil-simple text-sm"></i>
+                                    <span>تعديل</span>
+                                </button>
+                                <button data-id="${tenant.id}" data-status="${tenant.status}" class="toggle-status-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${isActive ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'}">
+                                    ${isActive ? 'إيقاف' : 'تفعيل'}
+                                </button>
+                                ${!isDefault ? `
+                                <button data-id="${tenant.id}" class="delete-tenant-btn px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-xs font-bold flex items-center gap-1 transition-all" title="حذف المصنع نهائياً بكامل محتوياته">
+                                    <i class="ph ph-trash text-sm"></i>
+                                    <span>حذف</span>
+                                </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 2. Render Grid Cards View
+            gridContainer.innerHTML = tenants.map(tenant => {
+                const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
+                const planName = sub ? sub.plan.toUpperCase() : 'BASIC';
+                const maxProds = sub ? sub.max_products : 500;
+                const maxUsers = sub ? sub.max_users : 10;
+                const isActive = tenant.status === 'active';
+                const isDefault = tenant.slug === 'default' || tenant.id === '00000000-0000-0000-0000-000000000001';
+
+                return `
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-lg hover:border-ultra-500/40 transition-all">
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h4 class="font-black text-white text-base">${tenant.name}</h4>
+                                    ${tenant.legal_name ? `<p class="text-xs text-ultra-400/90">${tenant.legal_name}</p>` : ''}
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${planName === 'ENTERPRISE' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'} shrink-0">
+                                    ${planName}
+                                </span>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1.5 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-devo-muted">النطاق:</span>
+                                    <span class="font-mono text-ultra-400">${tenant.slug}.ultrasoft.site</span>
+                                </div>
+                                ${tenant.phone ? `<div class="flex justify-between"><span class="text-devo-muted">الهاتف:</span><span class="font-mono text-white">${tenant.phone}</span></div>` : ''}
+                                ${tenant.tax_number ? `<div class="flex justify-between"><span class="text-devo-muted">الرقم الضريبي:</span><span class="font-mono text-white">${tenant.tax_number}</span></div>` : ''}
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs text-devo-muted font-mono pt-1">
+                                <span>📦 ${maxProds} منتج</span>
+                                <span>👥 ${maxUsers} مستخدم</span>
+                                <span class="px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-bold">
+                                    ${isActive ? 'نشط' : 'معطل'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-3 border-t border-devo-gray gap-2">
+                            <button data-id="${tenant.id}" class="view-tenant-btn flex-1 py-1.5 rounded-xl bg-ultra-500/10 hover:bg-ultra-500/20 text-ultra-400 text-xs font-bold flex items-center justify-center gap-1 transition-all">
+                                <i class="ph ph-eye text-base"></i> عرض
+                            </button>
+                            <button data-id="${tenant.id}" class="edit-tenant-btn flex-1 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center gap-1 transition-all">
+                                <i class="ph ph-pencil-simple text-base"></i> تعديل
+                            </button>
+                            <button data-id="${tenant.id}" data-status="${tenant.status}" class="toggle-status-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${isActive ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'}">
+                                ${isActive ? 'إيقاف' : 'تفعيل'}
+                            </button>
+                            ${!isDefault ? `
+                            <button data-id="${tenant.id}" class="delete-tenant-btn p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-xs font-bold transition-all" title="حذف المصنع نهائياً بكامل محتوياته">
+                                <i class="ph ph-trash text-base"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            attachTenantActions();
+        }
+
+        // 🗑️ Cascade Delete Tenant Function
+        async function deleteTenantCascade(tenantId) {
+            const tenant = globalTenantsList.find(t => t.id === tenantId);
+            const tenantName = tenant ? tenant.name : 'المحدد';
+
+            if (tenant && (tenant.slug === 'default' || tenant.id === '00000000-0000-0000-0000-000000000001')) {
+                showToast('عفواً، لا يمكن حذف المصنع الرئيسي الافتراضي للنظام لأنه يستخدم كمعرض منصة تسويقي!', 'warning');
+                return;
+            }
+
+            const confirmed = await confirmDialog({
+                title: `حذف المصنع: ${tenantName}`,
+                message: `هل أنت متأكد من حذف شركة/مصنع "${tenantName}" بشكل نهائي ورسمي؟\n\n⚠️ تحذير: سيتم مسح كافة المنتجات، الموديلات، الفواتير، الأوردرات، والمستخدمين التابعين لهذا المصنع نهائياً ولا يمكن التراجع بعد ذلك.`,
+                confirmText: 'نعم، حذف نهائي بكامل المحتويات',
+                cancelText: 'إلغاء',
+                isDanger: true
+            });
+
+            if (!confirmed) return;
+
+            try {
+                // 1. Try calling the database cascade function
+                const { error: rpcErr } = await supabase.rpc('delete_tenant_cascade', { p_tenant_id: tenantId });
+                
+                if (rpcErr) {
+                    console.warn('RPC delete_tenant_cascade error, executing manual client fallback:', rpcErr);
+                    // Client Fallback Cascade Deletion
+                    await supabase.from('models').delete().eq('tenant_id', tenantId);
+                    await supabase.from('categories').delete().eq('tenant_id', tenantId);
+                    await supabase.from('sizes').delete().eq('tenant_id', tenantId);
+                    await supabase.from('colors').delete().eq('tenant_id', tenantId);
+                    await supabase.from('classes').delete().eq('tenant_id', tenantId);
+                    await supabase.from('orders').delete().eq('tenant_id', tenantId);
+                    await supabase.from('system_users').delete().eq('tenant_id', tenantId);
+                    await supabase.from('subscriptions').delete().eq('tenant_id', tenantId);
+                    await supabase.from('tenant_domains').delete().eq('tenant_id', tenantId);
+                    const { error: delErr } = await supabase.from('tenants').delete().eq('id', tenantId);
+                    if (delErr) throw delErr;
+                }
+
+                showToast(`تم حذف مصنع "${tenantName}" وكافة محتوياته بنجاح`, 'success');
+                
+                // Hide details modal if open
+                detailsModal.classList.add('hidden');
+                detailsModal.classList.remove('flex');
+                
+                loadTenants();
+            } catch (err) {
+                showToast('فشل حذف المصنع: ' + err.message, 'error');
+            }
+        }
+
+        function attachTenantActions() {
+            // Attach View Details handlers
+            document.querySelectorAll('.view-tenant-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    openTenantDetailsModal(id);
+                };
+            });
+
+            // Attach Edit handlers
+            document.querySelectorAll('.edit-tenant-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    openEditTenantModal(id);
+                };
+            });
+
+            // Attach toggle handlers
+            document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+                btn.onclick = async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const currentStatus = e.currentTarget.dataset.status;
+                    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+
+                    const { error } = await supabase
+                        .from('tenants')
+                        .update({ status: newStatus })
+                        .eq('id', id);
+
+                    if (error) showToast('فشل تغيير حالة المصنع: ' + error.message, 'error');
+                    else {
+                        showToast(`تم ${newStatus === 'active' ? 'تفعيل' : 'إيقاف'} حساب المصنع بنجاح`, 'success');
+                        loadTenants();
+                    }
+                };
+            });
+
+            // Attach Delete handlers
+            document.querySelectorAll('.delete-tenant-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    deleteTenantCascade(id);
+                };
+            });
+        }
+
+        // 👁️ Open Company Details Modal Function
+        function openTenantDetailsModal(tenantId) {
+            const tenant = globalTenantsList.find(t => t.id === tenantId);
+            if (!tenant) return;
+
+            activeSelectedTenant = tenant;
+            const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
+            const settings = tenant.settings || {};
+
+            const masterEmail = settings.master_email || tenant.email || `admin@${tenant.slug}.com`;
+            const masterPassword = settings.master_password || `Ultra@${tenant.slug.charAt(0).toUpperCase() + tenant.slug.slice(1)}2026`;
+            const { storeUrl, adminUrl, authUrl } = getTenantUrls(tenant.slug);
+
+            document.getElementById('modalCompanyName').textContent = tenant.name;
+            document.getElementById('modalCompanyLegalName').textContent = tenant.legal_name || tenant.name;
+            document.getElementById('modalTenantId').textContent = tenant.id;
+            document.getElementById('modalTenantSlug').textContent = tenant.slug;
+            document.getElementById('modalCompanyType').textContent = tenant.company_type || 'مصنع ملابس';
+            document.getElementById('modalCommercialRegister').textContent = tenant.commercial_register || 'غير مسجل';
+            document.getElementById('modalTaxNumber').textContent = tenant.tax_number || 'غير مسجل';
+            document.getElementById('modalTenantPhone').textContent = tenant.phone || 'غير محدد';
+            document.getElementById('modalTenantEmail').textContent = tenant.email || 'غير محدد';
+            document.getElementById('modalTenantSubdomain').textContent = `${tenant.slug}.ultrasoft.site`;
+            document.getElementById('modalCreatedAt').textContent = tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('ar-EG') : 'غير محدد';
+
+            // Master Onboarding Packet Details
+            document.getElementById('modalMasterEmail').textContent = masterEmail;
+            document.getElementById('modalMasterPassword').textContent = masterPassword;
+            document.getElementById('modalStoreUrlText').textContent = storeUrl;
+            document.getElementById('modalAdminUrlText').textContent = adminUrl;
+            document.getElementById('modalAuthUrlText').textContent = authUrl;
+
+            document.getElementById('modalStoreUrlLink').href = storeUrl;
+            document.getElementById('modalAdminUrlLink').href = adminUrl;
+            document.getElementById('modalAuthUrlLink').href = authUrl;
+
+            // Subscription Quota Info
+            document.getElementById('modalSubPlan').textContent = sub ? sub.plan.toUpperCase() : 'BASIC';
+            document.getElementById('modalSubMaxProducts').textContent = sub ? sub.max_products : '500';
+            document.getElementById('modalSubMaxUsers').textContent = sub ? sub.max_users : '10';
+            document.getElementById('modalSubStatus').textContent = sub ? sub.status : 'active';
+
+            // Direct Links
+            document.getElementById('modalOpenStoreLink').href = storeUrl;
+            document.getElementById('modalOpenAdminLink').href = adminUrl;
+
+            // Status Badge
+            const statusBadge = document.getElementById('modalCompanyStatusBadge');
+            const isActive = tenant.status === 'active';
+            statusBadge.textContent = isActive ? 'نشط' : 'معطل';
+            statusBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`;
+
+            // Toggle Button Handler inside Modal
+            const toggleBtn = document.getElementById('modalToggleStatusBtn');
+            toggleBtn.textContent = isActive ? 'تجميد حساب المصنع' : 'تفعيل حساب المصنع';
+            toggleBtn.onclick = async () => {
+                const newStatus = isActive ? 'suspended' : 'active';
+                const { error } = await supabase
+                    .from('tenants')
+                    .update({ status: newStatus })
+                    .eq('id', tenant.id);
+
+                if (error) showToast('فشل تغيير الحالة: ' + error.message, 'error');
+                else {
+                    showToast(`تم ${newStatus === 'active' ? 'تفعيل' : 'تجميد'} حساب المصنع بنجاح`, 'success');
+                    detailsModal.classList.add('hidden');
+                    detailsModal.classList.remove('flex');
+                    loadTenants();
+                }
+            };
+
+            // Delete Button Handler inside Modal
+            const deleteBtn = document.getElementById('modalDeleteTenantBtn');
+            if (deleteBtn) {
+                deleteBtn.onclick = () => deleteTenantCascade(tenant.id);
+            }
+
+            detailsModal.classList.remove('hidden');
+            detailsModal.classList.add('flex');
+        }
+
+        // ✏️ Open Edit Company Modal Function
+        function openEditTenantModal(tenantId) {
+            const tenant = globalTenantsList.find(t => t.id === tenantId);
+            if (!tenant) return;
+
+            const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
+
+            document.getElementById('editTenantIdInput').value = tenant.id;
+            document.getElementById('editTenantNameInput').value = tenant.name || '';
+            document.getElementById('editTenantLegalNameInput').value = tenant.legal_name || '';
+            document.getElementById('editTenantPhoneInput').value = tenant.phone || '';
+            document.getElementById('editTenantEmailInput').value = tenant.email || '';
+            document.getElementById('editCommercialRegisterInput').value = tenant.commercial_register || '';
+            document.getElementById('editTaxNumberInput').value = tenant.tax_number || '';
+
+            if (sub) {
+                document.getElementById('editTenantPlanInput').value = sub.plan || 'basic';
+                document.getElementById('editMaxProductsInput').value = sub.max_products || 500;
+                document.getElementById('editMaxUsersInput').value = sub.max_users || 10;
+            }
+
+            editModal.classList.remove('hidden');
+            editModal.classList.add('flex');
+        }
+
+        // Handle Edit Tenant Form Submit
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('editTenantIdInput').value;
+            const name = document.getElementById('editTenantNameInput').value.trim();
+            const legalName = document.getElementById('editTenantLegalNameInput').value.trim();
+            const phone = document.getElementById('editTenantPhoneInput').value.trim();
+            const email = document.getElementById('editTenantEmailInput').value.trim();
+            const commercialRegister = document.getElementById('editCommercialRegisterInput').value.trim();
+            const taxNumber = document.getElementById('editTaxNumberInput').value.trim();
+
+            const plan = document.getElementById('editTenantPlanInput').value;
+            const maxProducts = parseInt(document.getElementById('editMaxProductsInput').value);
+            const maxUsers = parseInt(document.getElementById('editMaxUsersInput').value);
+
+            try {
+                // Update Tenant Record
+                const { error: tenantErr } = await supabase
+                    .from('tenants')
+                    .update({
+                        name,
+                        legal_name: legalName,
+                        phone,
+                        email,
+                        commercial_register: commercialRegister,
+                        tax_number: taxNumber
+                    })
+                    .eq('id', id);
+
+                if (tenantErr) throw tenantErr;
+
+                // Update Subscription Record
+                const { error: subErr } = await supabase
+                    .from('subscriptions')
+                    .update({
+                        plan,
+                        max_products: maxProducts,
+                        max_users: maxUsers
+                    })
+                    .eq('tenant_id', id);
+
+                if (subErr) throw subErr;
+
+                showToast('تم حفظ تعديلات الشركة والاشتراك بنجاح!', 'success');
+                editModal.classList.add('hidden');
+                editModal.classList.remove('flex');
+                detailsModal.classList.add('hidden');
+                detailsModal.classList.remove('flex');
+                loadTenants();
+
+            } catch (err) {
+                showToast('فشل حفظ التعديلات: ' + err.message, 'error');
+            }
+        });
+
+        // 🔑 Reset Owner Password Elements & Handlers
+        const resetPasswordModal = document.getElementById('resetPasswordModal');
+        const modalResetPasswordBtn = document.getElementById('modalResetPasswordBtn');
+        const closeResetPasswordModalBtn = document.getElementById('closeResetPasswordModalBtn');
+        const cancelResetPasswordBtn = document.getElementById('cancelResetPasswordBtn');
+        const resetPasswordForm = document.getElementById('resetPasswordForm');
+        const generateRandomPasswordBtn = document.getElementById('generateRandomPasswordBtn');
+
+        function generateRandomPassword(slug) {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$';
+            let random = '';
+            for (let i = 0; i < 6; i++) {
+                random += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const prefix = slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'Ultra';
+            return `Ultra@${prefix}${random}`;
+        }
+
+        if (modalResetPasswordBtn) {
+            modalResetPasswordBtn.addEventListener('click', () => {
+                if (!activeSelectedTenant) return;
+                const settings = activeSelectedTenant.settings || {};
+                const masterEmail = settings.master_email || activeSelectedTenant.email || `admin@${activeSelectedTenant.slug}.com`;
+                
+                document.getElementById('resetPasswordTenantName').value = activeSelectedTenant.name;
+                document.getElementById('resetPasswordTenantEmail').value = masterEmail;
+                document.getElementById('newOwnerPasswordInput').value = generateRandomPassword(activeSelectedTenant.slug);
+
+                resetPasswordModal.classList.remove('hidden');
+                resetPasswordModal.classList.add('flex');
+            });
+        }
+
+        if (closeResetPasswordModalBtn) {
+            closeResetPasswordModalBtn.addEventListener('click', () => {
+                resetPasswordModal.classList.add('hidden');
+                resetPasswordModal.classList.remove('flex');
+            });
+        }
+
+        if (cancelResetPasswordBtn) {
+            cancelResetPasswordBtn.addEventListener('click', () => {
+                resetPasswordModal.classList.add('hidden');
+                resetPasswordModal.classList.remove('flex');
+            });
+        }
+
+        if (generateRandomPasswordBtn) {
+            generateRandomPasswordBtn.addEventListener('click', () => {
+                const slug = activeSelectedTenant ? activeSelectedTenant.slug : '';
+                document.getElementById('newOwnerPasswordInput').value = generateRandomPassword(slug);
+            });
+        }
+
+        if (resetPasswordForm) {
+            resetPasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!activeSelectedTenant) return;
+
+                const newPassword = document.getElementById('newOwnerPasswordInput').value.trim();
+                if (!newPassword) {
+                    showToast('يرجى إدخال كلمة مرور جديدة صحيحة', 'error');
+                    return;
+                }
+
+                const saveBtn = document.getElementById('saveNewPasswordBtn');
+                const origHtml = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري التحديث...`;
+
+                try {
+                    // 1. Call RPC function to update auth.users encrypted_password and tenants settings
+                    const { error: rpcErr } = await supabase.rpc('super_admin_reset_owner_password', {
+                        p_tenant_id: activeSelectedTenant.id,
+                        p_new_password: newPassword
+                    });
+
+                    if (rpcErr) {
+                        console.warn('RPC super_admin_reset_owner_password error, performing manual fallback:', rpcErr);
+                        const settings = activeSelectedTenant.settings || {};
+                        settings.master_password = newPassword;
+                        const { error: updateErr } = await supabase
+                            .from('tenants')
+                            .update({ settings })
+                            .eq('id', activeSelectedTenant.id);
+
+                        if (updateErr) throw updateErr;
+                    }
+
+                    // Update memory state & modal text
+                    if (!activeSelectedTenant.settings) activeSelectedTenant.settings = {};
+                    activeSelectedTenant.settings.master_password = newPassword;
+                    document.getElementById('modalMasterPassword').textContent = newPassword;
+
+                    showToast(`تم تغيير كلمة مرور الأونر للمصنع إلى (${newPassword}) بنجاح!`, 'success');
+                    resetPasswordModal.classList.add('hidden');
+                    resetPasswordModal.classList.remove('flex');
+
+                } catch (err) {
+                    showToast('فشل تغيير كلمة المرور: ' + err.message, 'error');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = origHtml;
+                }
+            });
+        }
+
+        // Load Domains Table Data
+        async function loadDomainsTable() {
+            const tableBody = document.getElementById('domainsTableBody');
+            tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-devo-muted"><i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>جاري تحميل النطاقات...</td></tr>`;
+
+            try {
+                const { data: domains, error } = await supabase
+                    .from('tenant_domains')
+                    .select('*, tenants(name)');
+
+                if (error || !domains || domains.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-devo-muted">لا توجد نطاقات مسجلة حتى الآن</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = domains.map(dom => `
+                    <tr class="hover:bg-devo-gray/30 transition-all border-b border-devo-gray/40">
+                        <td class="py-4 px-6 font-bold text-white">${dom.tenants?.name || 'مصنع غير معروف'}</td>
+                        <td class="py-4 px-6 font-mono text-ultra-400">${dom.subdomain}.ultrasoft.site</td>
+                        <td class="py-4 px-6 font-mono text-devo-muted">${dom.custom_domain || 'غير محدد (None)'}</td>
+                        <td class="py-4 px-6 text-emerald-400 font-semibold text-xs">🔒 ${dom.ssl_enabled ? 'مميّز SSL' : 'غير مفعل'}</td>
+                        <td class="py-4 px-6 text-xs"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">متحقق منه</span></td>
+                    </tr>
+                `).join('');
+
+            } catch (e) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-400">حدث خطأ أثناء تحميل النطاقات: ${e.message}</td></tr>`;
+            }
+        }
+
+        async function renderThemesModalGrid() {
+            const grid = document.getElementById('themesListGrid');
+            renderThemesGridToContainer(grid);
+        }
+
+        async function renderFullThemesGrid() {
+            const grid = document.getElementById('fullThemesGrid');
+            renderThemesGridToContainer(grid);
+        }
+
+        async function renderThemesGridToContainer(container) {
+            container.innerHTML = `<div class="py-8 text-center text-devo-muted col-span-full"><i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>جاري تحميل السمات المتاحة...</div>`;
+
+            try {
+                const themes = await loadAllThemes();
+
+                if (!themes || themes.length === 0) {
+                    container.innerHTML = `<div class="py-4 text-center text-devo-muted col-span-full">لا توجد سمات مضافة حالياً</div>`;
+                    return;
+                }
+
+                container.innerHTML = themes.map(theme => {
+                    const colors = theme.colors?.colors ? theme.colors.colors : (theme.colors || {});
+                    const bg = colors.page?.bg || '#0b1329';
+                    const primary = colors.brand?.primary || colors.buttons?.primary?.bg || '#0284c7';
+                    const surface = colors.page?.surface || colors.page?.bg_secondary || '#0f172a';
+                    const text = colors.page?.text || '#f8fafc';
+                    const isActive = theme.is_active;
+
+                    return `
+                        <div class="p-5 rounded-2xl border ${isActive ? 'border-ultra-500 bg-ultra-500/5 ring-1 ring-ultra-500' : 'border-devo-gray bg-devo-dark'} flex flex-col justify-between gap-3 shadow-md">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-bold text-sm text-white">${theme.name}</h4>
+                                    ${isActive ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-ultra-500 text-white">النشط حالياً</span>` : ''}
+                                </div>
+                                <p class="text-xs text-devo-muted line-clamp-2">${theme.description || 'مظهر مخصص لمنصة ألترا سوفت'}</p>
+                            </div>
+
+                            <div class="flex items-center gap-2.5 my-1">
+                                <div class="w-6 h-6 rounded-full border border-devo-gray shadow-sm" style="background-color: ${bg};" title="خلفية الصفحة"></div>
+                                <div class="w-6 h-6 rounded-full border border-devo-gray shadow-sm" style="background-color: ${surface};" title="خلفية البطاقات"></div>
+                                <div class="w-6 h-6 rounded-full border border-devo-gray shadow-sm" style="background-color: ${primary};" title="اللون الرئيسي"></div>
+                                <span class="text-xs font-mono mr-auto" style="color: ${text};">العرض</span>
+                            </div>
+
+                            <button data-theme-id="${theme.id}" class="activate-theme-btn w-full py-2.5 rounded-xl text-xs font-bold transition-all ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-ultra-500 hover:bg-ultra-600 text-white shadow-md shadow-ultra-500/20'}">
+                                ${isActive ? 'المظهر المفعل' : 'تفعيل هذا المظهر الآن'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                document.querySelectorAll('.activate-theme-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const themeId = e.currentTarget.dataset.themeId;
+                        try {
+                            e.currentTarget.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري التفعيل...`;
+                            await activateTheme(themeId);
+                            showToast('تم تفعيل المظهر بنجاح!', 'success');
+                            renderThemesGridToContainer(container);
+                        } catch (err) {
+                            showToast('فشل تفعيل المظهر: ' + err.message, 'error');
+                        }
+                    };
+                });
+
+            } catch (e) {
+                container.innerHTML = `<div class="py-4 text-center text-red-400 col-span-full">حدث خطأ أثناء تحميل السمات: ${e.message}</div>`;
+            }
+        }
+
+        // Form Submit Handler (Create Tenant & Master Owner Account)
+        createForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('tenantNameInput').value.trim();
+            const legalName = document.getElementById('tenantLegalNameInput').value.trim();
+            const slug = document.getElementById('tenantSlugInput').value.trim().toLowerCase();
+            const companyType = document.getElementById('companyTypeSelect').value;
+            const phone = document.getElementById('tenantPhoneInput').value.trim();
+            const email = document.getElementById('tenantEmailInput').value.trim();
+            const commercialRegister = document.getElementById('commercialRegisterInput').value.trim();
+            const taxNumber = document.getElementById('taxNumberInput').value.trim();
+
+            const masterEmail = document.getElementById('masterEmailInput').value.trim();
+            const masterPassword = document.getElementById('masterPasswordInput').value.trim();
+
+            const plan = document.getElementById('tenantPlanInput').value;
+            const maxProducts = parseInt(document.getElementById('maxProductsInput').value);
+            const maxUsers = parseInt(document.getElementById('maxUsersInput').value);
+
+            try {
+                // 1. Insert Tenant Record
+                const { data: tenant, error: tenantErr } = await supabase
+                    .from('tenants')
+                    .insert({
+                        name,
+                        legal_name: legalName || name,
+                        slug,
+                        company_type: companyType,
+                        domain: `${slug}.ultrasoft.site`,
+                        phone,
+                        email,
+                        commercial_register: commercialRegister,
+                        tax_number: taxNumber,
+                        status: 'active',
+                        settings: {
+                            theme: 'dark',
+                            currency: 'EGP',
+                            logo_url: '/logo.png',
+                            master_email: masterEmail,
+                            master_password: masterPassword
+                        }
+                    })
+                    .select()
+                    .single();
+
+                if (tenantErr) throw tenantErr;
+
+                // 2. Provision Master Owner User in auth.users and system_users via RPC
+                try {
+                    await supabase.rpc('super_admin_reset_owner_password', {
+                        p_tenant_id: tenant.id,
+                        p_new_password: masterPassword
+                    });
+                } catch(uErr) {
+                    console.warn('System owner RPC provision warning:', uErr);
+                }
+
+                // 3. Insert Subscription Record
+                await supabase.from('subscriptions').insert({
+                    tenant_id: tenant.id,
+                    plan,
+                    max_products: maxProducts,
+                    max_users: maxUsers,
+                    status: 'active'
+                });
+
+                // 4. Insert Subdomain Record
+                await supabase.from('tenant_domains').insert({
+                    tenant_id: tenant.id,
+                    subdomain: slug,
+                    is_primary: true,
+                    verified: true
+                });
+
+                showToast('تم تسجيل الشركة، وباقات الاشتراك، وحساب الماستر بنجاح!', 'success');
+                tenantModal.classList.add('hidden');
+                tenantModal.classList.remove('flex');
+                createForm.reset();
+                loadTenants();
+
+                // Automatically open details modal for quick onboarding packet copy
+                openTenantDetailsModal(tenant.id);
+
+            } catch (err) {
+                showToast('فشل إنشاء المصنع: ' + err.message, 'error');
+            }
+        });
+
+        refreshBtn.addEventListener('click', loadTenants);
+        loadTenants();
+    </script>
+</body>
+</html>

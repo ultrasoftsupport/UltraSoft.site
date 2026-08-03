@@ -3,6 +3,22 @@ import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js'; 
 import { printOrderCustomerInvoice } from '../../utils/print.js?v=2';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
+
+function getTenantCartKey() {
+    const tenantId = getCurrentTenantId() || 'default';
+    return `devo_cart_${tenantId}`;
+}
+
+function getTenantEditOrderKey() {
+    const tenantId = getCurrentTenantId() || 'default';
+    return `devo_edit_order_data_${tenantId}`;
+}
+
+function getTenantEditOrderCacheKey() {
+    const tenantId = getCurrentTenantId() || 'default';
+    return `devo_edit_order_data_cache_${tenantId}`;
+}
 
 let currentUser = null;
 let cartItems = [];
@@ -44,7 +60,8 @@ export function initCart() {
 function setupCartRealtime() {
     if (cartRealtimeChannel) return;
     
-    cartRealtimeChannel = supabase.channel('cart_realtime_sync')
+    const currentTenantId = getCurrentTenantId();
+    cartRealtimeChannel = supabase.channel('cart_realtime_sync_' + (currentTenantId || 'default'))
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'model_inventory' }, (payload) => {
             const { model_id, color_id, available_series } = payload.new;
             const itemInCart = cartItems.find(i => i.modelId === model_id && i.colorId === color_id);
@@ -102,12 +119,15 @@ async function loadAndRenderCart() {
     currentCartFilter = 'all';
     updateFilterButtonsUI();
 
-    const saved = localStorage.getItem('devo_cart');
+    const tenantCartKey = getTenantCartKey();
+    const tenantEditKey = getTenantEditOrderKey();
+    let saved = localStorage.getItem(tenantCartKey);
+    const savedOrderData = localStorage.getItem(tenantEditKey);
+
     if (saved) { try { cartItems = JSON.parse(saved); } catch(e) { cartItems = []; } }
 
     // 🌟 نقلنا تعبئة البيانات هنا لتعمل في كل مرة يفتح فيها الموظف السلة 🌟
     let originalOrderData = null;
-    const savedOrderData = localStorage.getItem('devo_edit_order_data');
     if (savedOrderData) {
         try {
             originalOrderData = JSON.parse(savedOrderData);
@@ -229,6 +249,13 @@ window.clearEntireCart = async () => {
 
         cartItems = [];
         editingOrderId = null;
+        cachedOriginalOrderData = null;
+        cachedDbInventory = [];
+        cachedDbModels = [];
+
+        localStorage.removeItem(getTenantCartKey());
+        localStorage.removeItem(getTenantEditOrderKey());
+        localStorage.removeItem(getTenantEditOrderCacheKey());
         localStorage.removeItem('devo_cart');
         localStorage.removeItem('devo_edit_order_data');
         localStorage.removeItem('devo_edit_order_data_cache');
@@ -236,6 +263,12 @@ window.clearEntireCart = async () => {
         const form = document.getElementById('checkout-form');
         if (form) form.reset();
         
+        ['c-name', 'c-phone1', 'c-phone2', 'c-address', 'c-notes', 'c-deposit', 'c-receiver'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        updateCartHeaderEditState(null, null);
         updateFloatingCart();
         loadAndRenderCart();
         showToast(isEditMode ? 'تم إلغاء تعديل الأوردر وإعادة فتحه وإفراغ السلة بنجاح' : 'تم إفراغ السلة بنجاح', 'success');
@@ -461,40 +494,7 @@ window.confirmRemoveModelFromCart = async (modelId) => {
     }
 };
 
-// 🌟 دالة إفراغ السلة بالكامل وإلغاء وضع التعديل 🌟
-window.clearEntireCart = async () => {
-    if (cartItems.length === 0 && !editingOrderId) {
-        return showToast('السلة فارغة بالفعل', 'info');
-    }
 
-    const confirmed = await confirmDialog({ 
-        title: 'إفراغ السلة', 
-        message: 'هل أنت متأكد من رغبتك في إفراغ السلة بالكامل وإلغاء أي تعديلات جارية؟', 
-        isDestructive: true 
-    });
-    
-    if (confirmed) {
-        if (editingOrderId) {
-            const finalEditingOrderId = editingOrderId;
-            await supabase.rpc('release_order_lock', { p_order_id: finalEditingOrderId });
-
-            const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
-            await logOrderAction(finalEditingOrderId, 'cart_edit_cancel', `تم إلغاء تعديل الأوردر وإفراغ السلة بواسطة (${userName})`);
-        }
-
-        cartItems = [];
-        editingOrderId = null;
-        localStorage.removeItem('devo_cart');
-        localStorage.removeItem('devo_edit_order_data');
-        
-        const form = document.getElementById('checkout-form');
-        if (form) form.reset();
-        
-        updateFloatingCart();
-        loadAndRenderCart();
-        showToast('تم إفراغ السلة وإلغاء وضع التعديل بنجاح', 'success');
-    }
-};
 
 function updateFilterButtonsUI() {
     const filters = {
@@ -594,7 +594,7 @@ async function handleCheckout(e) {
 
         let originalOrderData = null;
         if (editingOrderId) {
-            const savedData = localStorage.getItem('devo_edit_order_data');
+            const savedData = localStorage.getItem(getTenantEditOrderKey());
             if (savedData) originalOrderData = JSON.parse(savedData);
         }
 
@@ -619,7 +619,9 @@ async function handleCheckout(e) {
             throw new Error('ValidationError');
         }
 
+        const currentTenantId = getCurrentTenantId();
         const orderData = {
+            tenant_id: currentTenantId,
             worker_id: currentUser.id,
             customer_name: document.getElementById('c-name').value,
             phone_1: document.getElementById('c-phone1').value,
@@ -689,7 +691,10 @@ async function handleCheckout(e) {
         
         const finalEditingOrderId = editingOrderId;
         editingOrderId = null;
+        localStorage.removeItem(getTenantEditOrderKey());
+        localStorage.removeItem(getTenantEditOrderCacheKey());
         localStorage.removeItem('devo_edit_order_data');
+        localStorage.removeItem('devo_edit_order_data_cache');
 
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
         if (finalEditingOrderId) {
@@ -751,7 +756,7 @@ window.closeConfirmModal = () => {
 
 
 function saveCart() {
-    localStorage.setItem('devo_cart', JSON.stringify(cartItems));
+    localStorage.setItem(getTenantCartKey(), JSON.stringify(cartItems));
     updateFloatingCart();
 }
 
@@ -849,7 +854,7 @@ async function showInvoiceModal(order, items) {
         } else {
             // Fallback if order_items are not fetched
             items.forEach((item, idx) => {
-                const cachedItem = JSON.parse(localStorage.getItem('devo_edit_order_data_cache') || '[]').find(i => i.modelId === item.model_id && i.colorId === item.color_id);
+                const cachedItem = JSON.parse(localStorage.getItem(getTenantEditOrderCacheKey()) || '[]').find(i => i.modelId === item.model_id && i.colorId === item.color_id);
                 const pieces = item.pieces || item.quantity * (item.sizesCount || 1) || item.qty * (item.sizesCount || 1);
                 const priceVal = item.price || item.price_per_series;
                 const row = `
@@ -879,7 +884,7 @@ async function showInvoiceModal(order, items) {
         modal.classList.remove('hidden');
         setTimeout(() => modal.classList.remove('opacity-0'), 10);
     }
-    localStorage.removeItem('devo_edit_order_data_cache');
+    localStorage.removeItem(getTenantEditOrderCacheKey());
 }
 
 window.finishOrderAndRedirect = () => {
@@ -902,7 +907,7 @@ window.executeInvoicePrint = () => {
 };
 
 window.addEventListener('beforeunload', () => {
-    if(cartItems.length > 0) localStorage.setItem('devo_edit_order_data_cache', JSON.stringify(cartItems));
+    if(cartItems.length > 0) localStorage.setItem(getTenantEditOrderCacheKey(), JSON.stringify(cartItems));
 });
 
 // دالة لتسجيل حركات وتعديلات الأوردرات بسجل الملاحظات (للسلة والمبيعات)
@@ -910,13 +915,16 @@ async function logOrderAction(orderId, actionType, notes) {
     try {
         const userId = currentUser?.id || null;
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
+        const currentTenantId = getCurrentTenantId();
         
         const { error } = await supabase.from('order_logs').insert([{
+            tenant_id: currentTenantId,
             order_id: orderId,
             user_id: userId,
             user_name: userName,
             action_type: actionType,
-            notes: notes
+            notes: notes,
+            details: notes
         }]);
         if (error) {
             console.error('Database error inserting order log:', error);

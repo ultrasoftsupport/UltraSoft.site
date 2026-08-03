@@ -6,12 +6,18 @@ import { initUsersView } from './users.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNotifications } from '../../services/notifications.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
+import { initializeTenantContext, getCurrentTenant } from '../../services/tenant_service.js';
 
 // --- Security Check (Protect the Admin Route) ---
 let currentUserContext = null;
 
 async function authenticateAdmin() {
-    // استخدام دالة الحماية الجديدة بدلاً من القديمة
+    // 1. Initialize Active Tenant Context FIRST
+    try {
+        await initializeTenantContext();
+    } catch(e) { console.error('Tenant init error:', e); }
+
+    // 2. Perform RequireAuth check AFTER tenant context is loaded
     const user = requireAuth(['owner', 'admin']); 
     
     if (!user) {
@@ -20,6 +26,16 @@ async function authenticateAdmin() {
 
     currentUserContext = user;
     updateUserProfileUI(user);
+
+    const tenant = getCurrentTenant();
+    if (tenant && tenant.name) {
+        const activeBadge = document.getElementById('activeTenantBadge');
+        const activeName = document.getElementById('activeTenantName');
+        if (activeName) activeName.textContent = tenant.name;
+        if (activeBadge) activeBadge.classList.remove('hidden');
+        document.title = `لوحة تحكم ${tenant.name} | ألترا سوفت`;
+    }
+
     return true;
 }
 
@@ -49,32 +65,13 @@ function updateUserProfileUI(profile) {
 
 
 
-    // إخفاء/إظهار زر إدارة المظاهر وإعدادات الواجهة بناءً على صلاحية المالك فقط (إخفاء عن المدير)
-    const themeManagerLink = document.querySelector('[data-target="view-theme-manager"]');
-    if (themeManagerLink) {
+    // إخفاء/إظهار تبويب إعادة تهيئة النظام الفرعي (للمالك فقط)
+    const resetSubtabBtn = document.getElementById('settingsSubtabResetBtn');
+    if (resetSubtabBtn) {
         if (profile.role === 'owner') {
-            themeManagerLink.classList.remove('hidden');
+            resetSubtabBtn.classList.remove('hidden');
         } else {
-            themeManagerLink.classList.add('hidden');
-        }
-    }
-
-    const homeSettingsLink = document.querySelector('[data-target="view-home-settings"]');
-    if (homeSettingsLink) {
-        if (profile.role === 'owner') {
-            homeSettingsLink.classList.remove('hidden');
-        } else {
-            homeSettingsLink.classList.add('hidden');
-        }
-    }
-
-    // إخفاء/إظهار رابط إعادة تهيئة النظام (الملك فقط)
-    const resetLink = document.querySelector('[data-target="view-system-reset"]');
-    if (resetLink) {
-        if (profile.role === 'owner') {
-            resetLink.classList.remove('hidden');
-        } else {
-            resetLink.classList.add('hidden');
+            resetSubtabBtn.classList.add('hidden');
         }
     }
 }
@@ -103,11 +100,14 @@ function switchView(targetId, titleElement) {
         // targetView.classList.add('animate-fade-in'); 
     }
 
-    // 4. Highlight active link and update Topbar title
+    // 4. Highlight active link
     if (titleElement) {
         titleElement.classList.remove('text-devo-muted');
         titleElement.classList.add('bg-devo-orange/10', 'text-devo-orange');
-        pageTitle.textContent = titleElement.querySelector('span').textContent;
+        const pt = document.getElementById('page-title');
+        if (pt && titleElement.querySelector('span')) {
+            pt.textContent = titleElement.querySelector('span').textContent;
+        }
     }
 
     // 5. Initialize View Logic (Lazy Loading)
@@ -185,6 +185,9 @@ async function loadViewLogic(targetId) {
             const { initModelsView } = await import('./models.js?v=8.0'); 
             await initModelsView(); 
             break;
+        case 'view-settings':
+            await switchSettingsSubtab(currentSettingsSubtab || 'view-home-settings');
+            break;
         case 'view-home-settings':
             await initHomeSettingsView();
             break;
@@ -212,8 +215,6 @@ async function loadViewLogic(targetId) {
             const { initInboundInvoicesView } = await import('./inbound_invoices.js');
             await initInboundInvoicesView();
             break;
-
-
         case 'view-theme-manager':
             const { initThemeManagerView } = await import('./theme_manager.js');
             await initThemeManagerView();
@@ -232,6 +233,54 @@ async function loadViewLogic(targetId) {
             break;
     }
 }
+
+let currentSettingsSubtab = 'view-home-settings';
+
+export async function switchSettingsSubtab(subtabId) {
+    const subviews = document.querySelectorAll('.settings-subview');
+    const subtabBtns = document.querySelectorAll('.settings-subtab-btn');
+
+    currentSettingsSubtab = subtabId;
+
+    subviews.forEach(sv => sv.classList.add('hidden'));
+
+    subtabBtns.forEach(btn => {
+        const target = btn.getAttribute('data-settings-subtab');
+        if (target === subtabId) {
+            btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer';
+        } else {
+            if (btn.id === 'settingsSubtabResetBtn') {
+                btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer';
+            } else {
+                btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer';
+            }
+        }
+    });
+
+    const targetSub = document.getElementById(subtabId);
+    if (targetSub) {
+        targetSub.classList.remove('hidden');
+    }
+
+    switch (subtabId) {
+        case 'view-home-settings':
+            await initHomeSettingsView();
+            break;
+        case 'view-theme-manager':
+            const { initThemeManagerView } = await import('./theme_manager.js');
+            await initThemeManagerView();
+            break;
+        case 'view-backup-restore':
+            const { initBackupRestoreView } = await import('./backup_restore.js');
+            initBackupRestoreView();
+            break;
+        case 'view-system-reset':
+            const { initSystemResetView } = await import('./system_reset.js');
+            initSystemResetView();
+            break;
+    }
+}
+
 // --- Event Listeners Initialization ---
 async function initRouter() {
     // مراقبة وإظهار بنر الاتصال بالإنترنت عند الانقطاع
@@ -253,6 +302,15 @@ async function initRouter() {
             e.preventDefault();
             const targetId = link.getAttribute('data-target');
             switchView(targetId, link);
+        });
+    });
+
+    // Attach click events to Settings Subtabs
+    document.querySelectorAll('.settings-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const subtabId = btn.getAttribute('data-settings-subtab');
+            if (subtabId) switchSettingsSubtab(subtabId);
         });
     });
 

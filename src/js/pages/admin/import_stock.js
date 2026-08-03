@@ -1,5 +1,6 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -189,11 +190,19 @@ window.importStockMultiSelectAction = (event, key, action) => {
 // 🌟 1. Load active models, categories, classes, colors, sizes from Supabase 🌟
 export async function loadInitialData() {
     try {
+        const currentTenantId = getCurrentTenantId();
+        let catQ = supabase.from('categories').select('id, name').order('name');
+        let clsQ = supabase.from('classes').select('id, name').order('name');
+        let clrQ = supabase.from('colors').select('id, name, color_code').order('name');
+        let szQ = supabase.from('sizes').select('id, name').order('name');
+        if (currentTenantId) {
+            catQ = catQ.eq('tenant_id', currentTenantId);
+            clsQ = clsQ.eq('tenant_id', currentTenantId);
+            clrQ = clrQ.eq('tenant_id', currentTenantId);
+            szQ = szQ.eq('tenant_id', currentTenantId);
+        }
         const [catsRes, clssRes, colorsRes, sizesRes] = await Promise.all([
-            supabase.from('categories').select('id, name').order('name'),
-            supabase.from('classes').select('id, name').order('name'),
-            supabase.from('colors').select('id, name, color_code').order('name'),
-            supabase.from('sizes').select('id, name').order('name')
+            catQ, clsQ, clrQ, szQ
         ]);
 
         existingCategories = catsRes.data || [];
@@ -242,7 +251,7 @@ export async function loadInitialData() {
         let hasMore = true;
 
         while (hasMore) {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('models')
                 .select(`
                     id, system_code, factory_code, name, price, class_id, category_id, is_active, created_at,
@@ -250,7 +259,13 @@ export async function loadInitialData() {
                     classes(id, name, class_sizes(size_id, sizes(id, name))),
                     model_sizes(size_id, sizes(id, name)),
                     model_inventory(color_id, available_series, colors(id, name))
-                `)
+                `);
+
+            if (currentTenantId) {
+                query = query.eq('tenant_id', currentTenantId);
+            }
+
+            const { data, error } = await query
                 .range(from, from + step);
 
             if (error) throw error;

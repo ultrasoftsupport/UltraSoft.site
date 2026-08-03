@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
+import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -86,12 +87,18 @@ export async function initModelsView() {
 // 🌟 1. البيانات الأساسية 🌟
 // ==========================================
 export async function loadDefinitionsCache() {
-    const [cats, clss, szs, clrs] = await Promise.all([
-        supabase.from('categories').select('id, name'),
-        supabase.from('classes').select('id, name, class_sizes(size_id, sizes(id, name))'),
-        supabase.from('sizes').select('id, name'),
-        supabase.from('colors').select('id, name, color_code')
-    ]);
+    const currentTenantId = getCurrentTenantId();
+    let catQ = supabase.from('categories').select('id, name');
+    let clsQ = supabase.from('classes').select('id, name, class_sizes(size_id, sizes(id, name))');
+    let szQ = supabase.from('sizes').select('id, name');
+    let clrQ = supabase.from('colors').select('id, name, color_code');
+    if (currentTenantId) {
+        catQ = catQ.eq('tenant_id', currentTenantId);
+        clsQ = clsQ.eq('tenant_id', currentTenantId);
+        szQ = szQ.eq('tenant_id', currentTenantId);
+        clrQ = clrQ.eq('tenant_id', currentTenantId);
+    }
+    const [cats, clss, szs, clrs] = await Promise.all([catQ, clsQ, szQ, clrQ]);
     defCache = { cats: cats.data || [], clss: clss.data || [], szs: szs.data || [], clrs: clrs.data || [] };
     
     const catSelect = document.getElementById('filter-category');
@@ -135,9 +142,16 @@ export async function fetchAllModelsChunked() {
 
     try {
         while (hasMore) {
-            const { data, error } = await supabase
+            const currentTenantId = getCurrentTenantId();
+            let query = supabase
                 .from('models')
-                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, colors(id, name, color_code)), model_images(image_url)`)
+                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, colors(id, name, color_code)), model_images(image_url)`);
+
+            if (currentTenantId) {
+                query = query.eq('tenant_id', currentTenantId);
+            }
+
+            const { data, error } = await query
                 .order('created_at', { ascending: false })
                 .range(from, from + step);
 
@@ -221,8 +235,15 @@ function processRealtimeModelsQueue() {
 }
 
 function setupAdminRealtimeTracker() {
-    supabase.channel('admin_models_tracker')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'models' }, (payload) => {
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    supabase.channel('admin_models_tracker_' + (currentTenantId || 'default'))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'models', ...filterConfig }, (payload) => {
+            if (currentTenantId) {
+                if (payload.new && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
+                if (payload.old && payload.old.tenant_id && payload.old.tenant_id !== currentTenantId) return;
+            }
             
             if (payload.eventType === 'DELETE') {
                 allModels = allModels.filter(m => m.id !== payload.old.id);
@@ -248,18 +269,36 @@ function setupAdminRealtimeTracker() {
                 processRealtimeModelsQueue();
             }
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'model_inventory' }, (payload) => {
-            const mIndex = allModels.findIndex(m => m.id === payload.new.model_id);
-            if (mIndex > -1) {
-                const iIndex = allModels[mIndex].model_inventory.findIndex(i => i.color_id === payload.new.color_id);
-                if (iIndex > -1) {
-                    allModels[mIndex].model_inventory[iIndex].available_series = payload.new.available_series;
-                    updateAdminStats(); 
-                    
-                    const card = document.getElementById(`admin-model-card-${payload.new.model_id}`);
-                    if (card) card.outerHTML = generateModelCardHTML(allModels[mIndex]);
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'model_inventory' }, async (payload) => {
+            const targetModelId = payload.new?.model_id || payload.old?.model_id;
+            if (!targetModelId) return;
 
-                    if (currentOpenModelId === payload.new.model_id) updateLiveModalInventory(allModels[mIndex]);
+            const mIndex = allModels.findIndex(m => m.id === targetModelId);
+            if (mIndex > -1) {
+                if (payload.new && payload.new.color_id && payload.new.available_series !== undefined) {
+                    const invObj = allModels[mIndex].model_inventory?.find(i => i.color_id === payload.new.color_id);
+                    if (invObj) {
+                        invObj.available_series = payload.new.available_series;
+                    }
+                }
+                
+                updateAdminStats(); 
+                
+                const card = document.getElementById(`admin-model-card-${targetModelId}`);
+                if (card) card.outerHTML = generateModelCardHTML(allModels[mIndex]);
+
+                if (currentOpenModelId === targetModelId) updateLiveModalInventory(allModels[mIndex]);
+
+                const { data: freshInv } = await supabase
+                    .from('model_inventory')
+                    .select('color_id, available_series, colors(id, name, color_code)')
+                    .eq('model_id', targetModelId);
+
+                if (freshInv && freshInv.length > 0) {
+                    allModels[mIndex].model_inventory = freshInv;
+                    updateAdminStats(); 
+                    if (card) card.outerHTML = generateModelCardHTML(allModels[mIndex]);
+                    if (currentOpenModelId === targetModelId) updateLiveModalInventory(allModels[mIndex]);
                 }
             }
         })
@@ -512,7 +551,9 @@ window.viewDetails = async (id) => {
     if (!model) return;
 
     currentOpenModelId = id;
-    history.pushState(null, '', `?admin_model=${id}`); 
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('admin_model', id);
+    history.pushState(null, '', window.location.pathname + '?' + urlParams.toString()); 
 
     const modal = document.getElementById('view-details-modal');
     const content = document.getElementById('details-content');
@@ -713,10 +754,16 @@ window.closeDetailsModal = () => {
 };
 
 window.shareAdminModel = async (id) => {
-    const url = `${window.location.origin}${window.location.pathname}?admin_model=${id}`;
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (slug && slug !== 'default' && slug !== 'super_admin') {
+        urlParams.set('tenant', slug);
+    }
+    urlParams.set('model', id);
+    const url = `${window.location.origin}/index.html?${urlParams.toString()}`;
     try {
         await navigator.clipboard.writeText(url);
-        showToast('تم نسخ الرابط! أرسله للإدارة للمراجعة.', 'success');
+        showToast('تم نسخ رابط الموديل الخاص بالمصنع بنجاح!', 'success');
     } catch (err) {
         showToast('حدث خطأ أثناء نسخ الرابط', 'error');
     }
@@ -927,6 +974,9 @@ async function handleSaveModel(e) {
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> الحفظ...`;
 
     try {
+        const currentTenantId = getCurrentTenantId();
+        if (currentTenantId) modelData.tenant_id = currentTenantId;
+
         let modelId = id;
         if (id) {
             const { error: updateError } = await supabase.from('models').update(modelData).eq('id', id);
@@ -1070,12 +1120,38 @@ async function handleAddStockSubmit(e) {
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> الحفظ...`;
 
     try {
-        const currentInv = allModels.find(m => m.id === modelId).model_inventory.find(i => i.color_id === colorId);
-        const { error: invError } = await supabase.from('model_inventory').update({ available_series: currentInv.available_series + addedQty }).eq('model_id', modelId).eq('color_id', colorId);
+        const targetModel = allModels.find(m => m.id === modelId);
+        const currentInv = targetModel?.model_inventory?.find(i => i.color_id === colorId);
+        const currentTenantId = getCurrentTenantId();
+        
+        const newStock = (currentInv?.available_series || 0) + addedQty;
+
+        const { error: invError } = await supabase
+            .from('model_inventory')
+            .update({ available_series: newStock })
+            .eq('model_id', modelId)
+            .eq('color_id', colorId);
         if (invError) throw invError;
         
-        const { error: movError } = await supabase.from('stock_movements').insert([{ model_id: modelId, color_id: colorId, movement_type: 'in', quantity: addedQty, reference: 'شحنة يدوية (إدارة)' }]);
+        const { error: movError } = await supabase
+            .from('stock_movements')
+            .insert([{ tenant_id: currentTenantId, model_id: modelId, color_id: colorId, movement_type: 'in', quantity: addedQty, reference: 'شحنة يدوية (إدارة)' }]);
         if (movError) throw movError;
+
+        // ⚡ تحديث الذاكرة المحلية فوراً لحين وصول البث اللحظي ⚡
+        if (currentInv) {
+            currentInv.available_series = newStock;
+        }
+
+        if (targetModel) {
+            updateAdminStats();
+            const card = document.getElementById(`admin-model-card-${modelId}`);
+            if (card) card.outerHTML = generateModelCardHTML(targetModel);
+
+            if (currentOpenModelId === modelId) {
+                updateLiveModalInventory(targetModel);
+            }
+        }
 
         showToast('تمت إضافة الشحنة بنجاح', 'success');
         closeAddStockModal();

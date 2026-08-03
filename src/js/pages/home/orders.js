@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let currentUser = null;
 let allOrders = [];
@@ -67,9 +68,14 @@ async function fetchFullWorkerOrderById(orderId) {
 
 // 🌟 الرادار اللحظي لمنع التعديل عند القفل والمزامنة اللحظية الشاملة 🌟
 function setupOrdersRealtime() {
-    supabase.channel('worker_orders_sync')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async (payload) => {
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    supabase.channel('worker_orders_sync_' + (currentTenantId || 'default'))
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders', ...filterConfig }, async (payload) => {
             if (!currentUser) return;
+            if (currentTenantId && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
+
             const isMine = payload.new.worker_id === currentUser.id || payload.new.assigned_worker_id === currentUser.id;
             if (!isMine) return;
 
@@ -79,8 +85,10 @@ function setupOrdersRealtime() {
                 showToast(`تم إسناد/إنشاء أوردر جديد رقم (#${newOrder.invoice_number})!`, 'info');
             }
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, async (payload) => {
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', ...filterConfig }, async (payload) => {
             if (!currentUser) return;
+            if (currentTenantId && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
+
             const isMine = payload.new.worker_id === currentUser.id || payload.new.assigned_worker_id === currentUser.id;
             const existingIdx = allOrders.findIndex(o => o.id === payload.new.id);
 
@@ -110,7 +118,7 @@ function setupOrdersRealtime() {
                 }
             }
         })
-        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'orders' }, (payload) => {
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'orders', ...filterConfig }, (payload) => {
             if (!currentUser) return;
             const existingIdx = allOrders.findIndex(o => o.id === payload.old.id);
             if (existingIdx > -1) {
@@ -144,7 +152,8 @@ async function fetchMyOrders() {
     const tBody = document.getElementById('orders-table-body');
     if(tBody) tBody.innerHTML = `<tr><td colspan="6" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i> جاري التحميل...</td></tr>`;
 
-    const { data, error } = await supabase
+    const currentTenantId = getCurrentTenantId();
+    let query = supabase
         .from('orders')
         .select(`
             *,
@@ -161,8 +170,13 @@ async function fetchMyOrders() {
                 colors (name)
             )
         `)
-        .or(`worker_id.eq.${currentUser.id},assigned_worker_id.eq.${currentUser.id}`)
-        .order('created_at', { ascending: false });
+        .or(`worker_id.eq.${currentUser.id},assigned_worker_id.eq.${currentUser.id}`);
+
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
         
     if (error) {
         showToast('حدث خطأ أثناء جلب الأوردرات', 'error');
@@ -558,7 +572,8 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
         };
     });
 
-    localStorage.setItem('devo_cart', JSON.stringify(newCart));
+    const tenantId = targetOrder.tenant_id || getCurrentTenantId() || 'default';
+    localStorage.setItem(`devo_cart_${tenantId}`, JSON.stringify(newCart));
     
     const orderData = {
         id: targetOrder.id,
@@ -567,9 +582,9 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
         phone_1: targetOrder.phone_1, phone_2: targetOrder.phone_2,
         address: targetOrder.address, deposit: targetOrder.deposit,
         deposit_receiver: targetOrder.deposit_receiver, notes: targetOrder.notes,
-        original_items: targetOrder.order_items // 🌟 السطر السحري: تمرير ما يملكه الأوردر للسلة 🌟
+        original_items: targetOrder.order_items
     };
-    localStorage.setItem('devo_edit_order_data', JSON.stringify(orderData));
+    localStorage.setItem(`devo_edit_order_data_${tenantId}`, JSON.stringify(orderData));
     
     btn.innerHTML = originalText;
     btn.disabled = false;
@@ -629,13 +644,16 @@ async function logOrderAction(orderId, actionType, notes) {
     try {
         const userId = currentUser?.id || null;
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
+        const currentTenantId = getCurrentTenantId();
         
         const { error } = await supabase.from('order_logs').insert([{
+            tenant_id: currentTenantId,
             order_id: orderId,
             user_id: userId,
             user_name: userName,
             action_type: actionType,
-            notes: notes
+            notes: notes,
+            details: notes
         }]);
         if (error) {
             console.error('Database error inserting order log:', error);

@@ -2,6 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { checkModelsInInvoices } from './models.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isBulkInitialized = false;
 let bulkAllModels = []; 
@@ -135,11 +136,19 @@ window.updateMultiSelectLabel = (key) => {
 
 export async function fetchBulkFilterOptions() {
     try {
+        const currentTenantId = getCurrentTenantId();
+        let catQ = supabase.from('categories').select('id, name');
+        let clsQ = supabase.from('classes').select('id, name, class_sizes(size_id)');
+        let clrQ = supabase.from('colors').select('id, name');
+        let szQ = supabase.from('sizes').select('id, name');
+        if (currentTenantId) {
+            catQ = catQ.eq('tenant_id', currentTenantId);
+            clsQ = clsQ.eq('tenant_id', currentTenantId);
+            clrQ = clrQ.eq('tenant_id', currentTenantId);
+            szQ = szQ.eq('tenant_id', currentTenantId);
+        }
         const [cats, clss, colors, sizes] = await Promise.all([
-            supabase.from('categories').select('id, name'),
-            supabase.from('classes').select('id, name, class_sizes(size_id)'),
-            supabase.from('colors').select('id, name'),
-            supabase.from('sizes').select('id, name')
+            catQ, clsQ, clrQ, szQ
         ]);
 
         bulkClasses = clss.data || [];
@@ -193,7 +202,8 @@ export async function fetchBulkModels() {
 
     try {
         while (hasMore) {
-            const { data, error } = await supabase
+            const currentTenantId = getCurrentTenantId();
+            let query = supabase
                 .from('models')
                 .select(`
                     *, 
@@ -202,7 +212,13 @@ export async function fetchBulkModels() {
                     model_sizes(size_id),
                     model_inventory(id, color_id, available_series),
                     model_images(image_url)
-                `)
+                `);
+
+            if (currentTenantId) {
+                query = query.eq('tenant_id', currentTenantId);
+            }
+
+            const { data, error } = await query
                 .order('created_at', { ascending: false })
                 .range(from, from + step);
 

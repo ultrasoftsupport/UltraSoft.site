@@ -3,6 +3,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { printOrderCustomerInvoice } from '../../utils/print.js?v=2';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allAdminOrders = [];
@@ -45,7 +46,8 @@ export async function fetchAdminOrders() {
     const tBody = document.getElementById('ao-table-body');
     if(tBody && allAdminOrders.length === 0) tBody.innerHTML = `<tr><td colspan="9" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i></td></tr>`;
 
-    const { data, error } = await supabase
+    const currentTenantId = getCurrentTenantId();
+    let query = supabase
         .from('orders')
         .select(`
             *,
@@ -55,8 +57,13 @@ export async function fetchAdminOrders() {
                 models (name, factory_code, system_code, model_sizes(size_id), classes(class_sizes(size_id))),
                 colors (id, name, color_code)
             )
-        `)
-        .order('created_at', { ascending: false });
+        `);
+
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
         
     if (!error && data) {
         allAdminOrders = data;
@@ -70,7 +77,8 @@ export async function fetchAdminOrders() {
 
 async function fetchFullOrderById(orderId) {
     try {
-        const { data, error } = await supabase
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase
             .from('orders')
             .select(`
                 *,
@@ -81,8 +89,13 @@ async function fetchFullOrderById(orderId) {
                     colors (id, name, color_code)
                 )
             `)
-            .eq('id', orderId)
-            .maybeSingle();
+            .eq('id', orderId);
+
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data, error } = await query.maybeSingle();
 
         if (data && !error) {
             const index = allAdminOrders.findIndex(o => o.id === orderId);
@@ -103,8 +116,15 @@ async function fetchFullOrderById(orderId) {
 // 🌟 2. الرادار اللحظي (Targeted DOM Updates) 🌟
 // ==========================================
 function setupRealtimeAdminOrders() {
-    supabase.channel('admin_orders_tracker')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async (payload) => {
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    supabase.channel('admin_orders_tracker_' + (currentTenantId || 'default'))
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders', ...filterConfig }, async (payload) => {
+            if (currentTenantId && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) {
+                return; // Ignore orders from other factories
+            }
+
             // جلب الأوردر الجديد بالكامل مع علاقاته
             const data = await fetchFullOrderById(payload.new.id);
             
@@ -128,7 +148,10 @@ function setupRealtimeAdminOrders() {
                 }
             }
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, async (payload) => {
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', ...filterConfig }, async (payload) => {
+            if (currentTenantId && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) {
+                return; // Ignore updates for orders of other factories
+            }
             // جلب الأوردر التراكمي بالأصناف كاملة
             const updatedOrder = await fetchFullOrderById(payload.new.id) || payload.new;
             const index = allAdminOrders.findIndex(o => o.id === payload.new.id);
@@ -148,7 +171,7 @@ function setupRealtimeAdminOrders() {
                 }
             }
         })
-        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'orders' }, (payload) => {
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'orders', ...filterConfig }, (payload) => {
             allAdminOrders = allAdminOrders.filter(o => o.id !== payload.old.id);
             updateAdminStats();
             
@@ -1399,7 +1422,8 @@ window.triggerCartEdit = async () => {
         };
     });
 
-    localStorage.setItem('devo_cart', JSON.stringify(newCart));
+    const tenantId = o.tenant_id || getCurrentTenantId() || 'default';
+    localStorage.setItem(`devo_cart_${tenantId}`, JSON.stringify(newCart));
 
     const orderData = {
         id: o.id,
@@ -1417,10 +1441,11 @@ window.triggerCartEdit = async () => {
             quantity: oi.quantity
         }))
     };
-    localStorage.setItem('devo_edit_order_data', JSON.stringify(orderData));
+    localStorage.setItem(`devo_edit_order_data_${tenantId}`, JSON.stringify(orderData));
 
     closeEditOrderChoices(true);
-    window.location.href = 'index.html';
+    const tenantParam = new URLSearchParams(window.location.search).get('tenant');
+    window.location.href = `index.html${tenantParam ? '?tenant=' + tenantParam : (tenantId && tenantId !== 'default' ? '?tenant=' + tenantId : '')}`;
 };
 
 // --- الخيار الثالث: إسناد الأوردر لموظف آخر ---
@@ -1463,13 +1488,16 @@ async function logOrderAction(orderId, actionType, notes) {
         const { session } = getCurrentSession();
         const userId = session?.user?.id || null;
         const userName = currentUserProfile?.full_name || 'نظام DEVO';
+        const currentTenantId = getCurrentTenantId();
         
         const { error } = await supabase.from('order_logs').insert([{
+            tenant_id: currentTenantId,
             order_id: orderId,
             user_id: userId,
             user_name: userName,
             action_type: actionType,
-            notes: notes
+            notes: notes,
+            details: notes
         }]);
         if (error) {
             console.error('Database error inserting order log:', error);

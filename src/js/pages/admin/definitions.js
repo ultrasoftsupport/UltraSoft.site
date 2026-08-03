@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let currentTab = 'categories'; 
 let allData = []; 
@@ -60,10 +61,12 @@ export async function loadCurrentTabData() {
     tableBody.innerHTML = `<tr><td colspan="4" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i></td></tr>`;
     emptyState.classList.add('hidden');
 
-    const { data, error } = await supabase
-        .from(currentTab)
-        .select('*')
-        .order('created_at', { ascending: false });
+    const currentTenantId = getCurrentTenantId();
+    let query = supabase.from(currentTab).select('*');
+    if (currentTenantId) {
+        query = query.eq('tenant_id', currentTenantId);
+    }
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
         showToast(`خطأ في جلب البيانات: ${error.message}`, 'error');
@@ -137,8 +140,13 @@ window.openDefinitionModal = async (table, id = null, name = '', code = '') => {
         sizesWrapper.classList.remove('hidden');
         sizesContainer.innerHTML = '<div class="text-devo-muted text-xs p-2"><i class="ph ph-spinner animate-spin"></i> جاري جلب المقاسات...</div>';
         
-        // جلب كل المقاسات الموجودة في النظام
-        const { data: allSizes } = await supabase.from('sizes').select('id, name');
+        // جلب المقاسات الخاصة بالمصنع نفسه
+        const currentTenantId = getCurrentTenantId();
+        let sizesQuery = supabase.from('sizes').select('id, name');
+        if (currentTenantId) {
+            sizesQuery = sizesQuery.eq('tenant_id', currentTenantId);
+        }
+        const { data: allSizes } = await sizesQuery;
         let selectedSizeIds = [];
 
         // إذا كنا نعدل فئة موجودة، نجلب مقاساتها المرتبطة
@@ -148,7 +156,7 @@ window.openDefinitionModal = async (table, id = null, name = '', code = '') => {
         }
 
         // رسم المقاسات كـ Checkboxes
-        sizesContainer.innerHTML = allSizes.map(s => `
+        sizesContainer.innerHTML = (allSizes || []).map(s => `
             <label class="flex items-center gap-2 bg-devo-dark border border-devo-gray px-3 py-1.5 rounded cursor-pointer hover:border-devo-orange has-[:checked]:border-devo-orange text-xs transition-colors">
                 <input type="checkbox" name="class-size-cb" value="${s.id}" class="accent-devo-orange" ${selectedSizeIds.includes(s.id) ? 'checked' : ''}> 
                 <span class="text-white">${s.name}</span>
@@ -178,13 +186,14 @@ async function handleSaveDefinition(e) {
     const name = document.getElementById('def-item-name').value.trim();
     const code = document.getElementById('def-item-code').value.trim();
     const btn = document.getElementById('def-save-btn');
+    const currentTenantId = getCurrentTenantId();
 
     if (!name) return;
 
     btn.disabled = true;
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري الحفظ...`;
 
-    let payload = { name };
+    let payload = { tenant_id: currentTenantId, name };
     if (table === 'colors') {
         payload.color_code = code || null;
     }
@@ -212,8 +221,13 @@ async function handleSaveDefinition(e) {
             
             // إدخال المقاسات الجديدة
             if (selectedSizes.length > 0) {
-                const classSizesPayload = selectedSizes.map(sizeId => ({ class_id: savedId, size_id: sizeId }));
-                await supabase.from('class_sizes').insert(classSizesPayload);
+                const classSizesPayload = selectedSizes.map(sizeId => ({ tenant_id: currentTenantId, class_id: savedId, size_id: sizeId }));
+                const { error: csErr } = await supabase.from('class_sizes').insert(classSizesPayload);
+                if (csErr) {
+                    // Fallback without tenant_id if column does not exist yet in DB
+                    const simplePayload = selectedSizes.map(sizeId => ({ class_id: savedId, size_id: sizeId }));
+                    await supabase.from('class_sizes').insert(simplePayload);
+                }
             }
         }
 
@@ -322,8 +336,13 @@ window.processColorExcelPreview = async () => {
         const data = await readExcelFile(file);
         if (data.length === 0) throw new Error("الملف فارغ");
 
-        const { data: existingColors } = await supabase.from('colors').select('color_code');
-        const existingCodes = new Set(existingColors.map(c => String(c.color_code)));
+        const currentTenantId = getCurrentTenantId();
+        let colorsQuery = supabase.from('colors').select('color_code');
+        if (currentTenantId) {
+            colorsQuery = colorsQuery.eq('tenant_id', currentTenantId);
+        }
+        const { data: existingColors } = await colorsQuery;
+        const existingCodes = new Set((existingColors || []).map(c => String(c.color_code)));
 
         const newColors = [];
         const duplicates = [];
@@ -343,7 +362,7 @@ window.processColorExcelPreview = async () => {
             if (existingCodes.has(code)) {
                 duplicates.push({ code, name });
             } else {
-                newColors.push({ color_code: code, name: name });
+                newColors.push({ tenant_id: currentTenantId, color_code: code, name: name });
                 existingCodes.add(code); // لمنع التكرار داخل نفس الملف
             }
         });
@@ -399,7 +418,7 @@ window.executeColorExcelImport = async () => {
 
             // 🌟 2. الحل الجذري: استخدام upsert لتخطي الأكواد المكررة في السيرفر بصمت 🌟
             const { error } = await supabase.from('colors').upsert(chunk, {
-                onConflict: 'color_code', // تحديد العمود الذي يمنع التكرار
+                onConflict: 'tenant_id,color_code', // تحديد العمودين اللذين يمنعان التكرار لكل مصنع
                 ignoreDuplicates: true    // تجاهل المكرر وعدم إحداث خطأ
             });
 

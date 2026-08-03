@@ -145,7 +145,11 @@
             <h1 class="text-3xl font-black tracking-wider text-white mb-1">
                 Ultra<span class="text-ultra-400">Soft</span>
             </h1>
-            <p class="text-devo-muted text-sm font-medium">نظام إدارة المبيعات والمخازن</p>
+            <p class="text-devo-muted text-sm font-medium" id="login-subheading">نظام إدارة المبيعات والمخازن</p>
+            <div id="login-tenant-badge" class="mt-3 inline-flex items-center gap-2 px-3.5 py-1 bg-ultra-500/15 border border-ultra-500/30 rounded-full text-ultra-400 text-xs font-bold hidden shadow-sm">
+                <i class="ph ph-factory text-sm"></i>
+                <span id="login-tenant-name">--</span>
+            </div>
         </div>
 
         <form id="auth-form" class="space-y-6">
@@ -200,6 +204,22 @@
         import { showToast } from './src/js/components/toast.js';
         import { supabase } from './src/js/config/supabase.js';
         import { syncActiveTheme } from './src/js/services/theme.js';
+        import { initializeTenantContext, getTenantSlugFromURL } from './src/js/services/tenant_service.js';
+
+        // تهيئة سياق وشعار المصنع على صفحة الدخول
+        async function initAuthPageTenant() {
+            const tenant = await initializeTenantContext();
+            const slug = getTenantSlugFromURL();
+            if (tenant && slug && slug !== 'default' && slug !== 'super_admin') {
+                const badge = document.getElementById('login-tenant-badge');
+                const badgeName = document.getElementById('login-tenant-name');
+                if (badge && badgeName) {
+                    badgeName.textContent = `بوابة دخول: ${tenant.name}`;
+                    badge.classList.remove('hidden');
+                }
+            }
+        }
+        initAuthPageTenant();
 
         // تزامن المظهر النشط من قاعدة البيانات
         syncActiveTheme();
@@ -218,23 +238,26 @@
             const role = user.role;
             const workerJob = user.worker_job;
             
+            const tenantParam = new URLSearchParams(window.location.search).get('tenant');
+            const appendTenant = (path) => path + (tenantParam ? '?tenant=' + tenantParam : '');
+
             const destinations = [];
             
             if (role === 'owner' || role === 'admin') {
                 destinations.push({
                     name: 'لوحة الإدارة',
-                    url: 'admin.html',
+                    url: appendTenant('admin.html'),
                     icon: 'ph-shield-check',
                     color: 'bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30'
                 });
                 destinations.push({
                     name: 'الصفحة الرئيسية (المعرض)',
-                    url: 'index.html',
+                    url: appendTenant('index.html'),
                     icon: 'ph-storefront',
                     color: 'bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30'
                 });
             } else if (role === 'worker') {
-                window.location.href = 'index.html';
+                window.location.href = appendTenant('index.html');
                 return;
             }
             

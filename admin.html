@@ -190,14 +190,14 @@
     <aside id="main-sidebar" class="w-64 bg-devo-dark border-l border-devo-gray flex flex-col transition-all duration-300 relative z-20 shrink-0">
         <!-- Logo + Toggle button -->
         <div class="h-20 flex items-center justify-between px-5 border-b border-devo-gray shrink-0 overflow-hidden">
-            <div id="sidebar-logo" class="flex items-center gap-2.5 transition-all duration-300 whitespace-nowrap cursor-pointer" onclick="window.location.href='index.html'">
+            <div id="sidebar-logo" class="flex items-center gap-2.5 transition-all duration-300 whitespace-nowrap cursor-pointer" onclick="(function(){ const t = new URLSearchParams(window.location.search).get('tenant'); window.location.href = 'index.html' + (t ? '?tenant=' + t : ''); })()">
                 <img src="./logo_transparnt.png" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'" alt="UltraSoft Logo" class="h-8 w-auto object-contain shrink-0 drop-shadow-[0_0_8px_rgba(2,132,199,0.5)]">
                 <h1 class="text-xl font-black tracking-wider text-white">
                     Ultra<span class="text-ultra-400">Soft</span>
                 </h1>
             </div>
             <!-- Collapsed mini-logo -->
-            <div id="sidebar-logo-mini" class="hidden items-center justify-center cursor-pointer" onclick="window.location.href='index.html'">
+            <div id="sidebar-logo-mini" class="hidden items-center justify-center cursor-pointer" onclick="(function(){ const t = new URLSearchParams(window.location.search).get('tenant'); window.location.href = 'index.html' + (t ? '?tenant=' + t : ''); })()">
                 <img src="./logo_transparnt.png" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'" alt="US" class="h-7 w-auto object-contain">
             </div>
             <button id="sidebar-toggle-btn"
@@ -257,44 +257,30 @@
                 <span class="sidebar-label whitespace-nowrap transition-all duration-300">استيراد أعداد وألوان الموديلات</span>
                 <span class="sidebar-tooltip">استيراد الموديلات</span>
             </a>
-            <a href="#" data-target="view-home-settings" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="واجهة الموقع">
-                <i class="ph ph-browser text-xl shrink-0"></i>
-                <span class="sidebar-label whitespace-nowrap transition-all duration-300">واجهة الموقع</span>
-                <span class="sidebar-tooltip">واجهة الموقع</span>
-            </a>
-            <a href="landing.html" target="_blank" class="sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-sky-400 hover:bg-sky-500/10 hover:text-sky-300 transition-colors relative" title="الواجهة التسويقية والاشتراكات">
-                <i class="ph ph-sparkle text-xl shrink-0"></i>
-                <span class="sidebar-label whitespace-nowrap transition-all duration-300 font-bold">الواجهة التسويقية (UltraSoft)</span>
-                <span class="sidebar-tooltip">الواجهة التسويقية (UltraSoft)</span>
-            </a>
             <a href="#" data-target="view-notifications" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="إدارة الإشعارات">
                 <i class="ph ph-bell text-xl shrink-0"></i>
                 <span class="sidebar-label whitespace-nowrap transition-all duration-300">إدارة الإشعارات</span>
                 <span class="sidebar-tooltip">إدارة الإشعارات</span>
             </a>
-            <a href="#" data-target="view-theme-manager" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="إدارة المظاهر">
-                <i class="ph ph-palette text-xl shrink-0"></i>
-                <span class="sidebar-label whitespace-nowrap transition-all duration-300">إدارة المظاهر (Themes)</span>
-                <span class="sidebar-tooltip">إدارة المظاهر</span>
+
+            <!-- 📢 العروض والإعلانات -->
+            <a href="#" data-target="view-promo-cards" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="العروض والإعلانات">
+                <i class="ph ph-megaphone text-xl shrink-0"></i>
+                <span class="sidebar-label whitespace-nowrap transition-all duration-300">العروض والإعلانات</span>
+                <span class="sidebar-tooltip">العروض والإعلانات</span>
             </a>
+            
+            <!-- ⚙️ تابة الإعدادات الرئيسية الجديدة -->
+            <a href="#" data-target="view-settings" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="الإعدادات">
+                <i class="ph ph-gear text-xl shrink-0"></i>
+                <span class="sidebar-label whitespace-nowrap transition-all duration-300">الإعدادات</span>
+                <span class="sidebar-tooltip">الإعدادات الشاملة</span>
+            </a>
+
             <a href="#" data-target="view-users" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="إدارة الحسابات">
                 <i class="ph ph-users text-xl shrink-0"></i>
                 <span class="sidebar-label whitespace-nowrap transition-all duration-300">إدارة الحسابات</span>
                 <span class="sidebar-tooltip">إدارة الحسابات</span>
-            </a>
-
-            <!-- رابط النسخ الاحتياطي والاستعادة -->
-            <a href="#" data-target="view-backup-restore" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="النسخ الاحتياطي والاستعادة">
-                <i class="ph ph-database text-xl shrink-0"></i>
-                <span class="sidebar-label whitespace-nowrap transition-all duration-300">النسخ الاحتياطي والاستعادة</span>
-                <span class="sidebar-tooltip">النسخ الاحتياطي والاستعادة</span>
-            </a>
-
-            <!-- رابط إعادة تهيئة النظام — مخفي افتراضياً، مرئي للملك فقط -->
-            <a href="#" data-target="view-system-reset" class="nav-link sidebar-item hidden group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="إعادة تهيئة النظام">
-                <i class="ph ph-warning-octagon text-xl shrink-0"></i>
-                <span class="sidebar-label whitespace-nowrap transition-all duration-300">إعادة تهيئة النظام</span>
-                <span class="sidebar-tooltip">إعادة تهيئة النظام</span>
             </a>
         </nav>
 
@@ -313,15 +299,17 @@
     <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
         
         <header class="h-20 bg-devo-black/80 backdrop-blur-md border-b border-devo-gray flex items-center justify-between px-8 z-[80]">
-            <h2 class="text-xl font-bold text-white" id="page-title">جاري التحميل...</h2>
+            <div class="flex items-center gap-3">
+                <div id="activeTenantBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-ultra-500/10 border border-ultra-500/20 text-ultra-400 text-sm font-bold shadow-sm">
+                    <i class="ph ph-buildings text-base"></i>
+                    <span>لوحة تحكم: </span>
+                    <span id="activeTenantName">--</span>
+                </div>
+            </div>
             
             <div class="flex items-center gap-4">
                 <!-- أزرار التنقل السريع للمدير -->
-                <a href="landing.html" target="_blank" class="px-3.5 py-2 bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-white border border-sky-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm" title="عرض الواجهة التسويقية والاشتراكات">
-                    <i class="ph ph-sparkle text-base"></i>
-                    <span class="hidden md:inline">صفحة UltraSoft التسويقية</span>
-                </a>
-                <a href="index.html" class="px-3.5 py-2 bg-devo-gray hover:bg-devo-orange/20 hover:text-devo-orange text-white border border-devo-gray hover:border-devo-orange/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                <a href="index.html" onclick="(function(e){ e.preventDefault(); const t = new URLSearchParams(window.location.search).get('tenant'); window.location.href = 'index.html' + (t ? '?tenant=' + t : ''); })(event)" class="px-3.5 py-2 bg-devo-gray hover:bg-devo-orange/20 hover:text-devo-orange text-white border border-devo-gray hover:border-devo-orange/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
                     <i class="ph ph-storefront text-base"></i>
                     <span class="hidden md:inline">الرئيسية (المعرض)</span>
                 </a>
@@ -2395,385 +2383,274 @@
 
 
 
-<div id="view-home-settings" class="view-section hidden h-full">
-
+<!-- ===== VIEW: SETTINGS (MAIN TAB) ===== -->
+<div id="view-settings" class="view-section hidden h-full">
     <div class="animate-fade-in relative pb-10 space-y-6">
         
-        <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl shadow-sm">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ph ph-browser text-devo-orange"></i> إدارة واجهة الموقع
-            </h2>
-            <p class="text-devo-muted text-sm mt-1">تعديل النصوص، الصور، الروابط، إدارة الكروت الإعلانية، وتخصيص تصميم الهيدر والفوتر.</p>
+        <!-- Sub Navigation Bar (Sub-Menu / Bar) -->
+        <div class="bg-devo-dark border border-devo-gray p-2 rounded-xl flex items-center gap-2 overflow-x-auto shadow-sm">
+            <button type="button" data-settings-subtab="view-home-settings" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer">
+                <i class="ph ph-browser text-base"></i>
+                <span>واجهة الموقع</span>
+            </button>
+            <button type="button" data-settings-subtab="view-theme-manager" id="settingsSubtabThemeBtn" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
+                <i class="ph ph-palette text-base"></i>
+                <span>إدارة المظهر (Themes)</span>
+            </button>
+            <button type="button" data-settings-subtab="view-barcode-settings" id="settingsSubtabBarcodeBtn" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
+                <i class="ph ph-qr-code text-base"></i>
+                <span>إعدادات الباركود والـ QR</span>
+            </button>
+            <button type="button" data-settings-subtab="view-backup-restore" class="settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer">
+                <i class="ph ph-database text-base"></i>
+                <span>النسخ الاحتياطي والاستعادة</span>
+            </button>
+            <button type="button" data-settings-subtab="view-system-reset" id="settingsSubtabResetBtn" class="settings-subtab-btn hidden px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer">
+                <i class="ph ph-warning-octagon text-base"></i>
+                <span>إعادة تهيئة النظام</span>
+            </button>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- SECTION: Header & Footer Layout Selectors -->
-        <!-- ============================================================ -->
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
-                <div>
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-layout text-devo-orange"></i> تصميم الشريط العلوي والسفلي (Header & Footer Themes)
-                    </h3>
-                    <p class="text-devo-muted text-xs mt-1">اختر الشكل والتصميم المناسب للشريط العلوي والفوتر من القوائم المنسدلة</p>
-                </div>
-                <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
-                    <i class="ph ph-floppy-disk"></i> حفظ تصميم الهيدر والفوتر
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Selector 1: Top Header Theme -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-browser text-devo-orange"></i> تصميم الشريط العلوي (Top Header Layout)
-                    </label>
-                    <p class="text-xs text-devo-muted">اختر الثيم والشكل المطلوب للشريط العلوي أعلى الصفحة</p>
-                    <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                        <!-- Populated dynamically -->
-                    </select>
-                </div>
-
-                <!-- Selector 2: Bottom Footer Theme -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-columns text-purple-400"></i> تصميم الشريط السفلي (Footer Layout)
-                    </label>
-                    <p class="text-xs text-devo-muted">اختر الثيم والشكل المطلوب للفوتر أسفل الصفحة</p>
-                    <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                        <!-- Populated dynamically -->
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2"><i class="ph ph-sliders-horizontal"></i> الإعدادات العامة للموقع</h3>
-                <button onclick="saveHeroSettings()" id="btn-save-hero" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
-                    <i class="ph ph-floppy-disk"></i> حفظ الإعدادات
-                </button>
-            </div>
+        <!-- Subviews Container -->
+        <div class="settings-subviews-container relative">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-text-t"></i> نصوص الغلاف</h4>
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">العنوان الرئيسي</label>
-                        <input type="text" id="hs-hero-title" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">النص الفرعي (الوصف)</label>
-                        <textarea id="hs-hero-subtitle" rows="3" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm custom-scrollbar resize-none"></textarea>
-                    </div>
-                </div>
+            <!-- 1. واجهة الموقع -->
+            <div id="view-home-settings" class="settings-subview space-y-6">
 
-                <div class="space-y-4">
-                    <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-image"></i> صور الغلاف (يمكن وضع روابط درايف)</h4>
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">خلفية الشاشات الكبيرة</label>
-                        <input type="url" id="hs-bg-desktop" placeholder="https://..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-6 border-b border-devo-gray pb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2"><i class="ph ph-sliders-horizontal"></i> الإعدادات العامة لواجهة الموقع</h3>
+                            <p class="text-xs text-devo-muted mt-1">تخصيص العناوين، صور الهيرو، تأثيرات الخلفية الزجاجية، وروابط التواصل الاجتماعي</p>
+                        </div>
+                        <button onclick="saveHeroSettings()" id="btn-save-hero" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md">
+                            <i class="ph ph-floppy-disk"></i> حفظ إعدادات الواجهة
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">خلفية الهواتف</label>
-                        <input type="url" id="hs-bg-mobile" placeholder="https://..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
-                    </div>
-                </div>
-
-                <!-- 🌟 قسم التحكم المتقدم في مظهر خلفية الهيرو 🌟 -->
-                <div class="md:col-span-2 bg-devo-black/60 border border-devo-gray/60 rounded-2xl p-4 sm:p-5 mt-2 space-y-4">
-                    <h4 class="text-sm font-bold text-devo-orange border-b border-devo-gray/60 pb-2 flex items-center justify-between">
-                        <span class="flex items-center gap-2"><i class="ph ph-sliders"></i> التحكم الاحترافي في مظهر وقوة الخلفية (Hero Style Controls)</span>
-                        <span class="text-[11px] text-devo-muted font-normal">تتحكم بالشفافية والتغميق والـ Blur فوراً</span>
-                    </h4>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- تفعيل الصورة -->
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1.5">إظهار/إخفاء الخلفية</label>
-                            <select id="hs-bg-show" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
-                                <option value="true">نعم - إظهار صورة الخلفية</option>
-                                <option value="false">لا - الاكتفاء بلون الثيم فقط</option>
-                            </select>
-                        </div>
-
-                        <!-- نمط الدمج Blend Mode -->
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1.5">طريقة ظهور الصورة (Blend Mode)</label>
-                            <select id="hs-bg-blend" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
-                                <option value="normal">طبيعي (Normal - ألوان فائقة الوضوح)</option>
-                                <option value="overlay">تراكب (Overlay - دمج مريح)</option>
-                                <option value="multiply">تظليل (Multiply - دمج داكن)</option>
-                                <option value="screen">إضاءة (Screen - دمج فاتح)</option>
-                                <option value="luminosity">أحادي (Luminosity)</option>
-                            </select>
-                        </div>
-
-                        <!-- تأثير الزجاج Glassmorphism Mode -->
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1.5">نمط كارت النص (Glass Card Mode)</label>
-                            <select id="hs-bg-glass" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
-                                <option value="soft">كارت زجاجي خفيف (Soft Glass)</option>
-                                <option value="heavy">كارت زجاجي قوي (Heavy Glass)</option>
-                                <option value="none">بدون كارت (نص فقط على الصورة)</option>
-                            </select>
-                        </div>
-
-                        <!-- لون العنوان الرئيسي -->
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">لون العنوان الرئيسي</label>
-                            <div class="flex items-center gap-2">
-                                <input type="color" id="hs-title-color" value="#ffffff" class="w-10 h-9 bg-devo-black border border-devo-gray rounded-lg cursor-pointer p-0.5">
-                                <span id="hs-title-color-text" class="text-xs text-devo-muted font-mono">#ffffff</span>
-                            </div>
-                        </div>
-
-                        <!-- لون النص الفرعي -->
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">لون النص الفرعي (الوصف)</label>
-                            <div class="flex items-center gap-2">
-                                <input type="color" id="hs-subtitle-color" value="#a3a3a3" class="w-10 h-9 bg-devo-black border border-devo-gray rounded-lg cursor-pointer p-0.5">
-                                <span id="hs-subtitle-color-text" class="text-xs text-devo-muted font-mono">#a3a3a3</span>
-                            </div>
-                        </div>
-
-                        <!-- مقبض دمج حواف الصورة Edge Feathering -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
-                                <span>دمج وانسيابية حواف الصورة (Edge Merge)</span>
-                                <span id="hs-bg-edge-feather-val" class="text-devo-orange">25%</span>
-                            </div>
-                            <input type="range" id="hs-bg-edge-feather" min="0" max="50" value="25" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
-                        </div>
-
-                        <!-- مقبض الشفافية Opacity -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
-                                <span>شفافية الصورة (Image Opacity)</span>
-                                <span id="hs-bg-opacity-val" class="text-devo-orange">100%</span>
-                            </div>
-                            <input type="range" id="hs-bg-opacity" min="0" max="100" value="100" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
-                        </div>
-
-                        <!-- مقبض التغميق Overlay Darkness -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
-                                <span>درجة التغميق / الإعتام (Dark Overlay)</span>
-                                <span id="hs-bg-overlay-val" class="text-devo-orange">40%</span>
-                            </div>
-                            <input type="range" id="hs-bg-overlay" min="0" max="90" value="40" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
-                        </div>
-
-                        <!-- مقبض التعتيم Blur Amount -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
-                                <span>درجة الضبابية والمسح (Image Blur)</span>
-                                <span id="hs-bg-blur-val" class="text-devo-orange">0px</span>
-                            </div>
-                            <input type="range" id="hs-bg-blur" min="0" max="20" value="0" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
-                        </div>
-
-                        <!-- مقبض شفافية الكارت الزجاجي Glass Opacity -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
-                                <span>شفافية الكارت الشفاف (Glass Opacity)</span>
-                                <span id="hs-glass-opacity-val" class="text-devo-orange">30%</span>
-                            </div>
-                            <input type="range" id="hs-glass-opacity" min="0" max="100" value="30" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
-                        </div>
-
-                        <!-- مقبض تنعيم وانتشار حواف الكارت Glass Edge Blur -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
-                                <span>انسيابية وتنعيم حواف الكارت (Soft Edges)</span>
-                                <span id="hs-glass-blur-val" class="text-devo-orange">12px</span>
-                            </div>
-                            <input type="range" id="hs-glass-blur" min="0" max="30" value="12" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
-                        </div>
-                    </div>
-
-                    <!-- 🌟 قسم تفعيل الخلفية في بقية صفحات الموقع 🌟 -->
-                    <div class="border-t border-devo-gray/50 pt-4 mt-2">
-                        <h5 class="text-xs font-bold text-devo-orange mb-3 flex items-center gap-1.5"><i class="ph ph-squares-four"></i> تفعيل عرض الخلفية في صفحات الموقع الأخرى (Section Background Toggles)</h5>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-text-t"></i> نصوص الغلاف</h4>
                             <div>
-                                <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة المعرض</label>
-                                <select id="hs-bg-enable-gallery" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
-                                    <option value="false">إيقاف - لون افتراضي</option>
-                                    <option value="true">تفعيل - عرض خلفية الهيرو</option>
-                                </select>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">العنوان الرئيسي</label>
+                                <input type="text" id="hs-hero-title" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة الباركود</label>
-                                <select id="hs-bg-enable-barcode" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
-                                    <option value="false">إيقاف - لون افتراضي</option>
-                                    <option value="true">تفعيل - عرض خلفية الهيرو</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة السلة</label>
-                                <select id="hs-bg-enable-cart" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
-                                    <option value="false">إيقاف - لون افتراضي</option>
-                                    <option value="true">تفعيل - عرض خلفية الهيرو</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة الأوردرات</label>
-                                <select id="hs-bg-enable-orders" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
-                                    <option value="false">إيقاف - لون افتراضي</option>
-                                    <option value="true">تفعيل - عرض خلفية الهيرو</option>
-                                </select>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">النص الفرعي (الوصف)</label>
+                                <textarea id="hs-hero-subtitle" rows="3" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm custom-scrollbar resize-none"></textarea>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 🌟 قسم إعدادات قارئ الباركود والـ QR كود 🌟 -->
-                    <div class="border-t border-devo-gray/50 pt-4 mt-4">
-                        <h5 class="text-xs font-bold text-devo-orange mb-3 flex items-center gap-1.5"><i class="ph ph-qr-code"></i> إعدادات ماسح الباركود والـ QR كود (Barcode & QR Settings)</h5>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-image"></i> صور الغلاف (يمكن وضع روابط درايف)</h4>
                             <div>
-                                <label class="block text-[11px] font-bold text-devo-muted mb-1">طريقة عمل الكاميرا (Scan Mode)</label>
-                                <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
-                                    <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
-                                    <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
-                                    <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
-                                </select>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">خلفية الشاشات الكبيرة</label>
+                                <input type="url" id="hs-bg-desktop" placeholder="https://..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-devo-muted mb-1">نوع الكود للتعرف على المنتج (Product Code Match)</label>
-                                <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
-                                    <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
-                                    <option value="system">كود السيستم فقط (System Code)</option>
-                                    <option value="factory">كود المصنع فقط (Factory Code)</option>
-                                </select>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">خلفية الهواتف</label>
+                                <input type="url" id="hs-bg-mobile" placeholder="https://..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
                             </div>
                         </div>
-                    </div>
 
+                        <!-- 🌟 قسم التحكم المتقدم في مظهر خلفية الهيرو 🌟 -->
+                        <div class="md:col-span-2 bg-devo-black/60 border border-devo-gray/60 rounded-2xl p-4 sm:p-5 mt-2 space-y-4">
+                            <h4 class="text-sm font-bold text-devo-orange border-b border-devo-gray/60 pb-2 flex items-center justify-between">
+                                <span class="flex items-center gap-2"><i class="ph ph-sliders"></i> التحكم الاحترافي في مظهر وقوة الخلفية (Hero Style Controls)</span>
+                                <span class="text-[11px] text-devo-muted font-normal">تتحكم بالشفافية والتغميق والـ Blur فوراً</span>
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- تفعيل الصورة -->
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1.5">إظهار/إخفاء الخلفية</label>
+                                    <select id="hs-bg-show" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
+                                        <option value="true">نعم - إظهار صورة الخلفية</option>
+                                        <option value="false">لا - الاكتفاء بلون الثيم فقط</option>
+                                    </select>
+                                </div>
 
-                    <!-- 🌟 كارت المعاينة الحية المباشرة Live Preview Card 🌟 -->
-                    <div class="pt-2">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5"><i class="ph ph-eye text-devo-orange"></i> معاينة حية للمظهر النهائي (Live Preview)</span>
-                            <span class="text-[10px] text-devo-muted/80">تتغير فوراً عند التعديل وحركة المقابض</span>
+                                <!-- نمط الدمج Blend Mode -->
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1.5">طريقة ظهور الصورة (Blend Mode)</label>
+                                    <select id="hs-bg-blend" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
+                                        <option value="normal">طبيعي (Normal - ألوان فائقة الوضوح)</option>
+                                        <option value="overlay">تراكب (Overlay - دمج مريح)</option>
+                                        <option value="multiply">تظليل (Multiply - دمج داكن)</option>
+                                        <option value="screen">إضاءة (Screen - دمج فاتح)</option>
+                                        <option value="luminosity">أحادي (Luminosity)</option>
+                                    </select>
+                                </div>
+
+                                <!-- تأثير الزجاج Glassmorphism Mode -->
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1.5">نمط كارت النص (Glass Card Mode)</label>
+                                    <select id="hs-bg-glass" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-sm text-white focus:border-devo-orange outline-none">
+                                        <option value="soft">كارت زجاجي خفيف (Soft Glass)</option>
+                                        <option value="heavy">كارت زجاجي قوي (Heavy Glass)</option>
+                                        <option value="none">بدون كارت (نص فقط على الصورة)</option>
+                                    </select>
+                                </div>
+
+                                <!-- لون العنوان الرئيسي -->
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">لون العنوان الرئيسي</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="hs-title-color" value="#ffffff" class="w-10 h-9 bg-devo-black border border-devo-gray rounded-lg cursor-pointer p-0.5">
+                                        <span id="hs-title-color-text" class="text-xs text-devo-muted font-mono">#ffffff</span>
+                                    </div>
+                                </div>
+
+                                <!-- لون النص الفرعي -->
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">لون النص الفرعي (الوصف)</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="hs-subtitle-color" value="#a3a3a3" class="w-10 h-9 bg-devo-black border border-devo-gray rounded-lg cursor-pointer p-0.5">
+                                        <span id="hs-subtitle-color-text" class="text-xs text-devo-muted font-mono">#a3a3a3</span>
+                                    </div>
+                                </div>
+
+                                <!-- مقبض دمج حواف الصورة Edge Feathering -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
+                                        <span>دمج وانسيابية حواف الصورة (Edge Merge)</span>
+                                        <span id="hs-bg-edge-feather-val" class="text-devo-orange">25%</span>
+                                    </div>
+                                    <input type="range" id="hs-bg-edge-feather" min="0" max="50" value="25" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
+                                </div>
+
+                                <!-- مقبض الشفافية Opacity -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
+                                        <span>شفافية الصورة (Image Opacity)</span>
+                                        <span id="hs-bg-opacity-val" class="text-devo-orange">100%</span>
+                                    </div>
+                                    <input type="range" id="hs-bg-opacity" min="0" max="100" value="100" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
+                                </div>
+
+                                <!-- مقبض التغميق Overlay Darkness -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
+                                        <span>درجة التغميق / الإعتام (Dark Overlay)</span>
+                                        <span id="hs-bg-overlay-val" class="text-devo-orange">40%</span>
+                                    </div>
+                                    <input type="range" id="hs-bg-overlay" min="0" max="90" value="40" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
+                                </div>
+
+                                <!-- مقبض التعتيم Blur Amount -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
+                                        <span>درجة الضبابية والمسح (Image Blur)</span>
+                                        <span id="hs-bg-blur-val" class="text-devo-orange">0px</span>
+                                    </div>
+                                    <input type="range" id="hs-bg-blur" min="0" max="20" value="0" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
+                                </div>
+
+                                <!-- مقبض شفافية الكارت الزجاجي Glass Opacity -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
+                                        <span>شفافية الكارت الشفاف (Glass Opacity)</span>
+                                        <span id="hs-glass-opacity-val" class="text-devo-orange">30%</span>
+                                    </div>
+                                    <input type="range" id="hs-glass-opacity" min="0" max="100" value="30" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
+                                </div>
+
+                                <!-- مقبض تنعيم وانتشار حواف الكارت Glass Edge Blur -->
+                                <div class="space-y-1">
+                                    <div class="flex justify-between items-center text-xs font-bold text-devo-muted">
+                                        <span>انسيابية وتنعيم حواف الكارت (Soft Edges)</span>
+                                        <span id="hs-glass-blur-val" class="text-devo-orange">12px</span>
+                                    </div>
+                                    <input type="range" id="hs-glass-blur" min="0" max="30" value="12" class="w-full accent-devo-orange cursor-pointer h-2 bg-devo-dark rounded-lg">
+                                </div>
+                            </div>
+
+                            <!-- 🌟 قسم تفعيل الخلفية في بقية صفحات الموقع 🌟 -->
+                            <div class="border-t border-devo-gray/50 pt-4 mt-2">
+                                <h5 class="text-xs font-bold text-devo-orange mb-3 flex items-center gap-1.5"><i class="ph ph-squares-four"></i> تفعيل عرض الخلفية في صفحات الموقع الأخرى (Section Background Toggles)</h5>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة المعرض</label>
+                                        <select id="hs-bg-enable-gallery" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
+                                            <option value="false">إيقاف - لون افتراضي</option>
+                                            <option value="true">تفعيل - عرض خلفية الهيرو</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة الباركود</label>
+                                        <select id="hs-bg-enable-barcode" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
+                                            <option value="false">إيقاف - لون افتراضي</option>
+                                            <option value="true">تفعيل - عرض خلفية الهيرو</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة السلة</label>
+                                        <select id="hs-bg-enable-cart" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
+                                            <option value="false">إيقاف - لون افتراضي</option>
+                                            <option value="true">تفعيل - عرض خلفية الهيرو</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-devo-muted mb-1">خلفية صفحة الأوردرات</label>
+                                        <select id="hs-bg-enable-orders" class="w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-2 text-xs text-white focus:border-devo-orange outline-none">
+                                            <option value="false">إيقاف - لون افتراضي</option>
+                                            <option value="true">تفعيل - عرض خلفية الهيرو</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 🌟 كارت المعاينة الحية المباشرة Live Preview Card 🌟 -->
+                            <div class="pt-2">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5"><i class="ph ph-eye text-devo-orange"></i> معاينة حية للمظهر النهائي (Live Preview)</span>
+                                    <span class="text-[10px] text-devo-muted/80">تتغير فوراً عند التعديل وحركة المقابض</span>
+                                </div>
+                                <div id="admin-hero-preview-box" class="h-56 rounded-xl relative overflow-hidden flex items-center justify-center border border-devo-gray/50 bg-devo-black shadow-inner">
+                                    <div id="admin-hero-prev-img" class="absolute inset-0 bg-cover bg-center transition-all duration-150"></div>
+                                    <div id="admin-hero-prev-overlay" class="absolute inset-0 transition-all duration-150 z-[1]"></div>
+                                    <div id="admin-hero-prev-top-fade" class="absolute top-0 left-0 right-0 pointer-events-none transition-all duration-150 z-[2]"></div>
+                                    <div id="admin-hero-prev-bottom-fade" class="absolute bottom-0 left-0 right-0 pointer-events-none transition-all duration-150 z-[2]"></div>
+                                    <div id="admin-hero-prev-card" class="relative z-10 text-center px-6 py-4 rounded-3xl max-w-md mx-auto transition-all duration-200">
+                                        <span class="text-devo-orange text-[10px] font-bold tracking-widest uppercase block mb-1">DEVO COLLECTION</span>
+                                        <h4 id="admin-hero-prev-title" class="text-lg font-black leading-tight transition-colors duration-200">العنوان الرئيسي</h4>
+                                        <p id="admin-hero-prev-subtitle" class="text-xs mt-1 transition-colors duration-200">الوصف المكتوب في حقل النص الفرعي اعلاه</p>
+                                        <div class="mt-3">
+                                            <span class="bg-devo-orange text-white text-xs px-4 py-1.5 rounded-lg font-bold inline-block shadow-md">تصفح الموديلات</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div id="admin-hero-preview-box" class="h-56 rounded-xl relative overflow-hidden flex items-center justify-center border border-devo-gray/50 bg-devo-black shadow-inner">
-                            <div id="admin-hero-prev-img" class="absolute inset-0 bg-cover bg-center transition-all duration-150"></div>
-                            <div id="admin-hero-prev-overlay" class="absolute inset-0 transition-all duration-150 z-[1]"></div>
-                            <div id="admin-hero-prev-top-fade" class="absolute top-0 left-0 right-0 pointer-events-none transition-all duration-150 z-[2]"></div>
-                            <div id="admin-hero-prev-bottom-fade" class="absolute bottom-0 left-0 right-0 pointer-events-none transition-all duration-150 z-[2]"></div>
-                            <div id="admin-hero-prev-card" class="relative z-10 text-center px-6 py-4 rounded-3xl max-w-md mx-auto transition-all duration-200">
-                                <span class="text-devo-orange text-[10px] font-bold tracking-widest uppercase block mb-1">DEVO COLLECTION</span>
-                                <h4 id="admin-hero-prev-title" class="text-lg font-black leading-tight transition-colors duration-200">العنوان الرئيسي</h4>
-                                <p id="admin-hero-prev-subtitle" class="text-xs mt-1 transition-colors duration-200">الوصف المكتوب في حقل النص الفرعي اعلاه</p>
-                                <div class="mt-3">
-                                    <span class="bg-devo-orange text-white text-xs px-4 py-1.5 rounded-lg font-bold inline-block shadow-md">تصفح الموديلات</span>
+
+                        <div class="md:col-span-2 space-y-4 mt-2">
+                            <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-share-network"></i> روابط التواصل الاجتماعي</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رابط فيسبوك</label>
+                                    <input type="url" id="hs-social-fb" placeholder="https://facebook.com/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رابط واتساب</label>
+                                    <input type="url" id="hs-social-wa" placeholder="https://wa.link/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رابط تليجرام</label>
+                                    <input type="url" id="hs-social-tg" placeholder="https://t.me/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رابط خرائط جوجل</label>
+                                    <input type="url" id="hs-social-maps" placeholder="https://maps.google.com/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="md:col-span-2 space-y-4 mt-2">
-                    <h4 class="text-sm font-bold text-white border-b border-devo-gray pb-2"><i class="ph ph-share-network"></i> روابط التواصل الاجتماعي</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">رابط فيسبوك</label>
-                            <input type="url" id="hs-social-fb" placeholder="https://facebook.com/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">رابط واتساب</label>
-                            <input type="url" id="hs-social-wa" placeholder="https://wa.link/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">رابط تليجرام</label>
-                            <input type="url" id="hs-social-tg" placeholder="https://t.me/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">رابط خرائط جوجل</label>
-                            <input type="url" id="hs-social-maps" placeholder="https://maps.google.com/..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-devo-info flex items-center gap-2"><i class="ph ph-cards"></i> العروض والإعلانات</h3>
-                <button onclick="openPromoModal()" class="bg-devo-info hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
-                    <i class="ph ph-plus-circle"></i> إضافة عرض جديد
-                </button>
-            </div>
-            
-            <div id="promo-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                </div>
-        </div>
-
-        <div id="promo-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[250] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-            <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-md flex flex-col shadow-devo-float transform scale-95 transition-transform duration-300">
-                <div class="p-5 border-b border-devo-gray flex justify-between items-center bg-devo-black/50 rounded-t-2xl">
-                    <h3 class="text-lg font-bold text-white" id="promo-modal-title">إضافة عرض جديد</h3>
-                    <button onclick="closePromoModal()" class="text-devo-muted hover:text-white"><i class="ph ph-x text-xl"></i></button>
-                </div>
-<form id="promo-form" class="p-6 space-y-4">
-                    <input type="hidden" id="pm-id">
-                    
-                    <div class="flex items-center justify-between mb-2 border-b border-devo-gray pb-4">
-                        <span class="text-sm font-bold text-devo-muted">حالة العرض:</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="pm-status" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-devo-gray rounded-full peer peer-checked:bg-devo-success after:content-[''] after:absolute after:top-0.5 after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:-translate-x-full shadow-inner"></div>
-                        </label>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">عنوان الكارت <span class="text-devo-error">*</span></label>
-                        <input type="text" id="pm-title" required class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">الوصف المكتوب <span class="text-devo-error">*</span></label>
-                        <textarea id="pm-desc" required rows="4" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm resize-y" placeholder="اكتب كل نقطة في سطر مستقل لتظهر كنقاط مرتبة"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">صورة العرض (رابط درايف - اختياري)</label>
-                        <input type="url" id="pm-image" placeholder="https://..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">الموديل المرتبط (فتح الموديل مباشرة عند النقر - اختياري)</label>
-                        <select id="pm-model-id" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none cursor-pointer text-sm">
-                            <option value="">-- بدون ربط (تصفح المعرض فقط) --</option>
-                        </select>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">شارة الكارت (اختياري)</label>
-                            <input type="text" id="pm-badge" placeholder="مثال: خصم 20%" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-devo-muted mb-1">لون الشارة</label>
-                            <select id="pm-color" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none cursor-pointer text-sm">
-                                <option value="bg-devo-orange">برتقالي (افتراضي)</option>
-                                <option value="bg-devo-error">أحمر (حصري/مهم)</option>
-                                <option value="bg-devo-success">أخضر (متاح/جديد)</option>
-                                <option value="bg-devo-info">أزرق (معلومة)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 pt-4 mt-2 border-t border-devo-gray">
-                        <button type="button" onclick="closePromoModal()" class="flex-1 py-2.5 rounded-lg border border-devo-gray text-white text-sm hover:bg-devo-gray transition-all">إلغاء</button>
-                        <button type="submit" class="flex-[2] py-2.5 rounded-lg bg-devo-info text-white text-sm font-bold hover:bg-blue-600 shadow-lg transition-all">حفظ الكارت</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-    </div>
-</div>
+            </div><!-- /view-home-settings -->
+        </div><!-- /settings-subviews-container -->
+    </div><!-- /animate-fade-in -->
+</div><!-- /view-settings -->
 
 
 
@@ -2941,11 +2818,136 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- VIEW: Theme Manager -->
+<!-- VIEW: Promo Cards Manager (العروض والإعلانات) -->
 <!-- ============================================================ -->
-<div id="view-theme-manager" class="view-section hidden h-full">
+<div id="view-promo-cards" class="view-section hidden h-full">
     <div class="animate-fade-in relative pb-10 space-y-6">
         
+        <!-- Header -->
+        <div class="bg-devo-dark border border-devo-gray p-5 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="ph ph-cards text-devo-info text-2xl"></i> إدارة العروض والإعلانات
+                </h2>
+                <p class="text-devo-muted text-sm mt-1">إنشاء وتنسيق كروت العروض، التخفيضات، وتحديد الموديلات المرتبطة بها للمشترين.</p>
+            </div>
+            <button onclick="openPromoModal()" class="bg-devo-info hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-lg shadow-devo-info/20 cursor-pointer">
+                <i class="ph ph-plus-circle text-lg"></i> إضافة عرض جديد
+            </button>
+        </div>
+
+        <!-- Promo Cards List Container -->
+        <div id="promo-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        </div>
+
+        <!-- Promo Card Modal -->
+        <div id="promo-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[250] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-md flex flex-col shadow-devo-float transform scale-95 transition-transform duration-300">
+                <div class="p-5 border-b border-devo-gray flex justify-between items-center bg-devo-black/50 rounded-t-2xl">
+                    <h3 class="text-lg font-bold text-white" id="promo-modal-title">إضافة عرض جديد</h3>
+                    <button onclick="closePromoModal()" class="text-devo-muted hover:text-white"><i class="ph ph-x text-xl"></i></button>
+                </div>
+                <form id="promo-form" class="p-6 space-y-4">
+                    <input type="hidden" id="pm-id">
+                    
+                    <div class="flex items-center justify-between mb-2 border-b border-devo-gray pb-4">
+                        <span class="text-sm font-bold text-devo-muted">حالة العرض:</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="pm-status" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-devo-gray rounded-full peer peer-checked:bg-devo-success after:content-[''] after:absolute after:top-0.5 after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:-translate-x-full shadow-inner"></div>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">عنوان الكارت <span class="text-devo-error">*</span></label>
+                        <input type="text" id="pm-title" required class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">الوصف المكتوب <span class="text-devo-error">*</span></label>
+                        <textarea id="pm-desc" required rows="4" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm resize-y" placeholder="اكتب كل نقطة في سطر مستقل لتظهر كنقاط مرتبة"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">صورة العرض (رابط درايف - اختياري)</label>
+                        <input type="url" id="pm-image" placeholder="https://..." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm text-left" dir="ltr">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">الموديل المرتبط (فتح الموديل مباشرة عند النقر - اختياري)</label>
+                        <select id="pm-model-id" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none cursor-pointer text-sm">
+                            <option value="">-- بدون ربط (تصفح المعرض فقط) --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-devo-muted mb-1">شارة الكارت (اختياري)</label>
+                            <input type="text" id="pm-badge" placeholder="مثال: خصم 20%" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-devo-muted mb-1">لون الشارة</label>
+                            <select id="pm-color" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none cursor-pointer text-sm">
+                                <option value="bg-devo-orange">برتقالي (افتراضي)</option>
+                                <option value="bg-devo-error">أحمر (حصري/مهم)</option>
+                                <option value="bg-devo-success">أخضر (متاح/جديد)</option>
+                                <option value="bg-devo-info">أزرق (معلومة)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-4 mt-2 border-t border-devo-gray">
+                        <button type="button" onclick="closePromoModal()" class="flex-1 py-2.5 rounded-lg border border-devo-gray text-white text-sm hover:bg-devo-gray transition-all">إلغاء</button>
+                        <button type="submit" class="flex-[2] py-2.5 rounded-lg bg-devo-info text-white text-sm font-bold hover:bg-blue-600 shadow-lg transition-all">حفظ الكارت</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. إدارة المظهر (Themes) -->
+<div id="view-theme-manager" class="settings-subview hidden space-y-6">
+    <div class="animate-fade-in relative pb-10 space-y-6">
+        
+        <!-- SECTION: Header & Footer Layout Selectors -->
+        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-layout text-devo-orange"></i> تصميم الشريط العلوي والسفلي (Header & Footer Themes)
+                    </h3>
+                    <p class="text-devo-muted text-xs mt-1">اختر الشكل والتصميم المناسب للشريط العلوي والفوتر من القوائم المنسدلة</p>
+                </div>
+                <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
+                    <i class="ph ph-floppy-disk"></i> حفظ تصميم الهيدر والفوتر
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Selector 1: Top Header Theme -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-browser text-devo-orange"></i> تصميم الشريط العلوي (Top Header Layout)
+                    </label>
+                    <p class="text-xs text-devo-muted">اختر الثيم والشكل المطلوب للشريط العلوي أعلى الصفحة</p>
+                    <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Selector 2: Bottom Footer Theme -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-columns text-purple-400"></i> تصميم الشريط السفلي (Footer Layout)
+                    </label>
+                    <p class="text-xs text-devo-muted">اختر الثيم والشكل المطلوب للفوتر أسفل الصفحة</p>
+                    <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Header -->
         <div class="bg-devo-dark border border-devo-gray p-5 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -3808,26 +3810,73 @@
                 </div>
             </div>
         </div>
-    </div>
-<!-- ===== VIEW: BACKUP & RESTORE ===== -->
-<div id="view-backup-restore" class="view-section hidden h-full">
-    <div id="backup-restore-content">
-        <!-- يتم حقن المحتوى بواسطة backup_restore.js -->
-        <div class="flex items-center justify-center h-full">
-            <div class="w-8 h-8 rounded-full border-2 border-devo-orange/30 border-t-devo-orange animate-spin"></div>
-        </div>
-    </div>
-</div>
+            <!-- 3. إعدادات الباركود والـ QR كود -->
+            <div id="view-barcode-settings" class="settings-subview hidden space-y-6">
+                <div class="animate-fade-in relative pb-10 space-y-6">
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                                    <i class="ph ph-qr-code"></i> إعدادات ماسح الباركود والـ QR كود (Barcode & QR Settings)
+                                </h3>
+                                <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
+                            </div>
+                            <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
+                                <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
+                            </button>
+                        </div>
 
-<!-- ===== VIEW: SYSTEM RESET (OWNER ONLY) ===== -->
-<div id="view-system-reset" class="view-section hidden h-full">
-    <div id="reset-view-content">
-        <!-- يتم حقن المحتوى بواسطة system_reset.js -->
-        <div class="flex items-center justify-center h-full">
-            <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
-        </div>
-    </div>
-</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-camera text-devo-orange"></i> طريقة عمل الكاميرا (Scan Mode)
+                                </label>
+                                <p class="text-xs text-devo-muted">حدد النمط المناسب لقارئ الباركود عند فتح الكاميرا بالمتصفح</p>
+                                <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                    <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
+                                    <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
+                                    <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-barcode text-purple-400"></i> نوع الكود للتعرف على المنتج (Product Code Match)
+                                </label>
+                                <p class="text-xs text-devo-muted">تخصيص مطابقة الباركود الممسوح إما بكود السيستم أو كود المصنع الأصلي</p>
+                                <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                    <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
+                                    <option value="system">كود السيستم فقط (System Code)</option>
+                                    <option value="factory">كود المصنع فقط (Factory Code)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. النسخ الاحتياطي والاستعادة -->
+            <div id="view-backup-restore" class="settings-subview hidden space-y-6">
+                <div id="backup-restore-content">
+                    <!-- يتم حقن المحتوى بواسطة backup_restore.js -->
+                    <div class="flex items-center justify-center h-48">
+                        <div class="w-8 h-8 rounded-full border-2 border-devo-orange/30 border-t-devo-orange animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. إعادة تهيئة النظام (OWNER ONLY) -->
+            <div id="view-system-reset" class="settings-subview hidden space-y-6">
+                <div id="reset-view-content">
+                    <!-- يتم حقن المحتوى بواسطة system_reset.js -->
+                    <div class="flex items-center justify-center h-48">
+                        <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End of settings-subviews-container -->
+    </div> <!-- End of animate-fade-in -->
+</div> <!-- End of view-settings -->
 
 </div>
 

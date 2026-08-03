@@ -1,4 +1,5 @@
 import { supabase } from '../../config/supabase.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allDashboardOrders = [];
@@ -64,14 +65,21 @@ export async function initDashboard() {
 // 🌟 1. المسح الشامل لقاعدة البيانات 🌟
 // ==========================================
 export async function fetchDashboardData() {
+    const currentTenantId = getCurrentTenantId();
+    
     // 1. جلب الأوردرات ومعها عناصر الأوردر لحساب "إجمالي القطع المباعة" بدقة
-    const { data: ordersData } = await supabase
+    let ordersQuery = supabase
         .from('orders')
         .select(`
             id, total_price, status, created_at, total_series,
             order_items(quantity, models(classes(class_sizes(size_id)), model_sizes(size_id)))
         `);
     
+    if (currentTenantId) {
+        ordersQuery = ordersQuery.eq('tenant_id', currentTenantId);
+    }
+    
+    const { data: ordersData } = await ordersQuery;
     allDashboardOrders = ordersData || [];
 
     // 2. جلب كل الموديلات النشطة مع مخزونها لحساب "القيمة الكلية" و "المتبقي" 
@@ -81,10 +89,15 @@ export async function fetchDashboardData() {
     let hasMore = true;
 
     while(hasMore) {
-        const { data } = await supabase.from('models')
+        let modelsQuery = supabase.from('models')
             .select(`id, name, system_code, factory_code, price, is_active, classes(class_sizes(size_id)), model_sizes(size_id), model_inventory(color_id, available_series, colors(name))`)
-            .eq('is_active', true)
-            .range(from, from + step);
+            .eq('is_active', true);
+
+        if (currentTenantId) {
+            modelsQuery = modelsQuery.eq('tenant_id', currentTenantId);
+        }
+
+        const { data } = await modelsQuery.range(from, from + step);
         
         if(data && data.length > 0) {
             fetchedModels.push(...data);
@@ -102,9 +115,17 @@ export async function fetchDashboardData() {
 // 🌟 2. الرادار اللحظي الشامل 🌟
 // ==========================================
 function setupDashboardRealtime() {
-    supabase.channel('dashboard_tracker')
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    supabase.channel('dashboard_tracker_' + (currentTenantId || 'default'))
         // مراقبة حركة الأوردرات
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', ...filterConfig }, async (payload) => {
+            if (currentTenantId) {
+                if (payload.new && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
+                if (payload.old && payload.old.tenant_id && payload.old.tenant_id !== currentTenantId) return;
+            }
+
             if (payload.eventType === 'DELETE') {
                 allDashboardOrders = allDashboardOrders.filter(o => o.id !== payload.old.id);
                 applyDashFilters();
@@ -123,7 +144,11 @@ function setupDashboardRealtime() {
             }
         })
         // مراقبة الموديلات (تنشيط، تعطيل، إضافة)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'models' }, async (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'models', ...filterConfig }, async (payload) => {
+            if (currentTenantId) {
+                if (payload.new && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
+                if (payload.old && payload.old.tenant_id && payload.old.tenant_id !== currentTenantId) return;
+            }
             if (payload.eventType === 'DELETE') {
                 allActiveModels = allActiveModels.filter(m => m.id !== payload.old.id);
                 applyDashFilters(); 

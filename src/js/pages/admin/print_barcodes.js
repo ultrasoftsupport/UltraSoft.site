@@ -1,5 +1,6 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isBarcodeInitialized = false;
 let barcodeAllModels = []; 
@@ -102,7 +103,7 @@ window.updateBarcodeMultiSelectLabel = (key) => {
             labelEl.classList.add('text-devo-orange');
         } else {
             if (count <= 2) {
-                labelEl.textContent = names.join('، ');
+                labelEl.textContent = names.join('， ');
             } else {
                 labelEl.textContent = `${count} محددة`;
             }
@@ -119,11 +120,19 @@ document.addEventListener('click', () => {
 
 export async function fetchBarcodeFilterOptions() {
     try {
+        const currentTenantId = getCurrentTenantId();
+        let catQ = supabase.from('categories').select('id, name');
+        let clsQ = supabase.from('classes').select('id, name');
+        let clrQ = supabase.from('colors').select('id, name');
+        let szQ = supabase.from('sizes').select('id, name');
+        if (currentTenantId) {
+            catQ = catQ.eq('tenant_id', currentTenantId);
+            clsQ = clsQ.eq('tenant_id', currentTenantId);
+            clrQ = clrQ.eq('tenant_id', currentTenantId);
+            szQ = szQ.eq('tenant_id', currentTenantId);
+        }
         const [cats, clss, colors, sizes] = await Promise.all([
-            supabase.from('categories').select('id, name'),
-            supabase.from('classes').select('id, name'),
-            supabase.from('colors').select('id, name'),
-            supabase.from('sizes').select('id, name')
+            catQ, clsQ, clrQ, szQ
         ]);
 
         const populateCheckbox = (containerId, data, key) => {
@@ -177,7 +186,8 @@ export async function fetchBarcodeModels() {
 
     try {
         while (hasMore) {
-            const { data, error } = await supabase
+            const currentTenantId = getCurrentTenantId();
+            let query = supabase
                 .from('models')
                 .select(`
                     *, 
@@ -186,7 +196,13 @@ export async function fetchBarcodeModels() {
                     model_sizes(size_id),
                     model_inventory(color_id, available_series, colors(name)),
                     model_images(image_url)
-                `)
+                `);
+
+            if (currentTenantId) {
+                query = query.eq('tenant_id', currentTenantId);
+            }
+
+            const { data, error } = await query
                 .order('created_at', { ascending: false })
                 .range(from, from + step);
 

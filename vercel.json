@@ -1,6 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/super-admin", "destination": "/super_admin.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/auth", "destination": "/auth.html" }
   ]

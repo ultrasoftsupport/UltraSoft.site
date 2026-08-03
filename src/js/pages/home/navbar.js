@@ -2,6 +2,7 @@ import { getCurrentSession, logoutUser } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { renderHeader, attachMobileMenuToggle } from './header_layouts.js';
 import { supabase } from '../../config/supabase.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 export async function initNavbar() {
     const { session } = getCurrentSession();
@@ -165,7 +166,8 @@ export async function initNavbar() {
     });
 
     // التنشيط الأولي للشاشة الافتراضية مع إعداد حماية الرجوع للخلف (exit-trap)
-    const initialView = localStorage.getItem('devo_edit_order_data') ? 'view-cart' : 'view-home';
+    const tenantId = getCurrentTenantId() || 'default';
+    const initialView = localStorage.getItem(`devo_edit_order_data_${tenantId}`) ? 'view-cart' : 'view-home';
     
     window.currentView = initialView;
     history.replaceState({ view: 'exit-trap' }, '', window.location.pathname + window.location.search);

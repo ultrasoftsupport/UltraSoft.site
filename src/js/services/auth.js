@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase.js';
+import { getCurrentTenantId, getTenantSlugFromURL, getCurrentTenant } from './tenant_service.js';
 
 /**
  * تسجيل الدخول باستخدام اسم المستخدم وكلمة المرور عبر Supabase Auth
@@ -6,37 +7,86 @@ import { supabase } from '../config/supabase.js';
  */
 export async function loginUser(username, password) {
     try {
-        const email = username.trim().toLowerCase() + '@staff.devo.internal';
+        const cleanInput = username.trim().toLowerCase();
+        const slug = getTenantSlugFromURL();
+        // بناء قائمة الاحتمالات الذكية للبريد الإلكتروني الخاص بالتسجيل
+        const candidateEmails = [];
 
-        // تسجيل الدخول باستخدام Supabase Auth
-        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+        if (cleanInput.includes('@')) {
+            candidateEmails.push(cleanInput);
+            candidateEmails.push(cleanInput + '@staff.devo.internal');
+        } else {
+            candidateEmails.push(cleanInput + '@staff.devo.internal');
+            if (slug && slug !== 'default' && slug !== 'super_admin') {
+                candidateEmails.push(`admin@${slug}.com`);
+                candidateEmails.push(`${cleanInput}@${slug}.com`);
+            }
+        }
 
-        if (authError) {
-            throw new Error(authError.message === 'Invalid login credentials' 
+        let authData = null;
+        let authError = null;
+
+        const uniqueEmails = [...new Set(candidateEmails)];
+        for (const emailToTry of uniqueEmails) {
+            const res = await supabase.auth.signInWithPassword({
+                email: emailToTry,
+                password: password
+            });
+
+            if (!res.error && res.data?.user) {
+                authData = res.data;
+                authError = null;
+                break;
+            }
+            authError = res.error;
+        }
+
+        if (!authData || authError) {
+            throw new Error(authError?.message === 'Invalid login credentials' 
                 ? 'اسم المستخدم أو كلمة المرور غير صحيحة' 
-                : authError.message);
+                : (authError?.message || 'اسم المستخدم أو كلمة المرور غير صحيحة'));
         }
 
         const authUser = authData.user;
 
         // جلب بيانات الموظف والصلاحيات من جدول system_users
-        const { data: user, error: profileError } = await supabase
+        let { data: user, error: profileError } = await supabase
             .from('system_users')
             .select('*')
             .eq('id', authUser.id)
-            .single();
+            .maybeSingle();
 
-        if (profileError || !user) {
+        if (!user && authUser.email) {
+            const { data: fallbackUser } = await supabase
+                .from('system_users')
+                .select('*')
+                .eq('email', authUser.email.toLowerCase())
+                .maybeSingle();
+            if (fallbackUser) {
+                user = fallbackUser;
+            }
+        }
+
+        if (!user) {
             await supabase.auth.signOut();
-            throw new Error('فشل جلب بيانات صلاحيات المستخدم من النظام.');
+            throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة.');
         }
 
         if (!user.is_active) {
             await supabase.auth.signOut();
             throw new Error('هذا الحساب معطل، يرجى مراجعة الإدارة.');
+        }
+
+        // 🔒 حظر الأمان الشديد: منع تسجيل الدخول إذا كان الحساب ينتمي لمصنع آخر
+        const currentTenantId = getCurrentTenantId();
+
+        if (user.role !== 'super_admin' && slug && slug !== 'default' && slug !== 'super_admin') {
+            if (user.tenant_id !== currentTenantId) {
+                console.warn(`[Tenant Strict Auth] Account (${user.username}) belongs to tenant ${user.tenant_id}, but login attempted on tenant ${slug} (${currentTenantId}).`);
+                await supabase.auth.signOut();
+                localStorage.removeItem('devo_session');
+                throw new Error('هذا الحساب غير موجود في هذا المصنع. يرجى استخدام صفحة تسجيل الدخول الخاصة بمصنعك.');
+            }
         }
 
         // زيادة عداد تسجيل الدخول بمقدار 1
@@ -48,6 +98,7 @@ export async function loginUser(username, password) {
         // حفظ بيانات الجلسة الأساسية في LocalStorage للحفاظ على التوافق مع باقي الكود
         const sessionData = {
             id: user.id,
+            tenant_id: user.tenant_id || currentTenantId || '00000000-0000-0000-0000-000000000001',
             username: user.username,
             full_name: user.full_name,
             role: user.role,
@@ -67,11 +118,12 @@ export async function loginUser(username, password) {
  */
 export async function logoutUser() {
     try {
+        const slug = getTenantSlugFromURL();
         localStorage.removeItem('devo_session');
         await supabase.auth.signOut();
+        window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
     } catch (e) {
         console.error('Signout error:', e);
-    } finally {
         window.location.href = 'auth.html';
     }
 }
@@ -85,7 +137,6 @@ export function getCurrentSession() {
     
     try {
         const session = JSON.parse(sessionStr);
-        // نعيدها بنفس الهيكل القديم حتى لا تتعطل باقي ملفاتك
         return { session: { user: session } }; 
     } catch (e) {
         return { session: null };
@@ -93,21 +144,31 @@ export function getCurrentSession() {
 }
 
 /**
- * حماية الصفحات وتأكيد الصلاحية (بديل لـ getUserProfile)
+ * حماية الصفحات وتأكيد الصلاحية وعزل المصانع
  */
 export function requireAuth(allowedRoles = []) {
     const { session } = getCurrentSession();
+    const slug = getTenantSlugFromURL();
     
     if (!session) {
-        window.location.href = 'auth.html';
+        window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
         return null;
     }
 
     const user = session.user;
+    const currentTenant = getCurrentTenant();
+
+    // 🔒 حاجز الأمان: منع مستخدم مصنع من دخول لوحة مصنع آخر فقط بعد تهيئة بيانات المصنع
+    if (user.role !== 'super_admin' && currentTenant && currentTenant.id && user.tenant_id && user.tenant_id !== currentTenant.id) {
+        console.warn(`[Tenant Barrier Guard] Access denied. User tenant (${user.tenant_id}) does not match active factory tenant (${currentTenant.id}).`);
+        localStorage.removeItem('devo_session');
+        window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        return null;
+    }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-        if (user.role === 'worker') window.location.href = 'index.html';
-        else window.location.href = 'admin.html';
+        if (user.role === 'worker') window.location.href = `index.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        else window.location.href = `admin.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
         return null;
     }
 

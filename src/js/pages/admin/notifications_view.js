@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let allNotifications = [];
 let activeFilter = 'all'; // 'all', 'unread', 'archived'
@@ -39,9 +40,11 @@ function setupWindowBindings() {
 // 1. جلب الإشعارات بالكامل من قاعدة البيانات
 export async function fetchNotifications() {
     try {
+        const tenantId = getCurrentTenantId();
         const { data, error } = await supabase
             .from('system_notifications')
             .select('*')
+            .eq('tenant_id', tenantId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -388,12 +391,14 @@ export async function broadcastCustomNotification() {
     const tgTarget = tgTargetInput ? tgTargetInput.value : 'none';
 
     try {
+        const tenantId = getCurrentTenantId();
         const { error } = await supabase
             .from('system_notifications')
             .insert([{
                 type: 'custom_broadcast',
                 title: title,
                 body: body,
+                tenant_id: tenantId,
                 metadata: { 
                     broadcasted_by: 'Admin Panel',
                     telegram_target: tgTarget

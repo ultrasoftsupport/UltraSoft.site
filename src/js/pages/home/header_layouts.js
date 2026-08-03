@@ -83,10 +83,15 @@ function buildNavBtns(links) {
     ).join('');
 }
 
+import { buildTenantUrl } from '../../services/tenant_service.js';
+
 function buildUserArea(user) {
     const hasAdminAccess = user && (user.role === 'owner' || user.role === 'admin');
     const hasWarehouseAccess = user && (user.role === 'owner' || user.role === 'admin' || user.worker_job === 'warehouse' || user.worker_job === 'both');
     const isWorker = user && user.role === 'worker';
+
+    const adminUrl = buildTenantUrl('admin.html');
+    const authUrl = buildTenantUrl('auth.html');
 
     if (user) {
         let workerTitle = 'عامل مبيعات';
@@ -95,7 +100,7 @@ function buildUserArea(user) {
             else if (user.worker_job === 'both') workerTitle = 'مبيعات + مخزن';
         }
         return `
-            ${hasAdminAccess ? `<a href="admin.html" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
+            ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
             <div class="flex items-center gap-2 border-r border-devo-gray pr-3">
                 <div class="text-right">
                     <p class="text-xs md:text-sm font-bold text-white leading-tight truncate max-w-[110px]" title="${user.full_name}">${user.full_name}</p>
@@ -108,7 +113,7 @@ function buildUserArea(user) {
         `;
     } else {
         return `
-            <a href="auth.html" class="px-4 py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
+            <a href="${authUrl}" class="px-4 py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
                 <i class="ph ph-sign-in text-base"></i>
                 <span>تسجيل الدخول</span>
             </a>
@@ -119,26 +124,26 @@ function buildUserArea(user) {
 function buildMobileMenu(user) {
     const hasAdminAccess = user && (user.role === 'owner' || user.role === 'admin');
     const hasWarehouseAccess = user && (user.role === 'owner' || user.role === 'admin' || user.worker_job === 'warehouse' || user.worker_job === 'both');
+    const adminUrl = buildTenantUrl('admin.html');
+    const authUrl = buildTenantUrl('auth.html');
 
     let links = '';
     if (user) {
         links = `
-            <a href="landing.html" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl text-ultra-400"></i> عن النظام والاشتراكات</a>
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
             <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
             <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> السلة</button>
             <button data-nav-view="view-orders" onclick="switchSiteView('view-orders')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-receipt text-xl"></i> الأوردرات</button>
 
-            ${hasAdminAccess ? `<a href="admin.html" class="py-3 px-4 text-devo-info hover:text-devo-text rounded-xl bg-devo-info/10 flex items-center gap-3"><i class="ph ph-shield-check text-xl"></i> لوحة الإدارة</a>` : ''}
+            ${hasAdminAccess ? `<a href="${adminUrl}" class="py-3 px-4 text-devo-info hover:text-devo-text rounded-xl bg-devo-info/10 flex items-center gap-3"><i class="ph ph-shield-check text-xl"></i> لوحة الإدارة</a>` : ''}
             <button onclick="handleLogout()" class="py-3 px-4 text-devo-error text-right mt-6 rounded-xl bg-devo-error/10 flex items-center gap-3 font-bold"><i class="ph ph-sign-out text-xl"></i> تسجيل خروج</button>
         `;
     } else {
         links = `
-            <a href="landing.html" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-sparkle text-xl text-ultra-400"></i> عن النظام والاشتراكات</a>
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
-            <a href="auth.html" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
+            <a href="${authUrl}" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
         `;
     }
 

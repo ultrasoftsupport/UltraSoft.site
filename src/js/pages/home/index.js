@@ -8,8 +8,12 @@ import { initFooter } from './footer_renderer.js';
 import { initLandingPage } from './ultrasoft_landing.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
+import { initializeTenantContext, getCurrentTenantId } from '../../services/tenant_service.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 🏢 تهيئة سياق المصنع وتطبيق الهوية البصرية تلقائياً
+    await initializeTenantContext();
+
     // مراقبة وإظهار بنر الاتصال بالإنترنت عند الانقطاع
     initNetworkStatusMonitor();
 
@@ -62,7 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await initOrdersView();
         initBarcode();
 
-        if (localStorage.getItem('devo_edit_order_data')) {
+        const tenantId = getCurrentTenantId() || 'default';
+        if (localStorage.getItem(`devo_edit_order_data_${tenantId}`)) {
             if (window.switchSiteView) window.switchSiteView('view-cart');
         }
     }

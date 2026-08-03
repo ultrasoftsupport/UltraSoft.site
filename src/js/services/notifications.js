@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase.js';
 import { showToast } from '../components/toast.js';
+import { getCurrentTenantId } from './tenant_service.js';
 
 let unreadOrders = [];
 let soundEnabled = localStorage.getItem('devo_notifications_sound') !== 'false';
@@ -269,9 +270,13 @@ function setupRealtimeSubscription() {
         realtimeChannel = null;
     }
 
-    realtimeChannel = supabase.channel('global_system_notifications_tracker')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'system_notifications' }, async (payload) => {
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    realtimeChannel = supabase.channel('global_system_notifications_tracker_' + (currentTenantId || 'default'))
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'system_notifications', ...filterConfig }, async (payload) => {
             const newNotif = payload.new;
+            if (currentTenantId && newNotif.tenant_id && newNotif.tenant_id !== currentTenantId) return;
 
             // فلترة الإشعار: هل هذا الإشعار موجه للمستخدم الحالي أم لا؟
             if (currentUser) {

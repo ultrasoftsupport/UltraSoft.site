@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { printHtmlInIframe } from '../../utils/print.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allDepositOrders = [];
@@ -19,10 +20,42 @@ export async function initDepositReportsView() {
     if (periodSelect && !periodSelect.value) {
         periodSelect.value = 'today';
     }
-    
-    updateDateInputsVisibility();
+    setDepositDatePreset('today');
+
     await fetchDepositOrders();
 }
+
+window.setDepositDatePreset = (preset) => {
+    const today = new Date();
+    const dateFromInput = document.getElementById('dr-date-from');
+    const dateToInput = document.getElementById('dr-date-to');
+    const customDateContainer = document.getElementById('dr-custom-date-container');
+
+    if (!dateFromInput || !dateToInput) return;
+
+    if (preset === 'today') {
+        const dateStr = today.toISOString().split('T')[0];
+        dateFromInput.value = dateStr;
+        dateToInput.value = dateStr;
+        if (customDateContainer) customDateContainer.classList.add('hidden');
+    } else if (preset === 'month') {
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const firstDay = `${year}-${month}-01`;
+        const lastDay = new Date(year, today.getMonth() + 1, 0).toISOString().split('T')[0];
+
+        dateFromInput.value = firstDay;
+        dateToInput.value = lastDay;
+        if (customDateContainer) customDateContainer.classList.add('hidden');
+    } else if (preset === 'custom') {
+        if (customDateContainer) {
+            customDateContainer.classList.remove('hidden');
+            customDateContainer.classList.add('flex');
+        }
+    }
+
+    applyDepositFilters();
+};
 
 function setupEventListeners() {
     const periodSelect = document.getElementById('dr-period-select');
@@ -30,13 +63,9 @@ function setupEventListeners() {
     const dateToInput = document.getElementById('dr-date-to');
     const searchInput = document.getElementById('dr-search-input');
     const printBtn = document.getElementById('dr-print-btn');
-    const refreshBtn = document.getElementById('dr-refresh-btn');
 
     if (periodSelect) {
-        periodSelect.addEventListener('change', () => {
-            updateDateInputsVisibility();
-            applyDepositFilters();
-        });
+        periodSelect.addEventListener('change', (e) => setDepositDatePreset(e.target.value));
     }
 
     if (dateFromInput) dateFromInput.addEventListener('input', applyDepositFilters);
@@ -47,27 +76,16 @@ function setupEventListeners() {
         printBtn.addEventListener('click', printDepositReport);
     }
 
+    const refreshBtn = document.getElementById('dr-refresh-btn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', async () => {
-            refreshBtn.classList.add('animate-spin');
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-lg"></i>`;
             await fetchDepositOrders();
-            setTimeout(() => refreshBtn.classList.remove('animate-spin'), 600);
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = `<i class="ph ph-arrows-clockwise text-lg"></i>`;
+            showToast('تم تحديث البيانات بنجاح', 'success');
         });
-    }
-}
-
-function updateDateInputsVisibility() {
-    const periodSelect = document.getElementById('dr-period-select');
-    const customDateContainer = document.getElementById('dr-custom-date-container');
-    
-    if (!periodSelect || !customDateContainer) return;
-
-    if (periodSelect.value === 'custom') {
-        customDateContainer.classList.remove('hidden');
-        customDateContainer.classList.add('flex');
-    } else {
-        customDateContainer.classList.add('hidden');
-        customDateContainer.classList.remove('flex');
     }
 }
 
@@ -85,14 +103,20 @@ export async function fetchDepositOrders() {
     }
 
     try {
-        const { data, error } = await supabase
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase
             .from('orders')
             .select(`
                 *,
                 system_users!worker_id (full_name)
             `)
-            .gt('deposit', 0)
-            .order('created_at', { ascending: false });
+            .gt('deposit', 0);
+
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error fetching deposit orders:', error);
@@ -111,12 +135,16 @@ export async function fetchDepositOrders() {
 function setupRealtimeSubscription() {
     if (depositRealtimeChannel) return;
 
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
     depositRealtimeChannel = supabase
-        .channel('deposit-reports-changes')
+        .channel('deposit_reports_changes_' + (currentTenantId || 'default'))
         .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'orders' },
-            async () => {
+            { event: '*', schema: 'public', table: 'orders', ...filterConfig },
+            async (payload) => {
+                if (currentTenantId && payload.new && payload.new.tenant_id && payload.new.tenant_id !== currentTenantId) return;
                 await fetchDepositOrders();
             }
         )
