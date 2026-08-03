@@ -2384,8 +2384,8 @@
 
 
 <!-- ===== VIEW: SETTINGS (MAIN TAB) ===== -->
-<div id="view-settings" class="view-section hidden h-full">
-    <div class="animate-fade-in relative pb-10 space-y-6">
+<div id="view-settings" class="view-section hidden h-full overflow-y-auto custom-scrollbar pb-10">
+    <div class="animate-fade-in relative space-y-6">
         
         <!-- Sub Navigation Bar (Sub-Menu / Bar) -->
         <div class="bg-devo-dark border border-devo-gray p-2 rounded-xl flex items-center gap-2 overflow-x-auto shadow-sm">
@@ -2648,9 +2648,135 @@
                 </div>
 
             </div><!-- /view-home-settings -->
-        </div><!-- /settings-subviews-container -->
-    </div><!-- /animate-fade-in -->
-</div><!-- /view-settings -->
+
+            <!-- 2. إدارة المظهر (Themes) -->
+            <div id="view-theme-manager" class="settings-subview hidden space-y-6">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm space-y-6">
+                    <!-- Header Row -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-devo-gray pb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                                <i class="ph ph-palette text-xl"></i> إدارة مظاهر الموقع وتصميم الهيدر والفوتر
+                            </h3>
+                            <p class="text-xs text-devo-muted mt-1">تخصيص الهوية البصرية، الألوان، الأزرار، وتصميم الشريط العلوي والفوتر للموقع</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer">
+                                <i class="ph ph-floppy-disk"></i> حفظ الهيدر والفوتر
+                            </button>
+                            <button onclick="openCreateThemeModal()" class="bg-devo-gray hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all border border-devo-gray flex items-center gap-1.5 cursor-pointer">
+                                <i class="ph ph-plus-circle text-devo-orange text-base"></i> ثيم جديد
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Layout Selectors Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-devo-black/40 p-4 rounded-xl border border-devo-gray/50">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-browser text-devo-orange text-base"></i> تصميم الشريط العلوي (Top Header Layout)
+                            </label>
+                            <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-columns text-purple-400 text-base"></i> تصميم الشريط السفلي (Footer Layout)
+                            </label>
+                            <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Themes Grid List -->
+                    <div id="themes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                        <div class="col-span-full py-12 text-center text-devo-muted">
+                            <i class="ph ph-spinner animate-spin text-4xl text-devo-orange mb-3 block mx-auto"></i>
+                            جاري تحميل المظاهر المتاحة...
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /view-theme-manager -->
+
+            <!-- 3. إعدادات الباركود والـ QR كود -->
+            <div id="view-barcode-settings" class="settings-subview hidden space-y-6">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-devo-gray pb-4 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                                <i class="ph ph-qr-code text-xl"></i> إعدادات ماسح الباركود والـ QR كود
+                            </h3>
+                            <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
+                        </div>
+                        <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md shrink-0 cursor-pointer">
+                            <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-2">
+                                <i class="ph ph-camera text-devo-orange text-base"></i> طريقة عمل الكاميرا (Scan Mode)
+                            </label>
+                            <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
+                                <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
+                                <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-2">
+                                <i class="ph ph-barcode text-purple-400 text-base"></i> نوع الكود للتعرف على المنتج (Product Code Match)
+                            </label>
+                            <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
+                                <option value="system">كود السيستم فقط (System Code)</option>
+                                <option value="factory">كود المصنع فقط (Factory Code)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /view-barcode-settings -->
+
+            <!-- 4. النسخ الاحتياطي والاستعادة -->
+            <div id="view-backup-restore" class="settings-subview hidden space-y-6">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+                    <div class="flex items-center gap-2 border-b border-devo-gray pb-4 mb-6">
+                        <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                            <i class="ph ph-database text-xl"></i> النسخ الاحتياطي واستعادة البيانات
+                        </h3>
+                    </div>
+                    <div id="backup-restore-content">
+                        <!-- يتم حقن المحتوى بواسطة backup_restore.js -->
+                        <div class="flex items-center justify-center h-48">
+                            <div class="w-8 h-8 rounded-full border-2 border-devo-orange/30 border-t-devo-orange animate-spin"></div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /view-backup-restore -->
+
+            <!-- 5. إعادة تهيئة النظام (OWNER ONLY) -->
+            <div id="view-system-reset" class="settings-subview hidden space-y-6">
+                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+                    <div class="flex items-center gap-2 border-b border-devo-gray pb-4 mb-6">
+                        <h3 class="text-lg font-bold text-red-400 flex items-center gap-2">
+                            <i class="ph ph-warning-octagon text-xl"></i> إعادة تهيئة وتفريغ النظام
+                        </h3>
+                    </div>
+                    <div id="reset-view-content">
+                        <!-- يتم حقن المحتوى بواسطة system_reset.js -->
+                        <div class="flex items-center justify-center h-48">
+                            <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /view-system-reset -->
+
+        </div> <!-- End of settings-subviews-container -->
+    </div> <!-- End of animate-fade-in -->
+</div> <!-- End of view-settings -->
 
 
 
@@ -2906,100 +3032,52 @@
 </div>
 
 <!-- 2. إدارة المظهر (Themes) -->
-<div id="view-theme-manager" class="settings-subview hidden space-y-6">
-    <div class="animate-fade-in relative pb-10 space-y-6">
+<div id="view-theme-manager" class="settings-subview hidden space-y-5 overflow-y-auto custom-scrollbar max-h-full pb-10">
+    <div class="animate-fade-in relative space-y-5">
         
-        <!-- SECTION: Header & Footer Layout Selectors -->
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
+        <!-- Header & Header/Footer Layout Controls Card (Compact & Simple) -->
+        <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-devo-gray/60 pb-3">
                 <div>
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-layout text-devo-orange"></i> تصميم الشريط العلوي والسفلي (Header & Footer Themes)
-                    </h3>
-                    <p class="text-devo-muted text-xs mt-1">اختر الشكل والتصميم المناسب للشريط العلوي والفوتر من القوائم المنسدلة</p>
+                    <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-palette text-devo-orange text-xl"></i> إدارة مظهر الموقع والهيدر والفوتر
+                    </h2>
+                    <p class="text-devo-muted text-xs mt-0.5">تخصيص الثيم والألوان وتصميم الهيدر والفوتر بسلاسة</p>
                 </div>
-                <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
-                    <i class="ph ph-floppy-disk"></i> حفظ تصميم الهيدر والفوتر
-                </button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
+                        <i class="ph ph-floppy-disk"></i> حفظ الهيدر والفوتر
+                    </button>
+                    <button onclick="openCreateThemeModal()" class="bg-devo-gray hover:bg-white/10 border border-devo-gray text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                        <i class="ph ph-plus-circle text-sm text-devo-orange"></i> ثيم جديد
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Selector 1: Top Header Theme -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-browser text-devo-orange"></i> تصميم الشريط العلوي (Top Header Layout)
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                        <i class="ph ph-browser text-devo-orange"></i> تصميم الشريط العلوي (Header Layout)
                     </label>
-                    <p class="text-xs text-devo-muted">اختر الثيم والشكل المطلوب للشريط العلوي أعلى الصفحة</p>
-                    <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                    <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
                         <!-- Populated dynamically -->
                     </select>
                 </div>
 
                 <!-- Selector 2: Bottom Footer Theme -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-bold text-white flex items-center gap-2">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
                         <i class="ph ph-columns text-purple-400"></i> تصميم الشريط السفلي (Footer Layout)
                     </label>
-                    <p class="text-xs text-devo-muted">اختر الثيم والشكل المطلوب للفوتر أسفل الصفحة</p>
-                    <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                    <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
                         <!-- Populated dynamically -->
                     </select>
                 </div>
             </div>
         </div>
 
-        <!-- Header -->
-        <div class="bg-devo-dark border border-devo-gray p-5 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                    <i class="ph ph-palette text-devo-orange"></i> إدارة مظاهر الموقع (Theme Manager)
-                </h2>
-                <p class="text-devo-muted text-sm mt-1">تخصيص الهوية البصرية، الألوان، الأزرار، والخطوط لكامل أجزاء الموقع دون تعديل الكود.</p>
-            </div>
-            <button onclick="openCreateThemeModal()" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md">
-                <i class="ph ph-plus-circle text-lg"></i> إنشاء مظهر (Theme) جديد
-            </button>
-        </div>
-
-        <!-- Statistics Summary Row -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-4">
-                <div class="w-10 h-10 rounded-lg bg-devo-orange/10 flex items-center justify-center text-devo-orange">
-                    <i class="ph ph-palette text-2xl"></i>
-                </div>
-                <div>
-                    <span class="block text-devo-muted text-xs">إجمالي المظاهر</span>
-                    <span class="text-xl font-black text-white" id="theme-stat-total">0</span>
-                </div>
-            </div>
-            <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-4">
-                <div class="w-10 h-10 rounded-lg bg-devo-success/10 flex items-center justify-center text-devo-success">
-                    <i class="ph ph-toggle-left text-2xl"></i>
-                </div>
-                <div>
-                    <span class="block text-devo-muted text-xs">المظهر النشط حالياً</span>
-                    <span class="text-sm font-bold text-white truncate max-w-[150px] block" id="theme-stat-active">جاري التحميل...</span>
-                </div>
-            </div>
-            <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-4">
-                <div class="w-10 h-10 rounded-lg bg-devo-info/10 flex items-center justify-center text-devo-info">
-                    <i class="ph ph-cpu text-2xl"></i>
-                </div>
-                <div>
-                    <span class="block text-devo-muted text-xs">مظاهر النظام الافتراضية</span>
-                    <span class="text-xl font-black text-white" id="theme-stat-system">5</span>
-                </div>
-            </div>
-            <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-4">
-                <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
-                    <i class="ph ph-code text-2xl"></i>
-                </div>
-                <div>
-                    <span class="block text-devo-muted text-xs">مظاهر مخصصة (Custom)</span>
-                    <span class="text-xl font-black text-white" id="theme-stat-custom">0</span>
-                </div>
-            </div>
-        </div>
+        <!-- Themes Grid List -->
 
         <!-- Themes Grid List -->
         <div id="themes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -3010,7 +3088,75 @@
         </div>
 
     </div>
-</div>
+</div><!-- /view-theme-manager -->
+
+<!-- 3. إعدادات الباركود والـ QR كود -->
+<div id="view-barcode-settings" class="settings-subview hidden space-y-6">
+    <div class="animate-fade-in relative pb-10 space-y-6">
+        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                        <i class="ph ph-qr-code"></i> إعدادات ماسح الباركود والـ QR كود (Barcode & QR Settings)
+                    </h3>
+                    <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
+                </div>
+                <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
+                    <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-camera text-devo-orange"></i> طريقة عمل الكاميرا (Scan Mode)
+                    </label>
+                    <p class="text-xs text-devo-muted">حدد النمط المناسب لقارئ الباركود عند فتح الكاميرا بالمتصفح</p>
+                    <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                        <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
+                        <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
+                        <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-barcode text-purple-400"></i> نوع الكود للتعرف على المنتج (Product Code Match)
+                    </label>
+                    <p class="text-xs text-devo-muted">تخصيص مطابقة الباركود الممسوح إما بكود السيستم أو كود المصنع الأصلي</p>
+                    <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                        <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
+                        <option value="system">كود السيستم فقط (System Code)</option>
+                        <option value="factory">كود المصنع فقط (Factory Code)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /view-barcode-settings -->
+
+<!-- 4. النسخ الاحتياطي والاستعادة -->
+<div id="view-backup-restore" class="settings-subview hidden space-y-6">
+    <div id="backup-restore-content">
+        <!-- يتم حقن المحتوى بواسطة backup_restore.js -->
+        <div class="flex items-center justify-center h-48">
+            <div class="w-8 h-8 rounded-full border-2 border-devo-orange/30 border-t-devo-orange animate-spin"></div>
+        </div>
+    </div>
+</div><!-- /view-backup-restore -->
+
+<!-- 5. إعادة تهيئة النظام (OWNER ONLY) -->
+<div id="view-system-reset" class="settings-subview hidden space-y-6">
+    <div id="reset-view-content">
+        <!-- يتم حقن المحتوى بواسطة system_reset.js -->
+        <div class="flex items-center justify-center h-48">
+            <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
+        </div>
+    </div>
+</div><!-- /view-system-reset -->
+
+        </div> <!-- End of settings-subviews-container -->
+    </div> <!-- End of animate-fade-in -->
+</div> <!-- End of view-settings -->
 
 <!-- ============================================================ -->
 <!-- MODAL: إنشاء مظهر جديد -->
@@ -3810,74 +3956,6 @@
                 </div>
             </div>
         </div>
-            <!-- 3. إعدادات الباركود والـ QR كود -->
-            <div id="view-barcode-settings" class="settings-subview hidden space-y-6">
-                <div class="animate-fade-in relative pb-10 space-y-6">
-                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
-                                    <i class="ph ph-qr-code"></i> إعدادات ماسح الباركود والـ QR كود (Barcode & QR Settings)
-                                </h3>
-                                <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
-                            </div>
-                            <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
-                                <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="block text-sm font-bold text-white flex items-center gap-2">
-                                    <i class="ph ph-camera text-devo-orange"></i> طريقة عمل الكاميرا (Scan Mode)
-                                </label>
-                                <p class="text-xs text-devo-muted">حدد النمط المناسب لقارئ الباركود عند فتح الكاميرا بالمتصفح</p>
-                                <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                                    <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
-                                    <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
-                                    <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
-                                </select>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="block text-sm font-bold text-white flex items-center gap-2">
-                                    <i class="ph ph-barcode text-purple-400"></i> نوع الكود للتعرف على المنتج (Product Code Match)
-                                </label>
-                                <p class="text-xs text-devo-muted">تخصيص مطابقة الباركود الممسوح إما بكود السيستم أو كود المصنع الأصلي</p>
-                                <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                                    <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
-                                    <option value="system">كود السيستم فقط (System Code)</option>
-                                    <option value="factory">كود المصنع فقط (Factory Code)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. النسخ الاحتياطي والاستعادة -->
-            <div id="view-backup-restore" class="settings-subview hidden space-y-6">
-                <div id="backup-restore-content">
-                    <!-- يتم حقن المحتوى بواسطة backup_restore.js -->
-                    <div class="flex items-center justify-center h-48">
-                        <div class="w-8 h-8 rounded-full border-2 border-devo-orange/30 border-t-devo-orange animate-spin"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. إعادة تهيئة النظام (OWNER ONLY) -->
-            <div id="view-system-reset" class="settings-subview hidden space-y-6">
-                <div id="reset-view-content">
-                    <!-- يتم حقن المحتوى بواسطة system_reset.js -->
-                    <div class="flex items-center justify-center h-48">
-                        <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
-                    </div>
-                </div>
-            </div>
-
-        </div> <!-- End of settings-subviews-container -->
-    </div> <!-- End of animate-fade-in -->
-</div> <!-- End of view-settings -->
-
 </div>
 
 <footer class="bg-devo-black border-t border-devo-gray py-3 px-6 shrink-0 flex flex-col md:flex-row items-center justify-between text-[11px] z-10">

@@ -1,6 +1,6 @@
 import { requireAuth, logoutUser } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
-import { initHomeSettingsView } from './home_settings.js';
+import { initHomeSettingsView, initPromoCardsView } from './home_settings.js';
 // استيراد صفحة المستخدمين (كما كانت في كودك)
 import { initUsersView } from './users.js';
 import { syncActiveTheme } from '../../services/theme.js';
@@ -219,6 +219,9 @@ async function loadViewLogic(targetId) {
             const { initThemeManagerView } = await import('./theme_manager.js');
             await initThemeManagerView();
             break;
+        case 'view-promo-cards':
+            await initPromoCardsView();
+            break;
         case 'view-notifications':
             const { initNotificationsView } = await import('./notifications_view.js');
             await initNotificationsView();
@@ -269,6 +272,9 @@ export async function switchSettingsSubtab(subtabId) {
         case 'view-theme-manager':
             const { initThemeManagerView } = await import('./theme_manager.js');
             await initThemeManagerView();
+            break;
+        case 'view-barcode-settings':
+            await initHomeSettingsView();
             break;
         case 'view-backup-restore':
             const { initBackupRestoreView } = await import('./backup_restore.js');

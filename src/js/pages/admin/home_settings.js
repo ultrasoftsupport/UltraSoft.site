@@ -25,12 +25,48 @@ export async function initHomeSettingsView() {
     if (isInitialized) return;
 
     await loadHeroSettings();
-    await loadPromoCards();
-
-    document.getElementById('promo-form')?.addEventListener('submit', handleSavePromo);
-
     isInitialized = true;
 }
+
+let isPromoInitialized = false;
+export async function initPromoCardsView() {
+    await loadPromoCards();
+
+    if (!isPromoInitialized) {
+        document.getElementById('promo-form')?.addEventListener('submit', handleSavePromo);
+        isPromoInitialized = true;
+    }
+}
+
+// ==========================================
+// 1. Barcode Settings Save Handler
+// ==========================================
+window.saveBarcodeSettings = async () => {
+    const btn = document.getElementById('btn-save-barcode');
+    if (!btn) return;
+
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري الحفظ...`;
+
+    try {
+        const currentTenantId = getCurrentTenantId();
+        const updates = [
+            { tenant_id: currentTenantId, setting_key: 'barcode_scan_mode', setting_value: document.getElementById('hs-barcode-scan-mode')?.value || 'both' },
+            { tenant_id: currentTenantId, setting_key: 'barcode_match_type', setting_value: document.getElementById('hs-barcode-match-type')?.value || 'both' }
+        ];
+
+        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
+        if (error) throw error;
+
+        showToast('تم حفظ إعدادات الباركود والـ QR بنجاح ✓', 'success');
+    } catch (err) {
+        showToast('حدث خطأ أثناء حفظ إعدادات الباركود: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+};
 
 // ==========================================
 // 1. Hero Settings Logic + Layout Settings

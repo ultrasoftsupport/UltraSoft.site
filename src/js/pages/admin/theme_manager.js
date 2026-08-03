@@ -61,10 +61,15 @@ function updateThemeStats() {
   let systemCount = allThemes.filter(t => t.is_system).length;
   let customCount = allThemes.filter(t => !t.is_system).length;
 
-  document.getElementById('theme-stat-total').textContent = allThemes.length;
-  document.getElementById('theme-stat-active').textContent = activeTheme ? activeTheme.name : 'لا يوجد مظهر نشط';
-  document.getElementById('theme-stat-system').textContent = systemCount;
-  document.getElementById('theme-stat-custom').textContent = customCount;
+  const totalEl = document.getElementById('theme-stat-total');
+  const activeEl = document.getElementById('theme-stat-active');
+  const systemEl = document.getElementById('theme-stat-system');
+  const customEl = document.getElementById('theme-stat-custom');
+
+  if (totalEl) totalEl.textContent = allThemes.length;
+  if (activeEl) activeEl.textContent = activeTheme ? activeTheme.name : 'لا يوجد مظهر نشط';
+  if (systemEl) systemEl.textContent = systemCount;
+  if (customEl) customEl.textContent = customCount;
 }
 
 function renderThemesGrid() {
