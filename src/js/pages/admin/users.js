@@ -229,13 +229,14 @@ window.openUserModal = (id = null) => {
 
         if(user.role === 'owner') {
             roleSelect.innerHTML = `<option value="owner">مالك (صلاحيات كاملة)</option>`;
+            roleSelect.disabled = true;
         } else {
+            roleSelect.disabled = false;
             roleSelect.innerHTML = `
                 <option value="worker_showroom">بائع بالمعرض (مبيعات فقط)</option>
                 <option value="worker_warehouse">عامل بالمخزن (مخازن فقط)</option>
                 <option value="worker_both">بائع بالمعرض وعامل بالمخزن معاً</option>
                 <option value="admin">مشرف (إدارة جزئية)</option>
-                <option value="owner">مالك (صلاحيات كاملة)</option>
             `;
             let roleVal = user.role;
             if (user.role === 'worker') {
@@ -247,16 +248,16 @@ window.openUserModal = (id = null) => {
     } else {
         title.innerHTML = `<i class="ph ph-user-plus text-devo-orange text-xl"></i> إضافة مستخدم جديد`;
         document.getElementById('u-status').checked = true;
+        roleSelect.disabled = false;
         
         roleSelect.innerHTML = `
             <option value="worker_showroom">بائع بالمعرض (مبيعات فقط)</option>
             <option value="worker_warehouse">عامل بالمخزن (مخازن فقط)</option>
             <option value="worker_both">بائع بالمعرض وعامل بالمخزن معاً</option>
             <option value="admin">مشرف (إدارة جزئية)</option>
-            <option value="owner">مالك (صلاحيات كاملة)</option>
         `;
         roleSelect.value = 'worker_showroom';
-
+        
         passInput.required = true;
         passReq.classList.remove('hidden');
         passHint.classList.add('hidden');

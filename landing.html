@@ -124,36 +124,36 @@
 <body class="bg-devo-black text-devo-text overflow-x-hidden flex flex-col min-h-screen">
 
     <!-- Header Navigation Bar -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-devo-black/80 backdrop-blur-xl border-b border-devo-gray/60 h-20 flex items-center px-4 sm:px-8">
-        <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-4">
+    <header class="fixed top-0 left-0 right-0 z-50 bg-devo-black/90 backdrop-blur-xl border-b border-devo-gray/60 h-16 sm:h-20 flex items-center px-3 sm:px-8">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-2 sm:gap-4">
             
             <!-- Right: Logo -->
-            <a href="landing.html" class="flex items-center gap-2.5 shrink-0">
-                <img src="./logo_transparnt.png" onerror="this.src='./logo.png';" alt="UltraSoft Logo" class="h-9 w-auto object-contain">
-                <h1 class="text-xl sm:text-2xl font-black tracking-wider text-devo-text">
+            <a href="landing.html" class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                <img src="./logo_transparnt.png" onerror="this.src='./logo.png';" alt="UltraSoft Logo" class="h-7 sm:h-9 w-auto object-contain">
+                <h1 class="text-base sm:text-2xl font-black tracking-wider text-devo-text">
                     Ultra<span class="text-ultra-400">Soft</span>
                 </h1>
             </a>
 
             <!-- Center: Interactive Module Navigation Links -->
-            <div class="flex items-center gap-2 sm:gap-4">
-                <button id="nav-link-overview" onclick="window.switchLandingModule?.('overview')" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-ultra-400 border-b-2 border-ultra-400 transition-all">
+            <div class="flex items-center gap-1 sm:gap-3 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
+                <button id="nav-link-overview" onclick="window.switchLandingModule?.('overview')" class="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold text-ultra-400 border-b-2 border-ultra-400 transition-all shrink-0">
                     المميزات والقدرات
                 </button>
 
-                <button id="nav-link-pricing" onclick="window.switchLandingModule?.('pricing')" class="px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all">
+                <button id="nav-link-pricing" onclick="window.switchLandingModule?.('pricing')" class="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold text-devo-muted hover:text-white transition-all shrink-0">
                     خطط الأسعار
                 </button>
 
-                <button onclick="window.scrollToContact?.()" class="hidden sm:block px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all">
+                <button onclick="window.scrollToContact?.()" class="hidden md:block px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all shrink-0">
                     تواصل معنا
                 </button>
             </div>
 
             <!-- Left: Action Buttons -->
-            <div class="flex items-center gap-2.5 shrink-0">
-                <a href="index.html" class="px-4 py-2 bg-devo-dark hover:bg-devo-gray border border-devo-gray text-white rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="ph ph-storefront text-sky-400 text-base"></i>
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                <a href="index.html" class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-devo-dark hover:bg-devo-gray border border-devo-gray text-white rounded-xl text-[11px] sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                    <i class="ph ph-storefront text-sky-400 text-sm sm:text-base"></i>
                     <span>المعرض التجريبي</span>
                 </a>
             </div>

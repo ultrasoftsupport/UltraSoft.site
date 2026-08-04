@@ -41,6 +41,13 @@ function setupWindowBindings() {
 export async function fetchNotifications() {
     try {
         const tenantId = getCurrentTenantId();
+        if (!tenantId) {
+            allNotifications = [];
+            updateStats();
+            renderNotifications();
+            return;
+        }
+
         const { data, error } = await supabase
             .from('system_notifications')
             .select('*')
@@ -49,7 +56,7 @@ export async function fetchNotifications() {
 
         if (error) throw error;
 
-        allNotifications = data || [];
+        allNotifications = (data || []).filter(n => n.tenant_id === tenantId);
         updateStats();
         renderNotifications();
     } catch (e) {
@@ -382,6 +389,12 @@ export async function broadcastCustomNotification() {
         return;
     }
 
+    const tenantId = getCurrentTenantId();
+    if (!tenantId) {
+        showToast('حدث خطأ: لم يتم تحديد هويّة المصنع / المتجر الحالي', 'error');
+        return;
+    }
+
     if (btn) {
         btn.disabled = true;
         btn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري البث...`;
@@ -391,7 +404,6 @@ export async function broadcastCustomNotification() {
     const tgTarget = tgTargetInput ? tgTargetInput.value : 'none';
 
     try {
-        const tenantId = getCurrentTenantId();
         const { error } = await supabase
             .from('system_notifications')
             .insert([{
@@ -409,7 +421,7 @@ export async function broadcastCustomNotification() {
 
         titleInput.value = '';
         bodyInput.value = '';
-        showToast('تم بث الإشعار بنجاح لجميع الأجهزة والعمال المتصلين 🎉', 'success');
+        showToast('تم بث الإشعار بنجاح لجميع الأجهزة بالمصنع الحالي 🎉', 'success');
         
         await fetchNotifications();
     } catch (e) {

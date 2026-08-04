@@ -296,8 +296,8 @@ function renderLandingHTML() {
                         </p>
                     </div>
 
-                    <!-- Pricing Cards Grid -->
-                    <div id="landing-pricing-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto mb-16 pt-4">
+                    <!-- Pricing Cards Grid (2x2 Matrix Layout for Maximum Comfort and Readability) -->
+                    <div id="landing-pricing-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch max-w-5xl mx-auto mb-16 pt-4">
                         
                         <!-- PLAN 1: 3 MONTHS - EMERALD GREEN THEME -->
                         <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
@@ -513,161 +513,60 @@ function renderLandingHTML() {
                     </div>
 
                     <!-- DETAILED COMPETITIVE COMPARISON TABLE -->
-                    <div class="mt-16 bg-devo-dark/95 border border-devo-gray rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden">
-                        <div class="text-center mb-8">
+                    <div class="mt-16 bg-devo-dark/95 border border-devo-gray rounded-3xl p-5 sm:p-8 shadow-2xl overflow-hidden">
+                        <div class="text-center mb-6 sm:mb-8">
                             <h3 class="text-xl sm:text-3xl font-black text-devo-text mb-2">جدول المقارنة الشامل لكافة ميزات ووظائف النظام</h3>
                             <p class="text-devo-muted text-xs sm:text-sm font-medium">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft</p>
                         </div>
 
-                        <div class="overflow-x-auto">
+                        <!-- Mobile Plan Segmented Control Tabs (Visible only on mobile < md) -->
+                        <div class="block md:hidden mb-6">
+                            <p class="text-xs text-devo-muted text-center mb-2.5 font-bold">اختر الباقة لعرض مقارنتها بالتفصيل:</p>
+                            <div id="mobile-comparison-tabs" class="grid grid-cols-3 p-1 bg-devo-black/90 border border-devo-gray/80 rounded-2xl gap-1 text-xs">
+                                <button type="button" onclick="window.switchMobileComparisonPlan?.('quarterly')" id="tab-mobile-quarterly" class="py-2.5 px-1 rounded-xl font-bold text-center transition-all text-devo-muted hover:text-white">
+                                    ⚡ 3 أشهر
+                                </button>
+                                <button type="button" onclick="window.switchMobileComparisonPlan?.('semi_annual')" id="tab-mobile-semi_annual" class="py-2.5 px-1 rounded-xl font-black text-center transition-all bg-sky-500 text-white shadow">
+                                    🔥 6 أشهر
+                                </button>
+                                <button type="button" onclick="window.switchMobileComparisonPlan?.('annual')" id="tab-mobile-annual" class="py-2.5 px-1 rounded-xl font-bold text-center transition-all text-devo-muted hover:text-white">
+                                    👑 سنة كاملة
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Full Matrix Table View (Hidden on mobile < md) -->
+                        <div class="hidden md:block overflow-x-auto">
                             <table class="w-full text-right text-xs sm:text-sm border-collapse min-w-[700px]">
                                 <thead>
                                     <tr class="border-b border-devo-gray bg-devo-black/60 text-devo-text font-bold">
                                         <th class="p-4 rounded-r-2xl">الوظيفة / مميزات المنظومة</th>
-                                        <th class="p-4 text-center text-emerald-400 bg-emerald-500/10">اشتراك 3 أشهر (7,000 ج.م)</th>
-                                        <th class="p-4 text-center text-sky-400 bg-ultra-500/15">اشتراك 6 أشهر (10,000 ج.م)</th>
-                                        <th class="p-4 text-center text-amber-400 bg-amber-500/15 rounded-l-2xl">اشتراك سنة (15,000 ج.م)</th>
+                                        <th id="landing-th-quarterly" class="p-4 text-center text-emerald-400 bg-emerald-500/10">اشتراك 3 أشهر (7,000 ج.م)</th>
+                                        <th id="landing-th-semi-annual" class="p-4 text-center text-sky-400 bg-ultra-500/15">اشتراك 6 أشهر (10,000 ج.م)</th>
+                                        <th id="landing-th-annual" class="p-4 text-center text-amber-400 bg-amber-500/15 rounded-l-2xl">اشتراك سنة (15,000 ج.م)</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-devo-gray/50 text-devo-muted">
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-t-shirt text-ultra-400"></i>
-                                            <span>حدود الموديلات النشطة بالمعرض</span>
-                                        </td>
-                                        <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">حتى 200 موديل</td>
-                                        <td class="p-4 text-center font-bold text-sky-400 bg-ultra-500/5">حتى 600 موديل (3x)</td>
-                                        <td class="p-4 text-center font-black text-amber-400 bg-amber-500/5 text-base">غير محدود ∞</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-file-arrow-up text-amber-400"></i>
-                                            <span>رصيد الرفع والتعديل المجمع (Excel)</span>
-                                        </td>
-                                        <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">200 كريديت / شهرياً</td>
-                                        <td class="p-4 text-center font-bold text-sky-400 bg-ultra-500/5">500 كريديت / شهرياً</td>
-                                        <td class="p-4 text-center font-black text-amber-400 bg-amber-500/5 text-base">غير محدود ∞</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-users-three text-purple-400"></i>
-                                            <span>حسابات المستخدمين وفريق العمل</span>
-                                        </td>
-                                        <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">حتى 4 مستخدمين</td>
-                                        <td class="p-4 text-center font-bold text-sky-400 bg-ultra-500/5">حتى 10 مستخدمين</td>
-                                        <td class="p-4 text-center font-black text-amber-400 bg-amber-500/5">حتى 25 مستخدم</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-telegram-logo text-sky-400"></i>
-                                            <span>إشعارات المتصفح الفورية والتليجرام</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-arrows-clockwise text-emerald-400"></i>
-                                            <span>المزامنة والمشاركة اللحظية على الأجهزة</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-bell-ringing text-amber-400"></i>
-                                            <span>تنبيهات نواقص الأصناف والطلبات صوتياً</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-pencil-line text-sky-400"></i>
-                                            <span>تعديل الفواتير والأوردرات وإعادة تحميلها</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-user-switch text-purple-400"></i>
-                                            <span>إسناد الطلبات وتغيير العامل المسؤول</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-palette text-rose-400"></i>
-                                            <span>تخصيص ألوان الواجهة والمظهر (Themes)</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-hand-coins text-blue-400"></i>
-                                            <span>حساب العربون والمتبقي وتقارير الإيداعات</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-qr-code text-sky-400"></i>
-                                            <span>معرض الموديلات وقارئ الباركود الكاميرا</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-package text-emerald-400"></i>
-                                            <span>إدارة المخزن وشحن دفعات الرصيد</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-receipt text-blue-400"></i>
-                                            <span>الفواتير والطباعة (حراري & A4)</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5"><i class="ph-fill ph-check-circle text-base"></i> متاح</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-headphones text-rose-400"></i>
-                                            <span>الدعم الفني والتدريب</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5">24/7 طوال الأسبوع</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5">24/7 طوال الأسبوع</td>
-                                        <td class="p-4 text-center font-bold text-amber-400 bg-amber-500/5">VIP 24/7 (أولوية كبار العملاء)</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                                            <i class="ph ph-database text-teal-400"></i>
-                                            <span>النسخ الاحتياطي واستعادة البيانات</span>
-                                        </td>
-                                        <td class="p-4 text-center text-emerald-400 font-bold bg-emerald-500/5">تلقائي سحابي</td>
-                                        <td class="p-4 text-center text-sky-400 font-bold bg-ultra-500/5">تلقائي سحابي</td>
-                                        <td class="p-4 text-center text-amber-400 font-bold bg-amber-500/5">تلقائي سحابي</td>
-                                    </tr>
+                                <tbody id="landing-comparison-table-body" class="divide-y divide-devo-gray/50 text-devo-muted">
+                                    <!-- Dynamic Desktop Table Rows -->
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Mobile Interactive 2-Column Table View (Visible only on mobile < md) -->
+                        <div class="block md:hidden overflow-hidden rounded-2xl border border-devo-gray/60 bg-devo-black/60">
+                            <table class="w-full text-right text-xs border-collapse">
+                                <thead>
+                                    <tr id="mobile-table-header-row" class="border-b border-devo-gray bg-sky-500/15 text-sky-400 font-bold">
+                                        <th class="p-3 w-7/12">الوظيفة / الميزة</th>
+                                        <th id="mobile-selected-plan-header" class="p-3 text-center w-5/12">اشتراك 6 أشهر (الأكثر طلباً)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="landing-comparison-mobile-body" class="divide-y divide-devo-gray/40 text-devo-muted">
+                                    <!-- Dynamic Mobile Table Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
 
                 </section>
@@ -738,29 +637,238 @@ function renderLandingHTML() {
     `;
 }
 
-export async function loadLandingDynamicPricingData() {
-    const cardsGrid = document.getElementById('landing-pricing-cards-grid');
-    if (!cardsGrid) return;
+function getLandingRatioTag(baselineVal, currentVal) {
+    if (baselineVal === undefined || baselineVal === null || currentVal === undefined || currentVal === null) return '';
+    if (currentVal === -1) {
+        return baselineVal > 0 ? ' (بلا حدود ✨)' : '';
+    }
+    if (baselineVal <= 0 || baselineVal === -1) return '';
 
-    try {
-        const { data: plans, error } = await supabase
-            .from('system_subscription_plans')
-            .select('*')
-            .order('sort_order', { ascending: true });
+    const ratio = currentVal / baselineVal;
+    if (ratio > 1) {
+        const formatted = (ratio % 1 === 0) ? ratio.toFixed(0) : ratio.toFixed(1);
+        if (formatted === '3') return ' (3 أضعاف)';
+        return ` (${formatted}x)`;
+    }
+    return '';
+}
 
-        if (!error && plans && plans.length > 0) {
-            renderLandingPlanCards(plans);
+function renderLandingCardLimitBadges(planKey, plan, limitsMap, badgeBgClass) {
+    const lim = limitsMap[planKey] || {};
+    const baseLim = limitsMap['quarterly'] || {};
+    const isBase = planKey === 'quarterly';
+
+    const fmtActive = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 200} موديل`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtTotal = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 500} موديل`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtInvoices = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 1000} فاتورة`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtCredits = (v, base) => (v === -1 ? 'غير محدود ∞' : `${v ?? 200} كريديت / شهرياً`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtUsers = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 4} مستخدمين`) + (isBase ? '' : getLandingRatioTag(base, v));
+
+    const badges = [
+        { label: 'إجمالي الموديلات بالمعرض:', value: fmtTotal(lim.max_total_products, baseLim.max_total_products) },
+        { label: 'الموديلات النشطة بالمعرض:', value: fmtActive(lim.max_products, baseLim.max_products) },
+        { label: 'حد الفواتير المسموح بها:', value: fmtInvoices(lim.max_invoices, baseLim.max_invoices) },
+        { label: 'رصيد الرفع والتعديل (Excel):', value: fmtCredits(lim.monthly_excel_credits, baseLim.monthly_excel_credits) },
+        { label: 'مستخدمو فريق العمل:', value: fmtUsers(lim.max_users, baseLim.max_users) }
+    ];
+
+    const customBadges = Array.isArray(plan.custom_limit_badges) ? plan.custom_limit_badges : [];
+    customBadges.forEach(cb => {
+        if (cb && cb.label && cb.value) {
+            badges.push(cb);
         }
+    });
+
+    return badges.map(b => `
+        <div class="flex items-center justify-between text-devo-text gap-3 pb-2.5 border-b border-devo-gray/30 last:border-b-0 last:pb-0">
+            <span class="text-devo-muted font-bold text-xs sm:text-sm shrink-0 whitespace-nowrap">${b.label}</span>
+            <span class="font-black text-slate-950 ${badgeBgClass} px-3 py-1 rounded-lg text-xs sm:text-sm shadow-sm inline-flex items-center justify-center shrink-0 whitespace-nowrap font-mono">
+                ${b.value}
+            </span>
+        </div>
+    `).join('');
+}
+
+export async function loadLandingDynamicPricingData() {
+    try {
+        const [plansRes, limitsRes, featuresRes] = await Promise.all([
+            supabase.from('system_subscription_plans').select('*').order('sort_order', { ascending: true }),
+            supabase.from('subscription_plan_limits').select('*'),
+            supabase.from('subscription_comparison_features').select('*').order('sort_order', { ascending: true })
+        ]);
+
+        const plans = plansRes.data || [];
+        const limitsList = limitsRes.data || [];
+        const features = featuresRes.data || [];
+
+        const limitsMap = {};
+        limitsList.forEach(lim => { limitsMap[lim.plan_key] = lim; });
+
+        if (plans.length > 0) {
+            renderLandingPlanCards(plans, limitsMap);
+            updateLandingTableHeaders(plans);
+        }
+
+        if (features.length > 0) {
+            renderLandingComparisonTable(features);
+        }
+
     } catch (err) {
         console.warn('Supabase landing pricing load error:', err);
     }
 }
 
-function renderLandingPlanCards(plans) {
+let currentComparisonFeatures = [];
+let activeMobilePlanKey = 'semi_annual';
+
+window.switchMobileComparisonPlan = function(planKey) {
+    activeMobilePlanKey = planKey;
+
+    const tabKeys = ['quarterly', 'semi_annual', 'annual'];
+    tabKeys.forEach(k => {
+        const btn = document.getElementById(`tab-mobile-${k}`);
+        if (!btn) return;
+        if (k === planKey) {
+            let activeBg = 'bg-sky-500 text-white shadow font-black';
+            if (k === 'quarterly') activeBg = 'bg-emerald-500 text-white shadow font-black';
+            if (k === 'annual') activeBg = 'bg-amber-500 text-slate-950 shadow font-black';
+            btn.className = `py-2.5 px-1 rounded-xl text-center transition-all ${activeBg}`;
+        } else {
+            btn.className = 'py-2.5 px-1 rounded-xl font-bold text-center transition-all text-devo-muted hover:text-white';
+        }
+    });
+
+    const headerEl = document.getElementById('mobile-selected-plan-header');
+    const headerRow = document.getElementById('mobile-table-header-row');
+    if (headerEl && headerRow) {
+        if (planKey === 'quarterly') {
+            headerEl.textContent = 'اشتراك 3 أشهر';
+            headerRow.className = 'border-b border-devo-gray bg-emerald-500/15 text-emerald-400 font-bold';
+        } else if (planKey === 'semi_annual') {
+            headerEl.textContent = 'اشتراك 6 أشهر (الأكثر طلباً)';
+            headerRow.className = 'border-b border-devo-gray bg-sky-500/15 text-sky-400 font-bold';
+        } else {
+            headerEl.textContent = 'اشتراك سنة كاملة';
+            headerRow.className = 'border-b border-devo-gray bg-amber-500/15 text-amber-400 font-bold';
+        }
+    }
+
+    renderMobileComparisonRows();
+};
+
+function renderMobileComparisonRows() {
+    const mobileBody = document.getElementById('landing-comparison-mobile-body');
+    if (!mobileBody || currentComparisonFeatures.length === 0) return;
+
+    let textColorClass = 'text-sky-400 bg-sky-500/5';
+    if (activeMobilePlanKey === 'quarterly') textColorClass = 'text-emerald-400 bg-emerald-500/5';
+    if (activeMobilePlanKey === 'annual') textColorClass = 'text-amber-400 bg-amber-500/5';
+
+    mobileBody.innerHTML = currentComparisonFeatures.map(feat => {
+        const vals = feat.plan_values || {};
+        const val = vals[activeMobilePlanKey] || 'متاح';
+        const iconClass = getFeatureIconClass(feat.feature_name || '');
+
+        return `
+            <tr>
+                <td class="p-3 font-bold text-devo-text flex items-center gap-1.5 text-xs">
+                    <i class="${iconClass} shrink-0"></i>
+                    <span class="leading-tight">${feat.feature_name}</span>
+                </td>
+                <td class="p-3 text-center font-bold ${textColorClass} text-xs">${formatLandingVal(val)}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function updateLandingTableHeaders(plans) {
+    const qPlan = plans.find(p => p.key === 'quarterly') || {};
+    const sPlan = plans.find(p => p.key === 'semi_annual') || {};
+    const aPlan = plans.find(p => p.key === 'annual') || {};
+
+    const qTh = document.getElementById('landing-th-quarterly');
+    const sTh = document.getElementById('landing-th-semi-annual');
+    const aTh = document.getElementById('landing-th-annual');
+
+    if (qTh) qTh.textContent = `${qPlan.badge_text || 'اشتراك 3 أشهر'} (${(qPlan.price || 7000).toLocaleString()} ج.م)`;
+    if (sTh) sTh.textContent = `${sPlan.badge_text || 'اشتراك 6 أشهر'} (${(sPlan.price || 10000).toLocaleString()} ج.م)`;
+    if (aTh) aTh.textContent = `${aPlan.badge_text || 'اشتراك سنة'} (${(aPlan.price || 15000).toLocaleString()} ج.م)`;
+}
+
+function getFeatureIconClass(name) {
+    if (name.includes('نشطة')) return 'ph ph-t-shirt text-ultra-400';
+    if (name.includes('إجمالي الموديلات')) return 'ph ph-squares-four text-sky-400';
+    if (name.includes('حد الفواتير')) return 'ph ph-receipt text-emerald-400';
+    if (name.includes('Excel')) return 'ph ph-file-arrow-up text-amber-400';
+    if (name.includes('مستخدمين') || name.includes('فريق')) return 'ph ph-users-three text-purple-400';
+    if (name.includes('إشعارات')) return 'ph ph-telegram-logo text-sky-400';
+    if (name.includes('مزامنة')) return 'ph ph-arrows-clockwise text-emerald-400';
+    if (name.includes('تنبيهات')) return 'ph ph-bell-ringing text-amber-400';
+    if (name.includes('تعديل الفواتير')) return 'ph ph-pencil-line text-sky-400';
+    if (name.includes('إسناد')) return 'ph ph-user-switch text-purple-400';
+    if (name.includes('ألوان')) return 'ph ph-palette text-rose-400';
+    if (name.includes('العربون')) return 'ph ph-hand-coins text-blue-400';
+    if (name.includes('معرض')) return 'ph ph-qr-code text-sky-400';
+    if (name.includes('المخزن')) return 'ph ph-package text-emerald-400';
+    if (name.includes('الطباعة')) return 'ph ph-printer text-blue-400';
+    if (name.includes('الدعم')) return 'ph ph-headphones text-rose-400';
+    if (name.includes('النسخ')) return 'ph ph-database text-teal-400';
+    return 'ph ph-check-circle text-ultra-400';
+}
+
+function formatLandingVal(v) {
+    if (v === 'متاح') return `<span class="inline-flex items-center gap-1 text-emerald-400 font-bold"><i class="ph-fill ph-check-circle text-base"></i> متاح</span>`;
+    if (v === 'غير متاح') return `<span class="inline-flex items-center gap-1 text-red-400 font-bold"><i class="ph-fill ph-x-circle text-base"></i> غير متاح</span>`;
+    return v;
+}
+
+function renderLandingComparisonTable(features) {
+    const uniqueMap = new Map();
+    features.forEach(f => {
+        const key = (f.feature_name || '').trim();
+        if (key && !uniqueMap.has(key)) uniqueMap.set(key, f);
+    });
+    currentComparisonFeatures = Array.from(uniqueMap.values());
+
+    const tbody = document.getElementById('landing-comparison-table-body');
+    if (tbody) {
+        tbody.innerHTML = currentComparisonFeatures.map(feat => {
+            const vals = feat.plan_values || {};
+            const qVal = vals.quarterly || 'متاح';
+            const sVal = vals.semi_annual || 'متاح';
+            const aVal = vals.annual || 'متاح';
+
+            const iconClass = getFeatureIconClass(feat.feature_name || '');
+
+            return `
+                <tr>
+                    <td class="p-4 font-bold text-devo-text flex items-center gap-2">
+                        <i class="${iconClass}"></i>
+                        <span>${feat.feature_name}</span>
+                    </td>
+                    <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">${formatLandingVal(qVal)}</td>
+                    <td class="p-4 text-center font-bold text-sky-400 bg-ultra-500/5">${formatLandingVal(sVal)}</td>
+                    <td class="p-4 text-center font-black text-amber-400 bg-amber-500/5">${formatLandingVal(aVal)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    renderMobileComparisonRows();
+}
+
+function renderLandingPlanCards(plans, limitsMap = {}) {
     const cardsGrid = document.getElementById('landing-pricing-cards-grid');
     if (!cardsGrid) return;
 
+    const waNumber = '201140409832';
+    const createWaLink = (planName, price) => {
+        const text = `مرحباً شركة UltraSoft، أود الاستفسار والاشتراك في باقة (${planName}) بسعر ${price} لنظام إدارة المتاجر والمخازن.`;
+        return `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
+    };
+
     cardsGrid.innerHTML = plans.map(plan => {
+        const isPurple = plan.color_scheme === 'purple' || plan.key === 'trial';
         const isEmerald = plan.color_scheme === 'emerald' || plan.key === 'quarterly';
         const isSky = plan.color_scheme === 'sky' || plan.key === 'semi_annual';
         const isAmber = plan.color_scheme === 'amber' || plan.key === 'annual';
@@ -768,7 +876,56 @@ function renderLandingPlanCards(plans) {
         const features = Array.isArray(plan.features_list) ? plan.features_list : [];
         const priceFormatted = (plan.price || 0).toLocaleString();
 
-        if (isEmerald) {
+        if (isPurple) {
+            return `
+                <div class="bg-gradient-to-b from-purple-500/15 via-devo-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-purple-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                        <i class="ph-fill ph-gift text-amber-300"></i>
+                        <span>${plan.name || 'الباقة التجريبية المجانية'}</span>
+                    </div>
+
+                    ${plan.discount_tag ? `
+                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-purple-400 text-slate-950 font-black text-xs shadow-md border border-purple-300 whitespace-nowrap z-10">
+                            ${plan.discount_tag}
+                        </div>
+                    ` : ''}
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pt-3">
+                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'تجربة مجانية (5 أيام)'}</h3>
+                            ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-purple-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
+                        </div>
+
+                        <div class="mb-6">
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-4xl sm:text-5xl font-black text-purple-400">مجاناً</span>
+                                <span class="text-devo-muted text-xs font-bold">(5 أيام تجريبية)</span>
+                            </div>
+                            <p class="text-xs text-purple-300/90 font-bold mt-1">${plan.subtitle || ''}</p>
+                        </div>
+
+                        <!-- Dynamic Spec Box -->
+                        <div class="bg-devo-black/80 border border-purple-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
+                            ${renderLandingCardLimitBadges('trial', plan, limitsMap, 'bg-purple-400')}
+                        </div>
+
+                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
+                            ${features.map(f => `
+                                <li class="flex items-center gap-2.5 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>${f}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <a href="${createWaLink(plan.badge_text || 'الباقة التجريبية المجانية', 'مجاني (0 ج.م)')}" target="_blank" class="w-full py-4 rounded-2xl bg-purple-500 hover:bg-purple-400 text-white font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <i class="ph-fill ph-rocket-launch text-amber-300 text-xl"></i>
+                        <span>ابدأ التجربة المجانية الآن</span>
+                    </a>
+                </div>
+            `;
+        } else if (isEmerald) {
             return `
                 <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                     <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -790,19 +947,9 @@ function renderLandingPlanCards(plans) {
                             <p class="text-xs text-emerald-400 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
+                        <!-- Dynamic Spec Box -->
                         <div class="bg-devo-black/80 border border-emerald-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">الموديلات النشطة بالمعرض:</span>
-                                <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_products_label || 'حتى 200 موديل'}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">رصيد الرفع والتعديل (Excel):</span>
-                                <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.excel_credits_label || '200 كريديت / شهرياً'}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">مستخدمو فريق العمل:</span>
-                                <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_users_label || 'حتى 4 مستخدمين'}</span>
-                            </div>
+                            ${renderLandingCardLimitBadges('quarterly', plan, limitsMap, 'bg-emerald-400')}
                         </div>
 
                         <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
@@ -849,19 +996,9 @@ function renderLandingPlanCards(plans) {
                             <p class="text-xs text-sky-400 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
+                        <!-- Dynamic Spec Box -->
                         <div class="bg-devo-black/80 border border-sky-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">الموديلات النشطة بالمعرض:</span>
-                                <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_products_label || ''}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">رصيد الرفع والتعديل (Excel):</span>
-                                <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.excel_credits_label || ''}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">مستخدمو فريق العمل:</span>
-                                <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_users_label || ''}</span>
-                            </div>
+                            ${renderLandingCardLimitBadges('semi_annual', plan, limitsMap, 'bg-sky-400')}
                         </div>
 
                         <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
@@ -908,19 +1045,9 @@ function renderLandingPlanCards(plans) {
                             <p class="text-xs text-amber-400/90 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
+                        <!-- Dynamic Spec Box -->
                         <div class="bg-devo-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">الموديلات النشطة بالمعرض:</span>
-                                <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_products_label || ''}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">رصيد الرفع والتعديل (Excel):</span>
-                                <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.excel_credits_label || ''}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-devo-text">
-                                <span class="text-devo-muted font-bold whitespace-nowrap">مستخدمو فريق العمل:</span>
-                                <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_users_label || ''}</span>
-                            </div>
+                            ${renderLandingCardLimitBadges('annual', plan, limitsMap, 'bg-amber-400')}
                         </div>
 
                         <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">

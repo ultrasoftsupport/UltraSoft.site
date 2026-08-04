@@ -228,9 +228,13 @@ function updateDesktopBtnUI() {
 // جلب الإشعارات غير المقروءة والموجهة للمستخدم الحالي من الداتابيز
 export async function fetchUnreadNotifications() {
     try {
+        const currentTenantId = getCurrentTenantId();
+        if (!currentTenantId) return;
+
         let query = supabase
             .from('system_notifications')
             .select('*')
+            .eq('tenant_id', currentTenantId)
             .eq('is_read', false)
             .eq('is_archived', false)
             .order('created_at', { ascending: false });
@@ -249,7 +253,8 @@ export async function fetchUnreadNotifications() {
 
         const { data, error } = await query;
         if (!error && data) {
-            unreadOrders = data;
+            // Strict multi-tenant isolation guard
+            unreadOrders = data.filter(n => n.tenant_id === currentTenantId);
             updateNotificationsListUI();
             updateAppBadge(unreadOrders.length);
         }
