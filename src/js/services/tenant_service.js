@@ -18,8 +18,8 @@ export function getTenantSlugFromURL() {
         }
     }
 
-    // 2. البيئة المحلية (IP/Localhost) بدون معلمة تينانت صريحة -> المصنع الرئيسي default فوراً
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+    // 2. البيئة المحلية (IP/Localhost) أو نطاقات Vercel (مثال: ultrasoft-phi.vercel.app) بدون معلمة -> المصنع الرئيسي default فوراً
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.endsWith('.vercel.app')) {
         return 'default';
     }
 
