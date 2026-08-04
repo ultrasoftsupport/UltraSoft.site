@@ -60,7 +60,8 @@ import { buildTenantUrl, getTenantSlugFromURL } from '../../services/tenant_serv
 function buildNavLinks(user) {
     const slug = getTenantSlugFromURL();
     const urlParams = new URLSearchParams(window.location.search);
-    const isMarketingDomain = (slug === 'default') && !urlParams.has('tenant');
+    const tenantParam = urlParams.get('tenant')?.toLowerCase();
+    const isMarketingDomain = (slug === 'default') && (!tenantParam || tenantParam === 'default');
     const showLandingTab = isMarketingDomain;
 
     const links = [];

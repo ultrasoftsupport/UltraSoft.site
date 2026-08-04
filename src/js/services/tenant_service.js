@@ -42,9 +42,27 @@ export function getTenantSlugFromURL() {
 }
 
 /**
+ * 🧹 تنظيف معلمة default المباشرة من الـ URL لتكون رابطاً رائداً ونظيفاً
+ */
+export function cleanDefaultTenantFromURL() {
+    try {
+        const url = new URL(window.location.href);
+        const tenantParam = url.searchParams.get('tenant')?.toLowerCase();
+        if (tenantParam === 'default' || tenantParam === '127' || tenantParam === '127.0.0.1') {
+            url.searchParams.delete('tenant');
+            const cleanUrl = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    } catch (e) {
+        console.warn('Error cleaning tenant from URL:', e);
+    }
+}
+
+/**
  * ⚡ 2. جلب بيانات المصنع الحالي من Supabase وحفظها
  */
 export async function initializeTenantContext() {
+    cleanDefaultTenantFromURL();
     try {
         const slug = getTenantSlugFromURL();
 
