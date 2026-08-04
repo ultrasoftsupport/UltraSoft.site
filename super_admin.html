@@ -287,44 +287,93 @@
 
             <!-- TAB 2: TENANTS MANAGEMENT -->
             <section id="view-tenants" class="super-tab-view space-y-6 hidden">
-                <!-- Header with View Switcher -->
+                <!-- Header -->
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-base font-bold text-white">إدارة المصانع والشركات المسجلة</h3>
-                        <p class="text-xs text-devo-muted">استعراض كافة الحسابات بنظام الجداول أو الكروت المضيئة</p>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-buildings text-ultra-400 text-xl"></i>
+                            إدارة المصانع والشركات المسجلة
+                        </h3>
+                        <p class="text-xs text-devo-muted">استعراض كافة الحسابات والشركات بنظام الكروت الذكية الذاتي</p>
                     </div>
-                    <div class="flex items-center gap-2 bg-devo-dark border border-devo-gray p-1 rounded-xl">
-                        <button id="viewModeTableBtn" class="px-3 py-1.5 rounded-lg bg-ultra-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
-                            <i class="ph ph-table text-base"></i>
-                            جدول
-                        </button>
-                        <button id="viewModeGridBtn" class="px-3 py-1.5 rounded-lg text-devo-muted hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all">
-                            <i class="ph ph-squares-four text-base"></i>
-                            كروت
+                </div>
+
+                <!-- Grid Cards Container View (Cards Only) -->
+                <div id="tenantsGridContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Rendered dynamically -->
+                </div>
+            </section>
+
+            <!-- TAB 3: DYNAMIC SUBSCRIPTION PLANS & COMPARISON MATRIX MANAGEMENT -->
+            <section id="view-subscriptions" class="super-tab-view space-y-8 hidden">
+                
+                <!-- Section Header -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                            <i class="ph ph-crown text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-white">إدارة خطط الأسعار والاشتراكات لـ UltraSoft</h3>
+                            <p class="text-xs text-devo-muted">التحكم الفوري والديناميكي في كروت الخطط، المميزات والنقاط، وجدول المقارنة التفصيلي</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="addComparisonFeatureBtn" class="px-4 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all cursor-pointer">
+                            <i class="ph ph-plus-circle text-base"></i>
+                            <span>إضافة ميزة لجدول المقارنة</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Table Container View -->
-                <div id="tenantsTableContainer" class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden shadow-xl">
-                    <div class="overflow-x-auto">
+                <!-- CARDS PREVIEW SECTION -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-black text-white text-base flex items-center gap-2">
+                            <i class="ph ph-cards text-ultra-400 text-xl"></i>
+                            كروت باقات الأسعار والاشتراكات المتاحة
+                        </h4>
+                        <span class="text-xs text-devo-muted">يتم ربط هذه الباقات تلقائياً بكافة المصانع والشركات</span>
+                    </div>
+
+                    <!-- Dynamic Plan Cards Grid Container -->
+                    <div id="systemPlansCardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="col-span-full text-center py-12 text-devo-muted">
+                            <i class="ph ph-spinner animate-spin text-3xl text-ultra-400 mb-2 block mx-auto"></i>
+                            جاري تحميل خطط الأسعار...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COMPARISON MATRIX TABLE SECTION -->
+                <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-devo-gray pb-4">
+                        <div>
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-table text-amber-400 text-xl"></i>
+                                جدول المقارنة الشامل لكافة ميزات ووظائف المنظومة
+                            </h4>
+                            <p class="text-xs text-devo-muted">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft للعملاء</p>
+                        </div>
+                        <span id="comparisonFeaturesCountBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">-- ميزة</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-devo-gray">
                         <table class="w-full text-right border-collapse">
-                            <thead class="bg-devo-black/70 text-xs text-devo-muted uppercase tracking-wider border-b border-devo-gray">
-                                <tr>
-                                    <th class="py-4 px-5">المصنع / الشركة</th>
-                                    <th class="py-4 px-5">النطاق (Slug)</th>
-                                    <th class="py-4 px-5">السجل والتواصل</th>
-                                    <th class="py-4 px-5">الباقة</th>
-                                    <th class="py-4 px-5">الحدود المتاحة</th>
-                                    <th class="py-4 px-5">الحالة</th>
-                                    <th class="py-4 px-5 text-center">الإجراءات</th>
+                            <thead>
+                                <tr class="bg-devo-black border-b border-devo-gray text-xs font-bold text-devo-muted">
+                                    <th class="py-4 px-6 min-w-[240px]">الوظيفة / مميزات المنظومة</th>
+                                    <th class="py-4 px-6 text-center text-emerald-400 min-w-[180px]">اشتراك 3 أشهر (7,000 ج.م)</th>
+                                    <th class="py-4 px-6 text-center text-sky-400 min-w-[180px]">اشتراك 6 أشهر (10,000 ج.م)</th>
+                                    <th class="py-4 px-6 text-center text-amber-400 min-w-[180px]">اشتراك سنة (15,000 ج.م)</th>
+                                    <th class="py-4 px-6 text-center min-w-[100px]">إدارة</th>
                                 </tr>
                             </thead>
-                            <tbody id="tenantsTableBody" class="divide-y divide-devo-gray/50 text-sm align-middle">
+                            <tbody id="comparisonTableBody" class="divide-y divide-devo-gray/50 text-xs">
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-devo-muted">
+                                    <td colspan="5" class="py-8 text-center text-devo-muted">
                                         <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
-                                        جاري تحميل بيانات المصانع...
+                                        جاري تحميل جدول المقارنة...
                                     </td>
                                 </tr>
                             </tbody>
@@ -332,52 +381,6 @@
                     </div>
                 </div>
 
-                <!-- Grid Cards Container View -->
-                <div id="tenantsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
-                    <!-- Rendered dynamically -->
-                </div>
-            </section>
-
-            <!-- TAB 3: SUBSCRIPTIONS & LIMITS -->
-            <section id="view-subscriptions" class="super-tab-view space-y-6 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-white">الباقة الأساسية (Basic)</h4>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">BASIC</span>
-                        </div>
-                        <p class="text-xs text-devo-muted">مناسبة للمتاجر والمكاتب الصغيرة</p>
-                        <div class="text-xs space-y-2 text-devo-text pt-2 border-t border-devo-gray">
-                            <div>📦 الحد الأقصى للممنتجات: <b>500 منتج</b></div>
-                            <div>👥 الحد الأقصى للمستخدمين: <b>5 مستخدمين</b></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-devo-dark border border-ultra-500 p-6 rounded-2xl space-y-4 relative shadow-lg shadow-ultra-500/10">
-                        <span class="absolute -top-3 left-4 px-3 py-0.5 rounded-full text-[10px] font-bold bg-ultra-500 text-white">الأكثر طلباً</span>
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-white">الباقة الاحترافية (Pro)</h4>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PRO</span>
-                        </div>
-                        <p class="text-xs text-devo-muted">مناسبة للمصانع والشركات المتوسّطة</p>
-                        <div class="text-xs space-y-2 text-devo-text pt-2 border-t border-devo-gray">
-                            <div>📦 الحد الأقصى للمنتجات: <b>2,500 منتج</b></div>
-                            <div>👥 الحد الأقصى للمستخدمين: <b>25 مستخدم</b></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-devo-dark border border-purple-500/40 p-6 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-white">باقة المؤسسات (Enterprise)</h4>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">ENTERPRISE</span>
-                        </div>
-                        <p class="text-xs text-devo-muted">للمصانع الكبرى والشركات متعددة الفروع</p>
-                        <div class="text-xs space-y-2 text-devo-text pt-2 border-t border-devo-gray">
-                            <div>📦 الحد الأقصى للمنتجات: <b>بلا حدود (Unlimited)</b></div>
-                            <div>👥 الحد الأقصى للمستخدمين: <b>بلا حدود (Unlimited)</b></div>
-                        </div>
-                    </div>
-                </div>
             </section>
 
             <!-- TAB 4: DOMAINS -->
@@ -542,209 +545,387 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: VIEW TENANT DETAILS ===== -->
-    <div id="tenantDetailsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center hidden p-4 overflow-y-auto">
-        <div class="bg-devo-dark border border-devo-gray w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative my-8 text-devo-text space-y-6">
-            <button id="closeTenantDetailsModalBtn" class="absolute top-4 left-4 text-devo-muted hover:text-white p-1">
-                <i class="ph ph-x text-xl"></i>
-            </button>
-
-            <!-- Company Header Info -->
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-devo-gray pb-4">
-                <div>
-                    <div class="flex items-center gap-3">
-                        <h3 id="modalCompanyName" class="text-xl font-black text-white">--</h3>
-                        <span id="modalCompanyStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">نشط</span>
+    <!-- ===== FULL-SCREEN PAGE: TENANT DETAILS & MANAGEMENT ===== -->
+    <div id="tenantDetailsModal" class="fixed inset-0 bg-devo-black z-50 hidden overflow-y-auto flex-col min-h-screen text-devo-text">
+        <!-- Top Navigation Header Bar -->
+        <header class="h-16 bg-devo-dark border-b border-devo-gray px-6 flex items-center justify-between sticky top-0 z-30 shrink-0 shadow-lg">
+            <div class="flex items-center gap-4">
+                <button id="closeTenantDetailsModalBtn" class="px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-white flex items-center gap-2 transition-all cursor-pointer">
+                    <i class="ph ph-arrow-right text-base text-ultra-400"></i>
+                    <span>العودة لكروت الشركات</span>
+                </button>
+                <div class="h-6 w-px bg-devo-gray hidden sm:block"></div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-devo-black border border-devo-gray p-1 flex items-center justify-center overflow-hidden shrink-0">
+                        <img id="modalCompanyHeaderLogoImg" src="src/assets/icons/ultrasoft_transparent.png" class="w-full h-full object-contain" onError="this.src='src/assets/icons/ultrasoft_transparent.png';">
                     </div>
-                    <p id="modalCompanyLegalName" class="text-xs text-ultra-400 mt-0.5">--</p>
-                </div>
-
-                <!-- Direct Links & Edit Actions -->
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button id="modalEditCompanyBtn" class="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-bold flex items-center gap-1.5 transition-all">
-                        <i class="ph ph-pencil-simple text-base"></i>
-                        تعديل البيانات
-                    </button>
-                    <a id="modalOpenStoreLink" href="#" target="_blank" class="px-3 py-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-ultra-400 flex items-center gap-1.5 transition-all">
-                        <i class="ph ph-storefront text-base"></i>
-                        فتح المتجر
-                    </a>
-                    <a id="modalOpenAdminLink" href="#" target="_blank" class="px-3 py-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-emerald-400 flex items-center gap-1.5 transition-all">
-                        <i class="ph ph-user-gear text-base"></i>
-                        دخول كمعدِّل Admin
-                    </a>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="modalCompanyName" class="text-base font-black text-white">--</h3>
+                            <span id="modalCompanyStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">نشط</span>
+                        </div>
+                        <p id="modalCompanyLegalName" class="text-[11px] text-ultra-400">--</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Details Content Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-                
-                <!-- Client Access & Master Credentials Card -->
-                <div class="md:col-span-2 bg-gradient-to-r from-ultra-500/10 via-devo-black to-devo-black border border-ultra-500/30 p-5 rounded-2xl space-y-4">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-devo-gray/50 pb-3">
-                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
-                            <i class="ph ph-key text-ultra-400 text-lg"></i>
-                            بيانات دخول الأونر ورسالة الاعتماد للعميل (Client Onboarding Packet)
-                        </h4>
-                        <button id="copyWelcomePacketBtn" class="px-3 py-1.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-ultra-500/20 transition-all">
-                            <i class="ph ph-copy text-base"></i>
-                            نسخ خطاب اعتماد الحساب للعميل
-                        </button>
-                    </div>
+            <!-- Header Quick Actions -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <a id="modalOpenStoreLink" href="#" target="_blank" class="px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-ultra-400 flex items-center gap-1.5 transition-all">
+                    <i class="ph ph-storefront text-base"></i>
+                    <span>المتجر</span>
+                </a>
+                <a id="modalOpenAdminLink" href="#" target="_blank" class="px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-emerald-400 flex items-center gap-1.5 transition-all">
+                    <i class="ph ph-user-gear text-base"></i>
+                    <span>لوحة المصنع</span>
+                </a>
+            </div>
+        </header>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
-                            <span class="text-devo-muted block text-[10px]">بريد الأونر / Master Email:</span>
-                            <div class="flex items-center justify-between font-mono text-white font-bold">
-                                <span id="modalMasterEmail">--</span>
-                                <button class="copy-text-btn text-ultra-400 hover:text-white" data-target="modalMasterEmail" title="نسخ البريد"><i class="ph ph-copy"></i></button>
+        <!-- Main Content with Inner Sidebar -->
+        <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-8 items-start">
+
+            <!-- ===== INNER SIDEBAR FOR FACTORY MANAGEMENT ===== -->
+            <aside class="w-full md:w-64 bg-devo-dark border border-devo-gray p-3 rounded-2xl shrink-0 space-y-1.5 sticky top-20 shadow-xl">
+                <div class="px-3 py-2 border-b border-devo-gray mb-2">
+                    <p class="text-[11px] font-bold text-devo-muted uppercase tracking-wider">أقسام إدارة المصنع</p>
+                </div>
+
+                <button data-inner-tab="profile" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all bg-ultra-500/10 text-ultra-400 border-r-4 border-ultra-500 cursor-pointer">
+                    <i class="ph ph-buildings text-lg shrink-0"></i>
+                    <span>بيانات ومعلومات المصنع</span>
+                </button>
+
+                <button data-inner-tab="owner" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-key text-lg shrink-0"></i>
+                    <span>حساب الإدارة والأونر</span>
+                </button>
+
+                <button data-inner-tab="subscription" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-crown text-lg shrink-0"></i>
+                    <span>الاشتراكات والحدود</span>
+                </button>
+
+                <button data-inner-tab="operations" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-gear-six text-lg shrink-0"></i>
+                    <span>إدارة الحساب والعمليات</span>
+                </button>
+            </aside>
+
+            <!-- ===== INNER TAB VIEWS CONTAINER ===== -->
+            <div class="flex-1 w-full min-w-0">
+
+                <!-- TAB 1: FACTORY PROFILE -->
+                <div id="inner-tab-profile" class="inner-tenant-view space-y-6">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-buildings text-ultra-400 text-xl"></i>
+                                معلومات وبيانات الشركة والشعار
+                            </h4>
+                            <span class="text-xs text-devo-muted">معرف: <code id="modalTenantId" class="text-white font-mono">--</code></span>
+                        </div>
+
+                        <!-- Logo Section -->
+                        <div class="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-devo-black border border-devo-gray">
+                            <div class="w-20 h-20 rounded-2xl bg-devo-dark border border-devo-gray p-1.5 flex items-center justify-center shrink-0 shadow-md">
+                                <img id="modalCompanyLogoPreview" src="src/assets/icons/ultrasoft_transparent.png" class="w-full h-full object-contain" onError="this.src='src/assets/icons/ultrasoft_transparent.png';">
+                            </div>
+                            <div class="flex-1 space-y-2 w-full text-right">
+                                <label class="block text-xs font-bold text-white">رابط صورة اللوجو (Logo URL)</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="modalLogoUrlInput" placeholder="https://example.com/logo.png" class="flex-1 bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                    <button type="button" id="saveLogoUrlBtn" class="px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold transition cursor-pointer">تحديث اللوجو</button>
+                                </div>
+                                <p class="text-[10px] text-devo-muted">أدخل رابط صورة الشعار الخاص بالشركة لعرضه في الهيدر والتقرير والكروت</p>
                             </div>
                         </div>
 
-                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
-                            <div class="flex items-center justify-between">
-                                <span class="text-devo-muted block text-[10px]">كلمة المرور الابتدائية / Initial Password:</span>
-                                <button id="modalResetPasswordBtn" class="text-[10px] bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-black border border-amber-500/30 px-2 py-0.5 rounded font-bold transition-all flex items-center gap-1 cursor-pointer">
-                                    <i class="ph ph-key text-xs"></i>
-                                    تغيير
+                        <!-- Profile Form -->
+                        <form id="fullPageCompanyProfileForm" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">اسم الشركة / المصنع *</label>
+                                    <input type="text" id="modalInputTenantName" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">الاسم القانوني الرسمي</label>
+                                    <input type="text" id="modalInputTenantLegalName" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">النطاق الفرعي (Slug)</label>
+                                    <input type="text" id="modalInputTenantSlug" disabled class="w-full bg-devo-black/50 border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-ultra-400 font-mono cursor-not-allowed">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">نوع الكيان</label>
+                                    <select id="modalInputCompanyType" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                                        <option value="factory">مصنع ملابس / إنتاج</option>
+                                        <option value="company">شركة تجارية</option>
+                                        <option value="showroom">مكتب / معرض مبيعات</option>
+                                        <option value="store">متجر إلكتروني</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رقم الهاتف / الواتساب</label>
+                                    <input type="text" id="modalInputTenantPhone" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">البريد الإلكتروني الرسمي</label>
+                                    <input type="email" id="modalInputTenantEmail" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">السجل التجاري</label>
+                                    <input type="text" id="modalInputCommercialRegister" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">الرقم الضريبي</label>
+                                    <input type="text" id="modalInputTaxNumber" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" class="px-5 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-1.5 transition cursor-pointer">
+                                    <i class="ph ph-floppy-disk text-base"></i>
+                                    حفظ تعديلات بيانات الشركة
                                 </button>
                             </div>
-                            <div class="flex items-center justify-between font-mono text-amber-400 font-bold">
-                                <span id="modalMasterPassword">--</span>
-                                <button class="copy-text-btn text-ultra-400 hover:text-white" data-target="modalMasterPassword" title="نسخ كلمة المرور"><i class="ph ph-copy"></i></button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 2: OWNER ACCOUNT & CREDENTIALS -->
+                <div id="inner-tab-owner" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-key text-ultra-400 text-xl"></i>
+                                حساب الأونر الرئيسي وخطاب الاعتماد
+                            </h4>
+                            <button type="button" id="copyWelcomePacketBtn" class="px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-ultra-500/20 transition-all cursor-pointer">
+                                <i class="ph ph-copy text-base"></i>
+                                <span>نسخ خطاب الاعتماد كاملاً</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                <span class="text-devo-muted block text-xs font-semibold">بريد الأونر الرئيسي (Master Email):</span>
+                                <div class="flex items-center justify-between font-mono text-white font-bold text-sm">
+                                    <span id="modalMasterEmail">--</span>
+                                    <button type="button" class="copy-text-btn text-ultra-400 hover:text-white cursor-pointer" data-target="modalMasterEmail"><i class="ph ph-copy text-base"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-devo-muted block text-xs font-semibold">كلمة المرور الابتدائية:</span>
+                                    <button type="button" id="modalResetPasswordBtn" class="text-xs bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-black border border-amber-500/30 px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 cursor-pointer">
+                                        <i class="ph ph-key text-xs"></i>
+                                        تغيير كلمة المرور
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between font-mono text-amber-400 font-bold text-sm">
+                                    <span id="modalMasterPassword">--</span>
+                                    <button type="button" class="copy-text-btn text-ultra-400 hover:text-white cursor-pointer" data-target="modalMasterPassword"><i class="ph ph-copy text-base"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                <span class="text-devo-muted block text-xs font-semibold">رابط متجر/معرض المصنع:</span>
+                                <div class="flex items-center justify-between font-mono text-ultra-400 font-bold text-xs truncate gap-2">
+                                    <a id="modalStoreUrlLink" href="#" target="_blank" class="truncate hover:underline flex items-center gap-1 text-ultra-400">
+                                        <span id="modalStoreUrlText" class="truncate">--</span>
+                                        <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
+                                    </a>
+                                    <button type="button" class="copy-text-btn text-ultra-400 hover:text-white shrink-0 cursor-pointer" data-target="modalStoreUrlText"><i class="ph ph-copy text-base"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                <span class="text-devo-muted block text-xs font-semibold">رابط لوحة التحكم (Admin Panel):</span>
+                                <div class="flex items-center justify-between font-mono text-emerald-400 font-bold text-xs truncate gap-2">
+                                    <a id="modalAdminUrlLink" href="#" target="_blank" class="truncate hover:underline flex items-center gap-1 text-emerald-400">
+                                        <span id="modalAdminUrlText" class="truncate">--</span>
+                                        <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
+                                    </a>
+                                    <button type="button" class="copy-text-btn text-ultra-400 hover:text-white shrink-0 cursor-pointer" data-target="modalAdminUrlText"><i class="ph ph-copy text-base"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-1 md:col-span-2">
+                                <span class="text-devo-muted block text-xs font-semibold">رابط صفحة تسجيل الدخول (Login Link):</span>
+                                <div class="flex items-center justify-between font-mono text-sky-400 font-bold text-xs truncate gap-2">
+                                    <a id="modalAuthUrlLink" href="#" target="_blank" class="truncate hover:underline flex items-center gap-1 text-sky-400">
+                                        <span id="modalAuthUrlText" class="truncate">--</span>
+                                        <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
+                                    </a>
+                                    <button type="button" class="copy-text-btn text-ultra-400 hover:text-white shrink-0 cursor-pointer" data-target="modalAuthUrlText"><i class="ph ph-copy text-base"></i></button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
-                            <span class="text-devo-muted block text-[10px]">رابط متجر/معرض العميل (Store Link):</span>
-                            <div class="flex items-center justify-between font-mono text-ultra-400 font-bold truncate gap-2">
-                                <a id="modalStoreUrlLink" href="#" target="_blank" class="truncate max-w-[200px] hover:underline flex items-center gap-1 text-ultra-400" title="فتح الرابط في تبويب جديد">
-                                    <span id="modalStoreUrlText" class="truncate">--</span>
-                                    <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
-                                </a>
-                                <button class="copy-text-btn text-ultra-400 hover:text-white shrink-0" data-target="modalStoreUrlText" title="نسخ رابط المتجر"><i class="ph ph-copy"></i></button>
-                            </div>
+                        <button type="button" id="copyWelcomePacketBtnFull" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-ultra-500 to-ultra-600 hover:from-ultra-600 hover:to-ultra-700 text-white font-black text-xs shadow-lg shadow-ultra-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer">
+                            <i class="ph ph-file-text text-lg"></i>
+                            <span>نسخ خطاب الاعتماد والترحيب للعميل كاملاً</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 3: SUBSCRIPTIONS & LIMITS -->
+                <div id="inner-tab-subscription" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-ultra-500/40 rounded-2xl p-6 space-y-6 shadow-xl relative">
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-crown text-amber-400 text-xl"></i>
+                                إدارة باقة الاشتراك والحدود وتحديد المدة
+                            </h4>
+                            <span id="modalSubPlanBadge" class="px-3 py-1 rounded-full text-xs font-black bg-ultra-500 text-white">BASIC</span>
                         </div>
 
-                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1">
-                            <span class="text-devo-muted block text-[10px]">رابط لوحة الإدارة (Admin Panel Link):</span>
-                            <div class="flex items-center justify-between font-mono text-emerald-400 font-bold truncate gap-2">
-                                <a id="modalAdminUrlLink" href="#" target="_blank" class="truncate max-w-[200px] hover:underline flex items-center gap-1 text-emerald-400" title="فتح الرابط في تبويب جديد">
-                                    <span id="modalAdminUrlText" class="truncate">--</span>
-                                    <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
-                                </a>
-                                <button class="copy-text-btn text-ultra-400 hover:text-white shrink-0" data-target="modalAdminUrlText" title="نسخ رابط لوحة الإدارة"><i class="ph ph-copy"></i></button>
+                        <form id="fullPageSubscriptionForm" class="space-y-6">
+                            
+                            <!-- Plan Preset Selector -->
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-2">
+                                <label class="block text-xs font-bold text-white mb-1">اختيار خطة الاشتراك (Plan Selection)</label>
+                                <select id="modalSelectPlanPreset" class="w-full bg-devo-dark border border-ultra-500/50 rounded-xl px-4 py-3 text-sm text-amber-400 font-bold focus:outline-none focus:border-ultra-500 cursor-pointer">
+                                    <option value="basic">الخطة الأساسية (Basic Plan - 500 منتج / 5 مستخدمين / 1,000 أوردر)</option>
+                                    <option value="pro">الخطة الاحترافية (Pro Plan - 2,500 منتج / 25 مستخدم / 10,000 أوردر)</option>
+                                    <option value="enterprise">خطة المؤسسات (Enterprise Plan - بلا حدود Unlimited)</option>
+                                    <option value="custom">خطة مخصصة (Custom Limits Plan - تعديل يدوي للحدود)</option>
+                                </select>
+                                <p class="text-[11px] text-devo-muted">عند اختيار أي خطة سيتم تطبيق حدودها تلقائياً، وتستطيع تعديل الحدود يدويًا وحفظها كخطة مخصصة.</p>
                             </div>
+
+                            <!-- Manual Limits Inputs -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                    <label class="block text-[11px] font-bold text-devo-muted">حد المنتجات المسموح</label>
+                                    <input type="number" id="modalInputMaxProducts" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                    <label class="block text-[11px] font-bold text-devo-muted">حد المستخدمين المسموح</label>
+                                    <input type="number" id="modalInputMaxUsers" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                    <label class="block text-[11px] font-bold text-devo-muted">حد الأوردرات والفواتير</label>
+                                    <input type="number" id="modalInputMaxOrders" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                    <label class="block text-[11px] font-bold text-devo-muted">المساحة (MB)</label>
+                                    <input type="number" id="modalInputMaxStorage" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                </div>
+                            </div>
+
+                            <!-- Subscription Duration & Status -->
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-4">
+                                <h5 class="font-bold text-white text-xs flex items-center gap-2">
+                                    <i class="ph ph-calendar text-ultra-400 text-base"></i>
+                                    تحديد فترة بداية ونهاية الخطة (مدة الاشتراك)
+                                </h5>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-devo-muted mb-1">تاريخ بداية الخطة</label>
+                                        <input type="date" id="modalInputStartDate" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-devo-muted mb-1">تاريخ نهاية الخطة *</label>
+                                        <input type="date" id="modalInputEndDate" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-amber-400 focus:outline-none focus:border-ultra-500 font-mono font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-devo-muted mb-1">حالة الاشتراك</label>
+                                        <select id="modalInputSubStatus" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
+                                            <option value="active">نشط (Active)</option>
+                                            <option value="suspended">معطل / موقوف (Suspended)</option>
+                                            <option value="expired">منتهي الاشتراك (Expired)</option>
+                                            <option value="canceled">ملغى (Canceled)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Extensions -->
+                                <div class="flex items-center gap-2 pt-2 flex-wrap">
+                                    <span class="text-[10px] text-devo-muted">تمديد سريع للنهائيات:</span>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="30">+شهر واحد</button>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="90">+3 أشهر</button>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="180">+6 أشهر</button>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="365">+سنة كاملة</button>
+                                    <button type="button" id="btnClearEndDateBtn" class="px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-amber-500 hover:text-black text-amber-400 text-[10px] font-bold border border-devo-gray transition cursor-pointer">بلا تاريخ نهاية (دائم)</button>
+                                </div>
+
+                                <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] flex items-center gap-2">
+                                    <i class="ph ph-warning text-lg shrink-0"></i>
+                                    <span>ملاحظة: عند وصول التوقيت إلى تاريخ النهاية المحدد، سيقوم النظام تلقائياً بإيقاف حساب المصنع (`suspended`) ومنع الدخول لحين التجديد.</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition">
+                                    <i class="ph ph-check-circle text-base"></i>
+                                    حفظ الخطة والحدود وتاريخ الاشتراك
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 4: ACCOUNT OPERATIONS & DANGER ZONE -->
+                <div id="inner-tab-operations" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <div class="border-b border-devo-gray pb-4">
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-gear-six text-amber-400 text-xl"></i>
+                                إدارة حالة الحساب والعمليات الإدارية الحساسة
+                            </h4>
+                            <p class="text-xs text-devo-muted mt-1">تجميد الاشتراك، تفريغ البيانات، والحذف النهائي للحساب</p>
                         </div>
 
-                        <div class="p-3 rounded-xl bg-devo-dark border border-devo-gray space-y-1 sm:col-span-2">
-                            <span class="text-devo-muted block text-[10px]">رابط صفحة تسجيل الدخول (Login Page Link):</span>
-                            <div class="flex items-center justify-between font-mono text-sky-400 font-bold truncate gap-2">
-                                <a id="modalAuthUrlLink" href="#" target="_blank" class="truncate hover:underline flex items-center gap-1 text-sky-400" title="فتح الرابط في تبويب جديد">
-                                    <span id="modalAuthUrlText" class="truncate">--</span>
-                                    <i class="ph ph-arrow-square-out text-xs shrink-0"></i>
-                                </a>
-                                <button class="copy-text-btn text-ultra-400 hover:text-white shrink-0" data-target="modalAuthUrlText" title="نسخ رابط صفحة الدخول"><i class="ph ph-copy"></i></button>
+                        <div class="space-y-4">
+                            <!-- Toggle Status Card -->
+                            <div class="p-5 rounded-xl bg-devo-black border border-devo-gray flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div>
+                                    <h5 class="font-bold text-white text-sm">تغيير حالة المصنع (تجميد / تفعيل)</h5>
+                                    <p class="text-xs text-devo-muted">تجميد الحساب يمنع مستخدمي المصنع من تسجيل الدخول حتى إعادة التفعيل.</p>
+                                </div>
+                                <button type="button" id="modalToggleStatusBtn" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all shrink-0 cursor-pointer">
+                                    إيقاف / تجميد الحساب
+                                </button>
+                            </div>
+
+                            <!-- Wipe Data Card -->
+                            <div class="p-5 rounded-xl bg-devo-black border border-orange-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div>
+                                    <h5 class="font-bold text-orange-400 text-sm">إعادة تهيئة وتفريغ بيانات المصنع (Wipe Data)</h5>
+                                    <p class="text-xs text-devo-muted">مسح المنتجات، الموديلات، الأوردرات والفواتير وإبقاء إعدادات الحساب نظيفة.</p>
+                                </div>
+                                <button type="button" id="modalWipeTenantBtn" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 transition-all shrink-0 cursor-pointer">
+                                    تفريغ البيانات 🧹
+                                </button>
+                            </div>
+
+                            <!-- Delete Factory Card -->
+                            <div class="p-5 rounded-xl bg-red-500/5 border border-red-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div>
+                                    <h5 class="font-bold text-red-400 text-sm">حذف المصنع نهائياً (Delete Tenant Cascade)</h5>
+                                    <p class="text-xs text-devo-muted">حذف كامل سجلات الشركة من قاعدة البيانات بما فيها المستخدمين والاشتراكات نهائياً.</p>
+                                </div>
+                                <button type="button" id="modalDeleteTenantBtn" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-md transition-all shrink-0 cursor-pointer">
+                                    حذف المصنع نهائياً 🗑️
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Legal & Registration Info -->
-                <div class="bg-devo-black border border-devo-gray p-4 rounded-xl space-y-3">
-                    <h4 class="font-bold text-white text-sm flex items-center gap-2 border-b border-devo-gray pb-2">
-                        <i class="ph ph-file-text text-ultra-400 text-base"></i>
-                        البيانات الرسمية والقانونية
-                    </h4>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">معرف المصنع (Tenant ID):</span>
-                        <span id="modalTenantId" class="font-mono text-white select-all">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">اسم المعرّف (Slug):</span>
-                        <span id="modalTenantSlug" class="font-mono text-ultra-400 font-bold">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">نوع الكيان:</span>
-                        <span id="modalCompanyType" class="text-white">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">السجل التجاري:</span>
-                        <span id="modalCommercialRegister" class="text-white font-mono">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">الرقم الضريبي:</span>
-                        <span id="modalTaxNumber" class="text-white font-mono">--</span>
-                    </div>
-                </div>
-
-                <!-- Contact & Domain Info -->
-                <div class="bg-devo-black border border-devo-gray p-4 rounded-xl space-y-3">
-                    <h4 class="font-bold text-white text-sm flex items-center gap-2 border-b border-devo-gray pb-2">
-                        <i class="ph ph-phone-call text-ultra-400 text-base"></i>
-                        التواصل والنطاقات
-                    </h4>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">رقم الهاتف / واتساب:</span>
-                        <span id="modalTenantPhone" class="text-white font-mono">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">البريد الإلكتروني:</span>
-                        <span id="modalTenantEmail" class="text-white">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">النطاق الفرعي:</span>
-                        <span id="modalTenantSubdomain" class="font-mono text-ultra-400">--</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-devo-muted">تاريخ التسجيل:</span>
-                        <span id="modalCreatedAt" class="text-white">--</span>
-                    </div>
-                </div>
-
-                <!-- Subscription Quota Card -->
-                <div class="md:col-span-2 bg-devo-black border border-devo-gray p-4 rounded-xl space-y-3">
-                    <h4 class="font-bold text-white text-sm flex items-center gap-2 border-b border-devo-gray pb-2">
-                        <i class="ph ph-crown text-amber-400 text-base"></i>
-                        بيانات الاشتراك والحدود المتاحة (Quotas & Limits)
-                    </h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
-                            <p class="text-[10px] text-devo-muted mb-1">الخطة الحالية</p>
-                            <h5 id="modalSubPlan" class="font-black text-ultra-400 text-sm">--</h5>
-                        </div>
-                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
-                            <p class="text-[10px] text-devo-muted mb-1">حد المنتجات المسموح</p>
-                            <h5 id="modalSubMaxProducts" class="font-black text-white text-sm">--</h5>
-                        </div>
-                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
-                            <p class="text-[10px] text-devo-muted mb-1">حد المستخدمين المسموح</p>
-                            <h5 id="modalSubMaxUsers" class="font-black text-white text-sm">--</h5>
-                        </div>
-                        <div class="p-3 rounded-lg bg-devo-dark border border-devo-gray">
-                            <p class="text-[10px] text-devo-muted mb-1">حالة الاشتراك</p>
-                            <h5 id="modalSubStatus" class="font-black text-emerald-400 text-sm">--</h5>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Footer Action Buttons -->
-            <div class="pt-4 border-t border-devo-gray flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <button type="button" id="modalToggleStatusBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all">
-                        تجميد/تفعيل الحساب
-                    </button>
-                    <button type="button" id="modalDeleteTenantBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-md transition-all flex items-center gap-1">
-                        <i class="ph ph-trash text-base"></i>
-                        حذف المصنع نهائياً
-                    </button>
-                </div>
-                <button type="button" id="closeTenantDetailsModalDoneBtn" class="px-5 py-2 rounded-xl bg-devo-black border border-devo-gray text-xs font-bold text-white hover:border-ultra-500">
-                    إغلاق النافذة
-                </button>
-            </div>
-        </div>
+        </main>
     </div>
 
     <!-- ===== MODAL: EDIT TENANT DETAILS (تعديل بيانات الشركة والاشتراك) ===== -->
@@ -948,6 +1129,156 @@
                 <button type="button" id="doneThemeBtn" class="px-5 py-2 rounded-xl bg-devo-black border border-devo-gray text-xs font-bold text-white hover:border-ultra-500">إغلاق النافذة</button>
             </div>
         </div>
+    <!-- ===== MODAL: EDIT SYSTEM SUBSCRIPTION PLAN CARD ===== -->
+    <div id="editPlanCardModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[120] hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-devo-dark border border-ultra-500/50 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl relative my-8 text-devo-text">
+            <button id="closeEditPlanCardModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
+                <div class="w-10 h-10 rounded-xl bg-ultra-500/10 border border-ultra-500/30 flex items-center justify-center text-ultra-400 text-xl font-bold">
+                    <i class="ph ph-pencil-simple"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-white">تعديل كارت الخطة ومحتوياتها</h3>
+                    <p class="text-xs text-devo-muted">تعديل الأسعار، الحدود، إضافة نصوص ومميزات الباقة</p>
+                </div>
+            </div>
+
+            <form id="editPlanCardForm" class="space-y-4">
+                <input type="hidden" id="editPlanCardKeyInput">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">اسم الباقة *</label>
+                        <input type="text" id="editPlanNameInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">تسمية مدة الاشتراك (Badge)</label>
+                        <input type="text" id="editPlanBadgeInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">السعر *</label>
+                        <input type="number" id="editPlanPriceInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">شارة الخصم (مثل: خصم 28%)</label>
+                        <input type="text" id="editPlanDiscountInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">شارة التوفير (مثل: توفير 4,000 ج.م)</label>
+                        <input type="text" id="editPlanSavingsInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">الوصف الفرعي للباقة</label>
+                    <input type="text" id="editPlanSubtitleInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                </div>
+
+                <!-- Limits Labels -->
+                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-3">
+                    <span class="text-xs font-bold text-white block">نصوص الحدود الموضحة بالكارت:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[10px] text-devo-muted mb-1">نص حد الموديلات بالمعرض</label>
+                            <input type="text" id="editPlanMaxProductsLabel" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-devo-muted mb-1">نص رصيد Excel الشريحي</label>
+                            <input type="text" id="editPlanExcelCreditsLabel" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-devo-muted mb-1">نص حد فريق العمل</label>
+                            <input type="text" id="editPlanMaxUsersLabel" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Features List Inputs -->
+                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white">قائمة نقاط ومميزات الكارت:</span>
+                        <button type="button" id="addFeaturePointBtn" class="text-xs text-ultra-400 hover:text-white font-bold flex items-center gap-1">
+                            <i class="ph ph-plus"></i> إضافة نقطة ميزة
+                        </button>
+                    </div>
+                    <div id="planFeaturesContainer" class="space-y-2 max-h-48 overflow-y-auto p-1">
+                        <!-- Dynamic Point Inputs -->
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-3 border-t border-devo-gray">
+                    <button type="button" id="cancelEditPlanCardBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold transition flex items-center gap-1 shadow-md">
+                        <i class="ph ph-floppy-disk text-base"></i>
+                        حفظ تعديلات الباقة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EDIT / ADD COMPARISON FEATURE ITEM ===== -->
+    <div id="editComparisonFeatureModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[120] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative text-devo-text">
+            <button id="closeEditComparisonModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
+                    <i class="ph ph-table"></i>
+                </div>
+                <div>
+                    <h3 id="comparisonModalTitle" class="text-base font-black text-white">تعديل ميزة بجدول المقارنة</h3>
+                    <p class="text-xs text-devo-muted">حدد عنوان الوظيفة وموقفها في الباقات المختلفة</p>
+                </div>
+            </div>
+
+            <form id="editComparisonFeatureForm" class="space-y-4">
+                <input type="hidden" id="editComparisonFeatureIdInput">
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">اسم الوظيفة / ميزة المنظومة *</label>
+                    <input type="text" id="editComparisonNameInput" required placeholder="مثال: حدود الموديلات النشطة بالمعرض" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <label class="block text-xs font-bold text-white">موقف الميزة حسب كل خطة:</label>
+
+                    <div class="p-3 rounded-xl bg-devo-black border border-emerald-500/30 space-y-1">
+                        <label class="block text-[11px] font-bold text-emerald-400">اشتراك 3 أشهر (ربع سنوي):</label>
+                        <input type="text" id="valQuarterlyInput" required placeholder="متاح / غير متاح / نص مخصص" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-devo-black border border-sky-500/30 space-y-1">
+                        <label class="block text-[11px] font-bold text-sky-400">اشتراك 6 أشهر (نصف سنوي):</label>
+                        <input type="text" id="valSemiAnnualInput" required placeholder="متاح / غير متاح / نص مخصص" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-devo-black border border-amber-500/30 space-y-1">
+                        <label class="block text-[11px] font-bold text-amber-400">اشتراك سنة (سنوي كامل):</label>
+                        <input type="text" id="valAnnualInput" required placeholder="متاح / غير متاح / نص مخصص" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-between border-t border-devo-gray">
+                    <button type="button" id="deleteComparisonFeatureBtn" class="px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs font-bold transition hidden">حذف البند</button>
+                    <div class="flex items-center gap-3 mr-auto">
+                        <button type="button" id="cancelEditComparisonModalBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                            <i class="ph ph-floppy-disk text-base"></i>
+                            حفظ البند
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- JS Scripts -->
@@ -1086,6 +1417,10 @@
 
             if (tabId === 'themes') renderFullThemesGrid();
             if (tabId === 'domains') loadDomainsTable();
+            if (tabId === 'subscriptions') {
+                loadSystemPlans();
+                loadComparisonFeatures();
+            }
         }
 
         document.querySelectorAll('.sidebar-item').forEach(btn => {
@@ -1095,7 +1430,7 @@
             });
         });
 
-        // Modals & View Switcher Elements
+        // Modals & Elements
         const tenantModal = document.getElementById('newTenantModal');
         const openTenantModalBtn = document.getElementById('openNewTenantModal');
         const closeTenantModalBtn = document.getElementById('closeNewTenantModal');
@@ -1110,32 +1445,13 @@
 
         const detailsModal = document.getElementById('tenantDetailsModal');
         const closeDetailsModalBtn = document.getElementById('closeTenantDetailsModalBtn');
-        const closeDetailsModalDoneBtn = document.getElementById('closeTenantDetailsModalDoneBtn');
 
         const editModal = document.getElementById('editTenantModal');
         const closeEditModalBtn = document.getElementById('closeEditTenantModalBtn');
         const cancelEditTenantBtn = document.getElementById('cancelEditTenantBtn');
         const editForm = document.getElementById('editTenantForm');
-        const modalEditCompanyBtn = document.getElementById('modalEditCompanyBtn');
 
-        const viewModeTableBtn = document.getElementById('viewModeTableBtn');
-        const viewModeGridBtn = document.getElementById('viewModeGridBtn');
-        const tenantsTableContainer = document.getElementById('tenantsTableContainer');
         const tenantsGridContainer = document.getElementById('tenantsGridContainer');
-
-        viewModeTableBtn.addEventListener('click', () => {
-            tenantsTableContainer.classList.remove('hidden');
-            tenantsGridContainer.classList.add('hidden');
-            viewModeTableBtn.className = 'px-3 py-1.5 rounded-lg bg-ultra-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all';
-            viewModeGridBtn.className = 'px-3 py-1.5 rounded-lg text-devo-muted hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all';
-        });
-
-        viewModeGridBtn.addEventListener('click', () => {
-            tenantsTableContainer.classList.add('hidden');
-            tenantsGridContainer.classList.remove('hidden');
-            viewModeGridBtn.className = 'px-3 py-1.5 rounded-lg bg-ultra-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all';
-            viewModeTableBtn.className = 'px-3 py-1.5 rounded-lg text-devo-muted hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all';
-        });
 
         openTenantModalBtn.addEventListener('click', () => { tenantModal.classList.remove('hidden'); tenantModal.classList.add('flex'); });
         closeTenantModalBtn.addEventListener('click', () => { tenantModal.classList.add('hidden'); tenantModal.classList.remove('flex'); });
@@ -1149,37 +1465,50 @@
         closeThemeBtn.addEventListener('click', () => { themeModal.classList.add('hidden'); themeModal.classList.remove('flex'); });
         doneThemeBtn.addEventListener('click', () => { themeModal.classList.add('hidden'); themeModal.classList.remove('flex'); });
 
-        closeDetailsModalBtn.addEventListener('click', () => { detailsModal.classList.add('hidden'); detailsModal.classList.remove('flex'); });
-        closeDetailsModalDoneBtn.addEventListener('click', () => { detailsModal.classList.add('hidden'); detailsModal.classList.remove('flex'); });
+        closeDetailsModalBtn.addEventListener('click', () => {
+            detailsModal.classList.add('hidden');
+            detailsModal.classList.remove('flex');
+        });
 
         closeEditModalBtn.addEventListener('click', () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); });
         cancelEditTenantBtn.addEventListener('click', () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); });
 
-        modalEditCompanyBtn.addEventListener('click', () => {
-            if (activeSelectedTenant) {
-                openEditTenantModal(activeSelectedTenant.id);
-            }
-        });
-
-        // Load Tenants Data and Render Views
+        // Load Tenants Data & Auto-check Expired Subscriptions
         async function loadTenants() {
-            const tableBody = document.getElementById('tenantsTableBody');
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="py-8 text-center text-devo-muted">
-                        <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
-                        جاري تحميل بيانات المصانع...
-                    </td>
-                </tr>
+            tenantsGridContainer.innerHTML = `
+                <div class="py-12 text-center text-devo-muted col-span-full">
+                    <i class="ph ph-spinner animate-spin text-3xl text-ultra-400 mb-3 block mx-auto"></i>
+                    جاري تحميل بيانات كروت الشركات والاشتراكات...
+                </div>
             `;
 
             try {
+                // 1. Run RPC function to auto-check expired subscriptions if available
+                try {
+                    await supabase.rpc('super_admin_check_expired_subscriptions');
+                } catch (rpcErr) {
+                    console.warn('RPC check_expired_subscriptions warning:', rpcErr);
+                }
+
+                // 2. Fetch all tenants with subscriptions
                 const { data: tenants, error } = await supabase
                     .from('tenants')
                     .select('*, subscriptions(*)');
 
                 if (error) throw error;
                 globalTenantsList = tenants || [];
+
+                // Client-side fallback check for auto-suspension
+                const now = new Date();
+                for (const t of globalTenantsList) {
+                    const sub = Array.isArray(t.subscriptions) ? t.subscriptions[0] : t.subscriptions;
+                    if (sub && sub.end_date && new Date(sub.end_date) < now && t.status === 'active' && t.slug !== 'default') {
+                        t.status = 'suspended';
+                        if (sub) sub.status = 'expired';
+                        await supabase.from('tenants').update({ status: 'suspended' }).eq('id', t.id);
+                        await supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id);
+                    }
+                }
 
                 document.getElementById('statTotalTenants').textContent = tenants.length;
                 document.getElementById('statActiveTenants').textContent = tenants.filter(t => t.status === 'active').length;
@@ -1189,147 +1518,440 @@
 
             } catch (err) {
                 console.error('Error loading tenants:', err);
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-400">حدث خطأ أثناء تحميل البيانات: ${err.message}</td></tr>`;
+                tenantsGridContainer.innerHTML = `<div class="py-8 text-center text-red-400 col-span-full">حدث خطأ أثناء تحميل البيانات: ${err.message}</div>`;
             }
         }
 
+        // Render Cards View Only (إلغاء الجدول وعرض الكروت باللوجو والحدود)
         function renderTenantsViews(tenants) {
-            const tableBody = document.getElementById('tenantsTableBody');
-            const gridContainer = document.getElementById('tenantsGridContainer');
-
             if (!tenants || tenants.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-devo-muted">لا توجد مصانع مسجلة حالياً</td></tr>`;
-                gridContainer.innerHTML = `<div class="py-12 text-center text-devo-muted col-span-full">لا توجد مصانع مسجلة حالياً</div>`;
+                tenantsGridContainer.innerHTML = `<div class="py-12 text-center text-devo-muted col-span-full">لا توجد مصانع أو شركات مسجلة حالياً</div>`;
                 return;
             }
 
-            // 1. Render Table View Rows
-            tableBody.innerHTML = tenants.map(tenant => {
+            tenantsGridContainer.innerHTML = tenants.map(tenant => {
                 const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
-                const planName = sub ? sub.plan.toUpperCase() : 'BASIC';
-                const maxProds = sub ? sub.max_products : 500;
-                const maxUsers = sub ? sub.max_users : 10;
+                const planName = sub ? (sub.plan || 'basic').toUpperCase() : 'BASIC';
+                const maxProds = sub ? (sub.max_products || 500) : 500;
+                const maxUsers = sub ? (sub.max_users || 10) : 10;
+                const maxOrders = sub ? (sub.max_orders || 5000) : 5000;
                 const isActive = tenant.status === 'active';
                 const isDefault = tenant.slug === 'default' || tenant.id === '00000000-0000-0000-0000-000000000001';
 
-                return `
-                    <tr class="hover:bg-devo-gray/30 transition-all border-b border-devo-gray/40">
-                        <td class="py-3.5 px-5">
-                            <div class="font-bold text-white text-sm">${tenant.name}</div>
-                            ${tenant.legal_name ? `<div class="text-[11px] text-ultra-400/90 truncate max-w-[180px]">${tenant.legal_name}</div>` : ''}
-                            <div class="text-[10px] text-devo-muted font-mono">${tenant.id}</div>
-                        </td>
-                        <td class="py-3.5 px-5 font-mono text-xs text-ultra-400">
-                            ${tenant.slug}.ultrasoft.site
-                        </td>
-                        <td class="py-3.5 px-5 text-xs text-devo-muted">
-                            ${tenant.phone ? `<div>📞 ${tenant.phone}</div>` : ''}
-                            ${tenant.tax_number ? `<div>📄 ضريبي: ${tenant.tax_number}</div>` : ''}
-                        </td>
-                        <td class="py-3.5 px-5">
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${planName === 'ENTERPRISE' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                                ${planName}
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-5 text-devo-muted text-xs font-mono whitespace-nowrap">
-                            📦 ${maxProds} | 👥 ${maxUsers}
-                        </td>
-                        <td class="py-3.5 px-5">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
-                                <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-red-400'}"></span>
-                                ${isActive ? 'نشط' : 'معطل'}
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-5 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <button data-id="${tenant.id}" class="view-tenant-btn px-2.5 py-1 rounded-lg bg-ultra-500/10 hover:bg-ultra-500/20 text-ultra-400 text-xs font-bold flex items-center gap-1 transition-all" title="عرض التفاصيل">
-                                    <i class="ph ph-eye text-sm"></i>
-                                    <span>عرض</span>
-                                </button>
-                                <button data-id="${tenant.id}" class="edit-tenant-btn px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center gap-1 transition-all" title="تعديل بيانات الشركة">
-                                    <i class="ph ph-pencil-simple text-sm"></i>
-                                    <span>تعديل</span>
-                                </button>
-                                <button data-id="${tenant.id}" class="wipe-tenant-btn px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-bold flex items-center gap-1 transition-all" title="إعادة تهيئة وتفريغ بيانات المصنع">
-                                    <i class="ph ph-warning-octagon text-sm"></i>
-                                    <span>تفريغ</span>
-                                </button>
-                                <button data-id="${tenant.id}" data-status="${tenant.status}" class="toggle-status-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${isActive ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'}">
-                                    ${isActive ? 'إيقاف' : 'تفعيل'}
-                                </button>
-                                ${!isDefault ? `
-                                <button data-id="${tenant.id}" class="delete-tenant-btn px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-xs font-bold flex items-center gap-1 transition-all" title="حذف المصنع نهائياً بكامل محتوياته">
-                                    <i class="ph ph-trash text-sm"></i>
-                                    <span>حذف</span>
-                                </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                const logoUrl = tenant.logo_url || tenant.settings?.logo_url || 'src/assets/icons/ultrasoft_transparent.png';
 
-            // 2. Render Grid Cards View
-            gridContainer.innerHTML = tenants.map(tenant => {
-                const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
-                const planName = sub ? sub.plan.toUpperCase() : 'BASIC';
-                const maxProds = sub ? sub.max_products : 500;
-                const maxUsers = sub ? sub.max_users : 10;
-                const isActive = tenant.status === 'active';
-                const isDefault = tenant.slug === 'default' || tenant.id === '00000000-0000-0000-0000-000000000001';
+                // Check expiration state
+                let expirationBadge = '';
+                let isExpired = false;
+                if (sub && sub.end_date) {
+                    const endDate = new Date(sub.end_date);
+                    const now = new Date();
+                    const diffDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays < 0) {
+                        isExpired = true;
+                        expirationBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">🔴 منتهي الاشتراك (موقوف)</span>`;
+                    } else if (diffDays <= 7) {
+                        expirationBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">⚠️ ينتهي خلال ${diffDays} أيام</span>`;
+                    } else {
+                        expirationBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">📅 حتى ${endDate.toLocaleDateString('ar-EG')}</span>`;
+                    }
+                }
+
+                let planBadgeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                if (planName === 'PRO') planBadgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (planName === 'ENTERPRISE') planBadgeColor = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+                if (planName === 'CUSTOM') planBadgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
 
                 return `
-                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-lg hover:border-ultra-500/40 transition-all">
-                        <div class="space-y-3">
-                            <div class="flex items-start justify-between gap-3">
-                                <div>
-                                    <h4 class="font-black text-white text-base">${tenant.name}</h4>
-                                    ${tenant.legal_name ? `<p class="text-xs text-ultra-400/90">${tenant.legal_name}</p>` : ''}
+                    <div class="bg-devo-dark border border-devo-gray hover:border-ultra-500/50 p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-xl transition-all relative overflow-hidden group">
+                        <div class="space-y-3.5">
+                            <!-- Card Header: Logo + Title + Plan -->
+                            <div class="flex items-start justify-between gap-3 border-b border-devo-gray/60 pb-3">
+                                <div class="flex items-center gap-3">
+                                    <!-- Company Logo -->
+                                    <div class="w-12 h-12 rounded-xl bg-devo-black border border-devo-gray p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-inner group-hover:border-ultra-500/50 transition">
+                                        <img src="${logoUrl}" onError="this.onerror=null; this.src='src/assets/icons/ultrasoft_transparent.png';" class="w-full h-full object-contain">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-white text-base leading-tight">${tenant.name}</h4>
+                                        ${tenant.legal_name ? `<p class="text-xs text-ultra-400/90 truncate max-w-[180px]">${tenant.legal_name}</p>` : ''}
+                                    </div>
                                 </div>
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${planName === 'ENTERPRISE' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'} shrink-0">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-black border ${planBadgeColor} shrink-0 shadow-sm">
                                     ${planName}
                                 </span>
                             </div>
 
+                            <!-- Expiration Alert if any -->
+                            ${expirationBadge ? `<div class="flex items-center justify-between text-xs">${expirationBadge}</div>` : ''}
+
+                            <!-- Company Key Information -->
                             <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1.5 text-xs">
-                                <div class="flex justify-between">
-                                    <span class="text-devo-muted">النطاق:</span>
-                                    <span class="font-mono text-ultra-400">${tenant.slug}.ultrasoft.site</span>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-devo-muted">النطاق (Domain):</span>
+                                    <span class="font-mono text-ultra-400 font-bold">${tenant.slug}.ultrasoft.site</span>
                                 </div>
-                                ${tenant.phone ? `<div class="flex justify-between"><span class="text-devo-muted">الهاتف:</span><span class="font-mono text-white">${tenant.phone}</span></div>` : ''}
-                                ${tenant.tax_number ? `<div class="flex justify-between"><span class="text-devo-muted">الرقم الضريبي:</span><span class="font-mono text-white">${tenant.tax_number}</span></div>` : ''}
+                                ${tenant.phone ? `<div class="flex justify-between items-center"><span class="text-devo-muted">الهاتف:</span><span class="font-mono text-white">${tenant.phone}</span></div>` : ''}
+                                ${tenant.tax_number ? `<div class="flex justify-between items-center"><span class="text-devo-muted">الرقم الضريبي:</span><span class="font-mono text-white">${tenant.tax_number}</span></div>` : ''}
                             </div>
 
+                            <!-- Subscription Quotas & Status Badge -->
                             <div class="flex items-center justify-between text-xs text-devo-muted font-mono pt-1">
-                                <span>📦 ${maxProds} منتج</span>
-                                <span>👥 ${maxUsers} مستخدم</span>
-                                <span class="px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-bold">
-                                    ${isActive ? 'نشط' : 'معطل'}
-                                </span>
+                                <span title="حد المنتجات">📦 ${maxProds >= 99999 ? '∞' : maxProds} منتج</span>
+                                <span title="حد المستخدمين">👥 ${maxUsers >= 999 ? '∞' : maxUsers} مستخدم</span>
+                                <span title="حد الأوردرات">🧾 ${maxOrders >= 999999 ? '∞' : maxOrders} أوردر</span>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-3 border-t border-devo-gray gap-2">
-                            <button data-id="${tenant.id}" class="view-tenant-btn flex-1 py-1.5 rounded-xl bg-ultra-500/10 hover:bg-ultra-500/20 text-ultra-400 text-xs font-bold flex items-center justify-center gap-1 transition-all">
-                                <i class="ph ph-eye text-base"></i> عرض
+                        <!-- Card Footer Action Buttons (إدارة الشركة بالكامل فقط) -->
+                        <div class="pt-3 border-t border-devo-gray">
+                            <!-- Main Action: Open Full Screen Management Page -->
+                            <button data-id="${tenant.id}" class="view-tenant-btn w-full py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-ultra-500/20 transition-all cursor-pointer">
+                                <i class="ph ph-sliders text-base"></i>
+                                <span>إدارة الشركة بالكامل</span>
                             </button>
-                            <button data-id="${tenant.id}" class="edit-tenant-btn flex-1 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center gap-1 transition-all">
-                                <i class="ph ph-pencil-simple text-base"></i> تعديل
-                            </button>
-                            <button data-id="${tenant.id}" data-status="${tenant.status}" class="toggle-status-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${isActive ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'}">
-                                ${isActive ? 'إيقاف' : 'تفعيل'}
-                            </button>
-                            ${!isDefault ? `
-                            <button data-id="${tenant.id}" class="delete-tenant-btn p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-xs font-bold transition-all" title="حذف المصنع نهائياً بكامل محتوياته">
-                                <i class="ph ph-trash text-base"></i>
-                            </button>
-                            ` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
 
             attachTenantActions();
+        }
+
+        // 👁️ Open Full Screen Company Management Page Function
+        async function openTenantDetailsModal(tenantId) {
+            const tenant = globalTenantsList.find(t => t.id === tenantId);
+            if (!tenant) return;
+
+            activeSelectedTenant = tenant;
+            const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
+            const settings = tenant.settings || {};
+            const logoUrl = tenant.logo_url || settings.logo_url || 'src/assets/icons/ultrasoft_transparent.png';
+
+            let masterEmail = settings.master_email || tenant.email || `admin@${tenant.slug}.com`;
+            let masterPassword = settings.master_password || `Ultra@${tenant.slug.charAt(0).toUpperCase() + tenant.slug.slice(1)}2026`;
+
+            // Sync master owner email from system_users
+            try {
+                const { data: ownerUser } = await supabase
+                    .from('system_users')
+                    .select('*')
+                    .eq('tenant_id', tenant.id)
+                    .eq('role', 'owner')
+                    .maybeSingle();
+
+                if (ownerUser && ownerUser.username) {
+                    masterEmail = ownerUser.username;
+                }
+            } catch(e) { console.warn(e); }
+
+            const { storeUrl, adminUrl, authUrl } = getTenantUrls(tenant.slug);
+
+            // Populate Header & Logo
+            document.getElementById('modalCompanyName').textContent = tenant.name;
+            document.getElementById('modalCompanyLegalName').textContent = tenant.legal_name || tenant.name;
+            document.getElementById('modalCompanyHeaderLogoImg').src = logoUrl;
+            document.getElementById('modalCompanyLogoPreview').src = logoUrl;
+            document.getElementById('modalLogoUrlInput').value = tenant.logo_url || settings.logo_url || '';
+            document.getElementById('modalTenantId').textContent = tenant.id;
+
+            // Populate Profile Form Inputs
+            document.getElementById('modalInputTenantName').value = tenant.name || '';
+            document.getElementById('modalInputTenantLegalName').value = tenant.legal_name || '';
+            document.getElementById('modalInputTenantSlug').value = tenant.slug || '';
+            document.getElementById('modalInputCompanyType').value = tenant.company_type || 'factory';
+            document.getElementById('modalInputTenantPhone').value = tenant.phone || '';
+            document.getElementById('modalInputTenantEmail').value = tenant.email || '';
+            document.getElementById('modalInputCommercialRegister').value = tenant.commercial_register || '';
+            document.getElementById('modalInputTaxNumber').value = tenant.tax_number || '';
+
+            // Populate Subscription & Limits Inputs
+            const planVal = (sub ? sub.plan : 'basic').toLowerCase();
+            document.getElementById('modalSelectPlanPreset').value = planVal;
+            document.getElementById('modalSubPlanBadge').textContent = planVal.toUpperCase();
+
+            document.getElementById('modalInputMaxProducts').value = sub ? sub.max_products : 500;
+            document.getElementById('modalInputMaxUsers').value = sub ? sub.max_users : 10;
+            document.getElementById('modalInputMaxOrders').value = sub ? (sub.max_orders || 5000) : 5000;
+            document.getElementById('modalInputMaxStorage').value = sub ? (sub.max_storage_mb || 5000) : 5000;
+
+            // Dates & Sub Status
+            const startDateStr = sub && sub.start_date ? new Date(sub.start_date).toISOString().split('T')[0] : '';
+            const endDateStr = sub && sub.end_date ? new Date(sub.end_date).toISOString().split('T')[0] : '';
+            document.getElementById('modalInputStartDate').value = startDateStr;
+            document.getElementById('modalInputEndDate').value = endDateStr;
+            document.getElementById('modalInputSubStatus').value = sub ? (sub.status || 'active') : 'active';
+
+            // Master Onboarding Packet Details
+            document.getElementById('modalMasterEmail').textContent = masterEmail;
+            document.getElementById('modalMasterPassword').textContent = masterPassword;
+            document.getElementById('modalStoreUrlText').textContent = storeUrl;
+            document.getElementById('modalAdminUrlText').textContent = adminUrl;
+            document.getElementById('modalAuthUrlText').textContent = authUrl;
+
+            document.getElementById('modalStoreUrlLink').href = storeUrl;
+            document.getElementById('modalAdminUrlLink').href = adminUrl;
+            document.getElementById('modalAuthUrlLink').href = authUrl;
+
+            // Direct Links
+            document.getElementById('modalOpenStoreLink').href = storeUrl;
+            document.getElementById('modalOpenAdminLink').href = adminUrl;
+
+            // Status Badge
+            const statusBadge = document.getElementById('modalCompanyStatusBadge');
+            const isActive = tenant.status === 'active';
+            if (statusBadge) {
+                statusBadge.textContent = isActive ? 'نشط' : 'معطل';
+                statusBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`;
+            }
+
+            // Toggle Button Handler inside Modal Operations Tab
+            const toggleBtn = document.getElementById('modalToggleStatusBtn');
+            if (toggleBtn) {
+                toggleBtn.textContent = isActive ? 'إيقاف/تجميد الحساب' : 'تفعيل الحساب';
+                toggleBtn.onclick = async () => {
+                    const newStatus = isActive ? 'suspended' : 'active';
+                    const { error } = await supabase
+                        .from('tenants')
+                        .update({ status: newStatus })
+                        .eq('id', tenant.id);
+
+                    if (error) showToast('فشل تغيير الحالة: ' + error.message, 'error');
+                    else {
+                        showToast(`تم ${newStatus === 'active' ? 'تفعيل' : 'تجميد'} حساب المصنع بنجاح`, 'success');
+                        detailsModal.classList.add('hidden');
+                        detailsModal.classList.remove('flex');
+                        loadTenants();
+                    }
+                };
+            }
+
+            // Wipe Data Button Handler inside Modal Operations Tab
+            const modalWipeBtn = document.getElementById('modalWipeTenantBtn');
+            if (modalWipeBtn) {
+                modalWipeBtn.onclick = () => openWipeTenantModal(activeSelectedTenant);
+            }
+
+            // Delete Tenant Cascade Button Handler inside Modal Operations Tab
+            const deleteBtn = document.getElementById('modalDeleteTenantBtn');
+            if (deleteBtn) {
+                deleteBtn.onclick = () => deleteTenantCascade(tenant.id);
+            }
+
+            // Default to profile tab on open
+            switchInnerTenantTab('profile');
+
+            // Display Full Screen Management Overlay
+            detailsModal.classList.remove('hidden');
+            detailsModal.classList.add('flex');
+        }
+
+        // 🔄 Inner Tenant Sidebar Tab Switching Function
+        function switchInnerTenantTab(tabId) {
+            document.querySelectorAll('.inner-tenant-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-ultra-500/10', 'text-ultra-400', 'border-r-4', 'border-ultra-500');
+                btn.classList.add('text-devo-muted', 'hover:bg-devo-gray/50', 'hover:text-white');
+            });
+
+            document.querySelectorAll('.inner-tenant-view').forEach(view => view.classList.add('hidden'));
+
+            const targetBtn = document.querySelector(`.inner-tenant-tab-btn[data-inner-tab="${tabId}"]`);
+            const targetView = document.getElementById(`inner-tab-${tabId}`);
+
+            if (targetBtn) {
+                targetBtn.classList.remove('text-devo-muted', 'hover:bg-devo-gray/50', 'hover:text-white');
+                targetBtn.classList.add('bg-ultra-500/10', 'text-ultra-400', 'border-r-4', 'border-ultra-500');
+            }
+
+            if (targetView) {
+                targetView.classList.remove('hidden');
+            }
+        }
+
+        document.querySelectorAll('.inner-tenant-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabId = e.currentTarget.dataset.innerTab;
+                if (tabId) switchInnerTenantTab(tabId);
+            });
+        });
+
+        // Attach Handlers for Plan Selector Presets & Custom Editing
+        const modalSelectPlanPreset = document.getElementById('modalSelectPlanPreset');
+        if (modalSelectPlanPreset) {
+            modalSelectPlanPreset.addEventListener('change', (e) => {
+                const plan = e.target.value;
+                if (plan === 'basic') {
+                    document.getElementById('modalInputMaxProducts').value = 500;
+                    document.getElementById('modalInputMaxUsers').value = 5;
+                    document.getElementById('modalInputMaxOrders').value = 1000;
+                    document.getElementById('modalInputMaxStorage').value = 2000;
+                } else if (plan === 'pro') {
+                    document.getElementById('modalInputMaxProducts').value = 2500;
+                    document.getElementById('modalInputMaxUsers').value = 25;
+                    document.getElementById('modalInputMaxOrders').value = 10000;
+                    document.getElementById('modalInputMaxStorage').value = 10000;
+                } else if (plan === 'enterprise') {
+                    document.getElementById('modalInputMaxProducts').value = 99999;
+                    document.getElementById('modalInputMaxUsers').value = 999;
+                    document.getElementById('modalInputMaxOrders').value = 999999;
+                    document.getElementById('modalInputMaxStorage').value = 50000;
+                }
+                document.getElementById('modalSubPlanBadge').textContent = plan.toUpperCase();
+            });
+        }
+
+        // Auto switch plan preset to custom if manual edits are done on inputs
+        ['modalInputMaxProducts', 'modalInputMaxUsers', 'modalInputMaxOrders', 'modalInputMaxStorage'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    if (modalSelectPlanPreset) modalSelectPlanPreset.value = 'custom';
+                    const badge = document.getElementById('modalSubPlanBadge');
+                    if (badge) badge.textContent = 'CUSTOM';
+                });
+            }
+        });
+
+        // Date Extension Shortcut Handlers
+        document.querySelectorAll('.btn-extend-days').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const days = parseInt(e.currentTarget.dataset.days);
+                const endDateInput = document.getElementById('modalInputEndDate');
+                let baseDate = endDateInput.value ? new Date(endDateInput.value) : new Date();
+                if (isNaN(baseDate.getTime())) baseDate = new Date();
+
+                baseDate.setDate(baseDate.getDate() + days);
+                endDateInput.value = baseDate.toISOString().split('T')[0];
+            });
+        });
+
+        const btnClearEndDate = document.getElementById('btnClearEndDateBtn');
+        if (btnClearEndDate) {
+            btnClearEndDate.addEventListener('click', () => {
+                document.getElementById('modalInputEndDate').value = '';
+            });
+        }
+
+        // Save Logo URL Button Handler
+        const saveLogoUrlBtn = document.getElementById('saveLogoUrlBtn');
+        if (saveLogoUrlBtn) {
+            saveLogoUrlBtn.addEventListener('click', async () => {
+                if (!activeSelectedTenant) return;
+                const newLogoUrl = document.getElementById('modalLogoUrlInput').value.trim();
+
+                try {
+                    const settings = activeSelectedTenant.settings || {};
+                    settings.logo_url = newLogoUrl;
+
+                    const { error } = await supabase
+                        .from('tenants')
+                        .update({ logo_url: newLogoUrl, settings })
+                        .eq('id', activeSelectedTenant.id);
+
+                    if (error) throw error;
+
+                    activeSelectedTenant.logo_url = newLogoUrl;
+                    document.getElementById('modalCompanyLogoPreview').src = newLogoUrl;
+                    document.getElementById('modalCompanyHeaderLogoImg').src = newLogoUrl;
+
+                    showToast('تم تحديث شعار الشركة بنجاح!', 'success');
+                    loadTenants();
+                } catch (err) {
+                    showToast('فشل تحديث الشعار: ' + err.message, 'error');
+                }
+            });
+        }
+
+        // Handle Full Page Company Profile Form Submit
+        const fullPageCompanyProfileForm = document.getElementById('fullPageCompanyProfileForm');
+        if (fullPageCompanyProfileForm) {
+            fullPageCompanyProfileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!activeSelectedTenant) return;
+
+                const name = document.getElementById('modalInputTenantName').value.trim();
+                const legalName = document.getElementById('modalInputTenantLegalName').value.trim();
+                const companyType = document.getElementById('modalInputCompanyType').value;
+                const phone = document.getElementById('modalInputTenantPhone').value.trim();
+                const email = document.getElementById('modalInputTenantEmail').value.trim();
+                const commercialRegister = document.getElementById('modalInputCommercialRegister').value.trim();
+                const taxNumber = document.getElementById('modalInputTaxNumber').value.trim();
+
+                try {
+                    const { error } = await supabase
+                        .from('tenants')
+                        .update({
+                            name,
+                            legal_name: legalName,
+                            company_type: companyType,
+                            phone,
+                            email,
+                            commercial_register: commercialRegister,
+                            tax_number: taxNumber
+                        })
+                        .eq('id', activeSelectedTenant.id);
+
+                    if (error) throw error;
+
+                    showToast('تم حفظ بيانات الشركة بنجاح!', 'success');
+                    document.getElementById('modalCompanyName').textContent = name;
+                    document.getElementById('modalCompanyLegalName').textContent = legalName || name;
+                    loadTenants();
+                } catch (err) {
+                    showToast('فشل حفظ بيانات الشركة: ' + err.message, 'error');
+                }
+            });
+        }
+
+        // Handle Full Page Subscription Form Submit (الخطط والحدود وتواريخ النهاية)
+        const fullPageSubscriptionForm = document.getElementById('fullPageSubscriptionForm');
+        if (fullPageSubscriptionForm) {
+            fullPageSubscriptionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!activeSelectedTenant) return;
+
+                const plan = document.getElementById('modalSelectPlanPreset').value;
+                const maxProducts = parseInt(document.getElementById('modalInputMaxProducts').value);
+                const maxUsers = parseInt(document.getElementById('modalInputMaxUsers').value);
+                const maxOrders = parseInt(document.getElementById('modalInputMaxOrders').value);
+                const maxStorageMb = parseInt(document.getElementById('modalInputMaxStorage').value);
+
+                const startDate = document.getElementById('modalInputStartDate').value || null;
+                const endDate = document.getElementById('modalInputEndDate').value || null;
+                const status = document.getElementById('modalInputSubStatus').value;
+
+                try {
+                    // Update Subscription Record
+                    const { error: subErr } = await supabase
+                        .from('subscriptions')
+                        .update({
+                            plan,
+                            max_products: maxProducts,
+                            max_users: maxUsers,
+                            max_orders: maxOrders,
+                            max_storage_mb: maxStorageMb,
+                            start_date: startDate ? new Date(startDate).toISOString() : null,
+                            end_date: endDate ? new Date(endDate).toISOString() : null,
+                            status
+                        })
+                        .eq('tenant_id', activeSelectedTenant.id);
+
+                    if (subErr) throw subErr;
+
+                    // If subscription status is suspended or expired, also update tenant status
+                    if (status === 'suspended' || status === 'expired') {
+                        await supabase.from('tenants').update({ status: 'suspended' }).eq('id', activeSelectedTenant.id);
+                    } else if (status === 'active') {
+                        await supabase.from('tenants').update({ status: 'active' }).eq('id', activeSelectedTenant.id);
+                    }
+
+                    showToast('تم حفظ تفاصيل خطة الاشتراك والحدود وتواريخ الانتهاء بنجاح!', 'success');
+                    loadTenants();
+                } catch (err) {
+                    showToast('فشل حفظ خطة الاشتراك: ' + err.message, 'error');
+                }
+            });
         }
 
         // 🗑️ Cascade Delete Tenant Function
@@ -1353,12 +1975,10 @@
             if (!confirmed) return;
 
             try {
-                // 1. Try calling the database cascade function
                 const { error: rpcErr } = await supabase.rpc('delete_tenant_cascade', { p_tenant_id: tenantId });
                 
                 if (rpcErr) {
                     console.warn('RPC delete_tenant_cascade error, executing manual client fallback:', rpcErr);
-                    // Client Fallback Cascade Deletion
                     await supabase.from('models').delete().eq('tenant_id', tenantId);
                     await supabase.from('categories').delete().eq('tenant_id', tenantId);
                     await supabase.from('sizes').delete().eq('tenant_id', tenantId);
@@ -1374,7 +1994,6 @@
 
                 showToast(`تم حذف مصنع "${tenantName}" وكافة محتوياته بنجاح`, 'success');
                 
-                // Hide details modal if open
                 detailsModal.classList.add('hidden');
                 detailsModal.classList.remove('flex');
                 
@@ -1385,19 +2004,11 @@
         }
 
         function attachTenantActions() {
-            // Attach View Details handlers
+            // Attach View Details handlers (Opens Full Screen Page)
             document.querySelectorAll('.view-tenant-btn').forEach(btn => {
                 btn.onclick = (e) => {
                     const id = e.currentTarget.dataset.id;
                     openTenantDetailsModal(id);
-                };
-            });
-
-            // Attach Edit handlers
-            document.querySelectorAll('.edit-tenant-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    openEditTenantModal(id);
                 };
             });
 
@@ -1428,110 +2039,6 @@
                     deleteTenantCascade(id);
                 };
             });
-
-            // Attach Wipe handlers
-            document.querySelectorAll('.wipe-tenant-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    const tenant = globalTenantsList.find(t => t.id === id);
-                    if (tenant) openWipeTenantModal(tenant);
-                };
-            });
-        }
-
-        // 👁️ Open Company Details Modal Function
-        async function openTenantDetailsModal(tenantId) {
-            const tenant = globalTenantsList.find(t => t.id === tenantId);
-            if (!tenant) return;
-
-            activeSelectedTenant = tenant;
-            const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
-            const settings = tenant.settings || {};
-
-            let masterEmail = settings.master_email || tenant.email || `admin@${tenant.slug}.com`;
-            let masterPassword = settings.master_password || `Ultra@${tenant.slug.charAt(0).toUpperCase() + tenant.slug.slice(1)}2026`;
-
-            // جلب أحدث بيانات الأونر من system_users إن وجدت لضمان المزامنة
-            try {
-                const { data: ownerUser } = await supabase
-                    .from('system_users')
-                    .select('*')
-                    .eq('tenant_id', tenant.id)
-                    .eq('role', 'owner')
-                    .maybeSingle();
-
-                if (ownerUser && ownerUser.username) {
-                    masterEmail = ownerUser.username;
-                }
-            } catch(e) { console.warn(e); }
-            const { storeUrl, adminUrl, authUrl } = getTenantUrls(tenant.slug);
-
-            document.getElementById('modalCompanyName').textContent = tenant.name;
-            document.getElementById('modalCompanyLegalName').textContent = tenant.legal_name || tenant.name;
-            document.getElementById('modalTenantId').textContent = tenant.id;
-            document.getElementById('modalTenantSlug').textContent = tenant.slug;
-            document.getElementById('modalCompanyType').textContent = tenant.company_type || 'مصنع ملابس';
-            document.getElementById('modalCommercialRegister').textContent = tenant.commercial_register || 'غير مسجل';
-            document.getElementById('modalTaxNumber').textContent = tenant.tax_number || 'غير مسجل';
-            document.getElementById('modalTenantPhone').textContent = tenant.phone || 'غير محدد';
-            document.getElementById('modalTenantEmail').textContent = tenant.email || 'غير محدد';
-            document.getElementById('modalTenantSubdomain').textContent = `${tenant.slug}.ultrasoft.site`;
-            document.getElementById('modalCreatedAt').textContent = tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('ar-EG') : 'غير محدد';
-
-            // Master Onboarding Packet Details
-            document.getElementById('modalMasterEmail').textContent = masterEmail;
-            document.getElementById('modalMasterPassword').textContent = masterPassword;
-            document.getElementById('modalStoreUrlText').textContent = storeUrl;
-            document.getElementById('modalAdminUrlText').textContent = adminUrl;
-            document.getElementById('modalAuthUrlText').textContent = authUrl;
-
-            document.getElementById('modalStoreUrlLink').href = storeUrl;
-            document.getElementById('modalAdminUrlLink').href = adminUrl;
-            document.getElementById('modalAuthUrlLink').href = authUrl;
-
-            // Subscription Quota Info
-            document.getElementById('modalSubPlan').textContent = sub ? sub.plan.toUpperCase() : 'BASIC';
-            document.getElementById('modalSubMaxProducts').textContent = sub ? sub.max_products : '500';
-            document.getElementById('modalSubMaxUsers').textContent = sub ? sub.max_users : '10';
-            document.getElementById('modalSubStatus').textContent = sub ? sub.status : 'active';
-
-            // Direct Links
-            document.getElementById('modalOpenStoreLink').href = storeUrl;
-            document.getElementById('modalOpenAdminLink').href = adminUrl;
-
-            // Status Badge
-            const statusBadge = document.getElementById('modalCompanyStatusBadge');
-            const isActive = tenant.status === 'active';
-            statusBadge.textContent = isActive ? 'نشط' : 'معطل';
-            statusBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`;
-
-            // Toggle Button Handler inside Modal
-            const toggleBtn = document.getElementById('modalToggleStatusBtn');
-            toggleBtn.textContent = isActive ? 'تجميد حساب المصنع' : 'تفعيل حساب المصنع';
-            toggleBtn.onclick = async () => {
-                const newStatus = isActive ? 'suspended' : 'active';
-                const { error } = await supabase
-                    .from('tenants')
-                    .update({ status: newStatus })
-                    .eq('id', tenant.id);
-
-                if (error) showToast('فشل تغيير الحالة: ' + error.message, 'error');
-                else {
-                    showToast(`تم ${newStatus === 'active' ? 'تفعيل' : 'تجميد'} حساب المصنع بنجاح`, 'success');
-                    detailsModal.classList.add('hidden');
-                    detailsModal.classList.remove('flex');
-                    loadTenants();
-                }
-            };
-
-            // Delete Button Handler inside Modal
-            const deleteBtn = document.getElementById('modalDeleteTenantBtn');
-            if (deleteBtn) {
-                deleteBtn.onclick = () => deleteTenantCascade(tenant.id);
-            }
-
-            detailsModal.classList.remove('hidden');
-            detailsModal.classList.add('flex');
         }
 
         // ✏️ Open Edit Company Modal Function
@@ -1974,6 +2481,490 @@
                 showToast('فشل إنشاء المصنع: ' + err.message, 'error');
             }
         });
+
+        // Onboarding Packet Copy Handler
+        function copyOnboardingPacket() {
+            if (!activeSelectedTenant) return;
+            const name = activeSelectedTenant.name;
+            const email = document.getElementById('modalMasterEmail').textContent;
+            const pass = document.getElementById('modalMasterPassword').textContent;
+            const storeUrl = document.getElementById('modalStoreUrlText').textContent;
+            const adminUrl = document.getElementById('modalAdminUrlText').textContent;
+            const authUrl = document.getElementById('modalAuthUrlText').textContent;
+
+            const message = `🏢 *خطاب اعتماد تفعيل حساب المنصة والبرنامج*
+اسم الشركة/المصنع: ${name}
+
+🔑 *بيانات الدخول للإدارة العليا (Owner Account)*:
+- البريد الإلكتروني: ${email}
+- كلمة المرور: ${pass}
+
+🌐 *الروابط المباشرة للنظام*:
+- رابط المتجر المعرض: ${storeUrl}
+- رابط لوحة التحكم والإدارة: ${adminUrl}
+- رابط صفحة الدخول: ${authUrl}
+
+شكراً لاستخدامكم منصة UltraSoft 🚀`;
+
+            navigator.clipboard.writeText(message);
+            showToast('تم نسخ خطاب الاعتماد ورسالة الترحيب كاملاً!', 'success');
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.copy-text-btn');
+            if (btn) {
+                const targetId = btn.dataset.target;
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    navigator.clipboard.writeText(targetEl.textContent || targetEl.value || '');
+                    showToast('تم النسخ للحافظة بنجاح!', 'success');
+                }
+            }
+        });
+
+        const packetBtn1 = document.getElementById('copyWelcomePacketBtn');
+        if (packetBtn1) packetBtn1.onclick = copyOnboardingPacket;
+
+        const packetBtn2 = document.getElementById('copyWelcomePacketBtnFull');
+        if (packetBtn2) packetBtn2.onclick = copyOnboardingPacket;
+
+        // =========================================================================
+        // 👑 DYNAMIC SUBSCRIPTION PLANS & COMPARISON MATRIX MANAGEMENT ENGINE
+        // =========================================================================
+        let globalPlansList = [];
+        let globalComparisonFeaturesList = [];
+
+        // Load system subscription plans
+        async function loadSystemPlans() {
+            const cardsGrid = document.getElementById('systemPlansCardsGrid');
+            if (!cardsGrid) return;
+
+            try {
+                const { data: plans, error } = await supabase
+                    .from('system_subscription_plans')
+                    .select('*')
+                    .order('sort_order', { ascending: true });
+
+                if (error) throw error;
+
+                globalPlansList = plans || [];
+                renderSystemPlanCards(globalPlansList);
+
+            } catch (err) {
+                console.error('Error loading subscription plans:', err);
+                cardsGrid.innerHTML = `<div class="col-span-full text-center py-8 text-red-400">فشل تحميل خطط الأسعار: ${err.message}</div>`;
+            }
+        }
+
+        // Render Plan Cards in Grid
+        function renderSystemPlanCards(plans) {
+            const cardsGrid = document.getElementById('systemPlansCardsGrid');
+            if (!cardsGrid) return;
+
+            if (!plans || plans.length === 0) {
+                cardsGrid.innerHTML = `<div class="col-span-full text-center py-8 text-devo-muted">لا توجد خطط أسعار مضافة</div>`;
+                return;
+            }
+
+            cardsGrid.innerHTML = plans.map(plan => {
+                const isEmerald = plan.color_scheme === 'emerald' || plan.key === 'quarterly';
+                const isSky = plan.color_scheme === 'sky' || plan.key === 'semi_annual';
+                const isAmber = plan.color_scheme === 'amber' || plan.key === 'annual';
+
+                let themeClasses = {
+                    border: 'border-emerald-500/40 bg-emerald-500/5',
+                    badgeBg: 'bg-emerald-500 text-white',
+                    tagBg: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+                    priceColor: 'text-emerald-400',
+                    limitsBg: 'bg-emerald-500/10 border border-emerald-500/20',
+                    btnBg: 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20',
+                    iconColor: 'text-emerald-400'
+                };
+
+                if (isSky) {
+                    themeClasses = {
+                        border: 'border-sky-500/60 bg-sky-500/5 ring-1 ring-sky-500/30',
+                        badgeBg: 'bg-sky-500 text-white',
+                        tagBg: 'bg-sky-500/10 text-sky-400 border border-sky-500/20',
+                        priceColor: 'text-sky-400',
+                        limitsBg: 'bg-sky-500/10 border border-sky-500/20',
+                        btnBg: 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/20',
+                        iconColor: 'text-sky-400'
+                    };
+                } else if (isAmber) {
+                    themeClasses = {
+                        border: 'border-amber-500/60 bg-amber-500/5 ring-1 ring-amber-500/30',
+                        badgeBg: 'bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black',
+                        tagBg: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+                        priceColor: 'text-amber-400',
+                        limitsBg: 'bg-amber-500/10 border border-amber-500/20',
+                        btnBg: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-black shadow-amber-500/20',
+                        iconColor: 'text-amber-400'
+                    };
+                }
+
+                const features = Array.isArray(plan.features_list) ? plan.features_list : [];
+
+                return `
+                    <div class="rounded-3xl border ${themeClasses.border} p-6 flex flex-col justify-between gap-6 shadow-2xl relative transition-all duration-300 hover:scale-[1.01]">
+                        ${plan.is_featured ? `<span class="absolute -top-3.5 left-6 px-3.5 py-1 rounded-full text-xs font-black bg-sky-500 text-white shadow-md flex items-center gap-1"><i class="ph ph-lightning text-sm"></i> الأكثر طلباً</span>` : ''}
+
+                        <div class="space-y-4">
+                            <!-- Top Badge & Tags -->
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold ${themeClasses.badgeBg}">
+                                    ${plan.name}
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    ${plan.discount_tag ? `<span class="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-amber-500 text-black">${plan.discount_tag}</span>` : ''}
+                                    ${plan.savings_tag ? `<span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold ${themeClasses.tagBg}">${plan.savings_tag}</span>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Period & Price -->
+                            <div>
+                                <span class="text-xs text-devo-muted font-bold block">${plan.badge_text || ''}</span>
+                                <div class="flex items-baseline gap-1 mt-1">
+                                    <span class="text-3xl font-black ${themeClasses.priceColor}">${(plan.price || 0).toLocaleString()}</span>
+                                    <span class="text-xs font-bold text-devo-muted">${plan.currency || 'ج.م'}</span>
+                                </div>
+                                <p class="text-xs text-devo-muted mt-1">${plan.subtitle || ''}</p>
+                            </div>
+
+                            <!-- Key Limits Highlight Box -->
+                            <div class="rounded-2xl ${themeClasses.limitsBg} p-4 space-y-2.5 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-devo-muted font-semibold">الموديلات النشطة بالمعرض:</span>
+                                    <span class="font-black text-white">${plan.max_products_label || 'حتى 200 موديل'}</span>
+                                </div>
+                                <div class="flex items-center justify-between border-t border-white/5 pt-2">
+                                    <span class="text-devo-muted font-semibold">رصيد الرفع والتعديل (Excel):</span>
+                                    <span class="font-black text-white">${plan.excel_credits_label || '200 كريديت / شهرياً'}</span>
+                                </div>
+                                <div class="flex items-center justify-between border-t border-white/5 pt-2">
+                                    <span class="text-devo-muted font-semibold">مستخدمو فريق العمل:</span>
+                                    <span class="font-black text-white">${plan.max_users_label || 'حتى 4 مستخدمين'}</span>
+                                </div>
+                            </div>
+
+                            <!-- Points List -->
+                            <ul class="space-y-2.5 text-xs text-devo-text pt-2">
+                                ${features.map(feat => `
+                                    <li class="flex items-start gap-2.5">
+                                        <i class="ph ph-check-circle ${themeClasses.iconColor} text-base shrink-0 mt-0.5"></i>
+                                        <span>${feat}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="pt-4 border-t border-devo-gray/50 flex flex-col gap-2">
+                            <button type="button" data-plan-key="${plan.key}" class="edit-plan-card-btn w-full py-3 rounded-xl text-xs font-black ${themeClasses.btnBg} shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="ph ph-pencil-simple text-base"></i>
+                                <span>تعديل الكارت والمميزات</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Attach click listeners to edit plan card buttons
+            document.querySelectorAll('.edit-plan-card-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const key = e.currentTarget.dataset.planKey;
+                    openEditPlanCardModal(key);
+                };
+            });
+        }
+
+        // Load comparison matrix features
+        async function loadComparisonFeatures() {
+            const tbody = document.getElementById('comparisonTableBody');
+            const badge = document.getElementById('comparisonFeaturesCountBadge');
+            if (!tbody) return;
+
+            try {
+                const { data: features, error } = await supabase
+                    .from('subscription_comparison_features')
+                    .select('*')
+                    .order('sort_order', { ascending: true });
+
+                if (error) throw error;
+
+                globalComparisonFeaturesList = features || [];
+                if (badge) badge.textContent = `${globalComparisonFeaturesList.length} ميزة`;
+
+                renderComparisonTable(globalComparisonFeaturesList);
+
+            } catch (err) {
+                console.error('Error loading comparison features:', err);
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-400">فشل تحميل جدول المقارنة: ${err.message}</td></tr>`;
+            }
+        }
+
+        // Render Comparison Matrix Table
+        function renderComparisonTable(features) {
+            const tbody = document.getElementById('comparisonTableBody');
+            if (!tbody) return;
+
+            if (!features || features.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-devo-muted">لا توجد مميزات في جدول المقارنة</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = features.map(feat => {
+                const vals = feat.plan_values || {};
+                const qVal = vals.quarterly || 'متاح';
+                const sVal = vals.semi_annual || 'متاح';
+                const aVal = vals.annual || 'متاح';
+
+                const formatVal = (v, colorClass) => {
+                    if (v === 'متاح') return `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1"><i class="ph ph-check-circle"></i> متاح</span>`;
+                    if (v === 'غير متاح') return `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 inline-flex items-center gap-1"><i class="ph ph-x-circle"></i> غير متاح</span>`;
+                    return `<span class="font-bold ${colorClass}">${v}</span>`;
+                };
+
+                return `
+                    <tr class="hover:bg-devo-gray/30 transition-all border-b border-devo-gray/40">
+                        <td class="py-4 px-6 font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-check text-ultra-400 text-base"></i>
+                            <span>${feat.feature_name}</span>
+                        </td>
+                        <td class="py-4 px-6 text-center">${formatVal(qVal, 'text-emerald-400')}</td>
+                        <td class="py-4 px-6 text-center">${formatVal(sVal, 'text-sky-400')}</td>
+                        <td class="py-4 px-6 text-center">${formatVal(aVal, 'text-amber-400')}</td>
+                        <td class="py-4 px-6 text-center">
+                            <button type="button" data-feature-id="${feat.id}" class="edit-comparison-feature-btn p-2 rounded-lg bg-devo-black hover:bg-ultra-500 text-devo-muted hover:text-white border border-devo-gray transition-all cursor-pointer" title="تعديل الميزة">
+                                <i class="ph ph-pencil-simple text-base"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.edit-comparison-feature-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const featureId = e.currentTarget.dataset.featureId;
+                    openEditComparisonFeatureModal(featureId);
+                };
+            });
+        }
+
+        // Plan Card Editor Modal logic
+        const editPlanCardModal = document.getElementById('editPlanCardModal');
+        const closeEditPlanCardModalBtn = document.getElementById('closeEditPlanCardModalBtn');
+        const cancelEditPlanCardBtn = document.getElementById('cancelEditPlanCardBtn');
+        const editPlanCardForm = document.getElementById('editPlanCardForm');
+        const addFeaturePointBtn = document.getElementById('addFeaturePointBtn');
+        const planFeaturesContainer = document.getElementById('planFeaturesContainer');
+
+        function addFeaturePointInput(value = '') {
+            if (!planFeaturesContainer) return;
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2 feature-point-row';
+            div.innerHTML = `
+                <input type="text" value="${value.replace(/"/g, '&quot;')}" placeholder="أدخل الميزة أو الخاصية..." class="feature-point-input flex-1 bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                <button type="button" class="remove-feature-point-btn text-red-400 hover:text-white p-1 cursor-pointer" title="حذف النقطة"><i class="ph ph-trash text-sm"></i></button>
+            `;
+            div.querySelector('.remove-feature-point-btn').onclick = () => div.remove();
+            planFeaturesContainer.appendChild(div);
+        }
+
+        if (addFeaturePointBtn) {
+            addFeaturePointBtn.onclick = () => addFeaturePointInput('');
+        }
+
+        function openEditPlanCardModal(planKey) {
+            const plan = globalPlansList.find(p => p.key === planKey);
+            if (!plan) return;
+
+            document.getElementById('editPlanCardKeyInput').value = plan.key;
+            document.getElementById('editPlanNameInput').value = plan.name || '';
+            document.getElementById('editPlanBadgeInput').value = plan.badge_text || '';
+            document.getElementById('editPlanPriceInput').value = plan.price || 0;
+            document.getElementById('editPlanDiscountInput').value = plan.discount_tag || '';
+            document.getElementById('editPlanSavingsInput').value = plan.savings_tag || '';
+            document.getElementById('editPlanSubtitleInput').value = plan.subtitle || '';
+
+            document.getElementById('editPlanMaxProductsLabel').value = plan.max_products_label || '';
+            document.getElementById('editPlanExcelCreditsLabel').value = plan.excel_credits_label || '';
+            document.getElementById('editPlanMaxUsersLabel').value = plan.max_users_label || '';
+
+            planFeaturesContainer.innerHTML = '';
+            const features = Array.isArray(plan.features_list) ? plan.features_list : [];
+            features.forEach(feat => addFeaturePointInput(feat));
+
+            editPlanCardModal.classList.remove('hidden');
+            editPlanCardModal.classList.add('flex');
+        }
+
+        const closePlanModalFunc = () => {
+            editPlanCardModal.classList.add('hidden');
+            editPlanCardModal.classList.remove('flex');
+        };
+        if (closeEditPlanCardModalBtn) closeEditPlanCardModalBtn.onclick = closePlanModalFunc;
+        if (cancelEditPlanCardBtn) cancelEditPlanCardBtn.onclick = closePlanModalFunc;
+
+        if (editPlanCardForm) {
+            editPlanCardForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const key = document.getElementById('editPlanCardKeyInput').value;
+                const name = document.getElementById('editPlanNameInput').value.trim();
+                const badge_text = document.getElementById('editPlanBadgeInput').value.trim();
+                const price = parseFloat(document.getElementById('editPlanPriceInput').value);
+                const discount_tag = document.getElementById('editPlanDiscountInput').value.trim();
+                const savings_tag = document.getElementById('editPlanSavingsInput').value.trim();
+                const subtitle = document.getElementById('editPlanSubtitleInput').value.trim();
+
+                const max_products_label = document.getElementById('editPlanMaxProductsLabel').value.trim();
+                const excel_credits_label = document.getElementById('editPlanExcelCreditsLabel').value.trim();
+                const max_users_label = document.getElementById('editPlanMaxUsersLabel').value.trim();
+
+                const features_list = Array.from(document.querySelectorAll('.feature-point-input'))
+                    .map(inp => inp.value.trim())
+                    .filter(val => val.length > 0);
+
+                try {
+                    const { error } = await supabase
+                        .from('system_subscription_plans')
+                        .update({
+                            name,
+                            badge_text,
+                            price,
+                            discount_tag,
+                            savings_tag,
+                            subtitle,
+                            max_products_label,
+                            excel_credits_label,
+                            max_users_label,
+                            features_list,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('key', key);
+
+                    if (error) throw error;
+
+                    showToast(`تم حفظ وتحديث كارت باقة (${name}) بنجاح!`, 'success');
+                    closePlanModalFunc();
+                    loadSystemPlans();
+
+                } catch (err) {
+                    showToast('فشل حفظ الباقة: ' + err.message, 'error');
+                }
+            });
+        }
+
+        // Comparison Matrix Modal logic
+        const editComparisonFeatureModal = document.getElementById('editComparisonFeatureModal');
+        const closeEditComparisonModalBtn = document.getElementById('closeEditComparisonModalBtn');
+        const cancelEditComparisonModalBtn = document.getElementById('cancelEditComparisonModalBtn');
+        const editComparisonFeatureForm = document.getElementById('editComparisonFeatureForm');
+        const addComparisonFeatureBtn = document.getElementById('addComparisonFeatureBtn');
+        const deleteComparisonFeatureBtn = document.getElementById('deleteComparisonFeatureBtn');
+
+        function openEditComparisonFeatureModal(featureId = null) {
+            document.getElementById('editComparisonFeatureIdInput').value = featureId || '';
+
+            if (featureId) {
+                const feat = globalComparisonFeaturesList.find(f => f.id === featureId);
+                if (feat) {
+                    document.getElementById('comparisonModalTitle').textContent = 'تعديل ميزة بجدول المقارنة';
+                    document.getElementById('editComparisonNameInput').value = feat.feature_name || '';
+                    const vals = feat.plan_values || {};
+                    document.getElementById('valQuarterlyInput').value = vals.quarterly || 'متاح';
+                    document.getElementById('valSemiAnnualInput').value = vals.semi_annual || 'متاح';
+                    document.getElementById('valAnnualInput').value = vals.annual || 'متاح';
+                    if (deleteComparisonFeatureBtn) deleteComparisonFeatureBtn.classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('comparisonModalTitle').textContent = 'إضافة ميزة جديدة لجدول المقارنة';
+                document.getElementById('editComparisonNameInput').value = '';
+                document.getElementById('valQuarterlyInput').value = 'متاح';
+                document.getElementById('valSemiAnnualInput').value = 'متاح';
+                document.getElementById('valAnnualInput').value = 'متاح';
+                if (deleteComparisonFeatureBtn) deleteComparisonFeatureBtn.classList.add('hidden');
+            }
+
+            editComparisonFeatureModal.classList.remove('hidden');
+            editComparisonFeatureModal.classList.add('flex');
+        }
+
+        if (addComparisonFeatureBtn) {
+            addComparisonFeatureBtn.onclick = () => openEditComparisonFeatureModal(null);
+        }
+
+        const closeCompModalFunc = () => {
+            editComparisonFeatureModal.classList.add('hidden');
+            editComparisonFeatureModal.classList.remove('flex');
+        };
+        if (closeEditComparisonModalBtn) closeEditComparisonModalBtn.onclick = closeCompModalFunc;
+        if (cancelEditComparisonModalBtn) cancelEditComparisonModalBtn.onclick = closeCompModalFunc;
+
+        if (editComparisonFeatureForm) {
+            editComparisonFeatureForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const featureId = document.getElementById('editComparisonFeatureIdInput').value;
+                const feature_name = document.getElementById('editComparisonNameInput').value.trim();
+                const quarterly = document.getElementById('valQuarterlyInput').value.trim();
+                const semi_annual = document.getElementById('valSemiAnnualInput').value.trim();
+                const annual = document.getElementById('valAnnualInput').value.trim();
+
+                const plan_values = { quarterly, semi_annual, annual };
+
+                try {
+                    if (featureId) {
+                        // Update
+                        const { error } = await supabase
+                            .from('subscription_comparison_features')
+                            .update({ feature_name, plan_values })
+                            .eq('id', featureId);
+
+                        if (error) throw error;
+                        showToast('تم تحديث بند المقارنة بنجاح!', 'success');
+                    } else {
+                        // Insert
+                        const maxSort = globalComparisonFeaturesList.length > 0 ? Math.max(...globalComparisonFeaturesList.map(f => f.sort_order || 0)) : 0;
+                        const { error } = await supabase
+                            .from('subscription_comparison_features')
+                            .insert({ feature_name, plan_values, sort_order: maxSort + 1 });
+
+                        if (error) throw error;
+                        showToast('تم إضافة البند الجديد لجدول المقارنة بنجاح!', 'success');
+                    }
+
+                    closeCompModalFunc();
+                    loadComparisonFeatures();
+
+                } catch (err) {
+                    showToast('فشل حفظ البند: ' + err.message, 'error');
+                }
+            });
+        }
+
+        if (deleteComparisonFeatureBtn) {
+            deleteComparisonFeatureBtn.onclick = async () => {
+                const featureId = document.getElementById('editComparisonFeatureIdInput').value;
+                if (!featureId) return;
+
+                if (confirm('هل أنت متأكد من إزالة هذا البند من جدول المقارنة؟')) {
+                    try {
+                        const { error } = await supabase
+                            .from('subscription_comparison_features')
+                            .delete()
+                            .eq('id', featureId);
+
+                        if (error) throw error;
+
+                        showToast('تم حذف البند من جدول المقارنة', 'success');
+                        closeCompModalFunc();
+                        loadComparisonFeatures();
+                    } catch (err) {
+                        showToast('فشل الحذف: ' + err.message, 'error');
+                    }
+                }
+            };
+        }
 
         refreshBtn.addEventListener('click', loadTenants);
         loadTenants();

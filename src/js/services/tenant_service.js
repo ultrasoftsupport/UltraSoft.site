@@ -91,6 +91,16 @@ export async function initializeTenantContext() {
         }
 
         if (tenant) {
+            // فحص تاريخ انتهاء الاشتراك والإيقاف التلقائي للحساب عند انتهاء المدة
+            const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
+            if (sub && sub.end_date && new Date(sub.end_date) < new Date() && tenant.slug !== 'default') {
+                console.warn(`[Subscription Expired] Tenant ${tenant.name} subscription ended on ${sub.end_date}. Auto-suspending.`);
+                tenant.status = 'suspended';
+                // تحديث قاعدة البيانات في الخلفية
+                supabase.from('tenants').update({ status: 'suspended' }).eq('id', tenant.id).then();
+                supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id).then();
+            }
+
             cachedTenant = tenant;
         } else {
             // التراجع للمصنع الافتراضي إن لم يتم العثور عليه
