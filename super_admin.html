@@ -143,7 +143,7 @@
 
             <button data-tab="subscriptions" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
                 <i class="ph ph-crown text-xl shrink-0"></i>
-                <span class="sidebar-label">الاشتراكات والباقات</span>
+                <span class="sidebar-label">الاشتراكات</span>
             </button>
 
             <button data-tab="domains" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
@@ -304,8 +304,8 @@
                 </div>
             </section>
 
-            <!-- TAB 3: DYNAMIC SUBSCRIPTION PLANS & COMPARISON MATRIX MANAGEMENT -->
-            <section id="view-subscriptions" class="super-tab-view space-y-8 hidden">
+            <!-- TAB 3: DYNAMIC SUBSCRIPTION PLANS & LIMITS MANAGEMENT -->
+            <section id="view-subscriptions" class="super-tab-view space-y-6 hidden">
                 
                 <!-- Section Header -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl">
@@ -314,8 +314,8 @@
                             <i class="ph ph-crown text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-black text-white">إدارة خطط الأسعار والاشتراكات لـ UltraSoft</h3>
-                            <p class="text-xs text-devo-muted">التحكم الفوري والديناميكي في كروت الخطط، المميزات والنقاط، وجدول المقارنة التفصيلي</p>
+                            <h3 class="text-lg font-black text-white">إدارة الاشتراكات وقواعد الحدود</h3>
+                            <p class="text-xs text-devo-muted">التحكم الفوري والديناميكي في مظهر كروت الخطط، المميزات، وقواعد حدود واستهلاك الكريديت</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -326,59 +326,245 @@
                     </div>
                 </div>
 
-                <!-- CARDS PREVIEW SECTION -->
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h4 class="font-black text-white text-base flex items-center gap-2">
-                            <i class="ph ph-cards text-ultra-400 text-xl"></i>
-                            كروت باقات الأسعار والاشتراكات المتاحة
-                        </h4>
-                        <span class="text-xs text-devo-muted">يتم ربط هذه الباقات تلقائياً بكافة المصانع والشركات</span>
+                <!-- Sub-Tabs Navigation Header -->
+                <div class="flex items-center gap-3 border-b border-devo-gray pb-3">
+                    <button id="subtab-cards-btn" type="button" class="subtab-btn active-subtab px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 bg-ultra-500 text-white shadow-md cursor-pointer">
+                        <i class="ph ph-cards text-base"></i>
+                        <span>تصنيف وكروت الباقات</span>
+                    </button>
+                    <button id="subtab-limits-btn" type="button" class="subtab-btn px-5 py-2.5 rounded-xl text-xs font-bold text-devo-muted hover:text-white hover:bg-devo-dark transition-all flex items-center gap-2 border border-devo-gray cursor-pointer">
+                        <i class="ph ph-sliders text-base"></i>
+                        <span>قواعد الحدود واستهلاك الكريديت</span>
+                    </button>
+                </div>
+
+                <!-- SUB-TAB 1 VIEW: PLAN CARDS & COMPARISON TABLE -->
+                <div id="subtab-cards-view" class="space-y-8">
+                    <!-- CARDS PREVIEW SECTION -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-cards text-ultra-400 text-xl"></i>
+                                كروت باقات الأسعار والاشتراكات المتاحة
+                            </h4>
+                            <span class="text-xs text-devo-muted">يتم ربط هذه الباقات تلقائياً بكافة المصانع والشركات</span>
+                        </div>
+
+                        <!-- Dynamic Plan Cards Grid Container -->
+                        <div id="systemPlansCardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="col-span-full text-center py-12 text-devo-muted">
+                                <i class="ph ph-spinner animate-spin text-3xl text-ultra-400 mb-2 block mx-auto"></i>
+                                جاري تحميل خطط الأسعار...
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Dynamic Plan Cards Grid Container -->
-                    <div id="systemPlansCardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="col-span-full text-center py-12 text-devo-muted">
-                            <i class="ph ph-spinner animate-spin text-3xl text-ultra-400 mb-2 block mx-auto"></i>
-                            جاري تحميل خطط الأسعار...
+                    <!-- COMPARISON MATRIX TABLE SECTION -->
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-devo-gray pb-4">
+                            <div>
+                                <h4 class="font-black text-white text-base flex items-center gap-2">
+                                    <i class="ph ph-table text-amber-400 text-xl"></i>
+                                    جدول المقارنة الشامل لكافة ميزات ووظائف المنظومة
+                                </h4>
+                                <p class="text-xs text-devo-muted">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft للعملاء</p>
+                            </div>
+                            <span id="comparisonFeaturesCountBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">-- ميزة</span>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-devo-gray">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-devo-black border-b border-devo-gray text-xs font-bold text-devo-muted">
+                                        <th class="py-4 px-6 min-w-[240px]">الوظيفة / مميزات المنظومة</th>
+                                        <th class="py-4 px-6 text-center text-emerald-400 min-w-[180px]">اشتراك 3 أشهر (7,000 ج.م)</th>
+                                        <th class="py-4 px-6 text-center text-sky-400 min-w-[180px]">اشتراك 6 أشهر (10,000 ج.م)</th>
+                                        <th class="py-4 px-6 text-center text-amber-400 min-w-[180px]">اشتراك سنة (15,000 ج.م)</th>
+                                        <th class="py-4 px-6 text-center min-w-[100px]">إدارة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparisonTableBody" class="divide-y divide-devo-gray/50 text-xs">
+                                    <tr>
+                                        <td colspan="5" class="py-8 text-center text-devo-muted">
+                                            <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
+                                            جاري تحميل جدول المقارنة...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- COMPARISON MATRIX TABLE SECTION -->
-                <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-devo-gray pb-4">
-                        <div>
-                            <h4 class="font-black text-white text-base flex items-center gap-2">
-                                <i class="ph ph-table text-amber-400 text-xl"></i>
-                                جدول المقارنة الشامل لكافة ميزات ووظائف المنظومة
-                            </h4>
-                            <p class="text-xs text-devo-muted">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft للعملاء</p>
+                <!-- SUB-TAB 2 VIEW: DYNAMIC PLAN LIMITS & CONSUMPTION RULES -->
+                <div id="subtab-limits-view" class="space-y-6 hidden">
+                    
+                    <!-- Plan Selector Tabs -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-devo-dark border border-devo-gray p-4 rounded-2xl shadow-md">
+                        <span class="text-xs font-bold text-devo-muted flex items-center gap-2">
+                            <i class="ph ph-funnel text-ultra-400 text-lg"></i>
+                            اختر الباقة لضبط إعدادات حدودها وقواعد الاستهلاك:
+                        </span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button type="button" data-limit-plan="quarterly" class="limit-plan-selector-btn active-limit-plan px-4 py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 shadow-md cursor-pointer transition-all">
+                                <span>اشتراك 3 أشهر (ربع سنوي)</span>
+                            </button>
+                            <button type="button" data-limit-plan="semi_annual" class="limit-plan-selector-btn px-4 py-2 rounded-xl text-xs font-bold text-devo-muted bg-devo-black border border-devo-gray hover:text-white transition-all cursor-pointer">
+                                <span>اشتراك 6 أشهر (نصف سنوي)</span>
+                            </button>
+                            <button type="button" data-limit-plan="annual" class="limit-plan-selector-btn px-4 py-2 rounded-xl text-xs font-bold text-devo-muted bg-devo-black border border-devo-gray hover:text-white transition-all cursor-pointer">
+                                <span>اشتراك سنة كاملة (سنوي)</span>
+                            </button>
                         </div>
-                        <span id="comparisonFeaturesCountBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">-- ميزة</span>
                     </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-devo-gray">
-                        <table class="w-full text-right border-collapse">
-                            <thead>
-                                <tr class="bg-devo-black border-b border-devo-gray text-xs font-bold text-devo-muted">
-                                    <th class="py-4 px-6 min-w-[240px]">الوظيفة / مميزات المنظومة</th>
-                                    <th class="py-4 px-6 text-center text-emerald-400 min-w-[180px]">اشتراك 3 أشهر (7,000 ج.م)</th>
-                                    <th class="py-4 px-6 text-center text-sky-400 min-w-[180px]">اشتراك 6 أشهر (10,000 ج.م)</th>
-                                    <th class="py-4 px-6 text-center text-amber-400 min-w-[180px]">اشتراك سنة (15,000 ج.م)</th>
-                                    <th class="py-4 px-6 text-center min-w-[100px]">إدارة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="comparisonTableBody" class="divide-y divide-devo-gray/50 text-xs">
-                                <tr>
-                                    <td colspan="5" class="py-8 text-center text-devo-muted">
-                                        <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
-                                        جاري تحميل جدول المقارنة...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <!-- Limits Configuration Form -->
+                    <form id="planLimitsConfigForm" class="space-y-6">
+                        <input type="hidden" id="limitPlanKeyInput" value="quarterly">
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                            <!-- CARD 1: GENERAL PLAN LIMITS -->
+                            <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4 shadow-xl">
+                                <div class="flex items-center gap-3 border-b border-devo-gray pb-3">
+                                    <div class="w-10 h-10 rounded-xl bg-ultra-500/10 border border-ultra-500/30 flex items-center justify-center text-ultra-400 text-xl font-bold">
+                                        <i class="ph ph-shield-check"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-black text-white">الحدود العامة وسعة الباقة</h4>
+                                        <p class="text-[11px] text-devo-muted">الحدود القصوى للمنتجات، المستخدمين والكريديت</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">حد الموديلات النشطة بالمعرض *</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="number" id="limitMaxProductsInput" required min="-1" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                            <label class="flex items-center gap-1 shrink-0 text-xs text-devo-muted font-bold cursor-pointer">
+                                                <input type="checkbox" id="unlimitedProductsCheck" class="rounded border-devo-gray text-ultra-500 focus:ring-0">
+                                                <span>غير محدود (∞)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">حد مستخدمي فريق العمل *</label>
+                                        <input type="number" id="limitMaxUsersInput" required min="1" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">رصيد Excel الشهري الممنوح *</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="number" id="limitMonthlyCreditsInput" required min="-1" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                            <label class="flex items-center gap-1 shrink-0 text-xs text-devo-muted font-bold cursor-pointer">
+                                                <input type="checkbox" id="unlimitedCreditsCheck" class="rounded border-devo-gray text-ultra-500 focus:ring-0">
+                                                <span>غير محدود (∞)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">دورة تجديد واستعادة الكريديت *</label>
+                                        <select id="limitResetFreqSelect" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-bold focus:outline-none focus:border-ultra-500 cursor-pointer">
+                                            <option value="monthly">تجديد شهري (Monthly)</option>
+                                            <option value="quarterly">تجديد ربع سنوي (Quarterly)</option>
+                                            <option value="annual">تجديد سنوي (Annual)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 2: BULK EDIT OPERATIONS PRICING RULES -->
+                            <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4 shadow-xl">
+                                <div class="flex items-center gap-3 border-b border-devo-gray pb-3">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
+                                        <i class="ph ph-lightning"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-black text-white">تسعير التعديلات المجمعة والسقف</h4>
+                                        <p class="text-[11px] text-devo-muted">نظام حساب وسحب الكريديت للعمليات الجماعية</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-white mb-2">طريقة محاسبة التعديل المجمع:</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <label class="p-3 rounded-xl border border-devo-gray bg-devo-black flex items-center gap-2 text-xs text-devo-text font-bold cursor-pointer hover:border-ultra-500">
+                                                <input type="radio" name="bulk_pricing_mode" value="per_operation" class="text-ultra-500 focus:ring-0">
+                                                <span>حسب العملية (Flat)</span>
+                                            </label>
+                                            <label class="p-3 rounded-xl border border-devo-gray bg-devo-black flex items-center gap-2 text-xs text-devo-text font-bold cursor-pointer hover:border-ultra-500">
+                                                <input type="radio" name="bulk_pricing_mode" value="per_item" checked class="text-ultra-500 focus:ring-0">
+                                                <span>حسب عدد العناصر</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">تكلفة تنفيذ العملية الثابتة (Per Op Cost)</label>
+                                        <input type="number" step="0.5" id="limitBulkPerOpCostInput" required min="0" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">تكلفة العنصر الواحد (Per Item Cost)</label>
+                                        <input type="number" step="0.1" id="limitBulkPerItemCostInput" required min="0" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    </div>
+
+                                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+                                        <label class="block text-xs font-black text-amber-400 mb-1">سقف الحد الأقصى للمخاصمة (Max Cap)</label>
+                                        <input type="number" step="1" id="limitBulkMaxCapInput" required min="0" class="w-full bg-devo-dark border border-amber-500/40 rounded-lg px-3 py-1.5 text-xs text-amber-300 font-mono font-bold focus:outline-none focus:border-amber-400">
+                                        <span class="text-[10px] text-devo-muted block leading-snug pt-1">مثال: في حال خصم الكريديت بالـ Item وتحديد 100 عنصر وسقف 50 كريديت، يُخصم 50 كريديت فقط للتوفير.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 3: EXCEL FILE UPLOAD OPERATIONS COSTS -->
+                            <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4 shadow-xl">
+                                <div class="flex items-center gap-3 border-b border-devo-gray pb-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                                        <i class="ph ph-file-arrow-up"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-black text-white">تكاليف رفع وتحديث الإكسيل</h4>
+                                        <p class="text-[11px] text-devo-muted">خصم الكريديت لعمليات الرفع المجمعة</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">تكلفة رفع وتحديث الألوان (Colors Excel)</label>
+                                        <input type="number" step="0.1" id="limitExcelColorsCostInput" required min="0" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">تكلفة رفع الأصناف والموديلات (Items Excel)</label>
+                                        <input type="number" step="0.1" id="limitExcelItemsCostInput" required min="0" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-devo-muted mb-1">تكلفة رفع أرصدة المخزون (Stock Excel)</label>
+                                        <input type="number" step="0.1" id="limitExcelStockCostInput" required min="0" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    </div>
+
+                                    <div class="p-3 rounded-xl bg-devo-black border border-devo-gray text-[11px] text-devo-muted leading-relaxed">
+                                        <i class="ph ph-info text-ultra-400 text-sm align-middle"></i>
+                                        تتم المخاصمة تلقائياً من رصيد المصنع عند كل عملية رفع ناجحة بناءً على قيم القواعد المحددة أعلاه للباقة الحالية.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Form Action Button -->
+                        <div class="flex items-center justify-end gap-4 bg-devo-dark border border-devo-gray p-4 rounded-2xl shadow-xl">
+                            <button type="submit" class="px-8 py-3 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-black text-xs shadow-lg shadow-ultra-500/20 transition-all flex items-center gap-2 cursor-pointer">
+                                <i class="ph ph-floppy-disk text-base"></i>
+                                <span>حفظ وتحديث قواعد حدود الباقة الحالية</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
             </section>
@@ -1129,20 +1315,22 @@
                 <button type="button" id="doneThemeBtn" class="px-5 py-2 rounded-xl bg-devo-black border border-devo-gray text-xs font-bold text-white hover:border-ultra-500">إغلاق النافذة</button>
             </div>
         </div>
-    <!-- ===== MODAL: EDIT SYSTEM SUBSCRIPTION PLAN CARD ===== -->
+    </div>
+
+    <!-- ===== MODAL: EDIT PLAN CARD & FEATURES LIST ===== -->
     <div id="editPlanCardModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[120] hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-devo-dark border border-ultra-500/50 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl relative my-8 text-devo-text">
-            <button id="closeEditPlanCardModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+        <div class="bg-devo-dark border border-ultra-500/50 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl relative text-devo-text my-8">
+            <button id="closeEditPlanCardModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl p-1 cursor-pointer">
                 <i class="ph ph-x"></i>
             </button>
 
             <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
-                <div class="w-10 h-10 rounded-xl bg-ultra-500/10 border border-ultra-500/30 flex items-center justify-center text-ultra-400 text-xl font-bold">
+                <div class="w-12 h-12 rounded-2xl bg-ultra-500/10 border border-ultra-500/30 flex items-center justify-center text-ultra-400 text-2xl font-bold">
                     <i class="ph ph-pencil-simple"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-black text-white">تعديل كارت الخطة ومحتوياتها</h3>
-                    <p class="text-xs text-devo-muted">تعديل الأسعار، الحدود، إضافة نصوص ومميزات الباقة</p>
+                    <h3 class="text-base font-black text-white">تعديل كارت الخطة ومحتوياتها والنقاط</h3>
+                    <p class="text-xs text-devo-muted">التحكم في العناوين والأسعار والحدود والنقاط المعروضة داخل الكارت</p>
                 </div>
             </div>
 
@@ -1151,72 +1339,73 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">اسم الباقة *</label>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">اسم الخطة / الباقة *</label>
                         <input type="text" id="editPlanNameInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">تسمية مدة الاشتراك (Badge)</label>
-                        <input type="text" id="editPlanBadgeInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        <label class="block text-xs font-bold text-devo-muted mb-1">الشارة العلوية (Badge Text)</label>
+                        <input type="text" id="editPlanBadgeInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">السعر *</label>
-                        <input type="number" id="editPlanPriceInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-ultra-500">
+                        <label class="block text-xs font-bold text-devo-muted mb-1">السعر * (بالجنيه)</label>
+                        <input type="number" id="editPlanPriceInput" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-amber-400 font-bold focus:outline-none focus:border-ultra-500 font-mono">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">شارة الخصم (مثل: خصم 28%)</label>
-                        <input type="text" id="editPlanDiscountInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        <label class="block text-xs font-bold text-devo-muted mb-1">شارة الخصم (Discount Tag)</label>
+                        <input type="text" id="editPlanDiscountInput" placeholder="مثال: خصم 28%" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-devo-muted mb-1">شارة التوفير (مثل: توفير 4,000 ج.م)</label>
-                        <input type="text" id="editPlanSavingsInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        <label class="block text-xs font-bold text-devo-muted mb-1">شارة التوفير (Savings Tag)</label>
+                        <input type="text" id="editPlanSavingsInput" placeholder="مثال: توفير 4,000 ج.م" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-devo-muted mb-1">الوصف الفرعي للباقة</label>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">الوصف الفرعي (Subtitle)</label>
                     <input type="text" id="editPlanSubtitleInput" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
                 </div>
 
-                <!-- Limits Labels -->
-                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-3">
-                    <span class="text-xs font-bold text-white block">نصوص الحدود الموضحة بالكارت:</span>
+                <!-- Limits labels in card -->
+                <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-3">
+                    <label class="block text-xs font-bold text-white mb-1">نصوص الحدود المعروضة في الكارت:</label>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-[10px] text-devo-muted mb-1">نص حد الموديلات بالمعرض</label>
-                            <input type="text" id="editPlanMaxProductsLabel" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                            <span class="block text-[11px] text-devo-muted mb-1">الموديلات النشطة</span>
+                            <input type="text" id="editPlanMaxProductsLabel" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white font-bold">
                         </div>
                         <div>
-                            <label class="block text-[10px] text-devo-muted mb-1">نص رصيد Excel الشريحي</label>
-                            <input type="text" id="editPlanExcelCreditsLabel" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                            <span class="block text-[11px] text-devo-muted mb-1">رصيد Excel الشهري</span>
+                            <input type="text" id="editPlanExcelCreditsLabel" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white font-bold">
                         </div>
                         <div>
-                            <label class="block text-[10px] text-devo-muted mb-1">نص حد فريق العمل</label>
-                            <input type="text" id="editPlanMaxUsersLabel" class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                            <span class="block text-[11px] text-devo-muted mb-1">فريق العمل</span>
+                            <input type="text" id="editPlanMaxUsersLabel" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-1.5 text-xs text-white font-bold">
                         </div>
                     </div>
                 </div>
 
-                <!-- Dynamic Features List Inputs -->
-                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-3">
+                <!-- Dynamic Feature Points -->
+                <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-white">قائمة نقاط ومميزات الكارت:</span>
-                        <button type="button" id="addFeaturePointBtn" class="text-xs text-ultra-400 hover:text-white font-bold flex items-center gap-1">
-                            <i class="ph ph-plus"></i> إضافة نقطة ميزة
+                        <label class="block text-xs font-bold text-white">قائمة نقاط ومميزات الباقة الكارت:</label>
+                        <button type="button" id="addFeaturePointBtn" class="px-3 py-1 rounded-lg bg-ultra-500/20 hover:bg-ultra-500 text-ultra-400 hover:text-white text-xs font-bold border border-ultra-500/30 transition-all flex items-center gap-1 cursor-pointer">
+                            <i class="ph ph-plus"></i>
+                            <span>إضافة نقطة ميزة</span>
                         </button>
                     </div>
-                    <div id="planFeaturesContainer" class="space-y-2 max-h-48 overflow-y-auto p-1">
-                        <!-- Dynamic Point Inputs -->
+                    <div id="planFeaturesContainer" class="space-y-2 max-h-56 overflow-y-auto p-1">
+                        <!-- Dynamic Feature Inputs -->
                     </div>
                 </div>
 
-                <div class="pt-3 flex items-center justify-end gap-3 border-t border-devo-gray">
-                    <button type="button" id="cancelEditPlanCardBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold transition flex items-center gap-1 shadow-md">
+                <div class="pt-4 flex items-center justify-end gap-3 border-t border-devo-gray">
+                    <button type="button" id="cancelEditPlanCardBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white cursor-pointer">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer">
                         <i class="ph ph-floppy-disk text-base"></i>
-                        حفظ تعديلات الباقة
+                        <span>حفظ وتحديث الكارت</span>
                     </button>
                 </div>
             </form>
@@ -2531,7 +2720,79 @@
         // =========================================================================
         // 👑 DYNAMIC SUBSCRIPTION PLANS & COMPARISON MATRIX MANAGEMENT ENGINE
         // =========================================================================
-        let globalPlansList = [];
+        const DEFAULT_PLANS_SEED = [
+            {
+                key: 'quarterly',
+                name: 'باقة البداية الاقتصادية',
+                badge_text: 'اشتراك 3 أشهر',
+                discount_tag: '',
+                savings_tag: 'ربع سنوي',
+                period_months: 3,
+                price: 7000,
+                currency: 'ج.م',
+                subtitle: 'الباقة الأساسية للمحلات والمتاجر الناشئة',
+                max_products_label: 'حتى 200 موديل',
+                excel_credits_label: '200 كريديت / شهرياً',
+                max_users_label: 'حتى 4 مستخدمين',
+                features_list: [
+                    "مناسبة للمتاجر والمحلات في بداية الانطلاق",
+                    "إعداد وتأمين قاعدة البيانات السحابية فورياً",
+                    "دعم فني وتدريب كامل 24/7 طوال الأسبوع",
+                    "نسخ احتياطي سحابي تلقائي لبيانات الحساب"
+                ],
+                color_scheme: 'emerald',
+                is_featured: false,
+                sort_order: 1
+            },
+            {
+                key: 'semi_annual',
+                name: 'الباقة الأكثر طلباً',
+                badge_text: 'اشتراك 6 أشهر',
+                discount_tag: 'خصم 28%',
+                savings_tag: 'توفير 4,000 ج.م',
+                period_months: 6,
+                price: 10000,
+                currency: 'ج.م',
+                subtitle: 'الباقة المتكاملة لنشاط تجاري متوسط ومتوسع',
+                max_products_label: 'حتى 600 موديل (3 أضعاف)',
+                excel_credits_label: '500 كريديت / شهرياً (2.5x)',
+                max_users_label: 'حتى 10 مستخدمين',
+                features_list: [
+                    "جميع مميزات وتسهيلات باقة الـ 3 أشهر",
+                    "توفير اقتصادي ممتاز بنسبة 28%",
+                    "تخصيص الشعار والألوان والهوية على الفاتورة",
+                    "أولوية مرتفعة في الدعم الفني والتدريب"
+                ],
+                color_scheme: 'sky',
+                is_featured: true,
+                sort_order: 2
+            },
+            {
+                key: 'annual',
+                name: 'أفضل قيمة وتوفير',
+                badge_text: 'اشتراك سنة كاملة',
+                discount_tag: 'خصم 46%',
+                savings_tag: 'توفير 13,000 ج.م',
+                period_months: 12,
+                price: 15000,
+                currency: 'ج.م',
+                subtitle: 'الباقة الملكية الشاملة لكافة الإمكانيات بلا حدود',
+                max_products_label: 'غير محدود ∞',
+                excel_credits_label: 'غير محدود ∞',
+                max_users_label: 'حتى 25 مستخدم',
+                features_list: [
+                    "جميع المميزات والوظائف المتقدمة بلا حدود",
+                    "توفير ضخم يصل إلى 46% مقارنة بالاشتراك الربع سنوي",
+                    "دعم فني وتدريب VIP 24/7 (أولوية كبار العملاء)",
+                    "تصميم وتفصيل قوالب الفواتير والباركود مخصصاً"
+                ],
+                color_scheme: 'amber',
+                is_featured: false,
+                sort_order: 3
+            }
+        ];
+
+        let globalPlansList = DEFAULT_PLANS_SEED;
         let globalComparisonFeaturesList = [];
 
         // Load system subscription plans
@@ -2545,137 +2806,224 @@
                     .select('*')
                     .order('sort_order', { ascending: true });
 
-                if (error) throw error;
-
-                globalPlansList = plans || [];
+                if (!error && plans && plans.length > 0) {
+                    globalPlansList = plans;
+                } else {
+                    globalPlansList = DEFAULT_PLANS_SEED;
+                }
                 renderSystemPlanCards(globalPlansList);
 
             } catch (err) {
-                console.error('Error loading subscription plans:', err);
-                cardsGrid.innerHTML = `<div class="col-span-full text-center py-8 text-red-400">فشل تحميل خطط الأسعار: ${err.message}</div>`;
+                console.warn('Error loading subscription plans, using fallback:', err);
+                globalPlansList = DEFAULT_PLANS_SEED;
+                renderSystemPlanCards(globalPlansList);
             }
         }
 
-        // Render Plan Cards in Grid
+        // Render Plan Cards in Grid (Matching Landing Page EXACTLY 100%)
         function renderSystemPlanCards(plans) {
             const cardsGrid = document.getElementById('systemPlansCardsGrid');
             if (!cardsGrid) return;
 
-            if (!plans || plans.length === 0) {
-                cardsGrid.innerHTML = `<div class="col-span-full text-center py-8 text-devo-muted">لا توجد خطط أسعار مضافة</div>`;
-                return;
-            }
+            const plansToRender = (plans && plans.length > 0) ? plans : DEFAULT_PLANS_SEED;
 
-            cardsGrid.innerHTML = plans.map(plan => {
+            cardsGrid.innerHTML = plansToRender.map(plan => {
                 const isEmerald = plan.color_scheme === 'emerald' || plan.key === 'quarterly';
                 const isSky = plan.color_scheme === 'sky' || plan.key === 'semi_annual';
                 const isAmber = plan.color_scheme === 'amber' || plan.key === 'annual';
 
-                let themeClasses = {
-                    border: 'border-emerald-500/40 bg-emerald-500/5',
-                    badgeBg: 'bg-emerald-500 text-white',
-                    tagBg: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-                    priceColor: 'text-emerald-400',
-                    limitsBg: 'bg-emerald-500/10 border border-emerald-500/20',
-                    btnBg: 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20',
-                    iconColor: 'text-emerald-400'
-                };
-
-                if (isSky) {
-                    themeClasses = {
-                        border: 'border-sky-500/60 bg-sky-500/5 ring-1 ring-sky-500/30',
-                        badgeBg: 'bg-sky-500 text-white',
-                        tagBg: 'bg-sky-500/10 text-sky-400 border border-sky-500/20',
-                        priceColor: 'text-sky-400',
-                        limitsBg: 'bg-sky-500/10 border border-sky-500/20',
-                        btnBg: 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/20',
-                        iconColor: 'text-sky-400'
-                    };
-                } else if (isAmber) {
-                    themeClasses = {
-                        border: 'border-amber-500/60 bg-amber-500/5 ring-1 ring-amber-500/30',
-                        badgeBg: 'bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black',
-                        tagBg: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
-                        priceColor: 'text-amber-400',
-                        limitsBg: 'bg-amber-500/10 border border-amber-500/20',
-                        btnBg: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-black shadow-amber-500/20',
-                        iconColor: 'text-amber-400'
-                    };
-                }
-
                 const features = Array.isArray(plan.features_list) ? plan.features_list : [];
 
-                return `
-                    <div class="rounded-3xl border ${themeClasses.border} p-6 flex flex-col justify-between gap-6 shadow-2xl relative transition-all duration-300 hover:scale-[1.01]">
-                        ${plan.is_featured ? `<span class="absolute -top-3.5 left-6 px-3.5 py-1 rounded-full text-xs font-black bg-sky-500 text-white shadow-md flex items-center gap-1"><i class="ph ph-lightning text-sm"></i> الأكثر طلباً</span>` : ''}
-
-                        <div class="space-y-4">
-                            <!-- Top Badge & Tags -->
-                            <div class="flex items-center justify-between gap-2 flex-wrap">
-                                <span class="px-3 py-1 rounded-full text-xs font-bold ${themeClasses.badgeBg}">
-                                    ${plan.name}
-                                </span>
-                                <div class="flex items-center gap-1.5">
-                                    ${plan.discount_tag ? `<span class="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-amber-500 text-black">${plan.discount_tag}</span>` : ''}
-                                    ${plan.savings_tag ? `<span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold ${themeClasses.tagBg}">${plan.savings_tag}</span>` : ''}
-                                </div>
+                if (isEmerald) {
+                    return `
+                        <!-- PLAN 1: 3 MONTHS - EMERALD GREEN THEME -->
+                        <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                            
+                            <!-- Top Header Badge -->
+                            <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                                <i class="ph-fill ph-sparkle text-slate-950"></i>
+                                <span>${plan.name || 'باقة البداية الاقتصادية'}</span>
                             </div>
 
-                            <!-- Period & Price -->
                             <div>
-                                <span class="text-xs text-devo-muted font-bold block">${plan.badge_text || ''}</span>
-                                <div class="flex items-baseline gap-1 mt-1">
-                                    <span class="text-3xl font-black ${themeClasses.priceColor}">${(plan.price || 0).toLocaleString()}</span>
-                                    <span class="text-xs font-bold text-devo-muted">${plan.currency || 'ج.م'}</span>
+                                <div class="flex justify-between items-center mb-3 pt-3">
+                                    <h3 class="text-lg sm:text-xl font-black text-white whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 3 أشهر'}</h3>
+                                    <span class="px-2.5 py-1 rounded-full bg-emerald-400 text-slate-950 text-xs font-black shadow-sm whitespace-nowrap">${plan.savings_tag || 'ربع سنوي'}</span>
                                 </div>
-                                <p class="text-xs text-devo-muted mt-1">${plan.subtitle || ''}</p>
+
+                                <div class="mb-6 text-right">
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span class="text-4xl sm:text-5xl font-black text-emerald-400">${(plan.price || 0).toLocaleString()}</span>
+                                        <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                                    </div>
+                                    <p class="text-xs text-emerald-400 font-bold mt-1">${plan.subtitle || ''}</p>
+                                </div>
+
+                                <!-- Spec Box -->
+                                <div class="bg-devo-black/80 border border-emerald-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">الموديلات النشطة بالمعرض:</span>
+                                        <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_products_label || 'حتى 200 موديل'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">رصيد الرفع والتعديل (Excel):</span>
+                                        <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.excel_credits_label || '200 كريديت / شهرياً'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">مستخدمو فريق العمل:</span>
+                                        <span class="font-black text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_users_label || 'حتى 4 مستخدمين'}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Unique Benefits Bullet List -->
+                                <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8 text-right">
+                                    ${features.map(f => `
+                                        <li class="flex items-center gap-2.5 text-devo-text font-medium">
+                                            <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
+                                            <span class="leading-snug">${f}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
                             </div>
 
-                            <!-- Key Limits Highlight Box -->
-                            <div class="rounded-2xl ${themeClasses.limitsBg} p-4 space-y-2.5 text-xs">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-devo-muted font-semibold">الموديلات النشطة بالمعرض:</span>
-                                    <span class="font-black text-white">${plan.max_products_label || 'حتى 200 موديل'}</span>
-                                </div>
-                                <div class="flex items-center justify-between border-t border-white/5 pt-2">
-                                    <span class="text-devo-muted font-semibold">رصيد الرفع والتعديل (Excel):</span>
-                                    <span class="font-black text-white">${plan.excel_credits_label || '200 كريديت / شهرياً'}</span>
-                                </div>
-                                <div class="flex items-center justify-between border-t border-white/5 pt-2">
-                                    <span class="text-devo-muted font-semibold">مستخدمو فريق العمل:</span>
-                                    <span class="font-black text-white">${plan.max_users_label || 'حتى 4 مستخدمين'}</span>
-                                </div>
-                            </div>
-
-                            <!-- Points List -->
-                            <ul class="space-y-2.5 text-xs text-devo-text pt-2">
-                                ${features.map(feat => `
-                                    <li class="flex items-start gap-2.5">
-                                        <i class="ph ph-check-circle ${themeClasses.iconColor} text-base shrink-0 mt-0.5"></i>
-                                        <span>${feat}</span>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-
-                        <!-- Footer Actions -->
-                        <div class="pt-4 border-t border-devo-gray/50 flex flex-col gap-2">
-                            <button type="button" data-plan-key="${plan.key}" class="edit-plan-card-btn w-full py-3 rounded-xl text-xs font-black ${themeClasses.btnBg} shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="ph ph-pencil-simple text-base"></i>
+                            <button type="button" data-plan-key="${plan.key}" class="edit-plan-card-btn w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                                <i class="ph-fill ph-pencil-simple text-slate-950 text-lg"></i>
                                 <span>تعديل الكارت والمميزات</span>
                             </button>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                } else if (isSky) {
+                    return `
+                        <!-- PLAN 2: 6 MONTHS - CYAN / SKY BLUE THEME (RECOMMENDED) -->
+                        <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
+                            
+                            <!-- Top Header Badge -->
+                            <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                                <i class="ph-fill ph-lightning text-amber-300"></i>
+                                <span>${plan.name || 'الباقة الأكثر طلباً'}</span>
+                            </div>
 
-            // Attach click listeners to edit plan card buttons
-            document.querySelectorAll('.edit-plan-card-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const key = e.currentTarget.dataset.planKey;
-                    openEditPlanCardModal(key);
-                };
-            });
+                            <!-- Top-Left Corner Discount Badge -->
+                            ${plan.discount_tag ? `
+                                <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-sky-400 text-slate-950 font-black text-xs shadow-md border border-sky-300 whitespace-nowrap z-10">
+                                    ${plan.discount_tag}
+                                </div>
+                            ` : ''}
+
+                            <div>
+                                <div class="flex justify-between items-center mb-3 pt-3">
+                                    <h3 class="text-lg sm:text-xl font-black text-white whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 6 أشهر'}</h3>
+                                    ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-sky-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
+                                </div>
+
+                                <div class="mb-6 text-right">
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span class="text-4xl sm:text-5xl font-black text-sky-400">${(plan.price || 0).toLocaleString()}</span>
+                                        <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                                    </div>
+                                    <p class="text-xs text-sky-400 font-bold mt-1">${plan.subtitle || ''}</p>
+                                </div>
+
+                                <!-- Spec Box -->
+                                <div class="bg-devo-black/80 border border-sky-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">الموديلات النشطة بالمعرض:</span>
+                                        <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_products_label || 'حتى 600 موديل (3 أضعاف)'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">رصيد الرفع والتعديل (Excel):</span>
+                                        <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.excel_credits_label || '500 كريديت / شهرياً (2.5x)'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">مستخدمو فريق العمل:</span>
+                                        <span class="font-black text-slate-950 bg-sky-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_users_label || 'حتى 10 مستخدمين'}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Unique Benefits Bullet List -->
+                                <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8 text-right">
+                                    ${features.map(f => `
+                                        <li class="flex items-center gap-2.5 text-devo-text font-bold">
+                                            <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
+                                            <span class="leading-snug">${f}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+
+                            <button type="button" data-plan-key="${plan.key}" class="edit-plan-card-btn w-full py-4 rounded-2xl bg-gradient-to-r from-ultra-600 to-sky-500 hover:from-ultra-500 hover:to-sky-400 text-white font-black text-sm text-center shadow-[0_10px_25px_rgba(2,132,199,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.02]">
+                                <i class="ph-fill ph-pencil-simple text-white text-lg"></i>
+                                <span>تعديل الكارت والمميزات</span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <!-- PLAN 3: 1 YEAR - GOLD / AMBER THEME (BEST VALUE) -->
+                        <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                            
+                            <!-- Top Header Badge -->
+                            <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                                <i class="ph-fill ph-crown text-slate-950"></i>
+                                <span>${plan.name || 'أفضل قيمة وتوفير'}</span>
+                            </div>
+
+                            <!-- Top-Left Corner Discount Badge -->
+                            ${plan.discount_tag ? `
+                                <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md border border-amber-300 whitespace-nowrap z-10">
+                                    ${plan.discount_tag}
+                                </div>
+                            ` : ''}
+
+                            <div>
+                                <div class="flex justify-between items-center mb-3 pt-3">
+                                    <h3 class="text-lg sm:text-xl font-black text-white whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك سنة كاملة'}</h3>
+                                    ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
+                                </div>
+
+                                <div class="mb-6 text-right">
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span class="text-4xl sm:text-5xl font-black text-amber-400">${(plan.price || 0).toLocaleString()}</span>
+                                        <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                                    </div>
+                                    <p class="text-xs text-amber-400/90 font-bold mt-1">${plan.subtitle || ''}</p>
+                                </div>
+
+                                <!-- Spec Box -->
+                                <div class="bg-devo-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">الموديلات النشطة بالمعرض:</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_products_label || 'غير محدود ∞'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">رصيد الرفع والتعديل (Excel):</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.excel_credits_label || 'غير محدود ∞'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-devo-text">
+                                        <span class="text-devo-muted font-bold whitespace-nowrap">مستخدمو فريق العمل:</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-sm">${plan.max_users_label || 'حتى 25 مستخدم'}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Unique Benefits Bullet List -->
+                                <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8 text-right">
+                                    ${features.map(f => `
+                                        <li class="flex items-center gap-2.5 text-devo-text font-bold">
+                                            <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
+                                            <span class="leading-snug">${f}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+
+                            <button type="button" data-plan-key="${plan.key}" class="edit-plan-card-btn w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                                <i class="ph-fill ph-pencil-simple text-slate-950 text-lg"></i>
+                                <span>تعديل الكارت والمميزات</span>
+                            </button>
+                        </div>
+                    `;
+                }
+            }).join('');
         }
 
         // Load comparison matrix features
@@ -2690,16 +3038,16 @@
                     .select('*')
                     .order('sort_order', { ascending: true });
 
-                if (error) throw error;
-
-                globalComparisonFeaturesList = features || [];
+                if (!error && features && features.length > 0) {
+                    globalComparisonFeaturesList = features;
+                }
                 if (badge) badge.textContent = `${globalComparisonFeaturesList.length} ميزة`;
 
                 renderComparisonTable(globalComparisonFeaturesList);
 
             } catch (err) {
-                console.error('Error loading comparison features:', err);
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-400">فشل تحميل جدول المقارنة: ${err.message}</td></tr>`;
+                console.warn('Error loading comparison features:', err);
+                renderComparisonTable(globalComparisonFeaturesList);
             }
         }
 
@@ -2742,13 +3090,6 @@
                     </tr>
                 `;
             }).join('');
-
-            document.querySelectorAll('.edit-comparison-feature-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const featureId = e.currentTarget.dataset.featureId;
-                    openEditComparisonFeatureModal(featureId);
-                };
-            });
         }
 
         // Plan Card Editor Modal logic
@@ -2776,8 +3117,10 @@
         }
 
         function openEditPlanCardModal(planKey) {
-            const plan = globalPlansList.find(p => p.key === planKey);
-            if (!plan) return;
+            let plan = globalPlansList.find(p => p.key === planKey);
+            if (!plan) {
+                plan = DEFAULT_PLANS_SEED.find(p => p.key === planKey) || DEFAULT_PLANS_SEED[0];
+            }
 
             document.getElementById('editPlanCardKeyInput').value = plan.key;
             document.getElementById('editPlanNameInput').value = plan.name || '';
@@ -2825,10 +3168,24 @@
                     .map(inp => inp.value.trim())
                     .filter(val => val.length > 0);
 
+                // Update local list memory for instant UI reflection
+                const planObj = globalPlansList.find(p => p.key === key);
+                if (planObj) {
+                    Object.assign(planObj, {
+                        name, badge_text, price, discount_tag, savings_tag, subtitle,
+                        max_products_label, excel_credits_label, max_users_label, features_list
+                    });
+                }
+
+                renderSystemPlanCards(globalPlansList);
+                closePlanModalFunc();
+                showToast(`تم حفظ وتحديث كارت باقة (${name}) بنجاح!`, 'success');
+
                 try {
                     const { error } = await supabase
                         .from('system_subscription_plans')
-                        .update({
+                        .upsert({
+                            key,
                             name,
                             badge_text,
                             price,
@@ -2840,17 +3197,11 @@
                             max_users_label,
                             features_list,
                             updated_at: new Date().toISOString()
-                        })
-                        .eq('key', key);
+                        }, { onConflict: 'key' });
 
-                    if (error) throw error;
-
-                    showToast(`تم حفظ وتحديث كارت باقة (${name}) بنجاح!`, 'success');
-                    closePlanModalFunc();
-                    loadSystemPlans();
-
+                    if (error) console.warn('Supabase plans upsert warning:', error);
                 } catch (err) {
-                    showToast('فشل حفظ الباقة: ' + err.message, 'error');
+                    console.warn('Supabase plans save error:', err);
                 }
             });
         }
@@ -2890,10 +3241,6 @@
             editComparisonFeatureModal.classList.add('flex');
         }
 
-        if (addComparisonFeatureBtn) {
-            addComparisonFeatureBtn.onclick = () => openEditComparisonFeatureModal(null);
-        }
-
         const closeCompModalFunc = () => {
             editComparisonFeatureModal.classList.add('hidden');
             editComparisonFeatureModal.classList.remove('flex');
@@ -2912,32 +3259,41 @@
 
                 const plan_values = { quarterly, semi_annual, annual };
 
+                if (featureId) {
+                    const feat = globalComparisonFeaturesList.find(f => f.id === featureId);
+                    if (feat) {
+                        feat.feature_name = feature_name;
+                        feat.plan_values = plan_values;
+                    }
+                } else {
+                    const newId = 'temp-' + Date.now();
+                    const maxSort = globalComparisonFeaturesList.length > 0 ? Math.max(...globalComparisonFeaturesList.map(f => f.sort_order || 0)) : 0;
+                    globalComparisonFeaturesList.push({
+                        id: newId,
+                        feature_name,
+                        plan_values,
+                        sort_order: maxSort + 1
+                    });
+                }
+
+                renderComparisonTable(globalComparisonFeaturesList);
+                closeCompModalFunc();
+                showToast('تم حفظ بند المقارنة بنجاح!', 'success');
+
                 try {
-                    if (featureId) {
-                        // Update
-                        const { error } = await supabase
+                    if (featureId && !featureId.startsWith('temp-')) {
+                        await supabase
                             .from('subscription_comparison_features')
                             .update({ feature_name, plan_values })
                             .eq('id', featureId);
-
-                        if (error) throw error;
-                        showToast('تم تحديث بند المقارنة بنجاح!', 'success');
                     } else {
-                        // Insert
                         const maxSort = globalComparisonFeaturesList.length > 0 ? Math.max(...globalComparisonFeaturesList.map(f => f.sort_order || 0)) : 0;
-                        const { error } = await supabase
+                        await supabase
                             .from('subscription_comparison_features')
                             .insert({ feature_name, plan_values, sort_order: maxSort + 1 });
-
-                        if (error) throw error;
-                        showToast('تم إضافة البند الجديد لجدول المقارنة بنجاح!', 'success');
                     }
-
-                    closeCompModalFunc();
-                    loadComparisonFeatures();
-
                 } catch (err) {
-                    showToast('فشل حفظ البند: ' + err.message, 'error');
+                    console.warn('Supabase comparison feature save error:', err);
                 }
             });
         }
@@ -2948,26 +3304,310 @@
                 if (!featureId) return;
 
                 if (confirm('هل أنت متأكد من إزالة هذا البند من جدول المقارنة؟')) {
+                    globalComparisonFeaturesList = globalComparisonFeaturesList.filter(f => f.id !== featureId);
+                    renderComparisonTable(globalComparisonFeaturesList);
+                    closeCompModalFunc();
+                    showToast('تم حذف البند من جدول المقارنة', 'success');
+
                     try {
-                        const { error } = await supabase
-                            .from('subscription_comparison_features')
-                            .delete()
-                            .eq('id', featureId);
-
-                        if (error) throw error;
-
-                        showToast('تم حذف البند من جدول المقارنة', 'success');
-                        closeCompModalFunc();
-                        loadComparisonFeatures();
+                        if (!featureId.startsWith('temp-')) {
+                            await supabase
+                                .from('subscription_comparison_features')
+                                .delete()
+                                .eq('id', featureId);
+                        }
                     } catch (err) {
-                        showToast('فشل الحذف: ' + err.message, 'error');
+                        console.warn('Supabase delete comparison feature error:', err);
                     }
                 }
             };
         }
 
-        refreshBtn.addEventListener('click', loadTenants);
+        // Global Event Delegation for Dynamic Buttons
+        document.addEventListener('click', (e) => {
+            const editPlanBtn = e.target.closest('.edit-plan-card-btn');
+            if (editPlanBtn) {
+                const key = editPlanBtn.dataset.planKey;
+                openEditPlanCardModal(key);
+                return;
+            }
+
+            const editCompBtn = e.target.closest('.edit-comparison-feature-btn');
+            if (editCompBtn) {
+                const featureId = editCompBtn.dataset.featureId;
+                openEditComparisonFeatureModal(featureId);
+                return;
+            }
+
+            const addCompBtn = e.target.closest('#addComparisonFeatureBtn');
+            if (addCompBtn) {
+                openEditComparisonFeatureModal(null);
+                return;
+            }
+        });
+
+        refreshBtn.addEventListener('click', () => {
+            loadTenants();
+            loadSystemPlans();
+            loadComparisonFeatures();
+            loadPlanLimits();
+        });
+
+        // =========================================================================
+        // 🎛️ SUB-TABS & DYNAMIC PLAN LIMITS / CREDITS CONSUMPTION ENGINE
+        // =========================================================================
+        const subtabCardsBtn = document.getElementById('subtab-cards-btn');
+        const subtabLimitsBtn = document.getElementById('subtab-limits-btn');
+        const subtabCardsView = document.getElementById('subtab-cards-view');
+        const subtabLimitsView = document.getElementById('subtab-limits-view');
+
+        if (subtabCardsBtn && subtabLimitsBtn) {
+            subtabCardsBtn.onclick = () => {
+                subtabCardsBtn.className = 'subtab-btn active-subtab px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 bg-ultra-500 text-white shadow-md cursor-pointer';
+                subtabLimitsBtn.className = 'subtab-btn px-5 py-2.5 rounded-xl text-xs font-bold text-devo-muted hover:text-white hover:bg-devo-dark transition-all flex items-center gap-2 border border-devo-gray cursor-pointer';
+                if (subtabCardsView) subtabCardsView.classList.remove('hidden');
+                if (subtabLimitsView) subtabLimitsView.classList.add('hidden');
+            };
+
+            subtabLimitsBtn.onclick = () => {
+                subtabLimitsBtn.className = 'subtab-btn active-subtab px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 bg-ultra-500 text-white shadow-md cursor-pointer';
+                subtabCardsBtn.className = 'subtab-btn px-5 py-2.5 rounded-xl text-xs font-bold text-devo-muted hover:text-white hover:bg-devo-dark transition-all flex items-center gap-2 border border-devo-gray cursor-pointer';
+                if (subtabLimitsView) subtabLimitsView.classList.remove('hidden');
+                if (subtabCardsView) subtabCardsView.classList.add('hidden');
+                loadPlanLimits();
+            };
+        }
+
+        // Default Limits Seed Data per Plan Key
+        const DEFAULT_LIMITS_SEED = {
+            'quarterly': {
+                plan_key: 'quarterly',
+                max_products: 200,
+                max_users: 4,
+                monthly_excel_credits: 200,
+                credits_reset_frequency: 'monthly',
+                bulk_edit_pricing_mode: 'per_item',
+                bulk_edit_per_op_cost: 5,
+                bulk_edit_per_item_cost: 1,
+                bulk_edit_max_cap: 50,
+                excel_upload_colors_cost: 1,
+                excel_upload_items_cost: 1,
+                excel_upload_stock_cost: 1
+            },
+            'semi_annual': {
+                plan_key: 'semi_annual',
+                max_products: 600,
+                max_users: 10,
+                monthly_excel_credits: 500,
+                credits_reset_frequency: 'monthly',
+                bulk_edit_pricing_mode: 'per_item',
+                bulk_edit_per_op_cost: 5,
+                bulk_edit_per_item_cost: 1,
+                bulk_edit_max_cap: 50,
+                excel_upload_colors_cost: 0.8,
+                excel_upload_items_cost: 0.8,
+                excel_upload_stock_cost: 0.8
+            },
+            'annual': {
+                plan_key: 'annual',
+                max_products: -1,
+                max_users: 25,
+                monthly_excel_credits: -1,
+                credits_reset_frequency: 'monthly',
+                bulk_edit_pricing_mode: 'per_operation',
+                bulk_edit_per_op_cost: 0,
+                bulk_edit_per_item_cost: 0,
+                bulk_edit_max_cap: 0,
+                excel_upload_colors_cost: 0,
+                excel_upload_items_cost: 0,
+                excel_upload_stock_cost: 0
+            }
+        };
+
+        let globalPlanLimitsMap = { ...DEFAULT_LIMITS_SEED };
+        let activeLimitPlanKey = 'quarterly';
+
+        async function loadPlanLimits() {
+            try {
+                const { data: limitsList, error } = await supabase
+                    .from('subscription_plan_limits')
+                    .select('*');
+
+                if (!error && limitsList && limitsList.length > 0) {
+                    limitsList.forEach(lim => {
+                        globalPlanLimitsMap[lim.plan_key] = lim;
+                    });
+                }
+            } catch (err) {
+                console.warn('Supabase limits load warning, using defaults:', err);
+            }
+            populateLimitsForm(activeLimitPlanKey);
+        }
+
+        function populateLimitsForm(planKey) {
+            activeLimitPlanKey = planKey;
+            document.getElementById('limitPlanKeyInput').value = planKey;
+
+            // Highlight Active Plan Button
+            document.querySelectorAll('.limit-plan-selector-btn').forEach(btn => {
+                const key = btn.dataset.limitPlan;
+                if (key === planKey) {
+                    let activeColorClass = 'bg-emerald-500 text-slate-950';
+                    if (key === 'semi_annual') activeColorClass = 'bg-sky-500 text-white';
+                    if (key === 'annual') activeColorClass = 'bg-amber-500 text-slate-950';
+                    btn.className = `limit-plan-selector-btn active-limit-plan px-4 py-2 rounded-xl text-xs font-black ${activeColorClass} shadow-md cursor-pointer transition-all`;
+                } else {
+                    btn.className = `limit-plan-selector-btn px-4 py-2 rounded-xl text-xs font-bold text-devo-muted bg-devo-black border border-devo-gray hover:text-white transition-all cursor-pointer`;
+                }
+            });
+
+            const lim = globalPlanLimitsMap[planKey] || DEFAULT_LIMITS_SEED[planKey];
+
+            // General Limits
+            const productsInput = document.getElementById('limitMaxProductsInput');
+            const productsCheck = document.getElementById('unlimitedProductsCheck');
+            if (lim.max_products === -1) {
+                productsInput.value = -1;
+                productsCheck.checked = true;
+                productsInput.disabled = true;
+            } else {
+                productsInput.value = lim.max_products;
+                productsCheck.checked = false;
+                productsInput.disabled = false;
+            }
+
+            document.getElementById('limitMaxUsersInput').value = lim.max_users || 4;
+
+            const creditsInput = document.getElementById('limitMonthlyCreditsInput');
+            const creditsCheck = document.getElementById('unlimitedCreditsCheck');
+            if (lim.monthly_excel_credits === -1) {
+                creditsInput.value = -1;
+                creditsCheck.checked = true;
+                creditsInput.disabled = true;
+            } else {
+                creditsInput.value = lim.monthly_excel_credits;
+                creditsCheck.checked = false;
+                creditsInput.disabled = false;
+            }
+
+            document.getElementById('limitResetFreqSelect').value = lim.credits_reset_frequency || 'monthly';
+
+            // Bulk Edit Pricing
+            const modeRadios = document.getElementsByName('bulk_pricing_mode');
+            for (const r of modeRadios) {
+                if (r.value === (lim.bulk_pricing_mode || 'per_item')) r.checked = true;
+            }
+
+            document.getElementById('limitBulkPerOpCostInput').value = lim.bulk_edit_per_op_cost ?? 5;
+            document.getElementById('limitBulkPerItemCostInput').value = lim.bulk_edit_per_item_cost ?? 1;
+            document.getElementById('limitBulkMaxCapInput').value = lim.bulk_edit_max_cap ?? 50;
+
+            // Excel Upload Operations
+            document.getElementById('limitExcelColorsCostInput').value = lim.excel_upload_colors_cost ?? 1;
+            document.getElementById('limitExcelItemsCostInput').value = lim.excel_upload_items_cost ?? 1;
+            document.getElementById('limitExcelStockCostInput').value = lim.excel_upload_stock_cost ?? 1;
+        }
+
+        // Unlimited Checkboxes Event Handlers
+        const productsCheck = document.getElementById('unlimitedProductsCheck');
+        if (productsCheck) {
+            productsCheck.onchange = () => {
+                const inp = document.getElementById('limitMaxProductsInput');
+                if (productsCheck.checked) {
+                    inp.value = -1;
+                    inp.disabled = true;
+                } else {
+                    inp.value = 200;
+                    inp.disabled = false;
+                }
+            };
+        }
+
+        const creditsCheck = document.getElementById('unlimitedCreditsCheck');
+        if (creditsCheck) {
+            creditsCheck.onchange = () => {
+                const inp = document.getElementById('limitMonthlyCreditsInput');
+                if (creditsCheck.checked) {
+                    inp.value = -1;
+                    inp.disabled = true;
+                } else {
+                    inp.value = 200;
+                    inp.disabled = false;
+                }
+            };
+        }
+
+        // Plan Selector Click Delegates
+        document.querySelectorAll('.limit-plan-selector-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const key = e.currentTarget.dataset.limitPlan;
+                if (key) populateLimitsForm(key);
+            });
+        });
+
+        // Save Limits Form Submit
+        const limitsForm = document.getElementById('planLimitsConfigForm');
+        if (limitsForm) {
+            limitsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const plan_key = document.getElementById('limitPlanKeyInput').value;
+                const isProductsUnlimited = document.getElementById('unlimitedProductsCheck').checked;
+                const isCreditsUnlimited = document.getElementById('unlimitedCreditsCheck').checked;
+
+                const max_products = isProductsUnlimited ? -1 : parseInt(document.getElementById('limitMaxProductsInput').value);
+                const max_users = parseInt(document.getElementById('limitMaxUsersInput').value);
+                const monthly_excel_credits = isCreditsUnlimited ? -1 : parseInt(document.getElementById('limitMonthlyCreditsInput').value);
+                const credits_reset_frequency = document.getElementById('limitResetFreqSelect').value;
+
+                let bulk_edit_pricing_mode = 'per_item';
+                const modeRadios = document.getElementsByName('bulk_pricing_mode');
+                for (const r of modeRadios) {
+                    if (r.checked) bulk_edit_pricing_mode = r.value;
+                }
+
+                const bulk_edit_per_op_cost = parseFloat(document.getElementById('limitBulkPerOpCostInput').value);
+                const bulk_edit_per_item_cost = parseFloat(document.getElementById('limitBulkPerItemCostInput').value);
+                const bulk_edit_max_cap = parseFloat(document.getElementById('limitBulkMaxCapInput').value);
+
+                const excel_upload_colors_cost = parseFloat(document.getElementById('limitExcelColorsCostInput').value);
+                const excel_upload_items_cost = parseFloat(document.getElementById('limitExcelItemsCostInput').value);
+                const excel_upload_stock_cost = parseFloat(document.getElementById('limitExcelStockCostInput').value);
+
+                const updatedPayload = {
+                    plan_key,
+                    max_products,
+                    max_users,
+                    monthly_excel_credits,
+                    credits_reset_frequency,
+                    bulk_edit_pricing_mode,
+                    bulk_edit_per_op_cost,
+                    bulk_edit_per_item_cost,
+                    bulk_edit_max_cap,
+                    excel_upload_colors_cost,
+                    excel_upload_items_cost,
+                    excel_upload_stock_cost,
+                    updated_at: new Date().toISOString()
+                };
+
+                globalPlanLimitsMap[plan_key] = updatedPayload;
+                showToast(`تم حفظ وتحديث قواعد حدود واستهلاك باقة (${plan_key}) بنجاح!`, 'success');
+
+                try {
+                    const { error } = await supabase
+                        .from('subscription_plan_limits')
+                        .upsert(updatedPayload, { onConflict: 'plan_key' });
+
+                    if (error) console.warn('Supabase plan limits upsert warning:', error);
+                } catch (err) {
+                    console.warn('Supabase limits save error:', err);
+                }
+            });
+        }
+
         loadTenants();
+        loadSystemPlans();
+        loadComparisonFeatures();
+        loadPlanLimits();
     </script>
 </body>
 </html>

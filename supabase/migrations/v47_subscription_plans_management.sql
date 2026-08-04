@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS public.system_subscription_plans (
     name text NOT NULL,
     badge_text text,
     discount_tag text,
-    savings_tag text,
+    savings_tag text, 
     period_months integer NOT NULL DEFAULT 3,
     price numeric NOT NULL DEFAULT 0,
     currency text DEFAULT 'ج.م',
@@ -55,10 +55,10 @@ BEGIN
     CREATE POLICY "Public read subscription_comparison_features" ON public.subscription_comparison_features FOR SELECT USING (true);
 
     DROP POLICY IF EXISTS "All access system_subscription_plans" ON public.system_subscription_plans;
-    CREATE POLICY "All access system_subscription_plans" ON public.system_subscription_plans FOR ALL USING (true);
+    CREATE POLICY "All access system_subscription_plans" ON public.system_subscription_plans FOR ALL USING (true) WITH CHECK (true);
 
     DROP POLICY IF EXISTS "All access subscription_comparison_features" ON public.subscription_comparison_features;
-    CREATE POLICY "All access subscription_comparison_features" ON public.subscription_comparison_features FOR ALL USING (true);
+    CREATE POLICY "All access subscription_comparison_features" ON public.subscription_comparison_features FOR ALL USING (true) WITH CHECK (true);
 END $$;
 
 -- 4. Seed Default Subscription Plans Data
