@@ -61,7 +61,7 @@ function buildNavLinks(user) {
     const slug = getTenantSlugFromURL();
     const urlParams = new URLSearchParams(window.location.search);
     const isMarketingDomain = (slug === 'default') && !urlParams.has('tenant');
-    const showLandingTab = !user && isMarketingDomain;
+    const showLandingTab = isMarketingDomain;
 
     const links = [];
 
