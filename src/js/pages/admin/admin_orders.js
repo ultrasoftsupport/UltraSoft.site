@@ -735,8 +735,17 @@ window.deleteOrder = async (id) => {
     if (confirmed) {
         showToast('جاري الحذف وإرجاع المخزون...', 'info');
         const { error } = await supabase.rpc('delete_order_safely', { p_order_id: id });
-        if (error) showToast('حدث خطأ أثناء الحذف', 'error');
-        else showToast('تم الحذف بنجاح', 'success');
+        if (error) {
+            console.error('Error deleting order:', error);
+            showToast('حدث خطأ أثناء الحذف: ' + (error.message || ''), 'error');
+        } else {
+            showToast('تم الحذف بنجاح', 'success');
+            // إزالة الأوردر المحذوف من مصفوفة الذاكرة وإعادة رسم الجدول والإحصائيات فوراً
+            allAdminOrders = allAdminOrders.filter(o => o.id !== id);
+            if (typeof updateAdminStats === 'function') updateAdminStats();
+            if (typeof applyAdminOrdersFilter === 'function') applyAdminOrdersFilter();
+            if (typeof fetchAdminOrders === 'function') fetchAdminOrders();
+        }
     }
 };
 

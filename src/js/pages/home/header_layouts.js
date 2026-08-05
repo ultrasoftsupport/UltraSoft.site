@@ -62,12 +62,12 @@ function buildNavLinks(user) {
     const urlParams = new URLSearchParams(window.location.search);
     const tenantParam = urlParams.get('tenant')?.toLowerCase();
     const isMarketingDomain = (slug === 'default') && (!tenantParam || tenantParam === 'default');
-    const showLandingTab = isMarketingDomain;
+    const showLandingTab = isMarketingDomain || Boolean(window.isDefaultOrInvalidTenant);
 
     const links = [];
 
     if (showLandingTab) {
-        links.push({ id: 'view-landing', label: 'عن النظام والاشتراكات', action: `window.location.href='landing.html'`, icon: 'ph-sparkle' });
+        links.push({ id: 'view-landing', label: 'عن النظام والاشتراكات', action: `switchSiteView('view-landing')`, icon: 'ph-sparkle' });
     }
 
     links.push({ id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' });
@@ -112,6 +112,21 @@ function buildUserArea(user) {
             else if (user.worker_job === 'both') workerTitle = 'مبيعات + مخزن';
         }
         return `
+            <!-- 🔔 جرس الإشعارات الفوري للصفحة الرئيسية -->
+            <div class="relative" id="home-notifications-wrapper">
+                <button id="notifications-bell-btn" class="relative p-2 rounded-xl bg-devo-dark border border-devo-gray text-devo-muted hover:text-devo-text hover:border-devo-grayHover transition-all shadow-sm" title="الإشعارات">
+                    <i class="ph ph-bell text-xl"></i>
+                    <span id="notifications-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-devo-error text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-devo-black animate-pulse"></span>
+                </button>
+                <!-- قائمة الإشعارات المنسدلة -->
+                <div id="notifications-dropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-devo-black border border-devo-gray rounded-2xl shadow-2xl z-[200] overflow-hidden" style="right:auto;left:0">
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-devo-gray">
+                        <span class="text-xs font-bold text-white">🔔 الإشعارات الفورية</span>
+                        <button id="clear-notifications-btn" class="text-[10px] text-devo-muted hover:text-devo-error transition-colors">مسح الكل</button>
+                    </div>
+                    <div id="notifications-list" class="max-h-72 overflow-y-auto"></div>
+                </div>
+            </div>
             ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
             <div class="flex items-center gap-2 border-r border-devo-gray pr-3">
                 <div class="text-right">
@@ -139,9 +154,20 @@ function buildMobileMenu(user) {
     const adminUrl = buildTenantUrl('admin.html');
     const authUrl = buildTenantUrl('auth.html');
 
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantParam = urlParams.get('tenant')?.toLowerCase();
+    const isMarketingDomain = (slug === 'default') && (!tenantParam || tenantParam === 'default');
+    const showLandingTab = isMarketingDomain || Boolean(window.isDefaultOrInvalidTenant);
+
+    const landingMobileBtn = showLandingTab
+        ? `<button data-nav-view="view-landing" onclick="switchSiteView('view-landing')" class="py-3 px-4 text-right text-sky-400 hover:text-white rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center gap-3 font-bold"><i class="ph ph-sparkle text-xl text-yellow-300"></i> عن النظام والاشتراكات</button>`
+        : '';
+
     let links = '';
     if (user) {
         links = `
+            ${landingMobileBtn}
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
             <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
@@ -153,6 +179,7 @@ function buildMobileMenu(user) {
         `;
     } else {
         links = `
+            ${landingMobileBtn}
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
             <a href="${authUrl}" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>

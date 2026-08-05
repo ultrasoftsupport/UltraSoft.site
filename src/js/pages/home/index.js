@@ -9,6 +9,7 @@ import { initLandingPage } from './ultrasoft_landing.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
 import { initializeTenantContext, getCurrentTenantId } from '../../services/tenant_service.js';
+import { initHomeNotifications } from '../../services/notifications.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 🏢 تهيئة سياق المصنع وتطبيق الهوية البصرية تلقائياً
@@ -52,9 +53,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // تعيين علامة الزائر عالمياً
     window.isVisitor = !currentUser;
 
-    // تهيئة الهيدر والفوتر والمحتوى والمعرض بشكل توازي سريع فوراً (Instant Concurrent Load)
+    // تهيئة الهيدر أولاً حتى تكون عناصر الجرس موجودة في الـ DOM قبل تفعيل الإشعارات
+    await initNavbar();
+
+    // تهيئة الفوتر والمحتوى والمعرض بشكل توازي سريع
     Promise.all([
-        initNavbar(),
         initFooter(),
         initHomeContent(),
         initGallery()
@@ -65,6 +68,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         initCart();
         await initOrdersView();
         initBarcode();
+
+        // 🔔 تفعيل نظام الإشعارات الفوري للمستخدمين المسجلين في الصفحة الرئيسية
+        // يعمل بعد initNavbar حتى تكون عناصر الجرس موجودة في الـ DOM
+        initHomeNotifications();
 
         const tenantId = getCurrentTenantId() || 'default';
         if (localStorage.getItem(`devo_edit_order_data_${tenantId}`)) {

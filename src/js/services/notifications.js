@@ -560,3 +560,41 @@ export function updateAppBadge(count) {
         document.title = originalTitle;
     }
 }
+
+// ===================================================================
+// 🏠 تهيئة نظام الإشعارات الفورية للصفحة الرئيسية (index.html)
+// يستخدم نفس منطق الأدمن: Realtime + Toast + Sound + Desktop
+// ===================================================================
+export async function initHomeNotifications() {
+    loadUserSession();
+    await loadNotificationSettings();
+
+    if (!webNotificationsEnabled) return;
+
+    // تحديث العنوان الأصلي للصفحة الرئيسية
+    originalTitle = document.title || 'UltraSoft';
+
+    // جلب الإشعارات غير المقروءة الحالية وعرضها في الجرس
+    await fetchUnreadNotifications();
+
+    // إعداد الـ UI للجرس (الفتح/الإغلاق، مسح الكل)
+    setupUI();
+
+    // الاشتراك في التحديثات الفورية عبر Supabase Realtime
+    setupRealtimeSubscription();
+
+    // إعادة الاشتراك عند تجديد الجلسة
+    if (!isAuthStateListenerSet) {
+        isAuthStateListenerSet = true;
+        supabase.auth.onAuthStateChange(async (event) => {
+            if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+                loadUserSession();
+            }
+        });
+    }
+
+    // تحديث القائمة عند تغيير الإشعارات من نافذة أخرى
+    window.addEventListener('devo:notifications-updated', async () => {
+        await fetchUnreadNotifications();
+    });
+}

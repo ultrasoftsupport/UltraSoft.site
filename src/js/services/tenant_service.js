@@ -42,7 +42,7 @@ export function getTenantSlugFromURL() {
 }
 
 /**
- * 🧹 تنظيف معلمة default المباشرة من الـ URL لتكون رابطاً رائداً ونظيفاً
+ * 🧹 تنظيف معلمة tenant المباشرة أو الخاطئة من الـ URL لتكون رابطاً رائداً ونظيفاً
  */
 export function cleanDefaultTenantFromURL() {
     try {
@@ -62,8 +62,16 @@ export function cleanDefaultTenantFromURL() {
  * ⚡ 2. جلب بيانات المصنع الحالي من Supabase وحفظها
  */
 export async function initializeTenantContext() {
-    cleanDefaultTenantFromURL();
     try {
+        const rawUrl = new URL(window.location.href);
+        const tenantParam = rawUrl.searchParams.get('tenant')?.trim()?.toLowerCase();
+        let shouldCleanUrl = false;
+
+        // 1. التجاوز المباشر لمعلمة default أو المحلية
+        if (tenantParam === 'default' || tenantParam === '127' || tenantParam === '127.0.0.1') {
+            shouldCleanUrl = true;
+        }
+
         const slug = getTenantSlugFromURL();
 
         // سياق الـ Super Admin
@@ -74,47 +82,76 @@ export async function initializeTenantContext() {
                 slug: 'super_admin',
                 is_super_admin: true
             };
+            window.isDefaultOrInvalidTenant = false;
             return cachedTenant;
         }
 
-        // البحث عن بيانات المصنع حسب الـ slug أو custom domain
         const hostname = window.location.hostname;
-        const { data: tenant, error } = await supabase
-            .from('tenants')
-            .select('*, subscriptions(*)')
-            .or(`slug.eq.${slug},domain.eq.${hostname},custom_domain.eq.${hostname}`)
-            .eq('status', 'active')
-            .maybeSingle();
+        let tenant = null;
 
-        if (error) {
-            console.error('Error fetching tenant context:', error);
+        // البحث عن بيانات المصنع حسب الـ slug أو custom domain إذا لم يكن slug هو default
+        if (slug && slug !== 'default') {
+            const { data, error } = await supabase
+                .from('tenants')
+                .select('*, subscriptions(*)')
+                .or(`slug.eq.${slug},domain.eq.${hostname},custom_domain.eq.${hostname}`)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (error) {
+                console.error('Error fetching tenant context:', error);
+            }
+
+            if (data) {
+                // فحص تاريخ انتهاء الاشتراك والإيقاف التلقائي للحساب عند انتهاء المدة
+                const sub = Array.isArray(data.subscriptions) ? data.subscriptions[0] : data.subscriptions;
+                const isExpired = sub && sub.end_date && new Date(sub.end_date) < new Date() && data.slug !== 'default';
+                
+                if (isExpired) {
+                    console.warn(`[Subscription Expired] Tenant ${data.name} subscription ended on ${sub.end_date}. Auto-suspending.`);
+                    data.status = 'suspended';
+                    supabase.from('tenants').update({ status: 'suspended' }).eq('id', data.id).then();
+                    if (sub) supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id).then();
+                    tenant = null; // معاملته كمصنع غير مفعل / منتهي
+                } else {
+                    tenant = data;
+                }
+            }
         }
 
         if (tenant) {
-            // فحص تاريخ انتهاء الاشتراك والإيقاف التلقائي للحساب عند انتهاء المدة
-            const sub = Array.isArray(tenant.subscriptions) ? tenant.subscriptions[0] : tenant.subscriptions;
-            if (sub && sub.end_date && new Date(sub.end_date) < new Date() && tenant.slug !== 'default') {
-                console.warn(`[Subscription Expired] Tenant ${tenant.name} subscription ended on ${sub.end_date}. Auto-suspending.`);
-                tenant.status = 'suspended';
-                // تحديث قاعدة البيانات في الخلفية
-                supabase.from('tenants').update({ status: 'suspended' }).eq('id', tenant.id).then();
-                supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id).then();
+            cachedTenant = tenant;
+            window.isDefaultOrInvalidTenant = false;
+        } else {
+            // التراجع للمصنع الافتراضي إن لم يتم العثور على intent صحيح ومفعل
+            if (tenantParam) {
+                shouldCleanUrl = true;
             }
 
-            cachedTenant = tenant;
-        } else {
-            // التراجع للمصنع الافتراضي إن لم يتم العثور عليه
             const { data: defaultTenant } = await supabase
                 .from('tenants')
                 .select('*, subscriptions(*)')
                 .eq('slug', 'default')
-                .single();
+                .maybeSingle();
 
             cachedTenant = defaultTenant || {
                 id: '00000000-0000-0000-0000-000000000001',
                 name: 'المصنع الرئيسي',
                 slug: 'default'
             };
+            window.isDefaultOrInvalidTenant = true;
+        }
+
+        // تنظيف معلمة الـ tenant من رابط المتصفح فوراً لإرجاع الرابط إلى النمط الرئيسي النظيف
+        if (shouldCleanUrl) {
+            try {
+                const cleanUrlObj = new URL(window.location.href);
+                cleanUrlObj.searchParams.delete('tenant');
+                const cleanUrl = cleanUrlObj.pathname + (cleanUrlObj.searchParams.toString() ? '?' + cleanUrlObj.searchParams.toString() : '') + cleanUrlObj.hash;
+                window.history.replaceState({}, document.title, cleanUrl);
+            } catch (e) {
+                console.warn('Error cleaning tenant from URL:', e);
+            }
         }
 
         // تطبيق الهوية البصرية للمصنع

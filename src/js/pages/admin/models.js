@@ -993,18 +993,20 @@ async function handleSaveModel(e) {
             const invMap = new Map();
             inventoryData.forEach(inv => {
                 if (inv.color_id) {
-                    invMap.set(String(inv.color_id), {
+                    const entry = {
                         model_id: modelId,
                         color_id: inv.color_id,
                         available_series: inv.available_series || 0
-                    });
+                    };
+                    if (currentTenantId) entry.tenant_id = currentTenantId;
+                    invMap.set(String(inv.color_id), entry);
                 }
             });
             const cleanInv = Array.from(invMap.values());
             if (cleanInv.length > 0) {
                 const { error: invErr } = await supabase
                     .from('model_inventory')
-                    .upsert(cleanInv, { onConflict: 'model_id,color_id' });
+                    .insert(cleanInv);
                 if (invErr) throw invErr;
             }
         }
@@ -1012,7 +1014,37 @@ async function handleSaveModel(e) {
 
         showToast((id ? 'تم الحفظ' : 'تمت الإضافة') + statusMessage, 'success');
         closeModelModal();
-        if (typeof window.refreshAllSystemData === 'function') await window.refreshAllSystemData({ silent: true });
+
+        // 🔄 تحديث فوري للـ UI بدون انتظار الـ Realtime
+        // نجلب بيانات الموديل الكاملة من قاعدة البيانات مباشرةً ونحدث الـ allModels
+        try {
+            const { data: freshModel } = await supabase
+                .from('models')
+                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, colors(id, name, color_code)), model_images(image_url)`)
+                .eq('id', modelId)
+                .single();
+
+            if (freshModel) {
+                const existingIndex = allModels.findIndex(m => m.id === modelId);
+                if (existingIndex > -1) {
+                    // تعديل موديل موجود
+                    allModels[existingIndex] = freshModel;
+                    const card = document.getElementById(`admin-model-card-${modelId}`);
+                    if (card) card.outerHTML = generateModelCardHTML(freshModel);
+                } else {
+                    // موديل جديد
+                    allModels.unshift(freshModel);
+                }
+                updateAdminStats();
+                applyFilters();
+            }
+        } catch (refreshErr) {
+            // لو فشل الجلب الفوري، نستخدم refreshAllSystemData كـ fallback
+            console.warn('Immediate refresh failed, falling back:', refreshErr);
+            if (typeof window.refreshAllSystemData === 'function') {
+                await window.refreshAllSystemData({ silent: true });
+            }
+        }
     } catch (err) {
         if (err.code === '23505') showToast('كود السيستم مستخدم بالفعل!', 'error');
         else showToast(err.message, 'error');

@@ -167,7 +167,13 @@ export async function initNavbar() {
 
     // التنشيط الأولي للشاشة الافتراضية مع إعداد حماية الرجوع للخلف (exit-trap)
     const tenantId = getCurrentTenantId() || 'default';
-    const initialView = localStorage.getItem(`devo_edit_order_data_${tenantId}`) ? 'view-cart' : 'view-home';
+    const hasEditOrder = localStorage.getItem(`devo_edit_order_data_${tenantId}`);
+    let initialView = 'view-home';
+    if (hasEditOrder) {
+        initialView = 'view-cart';
+    } else if (window.isDefaultOrInvalidTenant) {
+        initialView = 'view-landing';
+    }
     
     window.currentView = initialView;
     history.replaceState({ view: 'exit-trap' }, '', window.location.pathname + window.location.search);

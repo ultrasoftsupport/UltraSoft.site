@@ -55,14 +55,15 @@ function updateUserProfileUI(profile) {
         roleEl.className = `text-xs font-bold ${roleColor}`;
     }
 
-    // 🌟 السطر السحري لإخفاء/إظهار زر إدارة الحسابات بناءً على الصلاحية 🌟
+    // إخفاء/إظهار تاب إدارة الحسابات والإعدادات للمالك فقط
     const usersLink = document.querySelector('[data-target="view-users"]');
+    const settingsLink = document.querySelector('[data-target="view-settings"]');
+    const isOwner = profile.role === 'owner';
     if (usersLink) {
-        if (profile.role === 'owner') {
-            usersLink.classList.remove('hidden'); // إظهار للمالك
-        } else {
-            usersLink.classList.add('hidden'); // إخفاء للمدير
-        }
+        usersLink.classList.toggle('hidden', !isOwner);
+    }
+    if (settingsLink) {
+        settingsLink.classList.toggle('hidden', !isOwner);
     }
 }
 // --- Navigation Engine (Router Logic) ---
@@ -112,6 +113,13 @@ async function loadViewLogic(targetId) {
         const defaultLink = document.querySelector('[data-target="view-dashboard"]');
         if (defaultLink) switchView('view-dashboard', defaultLink);
         return; 
+    }
+
+    if (targetId === 'view-settings' && currentUserContext?.role !== 'owner') {
+        showToast('عفواً، صفحة الإعدادات مخصصة لمالك النظام فقط 🛑', 'error');
+        const defaultLink = document.querySelector('[data-target="view-dashboard"]');
+        if (defaultLink) switchView('view-dashboard', defaultLink);
+        return;
     }
 
 
