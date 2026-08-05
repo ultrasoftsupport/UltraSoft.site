@@ -330,7 +330,7 @@ function renderLandingHTML() {
                     <div id="landing-pricing-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch max-w-5xl mx-auto mb-16 pt-4">
                         
                         <!-- PLAN 1: 3 MONTHS - EMERALD GREEN THEME -->
-                        <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative overflow-hidden">
+                        <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                             
                             <!-- Top Header Badge -->
                             <div class="absolute -top-4 right-1/2 translate-x-1/2 px-3.5 py-1 rounded-full bg-emerald-500 text-slate-950 text-[11px] sm:text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -396,7 +396,7 @@ function renderLandingHTML() {
                         </div>
 
                         <!-- PLAN 2: 6 MONTHS - CYAN / SKY BLUE THEME (RECOMMENDED) -->
-                        <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative overflow-hidden transform md:-translate-y-3">
+                        <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
                             
                             <!-- Top Header Badge -->
                             <div class="absolute -top-4 right-1/2 translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-[11px] sm:text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -467,7 +467,7 @@ function renderLandingHTML() {
                         </div>
 
                         <!-- PLAN 3: 1 YEAR - GOLD / AMBER THEME (BEST VALUE) -->
-                        <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative overflow-hidden">
+                        <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                             
                             <!-- Top Header Badge -->
                             <div class="absolute -top-4 right-1/2 translate-x-1/2 px-3.5 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-[11px] sm:text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -539,34 +539,8 @@ function renderLandingHTML() {
 
                     </div>
 
-                    <!-- DETAILED COMPETITIVE COMPARISON TABLE -->
-                    <div class="mt-16 bg-devo-dark/95 border border-devo-gray rounded-3xl p-4 sm:p-8 shadow-2xl overflow-hidden">
-                        <div class="text-center mb-6 sm:mb-8">
-                            <h3 class="text-xl sm:text-3xl font-black text-devo-text mb-2">جدول المقارنة الشامل لكافة ميزات ووظائف النظام</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm font-medium">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft</p>
-                        </div>
-
-                        <!-- Mobile Plan Selector Tabs -->
-                        <div class="md:hidden mb-6 bg-devo-black border border-devo-gray p-1.5 rounded-2xl grid grid-cols-3 gap-1 text-xs">
-                            <button id="tab-mobile-quarterly" onclick="switchMobileComparisonPlan('quarterly')" class="py-2.5 px-1 rounded-xl text-center transition-all text-devo-muted hover:text-white">
-                                3 أشهر
-                            </button>
-                            <button id="tab-mobile-semi_annual" onclick="switchMobileComparisonPlan('semi_annual')" class="py-2.5 px-1 rounded-xl bg-sky-500 text-white font-black text-center transition-all shadow">
-                                6 أشهر
-                            </button>
-                            <button id="tab-mobile-annual" onclick="switchMobileComparisonPlan('annual')" class="py-2.5 px-1 rounded-xl text-center transition-all text-devo-muted hover:text-white">
-                                سنة كاملة
-                            </button>
-                        </div>
-
-                        <!-- Mobile Table View -->
-                        <div class="md:hidden overflow-hidden rounded-2xl border border-devo-gray bg-devo-black/60">
-                            <table class="w-full text-right border-collapse">
-                                <thead>
-                                    <tr id="mobile-table-header-row" class="border-b border-devo-gray bg-sky-500/15 text-sky-400 font-bold">
-
-            </section>
-
+                </section>
+            </div>
         </div>
     `;
 }
@@ -574,14 +548,13 @@ function renderLandingHTML() {
 function getLandingRatioTag(baselineVal, currentVal) {
     if (baselineVal === undefined || baselineVal === null || currentVal === undefined || currentVal === null) return '';
     if (currentVal === -1) {
-        return baselineVal > 0 ? ' (بلا حدود ✨)' : '';
+        return baselineVal > 0 ? ' (بلا حدود)' : '';
     }
     if (baselineVal <= 0 || baselineVal === -1) return '';
 
     const ratio = currentVal / baselineVal;
     if (ratio > 1) {
         const formatted = (ratio % 1 === 0) ? ratio.toFixed(0) : ratio.toFixed(1);
-        if (formatted === '3') return ' (3 أضعاف)';
         return ` (${formatted}x)`;
     }
     return '';
@@ -592,11 +565,11 @@ function renderLandingCardLimitBadges(planKey, plan, limitsMap, badgeBgClass) {
     const baseLim = limitsMap['quarterly'] || {};
     const isBase = planKey === 'quarterly';
 
-    const fmtActive = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 200} موديل`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtTotal = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 500} موديل`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtInvoices = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 1000} فاتورة`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtCredits = (v, base) => (v === -1 ? 'غير محدود ∞' : `${v ?? 200} كريديت / شهرياً`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtUsers = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 4} مستخدمين`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtActive = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 200} م`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtTotal = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 500} م`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtInvoices = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 1000} ف`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtCredits = (v, base) => (v === -1 ? 'بلا حدود ✨' : `${v ?? 200} ⚡/ش`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtUsers = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 4} فرد`) + (isBase ? '' : getLandingRatioTag(base, v));
 
     const badges = [
         { label: 'إجمالي الموديلات بالمعرض:', value: fmtTotal(lim.max_total_products, baseLim.max_total_products) },
@@ -614,9 +587,9 @@ function renderLandingCardLimitBadges(planKey, plan, limitsMap, badgeBgClass) {
     });
 
     return badges.map(b => `
-        <div class="flex items-center justify-between text-devo-text gap-3 pb-2.5 border-b border-devo-gray/30 last:border-b-0 last:pb-0">
-            <span class="text-devo-muted font-bold text-xs sm:text-sm shrink-0 whitespace-nowrap">${b.label}</span>
-            <span class="font-black text-slate-950 ${badgeBgClass} px-3 py-1 rounded-lg text-xs sm:text-sm shadow-sm inline-flex items-center justify-center shrink-0 whitespace-nowrap font-mono">
+        <div class="flex items-center justify-between text-devo-text gap-2 pb-2 border-b border-devo-gray/30 last:border-b-0 last:pb-0">
+            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0 whitespace-nowrap">${b.label}</span>
+            <span class="font-black text-slate-950 ${badgeBgClass} px-2 py-0.5 rounded-md text-[11px] sm:text-xs shadow-sm font-mono shrink-0 whitespace-nowrap">
                 ${b.value}
             </span>
         </div>
@@ -681,14 +654,229 @@ window.switchMobileComparisonPlan = function(planKey) {
         } else if (planKey === 'semi_annual') {
             headerEl.textContent = 'اشتراك 6 أشهر (الأكثر طلباً)';
             headerRow.className = 'border-b border-devo-gray bg-sky-500/15 text-sky-400 font-bold';
-        } else {
-            headerEl.textContent = 'اشتراك سنة كاملة';
+        } else if (planKey === 'annual') {
+            headerEl.textContent = 'اشتراك سنة كاملة (أفضل قيمة)';
             headerRow.className = 'border-b border-devo-gray bg-amber-500/15 text-amber-400 font-bold';
         }
     }
 
-    renderMobileComparisonRows();
+    if (currentComparisonFeatures.length > 0) {
+        renderLandingComparisonTable(currentComparisonFeatures);
+    }
 };
+
+function renderLandingPlanCards(plans, limitsMap) {
+    const cardsGrid = document.getElementById('landing-pricing-cards-grid');
+    if (!cardsGrid) return;
+
+    const waNumber = '201000000000';
+    const createWaLink = (planName, price) => {
+        const text = `مرحباً شركة UltraSoft، أود الاستفسار والاشتراك في باقة (${planName}) بسعر ${price} لنظام إدارة المتاجر والمخزن.`;
+        return `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
+    };
+
+    cardsGrid.innerHTML = plans.map(plan => {
+        const isPurple = plan.color_scheme === 'purple' || plan.key === 'trial';
+        const isEmerald = plan.color_scheme === 'emerald' || plan.key === 'quarterly';
+        const isSky = plan.color_scheme === 'sky' || plan.key === 'semi_annual';
+        const isAmber = plan.color_scheme === 'amber' || plan.key === 'annual';
+
+        const features = Array.isArray(plan.features_list) ? plan.features_list : [];
+        const priceFormatted = (plan.price || 0).toLocaleString();
+
+        if (isPurple) {
+            return `
+                <div class="bg-gradient-to-b from-purple-500/15 via-devo-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-purple-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                        <i class="ph-fill ph-gift text-amber-300"></i>
+                        <span>${plan.name || 'الباقة التجريبية المجانية'}</span>
+                    </div>
+
+                    ${plan.discount_tag ? `
+                        <div class="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-purple-400 text-slate-950 font-black text-[10px] sm:text-xs shadow-md border border-purple-300 whitespace-nowrap z-10">
+                            ${plan.discount_tag}
+                        </div>
+                    ` : ''}
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                            <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'تجربة مجانية (5 أيام)'}</h3>
+                            ${plan.savings_tag ? `<span class="px-2 py-0.5 rounded-full bg-purple-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
+                        </div>
+
+                        <div class="mb-5">
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-3xl sm:text-5xl font-black text-purple-400">مجاناً</span>
+                                <span class="text-devo-muted text-xs font-bold">(5 أيام تجريبية)</span>
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-purple-300/90 font-bold mt-1">${plan.subtitle || ''}</p>
+                        </div>
+
+                        <!-- Dynamic Spec Box -->
+                        <div class="bg-devo-black/80 border border-purple-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                            ${renderLandingCardLimitBadges('trial', plan, limitsMap, 'bg-purple-400')}
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                            ${features.map(f => `
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>${f}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <a href="${createWaLink(plan.badge_text || 'الباقة التجريبية المجانية', 'مجاني (0 ج.م)')}" target="_blank" class="w-full py-3.5 rounded-2xl bg-purple-500 hover:bg-purple-400 text-white font-black text-xs sm:text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <i class="ph-fill ph-rocket-launch text-amber-300 text-lg sm:text-xl"></i>
+                        <span>ابدأ التجربة المجانية الآن</span>
+                    </a>
+                </div>
+            `;
+        } else if (isEmerald) {
+            return `
+                <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                        <i class="ph-fill ph-sparkle text-slate-950"></i>
+                        <span>${plan.name || 'باقة البداية الاقتصادية'}</span>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                            <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 3 أشهر'}</h3>
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm whitespace-nowrap">${plan.savings_tag || 'ربع سنوي'}</span>
+                        </div>
+
+                        <div class="mb-5">
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-3xl sm:text-5xl font-black text-emerald-400">${priceFormatted}</span>
+                                <span class="text-devo-muted text-xs sm:text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1">${plan.subtitle || ''}</p>
+                        </div>
+
+                        <!-- Dynamic Spec Box -->
+                        <div class="bg-devo-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                            ${renderLandingCardLimitBadges('quarterly', plan, limitsMap, 'bg-emerald-400')}
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                            ${features.map(f => `
+                                <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
+                                    <span>${f}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <a href="${createWaLink(plan.badge_text || 'اشتراك 3 أشهر', priceFormatted + ' جنيه')}" target="_blank" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <i class="ph-fill ph-whatsapp-logo text-slate-950 text-lg sm:text-xl"></i>
+                        <span>اشترك الآن (${priceFormatted} ج.م)</span>
+                    </a>
+                </div>
+            `;
+        } else if (isSky) {
+            return `
+                <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
+                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                        <i class="ph-fill ph-lightning text-amber-300"></i>
+                        <span>${plan.name || 'الباقة الأكثر طلباً'}</span>
+                    </div>
+
+                    ${plan.discount_tag ? `
+                        <div class="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs shadow-md border border-sky-300 whitespace-nowrap z-10">
+                            ${plan.discount_tag}
+                        </div>
+                    ` : ''}
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                            <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 6 أشهر'}</h3>
+                            ${plan.savings_tag ? `<span class="px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
+                        </div>
+
+                        <div class="mb-5">
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-3xl sm:text-5xl font-black text-sky-400">${priceFormatted}</span>
+                                <span class="text-devo-muted text-xs sm:text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-sky-400 font-bold mt-1">${plan.subtitle || ''}</p>
+                        </div>
+
+                        <!-- Dynamic Spec Box -->
+                        <div class="bg-devo-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                            ${renderLandingCardLimitBadges('semi_annual', plan, limitsMap, 'bg-sky-400')}
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                            ${features.map(f => `
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
+                                    <span>${f}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <a href="${createWaLink(plan.badge_text || 'اشتراك 6 أشهر', priceFormatted + ' جنيه')}" target="_blank" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-ultra-600 to-sky-500 hover:from-ultra-500 hover:to-sky-400 text-white font-black text-xs sm:text-sm text-center shadow-[0_10px_25px_rgba(2,132,199,0.5)] transition-all flex items-center justify-center gap-2 transform hover:scale-[1.02]">
+                        <i class="ph-fill ph-whatsapp-logo text-emerald-300 text-lg sm:text-xl"></i>
+                        <span>اشترك الآن (${priceFormatted} ج.م)</span>
+                    </a>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                        <i class="ph-fill ph-crown text-slate-950"></i>
+                        <span>${plan.name || 'أفضل قيمة وتوفير'}</span>
+                    </div>
+
+                    ${plan.discount_tag ? `
+                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md border border-amber-300 whitespace-nowrap z-10">
+                            ${plan.discount_tag}
+                        </div>
+                    ` : ''}
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pt-3">
+                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك سنة كاملة'}</h3>
+                            ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
+                        </div>
+
+                        <div class="mb-6">
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-4xl sm:text-5xl font-black text-amber-400">${priceFormatted}</span>
+                                <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                            </div>
+                            <p class="text-xs text-amber-400/90 font-bold mt-1">${plan.subtitle || ''}</p>
+                        </div>
+
+                        <!-- Dynamic Spec Box -->
+                        <div class="bg-devo-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
+                            ${renderLandingCardLimitBadges('annual', plan, limitsMap, 'bg-amber-400')}
+                        </div>
+
+                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
+                            ${features.map(f => `
+                                <li class="flex items-center gap-2.5 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
+                                    <span>${f}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <a href="${createWaLink(plan.badge_text || 'اشتراك سنة كاملة', priceFormatted + ' جنيه')}" target="_blank" class="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <i class="ph-fill ph-whatsapp-logo text-slate-950 text-xl"></i>
+                        <span>اشترك الآن (${priceFormatted} ج.م)</span>
+                    </a>
+                </div>
+            `;
+        }
+    }).join('');
+}
 
 function renderMobileComparisonRows() {
     const mobileBody = document.getElementById('landing-comparison-mobile-body');
@@ -789,217 +977,4 @@ function renderLandingComparisonTable(features) {
     }
 
     renderMobileComparisonRows();
-}
-
-function renderLandingPlanCards(plans, limitsMap = {}) {
-    const cardsGrid = document.getElementById('landing-pricing-cards-grid');
-    if (!cardsGrid) return;
-
-    const waNumber = '201140409832';
-    const createWaLink = (planName, price) => {
-        const text = `مرحباً شركة UltraSoft، أود الاستفسار والاشتراك في باقة (${planName}) بسعر ${price} لنظام إدارة المتاجر والمخازن.`;
-        return `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
-    };
-
-    cardsGrid.innerHTML = plans.map(plan => {
-        const isPurple = plan.color_scheme === 'purple' || plan.key === 'trial';
-        const isEmerald = plan.color_scheme === 'emerald' || plan.key === 'quarterly';
-        const isSky = plan.color_scheme === 'sky' || plan.key === 'semi_annual';
-        const isAmber = plan.color_scheme === 'amber' || plan.key === 'annual';
-
-        const features = Array.isArray(plan.features_list) ? plan.features_list : [];
-        const priceFormatted = (plan.price || 0).toLocaleString();
-
-        if (isPurple) {
-            return `
-                <div class="bg-gradient-to-b from-purple-500/15 via-devo-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
-                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-purple-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
-                        <i class="ph-fill ph-gift text-amber-300"></i>
-                        <span>${plan.name || 'الباقة التجريبية المجانية'}</span>
-                    </div>
-
-                    ${plan.discount_tag ? `
-                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-purple-400 text-slate-950 font-black text-xs shadow-md border border-purple-300 whitespace-nowrap z-10">
-                            ${plan.discount_tag}
-                        </div>
-                    ` : ''}
-
-                    <div>
-                        <div class="flex justify-between items-center mb-3 pt-3">
-                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'تجربة مجانية (5 أيام)'}</h3>
-                            ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-purple-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
-                        </div>
-
-                        <div class="mb-6">
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-4xl sm:text-5xl font-black text-purple-400">مجاناً</span>
-                                <span class="text-devo-muted text-xs font-bold">(5 أيام تجريبية)</span>
-                            </div>
-                            <p class="text-xs text-purple-300/90 font-bold mt-1">${plan.subtitle || ''}</p>
-                        </div>
-
-                        <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-purple-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            ${renderLandingCardLimitBadges('trial', plan, limitsMap, 'bg-purple-400')}
-                        </div>
-
-                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
-                            ${features.map(f => `
-                                <li class="flex items-center gap-2.5 text-devo-text font-bold">
-                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
-                                    <span>${f}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-
-                    <a href="${createWaLink(plan.badge_text || 'الباقة التجريبية المجانية', 'مجاني (0 ج.م)')}" target="_blank" class="w-full py-4 rounded-2xl bg-purple-500 hover:bg-purple-400 text-white font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
-                        <i class="ph-fill ph-rocket-launch text-amber-300 text-xl"></i>
-                        <span>ابدأ التجربة المجانية الآن</span>
-                    </a>
-                </div>
-            `;
-        } else if (isEmerald) {
-            return `
-                <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
-                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
-                        <i class="ph-fill ph-sparkle text-slate-950"></i>
-                        <span>${plan.name || 'باقة البداية الاقتصادية'}</span>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between items-center mb-3 pt-3">
-                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 3 أشهر'}</h3>
-                            <span class="px-2.5 py-1 rounded-full bg-emerald-400 text-slate-950 text-xs font-black shadow-sm whitespace-nowrap">${plan.savings_tag || 'ربع سنوي'}</span>
-                        </div>
-
-                        <div class="mb-6">
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-4xl sm:text-5xl font-black text-emerald-400">${priceFormatted}</span>
-                                <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
-                            </div>
-                            <p class="text-xs text-emerald-400 font-bold mt-1">${plan.subtitle || ''}</p>
-                        </div>
-
-                        <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-emerald-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            ${renderLandingCardLimitBadges('quarterly', plan, limitsMap, 'bg-emerald-400')}
-                        </div>
-
-                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
-                            ${features.map(f => `
-                                <li class="flex items-center gap-2.5 text-devo-text font-medium">
-                                    <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
-                                    <span>${f}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-
-                    <a href="${createWaLink(plan.badge_text || 'اشتراك 3 أشهر', priceFormatted + ' جنيه')}" target="_blank" class="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
-                        <i class="ph-fill ph-whatsapp-logo text-slate-950 text-xl"></i>
-                        <span>اشترك الآن (${priceFormatted} ج.م)</span>
-                    </a>
-                </div>
-            `;
-        } else if (isSky) {
-            return `
-                <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
-                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
-                        <i class="ph-fill ph-lightning text-amber-300"></i>
-                        <span>${plan.name || 'الباقة الأكثر طلباً'}</span>
-                    </div>
-
-                    ${plan.discount_tag ? `
-                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-sky-400 text-slate-950 font-black text-xs shadow-md border border-sky-300 whitespace-nowrap z-10">
-                            ${plan.discount_tag}
-                        </div>
-                    ` : ''}
-
-                    <div>
-                        <div class="flex justify-between items-center mb-3 pt-3">
-                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 6 أشهر'}</h3>
-                            ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-sky-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
-                        </div>
-
-                        <div class="mb-6">
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-4xl sm:text-5xl font-black text-sky-400">${priceFormatted}</span>
-                                <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
-                            </div>
-                            <p class="text-xs text-sky-400 font-bold mt-1">${plan.subtitle || ''}</p>
-                        </div>
-
-                        <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-sky-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            ${renderLandingCardLimitBadges('semi_annual', plan, limitsMap, 'bg-sky-400')}
-                        </div>
-
-                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
-                            ${features.map(f => `
-                                <li class="flex items-center gap-2.5 text-devo-text font-bold">
-                                    <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
-                                    <span>${f}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-
-                    <a href="${createWaLink(plan.badge_text || 'اشتراك 6 أشهر', priceFormatted + ' جنيه')}" target="_blank" class="w-full py-4 rounded-2xl bg-gradient-to-r from-ultra-600 to-sky-500 hover:from-ultra-500 hover:to-sky-400 text-white font-black text-sm text-center shadow-[0_10px_25px_rgba(2,132,199,0.5)] transition-all flex items-center justify-center gap-2 transform hover:scale-[1.02]">
-                        <i class="ph-fill ph-whatsapp-logo text-emerald-300 text-xl"></i>
-                        <span>اشترك الآن (${priceFormatted} ج.م)</span>
-                    </a>
-                </div>
-            `;
-        } else {
-            return `
-                <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
-                    <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
-                        <i class="ph-fill ph-crown text-slate-950"></i>
-                        <span>${plan.name || 'أفضل قيمة وتوفير'}</span>
-                    </div>
-
-                    ${plan.discount_tag ? `
-                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md border border-amber-300 whitespace-nowrap z-10">
-                            ${plan.discount_tag}
-                        </div>
-                    ` : ''}
-
-                    <div>
-                        <div class="flex justify-between items-center mb-3 pt-3">
-                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك سنة كاملة'}</h3>
-                            ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
-                        </div>
-
-                        <div class="mb-6">
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-4xl sm:text-5xl font-black text-amber-400">${priceFormatted}</span>
-                                <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
-                            </div>
-                            <p class="text-xs text-amber-400/90 font-bold mt-1">${plan.subtitle || ''}</p>
-                        </div>
-
-                        <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
-                            ${renderLandingCardLimitBadges('annual', plan, limitsMap, 'bg-amber-400')}
-                        </div>
-
-                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
-                            ${features.map(f => `
-                                <li class="flex items-center gap-2.5 text-devo-text font-bold">
-                                    <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
-                                    <span>${f}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-
-                    <a href="${createWaLink(plan.badge_text || 'اشتراك سنة كاملة', priceFormatted + ' جنيه')}" target="_blank" class="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm text-center transition-all flex items-center justify-center gap-2 shadow-lg">
-                        <i class="ph-fill ph-whatsapp-logo text-slate-950 text-xl"></i>
-                        <span>اشترك الآن (${priceFormatted} ج.م)</span>
-                    </a>
-                </div>
-            `;
-        }
-    }).join('');
 }
