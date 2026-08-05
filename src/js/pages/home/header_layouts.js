@@ -187,7 +187,7 @@ function buildMobileMenu(user) {
     }
 
     return `
-        <div id="mobile-menu" class="fixed inset-0 bg-devo-black/95 backdrop-blur-xl z-[90] transform translate-x-full transition-transform duration-300 md:hidden flex flex-col pt-20 px-6 overflow-y-auto">
+        <div id="mobile-menu" class="fixed inset-0 bg-devo-black/95 backdrop-blur-xl z-[500000] transform translate-x-full transition-transform duration-300 md:hidden flex flex-col pt-24 px-6 overflow-y-auto">
             <div class="flex flex-col space-y-2 text-base font-bold" id="mobile-nav-links">
                 ${links}
             </div>
@@ -212,7 +212,7 @@ export function attachMobileMenuToggle() {
 
 function buildBrandLogo(badgeText = 'Collection') {
     return `
-        <div class="flex-shrink-0 cursor-pointer flex items-center gap-3 select-none" dir="ltr" onclick="switchSiteView('view-home')">
+        <div class="flex-shrink-0 cursor-pointer flex items-center gap-3 select-none " dir="ltr" onclick="switchSiteView('view-home')">
             <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-9 sm:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
             <div class="flex items-center gap-2">
                 <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-devo-text">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
@@ -232,7 +232,7 @@ function renderClassic(user, settings) {
     const userArea = buildUserArea(user);
 
     return `
-        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-50 bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="classic">
+        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="classic">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
@@ -264,7 +264,7 @@ function renderCentered(user, settings) {
     const rightLinks = navLinks.slice(half);
 
     return `
-        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-50 bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="centered">
+        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="centered">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="hidden md:grid grid-cols-3 items-center" style="height:${height}px">
                     <div class="flex items-center justify-start gap-1">
@@ -367,7 +367,7 @@ function renderSearchHero(user, settings) {
     const userArea = buildUserArea(user);
 
     return `
-        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-50 bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="search-hero">
+        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="search-hero">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-4" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
