@@ -67,7 +67,10 @@ function buildNavLinks(user) {
     const links = [];
 
     if (showLandingTab) {
-        links.push({ id: 'view-landing', label: 'عن النظام والاشتراكات', action: `switchSiteView('view-landing')`, icon: 'ph-sparkle' });
+        links.push(
+            { id: 'view-landing-overview', label: 'عن النظام', action: `switchSiteView('view-landing-overview')`, icon: 'ph-sparkle' },
+            { id: 'view-landing-pricing', label: 'الاشتراكات', action: `switchSiteView('view-landing-pricing')`, icon: 'ph-tag' }
+        );
     }
 
     links.push({ id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' });
@@ -90,9 +93,9 @@ function buildNavLinks(user) {
 
 function buildNavBtns(links) {
     return links.map(l =>
-        `<button data-nav-view="${l.id}" onclick="${l.action}" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold text-devo-muted hover:text-devo-text transition-all flex items-center gap-1.5 border border-transparent">
-            <i class="ph ${l.icon} text-base"></i>
-            <span>${l.label}</span>
+        `<button data-nav-view="${l.id}" onclick="${l.action}" class="px-2.5 xl:px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold text-devo-muted hover:text-devo-text transition-all flex items-center gap-1.5 border border-transparent whitespace-nowrap shrink-0">
+            <i class="ph ${l.icon} text-base shrink-0"></i>
+            <span class="whitespace-nowrap">${l.label}</span>
         </button>`
     ).join('');
 }
@@ -113,8 +116,8 @@ function buildUserArea(user) {
         }
         return `
             <!-- 🔔 جرس الإشعارات الفوري للصفحة الرئيسية -->
-            <div class="relative" id="home-notifications-wrapper">
-                <button id="notifications-bell-btn" class="relative p-2 rounded-xl bg-devo-dark border border-devo-gray text-devo-muted hover:text-devo-text hover:border-devo-grayHover transition-all shadow-sm" title="الإشعارات">
+            <div class="relative shrink-0" id="home-notifications-wrapper">
+                <button id="notifications-bell-btn" class="relative p-2 rounded-xl bg-devo-dark border border-devo-gray text-devo-muted hover:text-devo-text hover:border-devo-grayHover transition-all shadow-sm shrink-0" title="الإشعارات">
                     <i class="ph ph-bell text-xl"></i>
                     <span id="notifications-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-devo-error text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-devo-black animate-pulse"></span>
                 </button>
@@ -127,21 +130,21 @@ function buildUserArea(user) {
                     <div id="notifications-list" class="max-h-72 overflow-y-auto"></div>
                 </div>
             </div>
-            ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
-            <div class="flex items-center gap-2 border-r border-devo-gray pr-3">
-                <div class="text-right">
+            ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all shrink-0" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
+            <div class="flex items-center gap-2 border-r border-devo-gray pr-3 shrink-0">
+                <div class="text-right shrink-0">
                     <p class="text-xs md:text-sm font-bold text-white leading-tight truncate max-w-[110px]" title="${user.full_name}">${user.full_name}</p>
                     <p class="text-[10px] text-devo-orange leading-tight font-medium">${isWorker ? workerTitle : 'إدارة'}</p>
                 </div>
-                <div class="w-9 h-9 rounded-xl bg-devo-dark border border-devo-gray flex items-center justify-center text-devo-muted hover:text-devo-error hover:border-devo-error/40 cursor-pointer transition-all shadow-sm" onclick="handleLogout()" title="تسجيل الخروج">
+                <div class="w-9 h-9 rounded-xl bg-devo-dark border border-devo-gray flex items-center justify-center text-devo-muted hover:text-devo-error hover:border-devo-error/40 cursor-pointer transition-all shadow-sm shrink-0" onclick="handleLogout()" title="تسجيل الخروج">
                     <i class="ph ph-sign-out text-lg"></i>
                 </div>
             </div>
         `;
     } else {
         return `
-            <a href="${authUrl}" class="px-4 py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
-                <i class="ph ph-sign-in text-base"></i>
+            <a href="${authUrl}" class="px-4 py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shrink-0 whitespace-nowrap">
+                <i class="ph ph-sign-in text-base shrink-0"></i>
                 <span>تسجيل الدخول</span>
             </a>
         `;
@@ -160,14 +163,17 @@ function buildMobileMenu(user) {
     const isMarketingDomain = (slug === 'default') && (!tenantParam || tenantParam === 'default');
     const showLandingTab = isMarketingDomain || Boolean(window.isDefaultOrInvalidTenant);
 
-    const landingMobileBtn = showLandingTab
-        ? `<button data-nav-view="view-landing" onclick="switchSiteView('view-landing')" class="py-3 px-4 text-right text-sky-400 hover:text-white rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center gap-3 font-bold"><i class="ph ph-sparkle text-xl text-yellow-300"></i> عن النظام والاشتراكات</button>`
+    const landingMobileBtns = showLandingTab
+        ? `
+            <button data-nav-view="view-landing-overview" onclick="switchSiteView('view-landing-overview')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl"></i> عن النظام</button>
+            <button data-nav-view="view-landing-pricing" onclick="switchSiteView('view-landing-pricing')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-tag text-xl"></i> الاشتراكات</button>
+        `
         : '';
 
     let links = '';
     if (user) {
         links = `
-            ${landingMobileBtn}
+            ${landingMobileBtns}
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
             <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
@@ -179,7 +185,7 @@ function buildMobileMenu(user) {
         `;
     } else {
         links = `
-            ${landingMobileBtn}
+            ${landingMobileBtns}
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
             <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
             <a href="${authUrl}" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
@@ -187,7 +193,7 @@ function buildMobileMenu(user) {
     }
 
     return `
-        <div id="mobile-menu" class="fixed inset-0 bg-devo-black/95 backdrop-blur-xl z-[500000] transform translate-x-full transition-transform duration-300 md:hidden flex flex-col pt-24 px-6 overflow-y-auto">
+        <div id="mobile-menu" class="fixed inset-0 bg-devo-black/95 backdrop-blur-xl z-[500000] transform translate-x-full transition-transform duration-300 xl:hidden flex flex-col pt-24 px-6 overflow-y-auto">
             <div class="flex flex-col space-y-2 text-base font-bold" id="mobile-nav-links">
                 ${links}
             </div>
@@ -212,11 +218,11 @@ export function attachMobileMenuToggle() {
 
 function buildBrandLogo(badgeText = 'Collection') {
     return `
-        <div class="flex-shrink-0 cursor-pointer flex items-center gap-3 select-none " dir="ltr" onclick="switchSiteView('view-home')">
-            <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-9 sm:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
-            <div class="flex items-center gap-2">
-                <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-devo-text">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
-                ${badgeText ? `<span class="text-[10px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2.5 py-0.5 rounded-full uppercase shadow-sm">${badgeText}</span>` : ''}
+        <div class="cursor-pointer flex items-center gap-3 select-none shrink-0" dir="ltr" onclick="switchSiteView('view-home')">
+            <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-8 sm:h-9 xl:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="text-lg xl:text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
+                ${badgeText ? `<span class="text-[9px] xl:text-[10px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2 py-0.5 rounded-full uppercase shadow-sm whitespace-nowrap hidden sm:inline-block">${badgeText}</span>` : ''}
             </div>
         </div>
     `;
@@ -234,15 +240,15 @@ function renderClassic(user, settings) {
     return `
         <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="classic">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between" style="height:${height}px">
+                <div class="flex items-center justify-between gap-2" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
-                    <div class="hidden md:flex items-center gap-1.5 bg-devo-dark/80 p-1.5 rounded-2xl border border-devo-gray/60 shadow-inner">
+                    <div class="hidden xl:flex items-center gap-1 bg-devo-dark/80 p-1.5 rounded-2xl border border-devo-gray/60 shadow-inner overflow-x-auto scrollbar-none max-w-full">
                         ${buildNavBtns(navLinks)}
                     </div>
-                    <div class="hidden md:flex items-center gap-3">
+                    <div class="hidden xl:flex items-center gap-3 shrink-0">
                         ${userArea}
                     </div>
-                    <div class="md:hidden flex items-center gap-2">
+                    <div class="xl:hidden flex items-center gap-2">
                         <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text focus:outline-none bg-devo-dark border border-devo-gray rounded-xl">
                             <i class="ph ph-list text-2xl"></i>
                         </button>
@@ -266,25 +272,25 @@ function renderCentered(user, settings) {
     return `
         <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="centered">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="hidden md:grid grid-cols-3 items-center" style="height:${height}px">
-                    <div class="flex items-center justify-start gap-1">
+                <div class="hidden xl:grid grid-cols-3 items-center" style="height:${height}px">
+                    <div class="flex items-center justify-start gap-1 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(rightLinks)}
                     </div>
-                    <div class="flex flex-col items-center justify-center cursor-pointer select-none" dir="ltr" onclick="switchSiteView('view-home')">
+                    <div class="flex flex-col items-center justify-center cursor-pointer select-none shrink-0" dir="ltr" onclick="switchSiteView('view-home')">
                         <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-9 sm:h-10 w-auto object-contain mb-0.5 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)]">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-2xl font-extrabold tracking-tight text-devo-text">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
+                            <span class="text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
                             <span class="text-[9px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2 py-0.5 rounded-full uppercase shadow-sm">Collection</span>
                         </div>
                     </div>
-                    <div class="flex items-center justify-end gap-2">
+                    <div class="flex items-center justify-end gap-2 shrink-0">
                         ${buildNavBtns(leftLinks)}
-                        <div class="border-r border-devo-gray pr-2 mr-1">
+                        <div class="border-r border-devo-gray pr-2 mr-1 shrink-0">
                             ${userArea}
                         </div>
                     </div>
                 </div>
-                <div class="md:hidden flex items-center justify-between" style="height:${height}px">
+                <div class="xl:hidden flex items-center justify-between" style="height:${height}px">
                     ${buildBrandLogo('')}
                     <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
                         <i class="ph ph-list text-2xl"></i>
@@ -302,15 +308,15 @@ function renderMinimal(user, settings) {
 
     return `
         <header id="site-header-nav" class="fixed w-full top-3 left-0 right-0 z-50 px-3 md:px-6 transition-all duration-300 pointer-events-none" data-layout="minimal">
-            <div class="max-w-6xl mx-auto bg-devo-black/95 backdrop-blur-xl border border-devo-gray/80 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] px-4 py-2 flex items-center justify-between pointer-events-auto">
+            <div class="max-w-6xl mx-auto bg-devo-black/95 backdrop-blur-xl border border-devo-gray/80 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] px-4 py-2 flex items-center justify-between pointer-events-auto gap-2">
                 ${buildBrandLogo('Collection')}
-                <div class="hidden md:flex items-center gap-1">
+                <div class="hidden xl:flex items-center gap-1 overflow-x-auto scrollbar-none">
                     ${buildNavBtns(navLinks)}
                 </div>
-                <div class="hidden md:flex items-center gap-2">
+                <div class="hidden xl:flex items-center gap-2 shrink-0">
                     ${userArea}
                 </div>
-                <div class="md:hidden flex items-center">
+                <div class="xl:hidden flex items-center">
                     <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
                         <i class="ph ph-list text-xl"></i>
                     </button>
@@ -329,11 +335,11 @@ function renderLuxury(user, settings) {
     return `
         <div class="fixed w-full z-50 top-0 left-0 right-0 bg-gradient-to-r from-ultra-600 via-sky-500 to-ultra-600 text-white text-[11px] font-bold py-1 px-4 shadow-sm">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <span class="flex items-center gap-1.5">
+                <span class="flex items-center gap-1.5 whitespace-nowrap">
                     <i class="ph ph-clock text-sm"></i>
                     ساعات العمل: السبت - الخميس (10 ص - 10 م)
                 </span>
-                <div class="hidden sm:flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-4 whitespace-nowrap">
                     <span class="flex items-center gap-1"><i class="ph ph-phone text-sm"></i> دعم العملاء</span>
                     <span class="flex items-center gap-1"><i class="ph ph-map-pin text-sm"></i> شركة UltraSoft</span>
                 </div>
@@ -341,15 +347,15 @@ function renderLuxury(user, settings) {
         </div>
         <nav id="site-header-nav" class="fixed w-full z-40 bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" style="top:26px" data-layout="luxury">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between" style="height:${height}px">
+                <div class="flex items-center justify-between gap-2" style="height:${height}px">
                     ${buildBrandLogo('LUXURY')}
-                    <div class="hidden md:flex items-center gap-1 bg-devo-dark p-1.5 rounded-2xl border border-devo-gray/50">
+                    <div class="hidden xl:flex items-center gap-1 bg-devo-dark p-1.5 rounded-2xl border border-devo-gray/50 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(navLinks)}
                     </div>
-                    <div class="hidden md:flex items-center gap-3">
+                    <div class="hidden xl:flex items-center gap-3 shrink-0">
                         ${userArea}
                     </div>
-                    <div class="md:hidden flex items-center">
+                    <div class="xl:hidden flex items-center">
                         <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
                             <i class="ph ph-list text-2xl"></i>
                         </button>
@@ -371,16 +377,16 @@ function renderSearchHero(user, settings) {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-4" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
-                    <div class="hidden md:flex flex-1 max-w-md mx-4 relative">
+                    <div class="hidden xl:flex flex-1 max-w-md mx-4 relative">
                         <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted"></i>
                         <input type="text" onclick="switchSiteView('view-gallery')" placeholder="بحث سريع في الموديلات والمعرض..." readonly class="w-full bg-devo-dark border border-devo-gray rounded-xl pr-9 pl-4 py-2 text-xs text-white focus:border-devo-orange cursor-pointer hover:border-devo-grayHover transition-all">
                     </div>
-                    <div class="hidden lg:flex items-center gap-1">
+                    <div class="hidden xl:flex items-center gap-1 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(navLinks)}
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="hidden sm:flex">${userArea}</div>
-                        <button id="mobile-menu-btn" class="md:hidden p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
+                    <div class="flex items-center gap-2 shrink-0">
+                        <div class="hidden sm:flex shrink-0">${userArea}</div>
+                        <button id="mobile-menu-btn" class="xl:hidden p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
                             <i class="ph ph-list text-xl"></i>
                         </button>
                     </div>
@@ -399,15 +405,15 @@ function renderTransparent(user, settings) {
     return `
         <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-50 bg-transparent border-transparent transition-all duration-500" style="height:${height}px" data-layout="transparent">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between" style="height:${height}px">
+                <div class="flex items-center justify-between gap-2" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
-                    <div class="hidden md:flex items-center gap-1 bg-devo-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/10">
+                    <div class="hidden xl:flex items-center gap-1 bg-devo-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(navLinks)}
                     </div>
-                    <div class="hidden md:flex items-center gap-3">
+                    <div class="hidden xl:flex items-center gap-3 shrink-0">
                         ${userArea}
                     </div>
-                    <div class="md:hidden flex items-center">
+                    <div class="xl:hidden flex items-center">
                         <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-black/40 backdrop-blur-md border border-white/10 rounded-xl">
                             <i class="ph ph-list text-2xl"></i>
                         </button>

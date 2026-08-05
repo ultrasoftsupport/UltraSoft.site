@@ -63,16 +63,29 @@ export async function initNavbar() {
 
         window.currentView = targetId;
 
+        const actualSectionId = (targetId === 'view-landing-overview' || targetId === 'view-landing-pricing') ? 'view-landing' : targetId;
+
+        window.currentView = targetId;
+
         document.querySelectorAll('.site-view-section').forEach(el => {
             el.classList.remove('block');
             el.classList.add('hidden');
         });
 
-        const target = document.getElementById(targetId);
+        const target = document.getElementById(actualSectionId);
         if (target) {
             target.classList.remove('hidden');
             target.classList.add('block');
             window.scrollTo(0, 0);
+        }
+
+        // تحويل الموديول المناسب في صفحة Landing
+        if (targetId === 'view-landing-overview') {
+            window.switchLandingModule?.('overview');
+        } else if (targetId === 'view-landing-pricing') {
+            window.switchLandingModule?.('pricing');
+        } else if (targetId === 'view-landing') {
+            window.switchLandingModule?.('overview');
         }
 
         // تمييز وتظليل التبويب النشط فورياً في جميع الـ Layouts
@@ -172,7 +185,7 @@ export async function initNavbar() {
     if (hasEditOrder) {
         initialView = 'view-cart';
     } else if (window.isDefaultOrInvalidTenant) {
-        initialView = 'view-landing';
+        initialView = 'view-landing-overview';
     }
     
     window.currentView = initialView;
