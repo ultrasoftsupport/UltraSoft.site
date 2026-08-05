@@ -1,6 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
+import { getCurrentTenantId, getTenantModelQuotaDetails, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -354,6 +355,7 @@ function switchStep(step) {
     if (globalHeader) {
         globalHeader.classList.toggle('hidden', step === 'step-models');
     }
+    updateImportStockBtnCreditBadge();
 }
 
 // 🌟 2. Analyze Excel File & Go DIRECTLY to Preview Step 3 🌟
@@ -373,28 +375,79 @@ async function handleAnalyze() {
                 throw new Error('الملف فارغ أو لا يحتوي على صفوف بيانات صالحة.');
             }
 
-            updateProgress('جاري استخلاص عناوين الأعمدة والبيانات...', 25);
+            // 🔍 البحث الديناميكي الدقيق عن صف الهيدر الحقيقي ومواقع الأعمدة
+            let headerRowIdx = -1;
+            for (let r = 0; r < Math.min(5, rawRows.length); r++) {
+                const row = rawRows[r] || [];
+                const hasCode = row.some(cell => {
+                    const str = String(cell || '').trim();
+                    return str === 'الكود' || str === 'كود' || str === 'كود الصنف' || str === 'كود السيستم';
+                });
+                const hasName = row.some(cell => {
+                    const str = String(cell || '').trim();
+                    return str === 'اسم الصنف' || str === 'اسم الموديل' || str === 'اسم المنتج';
+                });
 
-            let codeIdx = 18;
-            let nameIdx = 17;
-            let colorIdx = 14;
-            let sizeIdx = 15;
-            let priceIdx = 2;
-            let balanceIdx = 3;
+                if (hasCode || (hasName && row.some(cell => String(cell || '').trim() === 'بيع 1' || String(cell || '').trim() === 'لون'))) {
+                    headerRowIdx = r;
+                    break;
+                }
+            }
 
-            const headers = rawRows[1] || [];
-            headers.forEach((h, idx) => {
-                const hStr = String(h || '').trim();
-                if (hStr === 'الكود' || hStr === 'كود') codeIdx = idx;
-                else if (hStr === 'اسم الصنف' || hStr === 'الصنف') nameIdx = idx;
-                else if (hStr === 'لون') colorIdx = idx;
-                else if (hStr === 'مقاس') sizeIdx = idx;
+            if (headerRowIdx === -1) headerRowIdx = 1; // Default fallback to row 1
+
+            const headerRow = rawRows[headerRowIdx] || [];
+            const upperHeaderRow = rawRows[headerRowIdx - 1] || [];
+
+            let codeIdx = -1;
+            let nameIdx = -1;
+            let colorIdx = -1;
+            let sizeIdx = -1;
+            let priceIdx = -1;
+            let costPriceIdx = -1;
+            let totalValueIdx = -1;
+            let qtyUnitIdx = -1;
+            let addedQtyIdx = -1;
+            let soldQtyIdx = -1;
+
+            headerRow.forEach((cell, idx) => {
+                const str = String(cell || '').trim().toLowerCase();
+                const upperStr = String(upperHeaderRow[idx] || '').trim().toLowerCase();
+
+                if (str === 'الكود' || str === 'كود' || str === 'كود الصنف' || str === 'كود السيستم') {
+                    codeIdx = idx;
+                } else if (str === 'اسم الصنف' || str === 'اسم الموديل' || str === 'اسم المنتج') {
+                    nameIdx = idx;
+                } else if (str === 'لون' || str === 'اللون') {
+                    colorIdx = idx;
+                } else if (str === 'مقاس' || str === 'المقاس') {
+                    sizeIdx = idx;
+                } else if (str === 'بيع 1' || str === 'سعر البيع' || str === 'بيع' || str === 'السعر') {
+                    priceIdx = idx;
+                } else if (str === 'س التكلفة' || str === 'التكلفة' || str === 'سعر التكلفة') {
+                    costPriceIdx = idx;
+                } else if (str === 'القيمة' || upperStr === 'رصيد' || str === 'رصيد') {
+                    if (totalValueIdx === -1) totalValueIdx = idx;
+                } else if (str === 'وحدة' && (upperStr === 'رصيد' || idx === 3)) {
+                    qtyUnitIdx = idx;
+                } else if (upperStr === 'مضاف' || str === 'مضاف') {
+                    addedQtyIdx = idx;
+                } else if (upperStr === 'مباع' || str === 'مباع') {
+                    soldQtyIdx = idx;
+                }
             });
 
-            const firstPrice = headers.indexOf('بيع 1');
-            if (firstPrice !== -1) priceIdx = firstPrice;
-            const firstUnit = headers.indexOf('وحدة');
-            if (firstUnit !== -1) balanceIdx = firstUnit;
+            // Fallbacks for column indices
+            if (nameIdx === -1) {
+                headerRow.forEach((cell, idx) => {
+                    if (String(cell || '').trim() === 'الصنف') nameIdx = idx;
+                });
+            }
+
+            if (codeIdx === -1) codeIdx = 18;
+            if (nameIdx === -1) nameIdx = 17;
+            if (colorIdx === -1) colorIdx = 14;
+            if (priceIdx === -1) priceIdx = 2;
 
             updateProgress('جاري فحص الموديلات ومطابقتها مع السيستم...', 50);
 
@@ -404,40 +457,60 @@ async function handleAnalyze() {
             modelActions = {};
             colorMappings = {};
 
-            for (let i = 2; i < rawRows.length; i++) {
+            const dataStartRow = headerRowIdx + 1;
+            for (let i = dataStartRow; i < rawRows.length; i++) {
                 const row = rawRows[i];
                 if (!row || row.length === 0) continue;
 
-                const systemCode = String(row[codeIdx] || '').trim().replace('.0', '');
-                const rawName = String(row[nameIdx] || '').trim();
-                const colorName = String(row[colorIdx] || '').trim();
+                const systemCode = String(row[codeIdx] !== undefined ? row[codeIdx] : '').trim().replace('.0', '');
+                const rawName = String(row[nameIdx] !== undefined ? row[nameIdx] : '').trim();
+                const colorName = String(row[colorIdx] !== undefined ? row[colorIdx] : 'ساده').trim() || 'ساده';
                 const price = parseFloat(row[priceIdx]) || 0;
-                const balance = parseFloat(row[balanceIdx]) || 0;
 
-                if (!systemCode || !colorName) continue;
+                if (!systemCode && !rawName) continue;
+
+                const finalCode = systemCode || `MODEL_${i}`;
+
+                // Calculate balance units robustly
+                let balance = 0;
+                const directQty = parseFloat(row[qtyUnitIdx]);
+                const costPrice = parseFloat(row[costPriceIdx]) || 0;
+                const totalVal = parseFloat(row[totalValueIdx]) || 0;
+                const addedQty = parseFloat(row[addedQtyIdx]) || 0;
+                const soldQty = parseFloat(row[soldQtyIdx]) || 0;
+
+                if (!isNaN(directQty) && directQty > 0) {
+                    balance = directQty;
+                } else if (costPrice > 0 && totalVal > 0) {
+                    balance = Math.round(totalVal / costPrice);
+                } else if (addedQty > 0 || soldQty > 0) {
+                    balance = addedQty - soldQty;
+                } else if (totalValueIdx !== -1) {
+                    balance = parseFloat(row[totalValueIdx]) || 0;
+                }
 
                 excelRawData.push({
-                    systemCode,
-                    rawName,
+                    systemCode: finalCode,
+                    rawName: rawName || finalCode,
                     colorName,
                     price,
                     balance
                 });
 
                 // Set default create model action
-                modelActions[systemCode] = 'create';
+                modelActions[finalCode] = 'create';
 
                 // Detect unregistered models
-                const exists = allModels.some(m => String(m.system_code) === String(systemCode));
-                if (!exists && !seenCodes.has(systemCode)) {
-                    seenCodes.add(systemCode);
+                const exists = allModels.some(m => String(m.system_code) === String(finalCode));
+                if (!exists && !seenCodes.has(finalCode)) {
+                    seenCodes.add(finalCode);
                     const match = rawName.match(/(.+?)\s+(\d+)$/);
-                    const cleanName = match ? match[1].trim() : rawName;
+                    const cleanName = match ? match[1].trim() : (rawName || finalCode);
                     const factoryCode = match ? match[2] : '';
 
                     unregisteredModels.push({
-                        systemCode,
-                        rawName,
+                        systemCode: finalCode,
+                        rawName: rawName || finalCode,
                         factoryCode,
                         name: cleanName,
                         price
@@ -445,12 +518,12 @@ async function handleAnalyze() {
                 }
 
                 // Set default color mapping action
-                if (!colorMappings[systemCode]) colorMappings[systemCode] = {};
+                if (!colorMappings[finalCode]) colorMappings[finalCode] = {};
                 const matchedColor = existingColors.find(c => c.name.trim().toLowerCase() === colorName.toLowerCase());
                 if (matchedColor) {
-                    colorMappings[systemCode][colorName] = { action: 'map', targetColorId: matchedColor.id };
+                    colorMappings[finalCode][colorName] = { action: 'map', targetColorId: matchedColor.id };
                 } else {
-                    colorMappings[systemCode][colorName] = { action: 'add', targetColorId: null };
+                    colorMappings[finalCode][colorName] = { action: 'add', targetColorId: null };
                 }
             }
 
@@ -833,6 +906,7 @@ async function processAndRenderPreview() {
                 // If S = 1 (custom / مخصص), we treat it as is (no rounding or division)
                 calculatedQty = rawQty;
             }
+            calculatedQty = Math.max(0, calculatedQty);
 
             let currentQty = 0;
             if (targetColorId) {
@@ -1067,6 +1141,8 @@ window.toggleImportStockModelSelection = (code, checked) => {
 // 🌟 Render preview table rows with clear model separators 🌟
 function renderPreviewTable(data) {
     const tbodyContainer = document.getElementById('import-preview-tbody-container');
+    const filteredEl = document.getElementById('import-stock-filtered-count');
+    const selectedEl = document.getElementById('import-stock-selected-count');
     if (!tbodyContainer) return;
 
     if (data.length === 0) {
@@ -1134,17 +1210,48 @@ function renderPreviewTable(data) {
 
     tbodyContainer.innerHTML = bodiesHtml;
 
-    const filteredEl = document.getElementById('import-stock-filtered-count');
-    const selectedEl = document.getElementById('import-stock-selected-count');
-    const btnSelectedEl = document.getElementById('import-stock-btn-selected-count');
-
     if (filteredEl) filteredEl.textContent = data.length;
     if (selectedEl) selectedEl.textContent = selectedImportStockModelCodes.size;
-    if (btnSelectedEl) btnSelectedEl.textContent = selectedImportStockModelCodes.size;
+    updateImportStockBtnCreditBadge();
 
     const masterCb = document.getElementById('import-stock-select-all');
     if (masterCb) {
         masterCb.checked = filteredPreviewData.length > 0 && filteredPreviewData.every(item => selectedImportStockModelCodes.has(item.systemCode));
+    }
+}
+
+async function updateImportStockBtnCreditBadge() {
+    const selectedCount = selectedImportStockModelCodes.size || previewData.length || excelRawData.length || 0;
+    try {
+        const creditRules = await getTenantCreditRules();
+        const cost = calculateOperationCredits('excel_stock_import', selectedCount, creditRules);
+        const costLabel = creditRules.is_unlimited ? 'مجاناً ⚡' : `${cost} ⚡`;
+
+        // 1. Step Models Button (Green button: حفظ الموديلات ومتابعة للألوان)
+        const btnModels = document.getElementById('import-btn-apply-models');
+        if (btnModels) {
+            btnModels.innerHTML = `<span>حفظ الموديلات ومتابعة للألوان ( ${costLabel} )</span> <i class="ph ph-arrow-left text-lg"></i>`;
+        }
+
+        // 2. Step Colors Button (Green button: حفظ ومتابعة للمعاينة)
+        const btnColors = document.getElementById('import-btn-apply-colors');
+        if (btnColors) {
+            btnColors.innerHTML = `<span>حفظ ومتابعة للمعاينة ( ${costLabel} )</span> <i class="ph ph-arrow-left text-lg"></i>`;
+        }
+
+        // 3. Step 3 Execution / Proceed Button
+        const btnProceed = document.getElementById('import-btn-proceed-checks');
+        if (btnProceed) {
+            btnProceed.innerHTML = `<span>المتابعة لفحص الأصناف والقرارات ( <span id="import-stock-btn-selected-count">${selectedImportStockModelCodes.size}</span> موديل - ${costLabel} )</span> <i class="ph ph-arrow-left text-xl"></i>`;
+        }
+
+        // 4. Any Confirm Save Button
+        const btnSave = document.getElementById('import-btn-confirm-save') || document.getElementById('import-btn-save');
+        if (btnSave) {
+            btnSave.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد واستيراد ألوان وأعداد الموديلات ( ${selectedCount} موديل - ${costLabel} )</span>`;
+        }
+    } catch (e) {
+        console.warn('Error updating import stock credit badge:', e);
     }
 }
 
@@ -1166,24 +1273,65 @@ async function handleConfirmSave() {
         return showToast('الرجاء اختيار أو اصطياد موديل واحد على الأقل قبل الحفظ', 'warning');
     }
 
+    // ⚡ 1. فحص رصيد الكريديت قبل البدء
+    const creditRules = await getTenantCreditRules();
+    const requiredCredits = calculateOperationCredits('excel_stock_import', selectedPreviewData.length, creditRules);
+
+    if (!creditRules.is_unlimited && creditRules.remaining_credits < requiredCredits) {
+        showSubscriptionUpgradeModal({
+            quotaType: 'excel_credits',
+            limit: creditRules.remaining_credits,
+            title: '⚠️ وصول للحد الأقصى لرصيد الكريديت (Excel)',
+            message: `تعذر رفع مخزون الإكسيل: تتطلب العملية خصم (${requiredCredits} كريديت) بينما الرصيد المتاح لديك (${creditRules.remaining_credits} كريديت).`
+        });
+        return;
+    }
+
     showProgress('مزامنة وحفظ البيانات', 'جاري تجهيز وتأكيد القوائم للرفع بقاعدة البيانات...');
 
     try {
         // Step A: Create new models in bulk batches (only 'create' action, truly unregistered)
         const seenNewCodes = new Set();
-        const newModelsToInsert = [];
+        const seenFactoryCodes = new Set();
+        let newModelsToInsert = [];
         for (const item of selectedPreviewData) {
             if (item.isNew && modelActions[item.systemCode] === 'create' && !seenNewCodes.has(item.systemCode)) {
                 const unreg = unregisteredModels.find(m => String(m.systemCode) === String(item.systemCode));
                 if (unreg) {
                     seenNewCodes.add(item.systemCode);
-                    newModelsToInsert.push({
+                    let fCode = unreg.factoryCode ? String(unreg.factoryCode).trim() : '';
+                    if (!fCode) {
+                        fCode = String(unreg.systemCode).trim();
+                    }
+                    if (seenFactoryCodes.has(fCode)) {
+                        fCode = `${fCode}_${unreg.systemCode}`;
+                    }
+                    seenFactoryCodes.add(fCode);
+
+                    const newModelObj = {
                         system_code: unreg.systemCode,
-                        factory_code: unreg.factoryCode,
+                        factory_code: fCode,
                         name: unreg.name,
                         price: unreg.price,
                         is_active: false
-                    });
+                    };
+                    const currentTenantId = getCurrentTenantId();
+                    if (currentTenantId) newModelObj.tenant_id = currentTenantId;
+                    newModelsToInsert.push(newModelObj);
+                }
+            }
+        }
+
+        // 🛑 فحص حدود الباقة للموديلات الجديدة (Excel Subscription Quota Enforcement)
+        if (newModelsToInsert.length > 0) {
+            const quotaDetails = await getTenantModelQuotaDetails();
+            if (!quotaDetails.isUnlimited) {
+                const allowedToCreate = quotaDetails.remainingTotal;
+                if (newModelsToInsert.length > allowedToCreate) {
+                    const skippedCount = newModelsToInsert.length - allowedToCreate;
+                    newModelsToInsert = newModelsToInsert.slice(0, allowedToCreate);
+
+                    showToast(`⚠️ تنبيه الباقة: تم إنشاء ${allowedToCreate} موديل جديد فقط متوافق مع حد باقتك (${quotaDetails.maxProducts} موديل). تم تخطي إنشاء ${skippedCount} موديل زائد لتجاوز الحدود.`, 'warning');
                 }
             }
         }
@@ -1353,7 +1501,7 @@ async function handleConfirmSave() {
                 if (!targetColorId) continue;
 
                 if (color.diff !== 0) {
-                    const dbSeriesVal = Math.round(color.calculatedQty);
+                    const dbSeriesVal = Math.max(0, Math.round(color.calculatedQty));
                     const key = `${item.modelId}_${targetColorId}`;
                     const existingInvId = existingInventoryMap.get(key);
 
@@ -1442,6 +1590,13 @@ async function handleConfirmSave() {
             }
         }
 
+        // ⚡ 2. خصم الكريديت وتسجيل العملية بسجل الاستهلاك
+        try {
+            await deductTenantCredits('excel_stock_import', 'رفع مخزون إكسيل', requiredCredits, selectedPreviewData.length);
+        } catch (deductErr) {
+            console.error('Error deducting excel credits:', deductErr);
+        }
+
         updateProgress('اكتملت مزامنة وحفظ كافة البيانات بنجاح!', 100);
         setTimeout(() => {
             hideProgress();
@@ -1452,7 +1607,12 @@ async function handleConfirmSave() {
     } catch (err) {
         console.error("Save Import Error:", err);
         hideProgress();
-        showToast(`فشل المزامنة: ${err.message}`, 'error');
+        if (err.message && err.message.includes('SUBSCRIPTION_LIMIT_EXCEEDED')) {
+            const match = err.message.match(/\d+/);
+            showSubscriptionUpgradeModal({ limit: match ? match[0] : 'المحدد' });
+        } else {
+            showToast(`فشل المزامنة: ${err.message}`, 'error');
+        }
     }
 }
 

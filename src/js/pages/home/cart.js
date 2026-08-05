@@ -1,9 +1,9 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
-import { confirmDialog } from '../../components/modal.js'; 
+import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js'; 
 import { printOrderCustomerInvoice } from '../../utils/print.js?v=2';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getTenantOrderQuotaDetails } from '../../services/tenant_service.js';
 
 function getTenantCartKey() {
     const tenantId = getCurrentTenantId() || 'default';
@@ -657,6 +657,21 @@ async function handleCheckout(e) {
             }
         }
 
+        if (!editingOrderId) {
+            const quotaDetails = await getTenantOrderQuotaDetails();
+            if (!quotaDetails.isUnlimited && quotaDetails.totalOrders >= quotaDetails.maxOrders) {
+                btn.disabled = false;
+                btn.innerHTML = `تأكيد وإصدار الفاتورة`;
+                showSubscriptionUpgradeModal({
+                    quotaType: 'orders',
+                    limit: quotaDetails.maxOrders,
+                    title: '⚠️ وصول للحد الأقصى للطلبات بالفاتورة',
+                    message: `تعذر إصدار فاتورة جديدة: لقد وصلت إلى الحد الأقصى المسموح به للطلبات في باقتك الحالية (${quotaDetails.maxOrders} طلب).`
+                });
+                return;
+            }
+        }
+
         const orderItemsData = cartItems.map(item => ({
             model_id: item.modelId,
             color_id: item.colorId,
@@ -716,7 +731,15 @@ async function handleCheckout(e) {
         showToast('تم إصدار الفاتورة وتحديث المخزون بنجاح!', 'success');
 
     } catch (err) {
-        if (err.message !== 'ValidationError') {
+        if (err.message && err.message.includes('SUBSCRIPTION_LIMIT_EXCEEDED')) {
+            const match = err.message.match(/\d+/);
+            showSubscriptionUpgradeModal({
+                quotaType: 'orders',
+                limit: match ? match[0] : 'المحدد',
+                title: '⚠️ وصول للحد الأقصى للطلبات بالفاتورة',
+                message: `تعذر إصدار فاتورة جديدة: تجاوز الحد المسموح به للطلبات بالباقة الحالية.`
+            });
+        } else if (err.message !== 'ValidationError') {
             console.error('Supabase Error:', err);
             showToast(`خطأ من السيرفر: ${err.message || 'فشل الاتصال بقاعدة البيانات'}`, 'error');
         }

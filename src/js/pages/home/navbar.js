@@ -43,7 +43,7 @@ export async function initNavbar() {
                 isDestructive: isDestructive
             });
         }
-        return Promise.resolve(confirm(message));
+        return Promise.resolve(false);
     };
 
     // نظام التوجيه (التبديل بين الصفحات بدون تحميل)

@@ -2,14 +2,23 @@ import { supabase } from '../config/supabase.js';
 import { getCurrentTenantId, getTenantSlugFromURL, getCurrentTenant, initializeTenantContext } from './tenant_service.js';
 
 /**
- * تسجيل الدخول باستخدام اسم المستخدم وكلمة المرور عبر Supabase Auth
- * يتم تحويل اسم المستخدم داخلياً إلى بريد إلكتروني وهمي
+ * 🔑 مفتاح الجلسة المنعزلة بحسب التينانت
+ */
+export function getTenantSessionKey(slug, tenantId) {
+    const activeSlug = slug || getTenantSlugFromURL() || 'default';
+    return `devo_session_${activeSlug}`;
+}
+
+/**
+ * 🔒 تسجيل الدخول باستخدام اسم المستخدم وكلمة المرور عبر Supabase Auth
+ * مع حفظ وتخزين الجلسة بصورة منعزلة لكل مصنع لتمكين فتح أكثر من مصنع في جلسات متعددة بالمتصفح
  */
 export async function loginUser(usernameInput, password) {
     try {
         const cleanInput = usernameInput.trim().toLowerCase();
         const activeTenant = await initializeTenantContext();
         const currentTenantId = activeTenant?.id || getCurrentTenantId();
+        const activeSlug = activeTenant?.slug || getTenantSlugFromURL() || 'default';
 
         if (!cleanInput || !password) {
             throw new Error('يرجى إدخال اسم المستخدم وكلمة المرور');
@@ -78,7 +87,7 @@ export async function loginUser(usernameInput, password) {
             throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
         }
 
-        // جـ) حفظ وتحديث بيانات الجلسة
+        // جـ) حفظ وتحديث بيانات الجلسة المنعزلة لكل مصنع
         await supabase
             .from('system_users')
             .update({ login_count: (targetUser.login_count || 0) + 1 })
@@ -90,8 +99,15 @@ export async function loginUser(usernameInput, password) {
             username: targetUser.username,
             full_name: targetUser.full_name,
             role: targetUser.role,
-            worker_job: targetUser.worker_job
+            worker_job: targetUser.worker_job,
+            tenant_slug: activeSlug
         };
+
+        // 🔑 حفظ الجلسة بصورة منعزلة لكل مصنع لتمكين فتح أكثر من جلسة في نفس الوقت
+        localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(sessionData));
+        if (targetUser.tenant_id) {
+            localStorage.setItem(`devo_session_${targetUser.tenant_id}`, JSON.stringify(sessionData));
+        }
         localStorage.setItem('devo_session', JSON.stringify(sessionData));
 
         return { user: sessionData, error: null };
@@ -102,12 +118,29 @@ export async function loginUser(usernameInput, password) {
 }
 
 /**
- * تسجيل الخروج ومسح الجلسة
+ * 🚪 تسجيل الخروج ومسح الجلسة الخاصة بالمصنع الحالي فقط دون تأثر المصانع الأخرى المفتوحة
  */
 export async function logoutUser() {
     try {
-        const slug = getTenantSlugFromURL();
-        localStorage.removeItem('devo_session');
+        const slug = getTenantSlugFromURL() || 'default';
+        const currentTenant = getCurrentTenant();
+
+        localStorage.removeItem(`devo_session_${slug}`);
+        if (currentTenant && currentTenant.id) {
+            localStorage.removeItem(`devo_session_${currentTenant.id}`);
+        }
+
+        // مسح الجلسة العامة إذا كانت تخص هذا المصنع
+        const globalSessionStr = localStorage.getItem('devo_session');
+        if (globalSessionStr) {
+            try {
+                const globalSession = JSON.parse(globalSessionStr);
+                if (globalSession.tenant_slug === slug || (currentTenant && globalSession.tenant_id === currentTenant.id)) {
+                    localStorage.removeItem('devo_session');
+                }
+            } catch(e) { localStorage.removeItem('devo_session'); }
+        }
+
         await supabase.auth.signOut();
         window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
     } catch (e) {
@@ -117,14 +150,36 @@ export async function logoutUser() {
 }
 
 /**
- * جلب بيانات المستخدم الحالي من المتصفح
+ * 🛡️ جلب بيانات المستخدم الحالي المنعزلة للمصنع النشط فقط مع التأكد الصارم من عدم تسريب أو تداخل الجلسات
  */
 export function getCurrentSession() {
-    const sessionStr = localStorage.getItem('devo_session');
+    const slug = getTenantSlugFromURL() || 'default';
+    const currentTenant = getCurrentTenant();
+    const currentTenantId = currentTenant?.id || getCurrentTenantId();
+
+    // 1. البحث في الجلسات المنعزلة للمصنع أولاً
+    let sessionStr = localStorage.getItem(`devo_session_${slug}`);
+    if (!sessionStr && currentTenantId) {
+        sessionStr = localStorage.getItem(`devo_session_${currentTenantId}`);
+    }
+    if (!sessionStr) {
+        sessionStr = localStorage.getItem('devo_session');
+    }
+
     if (!sessionStr) return { session: null };
     
     try {
         const session = JSON.parse(sessionStr);
+        if (!session || !session.id) return { session: null };
+
+        // 🔒 حاجز العزل والتحقق الصارم: إذا كان الحساب ليس Super Admin ولا ينتمي لهذا المصنع، ترفض الجلسة فوراً لهذا الموقع
+        if (session.role !== 'super_admin') {
+            if (currentTenantId && session.tenant_id && session.tenant_id !== currentTenantId) {
+                console.warn(`[Session Guard] Foreign session blocked. User (${session.username}) belongs to tenant (${session.tenant_id}), but active site is (${currentTenantId}).`);
+                return { session: null };
+            }
+        }
+
         return { session: { user: session } }; 
     } catch (e) {
         return { session: null };
@@ -132,7 +187,7 @@ export function getCurrentSession() {
 }
 
 /**
- * حماية الصفحات وتأكيد الصلاحية وعزل المصانع
+ * 🛡️ حماية الصفحات وتأكيد الصلاحية وعزل المصانع
  */
 export function requireAuth(allowedRoles = []) {
     const { session } = getCurrentSession();
@@ -144,17 +199,6 @@ export function requireAuth(allowedRoles = []) {
     }
 
     const user = session.user;
-    const currentTenant = getCurrentTenant();
-
-    // 🔒 حاجز الأمان: منع مستخدم مصنع من دخول لوحة مصنع آخر
-    if (user.role !== 'super_admin' && currentTenant && currentTenant.id && currentTenant.slug !== 'default' && currentTenant.slug !== 'super_admin') {
-        if (user.tenant_id && user.tenant_id !== currentTenant.id) {
-            console.warn(`[Tenant Guard] Access denied. Session tenant (${user.tenant_id}) does not match current site tenant (${currentTenant.id}).`);
-            localStorage.removeItem('devo_session');
-            window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
-            return null;
-        }
-    }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
         if (user.role === 'worker') window.location.href = `index.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;

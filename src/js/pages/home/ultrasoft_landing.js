@@ -491,18 +491,18 @@ function renderLandingHTML() {
                                         <span class="text-3xl sm:text-5xl font-black text-amber-400">15,000</span>
                                         <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
                                     </div>
-                                    <p class="text-[11px] sm:text-xs text-amber-400/90 font-bold mt-1">الباقة الملكية الشاملة لكافة الإمكانيات بلا حدود</p>
+                                    <p class="text-[11px] sm:text-xs text-amber-400/90 font-bold mt-1">الباقة الملكية الشاملة بأعلى مستويات الحدود والتوفير</p>
                                 </div>
 
                                 <!-- Spec Box -->
                                 <div class="bg-devo-black/80 border border-amber-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
                                     <div class="flex items-center justify-between text-devo-text gap-2">
                                         <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
-                                        <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">بلا حدود ✨</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 1,000 (5x)</span>
                                     </div>
                                     <div class="flex items-center justify-between text-devo-text gap-2">
                                         <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
-                                        <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">بلا حدود ✨</span>
+                                        <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">2,000 ⚡/ش (10x)</span>
                                     </div>
                                     <div class="flex items-center justify-between text-devo-text gap-2">
                                         <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
@@ -514,7 +514,7 @@ function renderLandingHTML() {
                                 <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
                                     <li class="flex items-center gap-2 text-devo-text font-bold">
                                         <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
-                                        <span>جميع المميزات والوظائف المتقدمة بلا حدود</span>
+                                        <span>جميع المميزات والوظائف المتقدمة بأقصى السعات</span>
                                     </li>
                                     <li class="flex items-center gap-2 text-devo-text font-bold">
                                         <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
@@ -537,6 +537,64 @@ function renderLandingHTML() {
                             </a>
                         </div>
 
+                    </div>
+
+                    <!-- Comparison Section Wrapper -->
+                    <div class="mt-16 bg-devo-dark/80 border border-devo-gray rounded-3xl p-5 sm:p-8 backdrop-blur-md shadow-2xl">
+                        <div class="text-center max-w-2xl mx-auto mb-8">
+                            <h3 class="text-xl sm:text-3xl font-black text-devo-text mb-2">
+                                جدول المقارنة التفصيلي بين الباقات
+                            </h3>
+                            <p class="text-devo-muted text-xs sm:text-sm font-medium">
+                                مقارنة كاملة ودقيقة تتيح لك الاطلاع على كافة الخصائص والصلاحيات المتاحة في كل باقة.
+                            </p>
+                        </div>
+
+                        <!-- Desktop Table View (Hidden on mobile) -->
+                        <div class="hidden md:block overflow-x-auto">
+                            <table class="w-full text-right text-sm border-collapse">
+                                <thead>
+                                    <tr class="border-b border-devo-gray/60 text-devo-muted">
+                                        <th class="p-4 text-right font-black text-white text-base">الميزة / الخصائص</th>
+                                        <th id="landing-th-quarterly" class="p-4 text-center font-black text-emerald-400 bg-emerald-500/10 rounded-t-2xl">اشتراك 3 أشهر (7,000 ج.م)</th>
+                                        <th id="landing-th-semi-annual" class="p-4 text-center font-black text-sky-400 bg-ultra-500/10 rounded-t-2xl">اشتراك 6 أشهر (10,000 ج.م)</th>
+                                        <th id="landing-th-annual" class="p-4 text-center font-black text-amber-400 bg-amber-500/10 rounded-t-2xl">اشتراك سنة (15,000 ج.م)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="landing-comparison-table-body" class="divide-y divide-devo-gray/30 text-devo-text font-medium">
+                                    <!-- Populated dynamically by renderLandingComparisonTable(features) -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Mobile Interactive Comparison Tabs & Table (Visible on mobile) -->
+                        <div class="block md:hidden">
+                            <div class="mb-4 bg-devo-black p-1.5 rounded-2xl border border-devo-gray grid grid-cols-3 gap-1 text-xs">
+                                <button id="tab-mobile-quarterly" onclick="window.switchMobileComparisonPlan('quarterly')" class="py-2.5 px-1 rounded-xl text-center transition-all font-bold text-devo-muted hover:text-white">
+                                    3 أشهر
+                                </button>
+                                <button id="tab-mobile-semi_annual" onclick="window.switchMobileComparisonPlan('semi_annual')" class="py-2.5 px-1 rounded-xl text-center transition-all bg-sky-500 text-white shadow font-black">
+                                    6 أشهر ⭐
+                                </button>
+                                <button id="tab-mobile-annual" onclick="window.switchMobileComparisonPlan('annual')" class="py-2.5 px-1 rounded-xl text-center transition-all font-bold text-devo-muted hover:text-white">
+                                    سنة كاملة
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-devo-gray bg-devo-black/60">
+                                <table class="w-full text-right text-xs">
+                                    <thead>
+                                        <tr id="mobile-table-header-row" class="bg-devo-dark border-b border-devo-gray">
+                                            <th class="p-3 text-right font-black text-white">الميزة</th>
+                                            <th id="mobile-selected-plan-header" class="p-3 text-center font-black text-sky-400">القيمة المتاحة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="landing-comparison-mobile-body" class="divide-y divide-devo-gray/30 font-medium">
+                                        <!-- Populated dynamically by renderMobileComparisonRows() -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
 
                 </section>
@@ -565,24 +623,50 @@ function renderLandingCardLimitBadges(planKey, plan, limitsMap, badgeBgClass) {
     const baseLim = limitsMap['quarterly'] || {};
     const isBase = planKey === 'quarterly';
 
-    const fmtActive = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 200} م`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtTotal = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 500} م`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtInvoices = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 1000} ف`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtCredits = (v, base) => (v === -1 ? 'بلا حدود ✨' : `${v ?? 200} ⚡/ش`) + (isBase ? '' : getLandingRatioTag(base, v));
-    const fmtUsers = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v ?? 4} فرد`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const defaultLimits = {
+        quarterly: { max_products: 200, max_total_products: 500, max_invoices: 1000, monthly_excel_credits: 200, max_users: 4 },
+        semi_annual: { max_products: 600, max_total_products: 1500, max_invoices: 5000, monthly_excel_credits: 500, max_users: 10 },
+        annual: { max_products: 1000, max_total_products: 3000, max_invoices: 10000, monthly_excel_credits: 2000, max_users: 25 }
+    };
+    const def = defaultLimits[planKey] || defaultLimits.quarterly;
+    const baseDef = defaultLimits.quarterly;
+
+    const valActive = lim.max_products !== undefined && lim.max_products !== null ? lim.max_products : def.max_products;
+    const valTotal = lim.max_total_products !== undefined && lim.max_total_products !== null ? lim.max_total_products : def.max_total_products;
+    const valInvoices = lim.max_invoices !== undefined && lim.max_invoices !== null ? lim.max_invoices : def.max_invoices;
+    const valCredits = lim.monthly_excel_credits !== undefined && lim.monthly_excel_credits !== null ? lim.monthly_excel_credits : def.monthly_excel_credits;
+    const valUsers = lim.max_users !== undefined && lim.max_users !== null ? lim.max_users : def.max_users;
+
+    const baseValActive = baseLim.max_products !== undefined && baseLim.max_products !== null ? baseLim.max_products : baseDef.max_products;
+    const baseValTotal = baseLim.max_total_products !== undefined && baseLim.max_total_products !== null ? baseLim.max_total_products : baseDef.max_total_products;
+    const baseValInvoices = baseLim.max_invoices !== undefined && baseLim.max_invoices !== null ? baseLim.max_invoices : baseDef.max_invoices;
+    const baseValCredits = baseLim.monthly_excel_credits !== undefined && baseLim.monthly_excel_credits !== null ? baseLim.monthly_excel_credits : baseDef.monthly_excel_credits;
+    const baseValUsers = baseLim.max_users !== undefined && baseLim.max_users !== null ? baseLim.max_users : baseDef.max_users;
+
+    const fmtActive = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v.toLocaleString()} م`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtTotal = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v.toLocaleString()} م`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtInvoices = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v.toLocaleString()} ف`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtCredits = (v, base) => (v === -1 ? 'بلا حدود ✨' : `${v.toLocaleString()} ⚡/ش`) + (isBase ? '' : getLandingRatioTag(base, v));
+    const fmtUsers = (v, base) => (v === -1 ? 'بلا حدود ✨' : `حتى ${v.toLocaleString()} فرد`) + (isBase ? '' : getLandingRatioTag(base, v));
 
     const badges = [
-        { label: 'إجمالي الموديلات بالمعرض:', value: fmtTotal(lim.max_total_products, baseLim.max_total_products) },
-        { label: 'الموديلات النشطة بالمعرض:', value: fmtActive(lim.max_products, baseLim.max_products) },
-        { label: 'حد الفواتير المسموح بها:', value: fmtInvoices(lim.max_invoices, baseLim.max_invoices) },
-        { label: 'رصيد الرفع والتعديل (Excel):', value: fmtCredits(lim.monthly_excel_credits, baseLim.monthly_excel_credits) },
-        { label: 'مستخدمو فريق العمل:', value: fmtUsers(lim.max_users, baseLim.max_users) }
+        { label: 'إجمالي الموديلات بالمعرض:', value: fmtTotal(valTotal, baseValTotal) },
+        { label: 'الموديلات النشطة بالمعرض:', value: fmtActive(valActive, baseValActive) },
+        { label: 'حد الفواتير المسموح بها:', value: fmtInvoices(valInvoices, baseValInvoices) },
+        { label: 'رصيد الرفع والتعديل (Excel):', value: fmtCredits(valCredits, baseValCredits) },
+        { label: 'مستخدمو فريق العمل:', value: fmtUsers(valUsers, baseValUsers) }
     ];
+
+    const standardKeywords = ['إجمالي الموديلات', 'الموديلات النشطة', 'حد الفواتير', 'رصيد الرفع', 'مستخدمو فريق العمل', 'Excel'];
 
     const customBadges = Array.isArray(plan.custom_limit_badges) ? plan.custom_limit_badges : [];
     customBadges.forEach(cb => {
         if (cb && cb.label && cb.value) {
-            badges.push(cb);
+            const labelNorm = (cb.label || '').trim();
+            const isDuplicateStandard = standardKeywords.some(kw => labelNorm.includes(kw));
+            if (!isDuplicateStandard) {
+                badges.push(cb);
+            }
         }
     });
 
@@ -604,9 +688,13 @@ export async function loadLandingDynamicPricingData() {
             supabase.from('subscription_comparison_features').select('*').order('sort_order', { ascending: true })
         ]);
 
-        const plans = plansRes.data || [];
-        const limitsList = limitsRes.data || [];
-        const features = featuresRes.data || [];
+        if (plansRes.error) console.warn('system_subscription_plans query warning:', plansRes.error.message);
+        if (limitsRes.error) console.warn('subscription_plan_limits query warning:', limitsRes.error.message);
+        if (featuresRes.error) console.warn('subscription_comparison_features query warning:', featuresRes.error.message);
+
+        const plans = (!plansRes.error && plansRes.data) ? plansRes.data : [];
+        const limitsList = (!limitsRes.error && limitsRes.data) ? limitsRes.data : [];
+        const features = (!featuresRes.error && featuresRes.data) ? featuresRes.data : [];
 
         const limitsMap = {};
         limitsList.forEach(lim => { limitsMap[lim.plan_key] = lim; });
@@ -614,15 +702,96 @@ export async function loadLandingDynamicPricingData() {
         if (plans.length > 0) {
             renderLandingPlanCards(plans, limitsMap);
             updateLandingTableHeaders(plans);
+        } else {
+            renderLandingPlanCards([], limitsMap);
         }
 
-        if (features.length > 0) {
-            renderLandingComparisonTable(features);
-        }
+        const effectiveFeatures = features.length > 0 ? features : getDefaultComparisonFeatures(limitsMap);
+        renderLandingComparisonTable(effectiveFeatures);
 
     } catch (err) {
         console.warn('Supabase landing pricing load error:', err);
+        renderLandingComparisonTable(getDefaultComparisonFeatures({}));
     }
+}
+
+function getDefaultComparisonFeatures(limitsMap) {
+    const qLim = limitsMap['quarterly'] || {};
+    const sLim = limitsMap['semi_annual'] || {};
+    const aLim = limitsMap['annual'] || {};
+
+    const fmtLimitVal = (val, defaultVal, suffix = '') => {
+        if (val === -1) return 'بلا حدود ✨';
+        const num = (val !== undefined && val !== null) ? val : defaultVal;
+        return `حتى ${num.toLocaleString()}${suffix}`;
+    };
+
+    return [
+        {
+            feature_name: 'الموديلات النشطة بالمعرض',
+            plan_values: {
+                quarterly: fmtLimitVal(qLim.max_products, 200, ' موديل'),
+                semi_annual: fmtLimitVal(sLim.max_products, 600, ' موديل'),
+                annual: fmtLimitVal(aLim.max_products, 1000, ' موديل')
+            }
+        },
+        {
+            feature_name: 'إجمالي الموديلات بالمعرض',
+            plan_values: {
+                quarterly: fmtLimitVal(qLim.max_total_products, 500, ' موديل'),
+                semi_annual: fmtLimitVal(sLim.max_total_products, 1500, ' موديل'),
+                annual: fmtLimitVal(aLim.max_total_products, 3000, ' موديل')
+            }
+        },
+        {
+            feature_name: 'حد الفواتير المسموح إنشاؤها',
+            plan_values: {
+                quarterly: fmtLimitVal(qLim.max_invoices, 1000, ' فاتورة'),
+                semi_annual: fmtLimitVal(sLim.max_invoices, 5000, ' فاتورة'),
+                annual: fmtLimitVal(aLim.max_invoices, 10000, ' فاتورة')
+            }
+        },
+        {
+            feature_name: 'رصيد Excel الشهري المفتوح',
+            plan_values: {
+                quarterly: `${(qLim.monthly_excel_credits ?? 200).toLocaleString()} ⚡/ش`,
+                semi_annual: `${(sLim.monthly_excel_credits ?? 500).toLocaleString()} ⚡/ش`,
+                annual: `${(aLim.monthly_excel_credits ?? 2000).toLocaleString()} ⚡/ش`
+            }
+        },
+        {
+            feature_name: 'مستخدمو فريق العمل',
+            plan_values: {
+                quarterly: `حتى ${qLim.max_users ?? 4} أفراد`,
+                semi_annual: `حتى ${sLim.max_users ?? 10} أفراد`,
+                annual: `حتى ${aLim.max_users ?? 25} فرد`
+            }
+        },
+        {
+            feature_name: 'الرفع والتعديل المجمع عبر Excel',
+            plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
+        },
+        {
+            feature_name: 'حساب العربون وتقارير الإيداعات',
+            plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
+        },
+        {
+            feature_name: 'قارئ واستيكر الباركود الضوئي',
+            plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
+        },
+        {
+            feature_name: 'تخصيص المظهر والهوية على الفاتورة',
+            plan_values: { quarterly: 'غير متاح', semi_annual: 'متاح', annual: 'متاح' }
+        },
+        {
+            feature_name: 'الدعم الفني والتدريب الكامل',
+            plan_values: { quarterly: '24/7 طوال الأسبوع', semi_annual: 'أولوية مرتفعة 24/7', annual: 'VIP أولوية كبار العملاء' }
+        },
+        {
+            feature_name: 'النسخ الاحتياطي السحابي التلقائي',
+            plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
+        }
+    ];
 }
 
 let currentComparisonFeatures = [];

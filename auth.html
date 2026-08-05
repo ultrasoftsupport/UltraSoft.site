@@ -295,14 +295,6 @@
             const { session } = getCurrentSession();
             if (session && session.user) {
                 try {
-                    // 🔒 حاجز الأمان الحاسم: إذا كانت الجلسة الحالية من مصنع آخر يتم حذفها فوراً
-                    if (session.user.role !== 'super_admin' && activeTenant && activeTenant.id && activeTenant.slug !== 'default' && activeTenant.slug !== 'super_admin') {
-                        if (session.user.tenant_id && session.user.tenant_id !== activeTenant.id) {
-                            logoutUser();
-                            return;
-                        }
-                    }
-
                     // Fetch fresh permissions to handle state changes or deactivations
                     const { data: user, error } = await supabase
                         .from('system_users')
@@ -315,13 +307,21 @@
                         return;
                     }
                     
+                    const activeSlug = activeTenant?.slug || 'default';
                     const freshSession = {
                         id: user.id,
+                        tenant_id: user.tenant_id,
                         username: user.username,
                         full_name: user.full_name,
                         role: user.role,
-                        worker_job: user.worker_job
+                        worker_job: user.worker_job,
+                        tenant_slug: activeSlug
                     };
+
+                    localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(freshSession));
+                    if (user.tenant_id) {
+                        localStorage.setItem(`devo_session_${user.tenant_id}`, JSON.stringify(freshSession));
+                    }
                     localStorage.setItem('devo_session', JSON.stringify(freshSession));
                     handleUserRedirection(freshSession);
                 } catch (e) {

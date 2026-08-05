@@ -220,6 +220,10 @@ async function loadViewLogic(targetId) {
         case 'view-promo-cards':
             await initPromoCardsView();
             break;
+        case 'view-subscription':
+            const { initFactorySubscriptionView } = await import('./factory_subscription.js');
+            await initFactorySubscriptionView();
+            break;
         case 'view-notifications':
             const { initNotificationsView } = await import('./notifications_view.js');
             await initNotificationsView();

@@ -10,6 +10,7 @@ import { syncActiveTheme } from '../../services/theme.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
 import { initializeTenantContext, getCurrentTenantId } from '../../services/tenant_service.js';
 import { initHomeNotifications } from '../../services/notifications.js';
+import { getCurrentSession } from '../../services/auth.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 🏢 تهيئة سياق المصنع وتطبيق الهوية البصرية تلقائياً
@@ -24,28 +25,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // تهيئة واجهة ألتراسوفت التسويقية والاشتراكات
     initLandingPage();
     
-    // التحقق من الجلسة وصلاحية البائع/المبيعات إن وجدت
-    const sessionStr = localStorage.getItem('devo_session');
-    let currentUser = null;
-
-    if (sessionStr) {
-        try {
-            currentUser = JSON.parse(sessionStr);
-        } catch (e) {
-            localStorage.removeItem('devo_session');
-        }
-    }
+    // التحقق من الجلسة وصلاحية البائع/المبيعات المنعزلة لهذا المصنع
+    const { session } = getCurrentSession();
+    let currentUser = session ? session.user : null;
     
     if (currentUser) {
         const role = currentUser.role;
         const workerJob = currentUser.worker_job;
         
-        // التحقق من الصلاحيات الأخرى، إن كانت غير معروفة يتم تسجيل الخروج والتعامل كزائر
-        const isManager = (role === 'owner' || role === 'admin');
+        // التحقق من الصلاحيات الأخرى، إن كانت غير معروفة يتم التعامل كزائر
+        const isManager = (role === 'owner' || role === 'admin' || role === 'super_admin');
         const isShowroomSeller = (role === 'worker' && (workerJob === 'showroom' || workerJob === 'both'));
         
         if (!isManager && !isShowroomSeller) {
-            localStorage.removeItem('devo_session');
             currentUser = null;
         }
     }

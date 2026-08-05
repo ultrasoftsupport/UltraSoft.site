@@ -1,7 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { confirmDialog } from '../../components/modal.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
+import { getCurrentTenantId, getTenantUserQuotaDetails } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allUsers = [];
@@ -41,11 +41,11 @@ export async function loadUsers() {
     if (error) return showToast('خطأ في تحميل بيانات المستخدمين', 'error');
 
     allUsers = data || [];
-    updateUserStatistics();
+    await updateUserStatistics();
     applyUserFilters();
 }
 
-function updateUserStatistics() {
+async function updateUserStatistics() {
     let owners = 0, admins = 0, workers = 0;
     
     allUsers.forEach(u => {
@@ -54,10 +54,28 @@ function updateUserStatistics() {
         else if (u.role === 'worker') workers++;
     });
 
-    document.getElementById('u-stat-total').textContent = allUsers.length;
-    document.getElementById('u-stat-owners').textContent = owners;
-    document.getElementById('u-stat-admins').textContent = admins;
-    document.getElementById('u-stat-workers').textContent = workers;
+    const totalEl = document.getElementById('u-stat-total');
+    if (totalEl) totalEl.textContent = allUsers.length;
+    const ownersEl = document.getElementById('u-stat-owners');
+    if (ownersEl) ownersEl.textContent = owners;
+    const adminsEl = document.getElementById('u-stat-admins');
+    if (adminsEl) adminsEl.textContent = admins;
+    const workersEl = document.getElementById('u-stat-workers');
+    if (workersEl) workersEl.textContent = workers;
+
+    const quotaDetails = await getTenantUserQuotaDetails();
+    const quotaTextEl = document.getElementById('u-stat-quota-text');
+    const quotaRemEl = document.getElementById('u-stat-quota-rem');
+
+    if (quotaTextEl) {
+        if (quotaDetails.isUnlimited) {
+            quotaTextEl.textContent = `${quotaDetails.totalUsers} / غير محدود`;
+            if (quotaRemEl) quotaRemEl.textContent = 'باقة مفتوحة';
+        } else {
+            quotaTextEl.textContent = `${quotaDetails.maxUsers} / ${quotaDetails.totalUsers}`;
+            if (quotaRemEl) quotaRemEl.textContent = `متبقي ${quotaDetails.remainingTotal} مستخدم`;
+        }
+    }
 }
 
 // --- Filtering & Rendering ---
@@ -202,7 +220,20 @@ window.closeUserDetailsModal = () => {
 };
 
 // --- Create & Edit Logic ---
-window.openUserModal = (id = null) => {
+window.openUserModal = async (id = null) => {
+    if (!id) {
+        const quotaDetails = await getTenantUserQuotaDetails();
+        if (!quotaDetails.isUnlimited && quotaDetails.totalUsers >= quotaDetails.maxUsers) {
+            showSubscriptionUpgradeModal({
+                quotaType: 'users',
+                limit: quotaDetails.maxUsers,
+                title: '⚠️ وصول للحد الأقصى لحسابات فريق العمل',
+                message: `تعذر إضافة مستخدم جديد: لقد وصلت إلى الحد الأقصى للمستخدمين المتاحين في باقتك الحالية (${quotaDetails.maxUsers} مستخدم).`
+            });
+            return;
+        }
+    }
+
     const form = document.getElementById('user-form');
     form.reset();
     document.getElementById('u-id').value = id || '';
@@ -299,6 +330,19 @@ async function handleSaveUser(e) {
         is_active: document.getElementById('u-status').checked
     };
 
+    if (!id) {
+        const quotaDetails = await getTenantUserQuotaDetails();
+        if (!quotaDetails.isUnlimited && quotaDetails.totalUsers >= quotaDetails.maxUsers) {
+            showSubscriptionUpgradeModal({
+                quotaType: 'users',
+                limit: quotaDetails.maxUsers,
+                title: '⚠️ وصول للحد الأقصى لحسابات فريق العمل',
+                message: `تعذر إضافة مستخدم جديد: لقد وصلت بالفعل إلى الحد الأقصى المسموح به لعدد مستخدمي فريق العمل في باقتك الحالية (${quotaDetails.maxUsers} مستخدم).`
+            });
+            return;
+        }
+    }
+
     btn.disabled = true;
     btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري الحفظ...`;
 
@@ -332,7 +376,15 @@ async function handleSaveUser(e) {
         closeUserModal();
         loadUsers();
     } catch (err) {
-        if (err.code === '23505' || err.message?.includes('duplicate key')) {
+        if (err.message && err.message.includes('SUBSCRIPTION_LIMIT_EXCEEDED')) {
+            const match = err.message.match(/\d+/);
+            showSubscriptionUpgradeModal({
+                quotaType: 'users',
+                limit: match ? match[0] : 'المحدد',
+                title: '⚠️ وصول للحد الأقصى لحسابات فريق العمل',
+                message: `تعذر إضافة مستخدم جديد: تجاوز الحد المسموح به لحسابات فريق العمل بالباقة.`
+            });
+        } else if (err.code === '23505' || err.message?.includes('duplicate key')) {
             showToast('اسم المستخدم هذا مستخدم بالفعل، يرجى اختيار اسم آخر', 'error');
         } else {
             showToast(err.message || 'حدث خطأ أثناء حفظ البيانات', 'error');

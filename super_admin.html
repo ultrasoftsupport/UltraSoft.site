@@ -181,19 +181,28 @@
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-ultra-500/10 text-ultra-400 border border-ultra-500/20">Super Admin Mode</span>
             </div>
 
-            <!-- Topbar Quick Actions -->
-            <div class="flex items-center gap-3">
-                <button id="openNewTenantModal" class="px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all">
+            <!-- Topbar Quick Actions Container -->
+            <div id="topbarActions" class="flex items-center gap-3">
+                <!-- Action for Tenants Tab -->
+                <button id="openNewTenantModal" class="topbar-action-btn tab-action-tenants px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all cursor-pointer">
                     <i class="ph ph-plus-circle text-base"></i>
-                    إضافة مصنع / شركة جديدة
+                    <span>إضافة مصنع / شركة جديدة</span>
                 </button>
 
-                <button id="openThemeModalBtn" class="px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-devo-text flex items-center gap-2 transition-all">
+                <!-- Action for Subscriptions Tab -->
+                <button id="addComparisonFeatureBtn" class="topbar-action-btn tab-action-subscriptions px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all cursor-pointer">
+                    <i class="ph ph-plus-circle text-base"></i>
+                    <span>إضافة ميزة لجدول المقارنة</span>
+                </button>
+
+                <!-- Action for Themes Tab -->
+                <button id="openThemeModalBtn" class="topbar-action-btn tab-action-themes px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-devo-text hover:text-white flex items-center gap-2 transition-all cursor-pointer">
                     <i class="ph ph-palette text-base text-ultra-400"></i>
                     <span>تغيير المظهر</span>
                 </button>
 
-                <button id="refreshBtn" title="تحديث البيانات" class="p-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white hover:border-ultra-500 transition-all">
+                <!-- Refresh Button (Always visible) -->
+                <button id="refreshBtn" title="تحديث البيانات" class="p-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white hover:border-ultra-500 transition-all cursor-pointer">
                     <i class="ph ph-arrows-clockwise text-lg"></i>
                 </button>
             </div>
@@ -287,17 +296,6 @@
 
             <!-- TAB 2: TENANTS MANAGEMENT -->
             <section id="view-tenants" class="super-tab-view space-y-6 hidden">
-                <!-- Header -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="ph ph-buildings text-ultra-400 text-xl"></i>
-                            إدارة المصانع والشركات المسجلة
-                        </h3>
-                        <p class="text-xs text-devo-muted">استعراض كافة الحسابات والشركات بنظام الكروت الذكية الذاتي</p>
-                    </div>
-                </div>
-
                 <!-- Grid Cards Container View (Cards Only) -->
                 <div id="tenantsGridContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     <!-- Rendered dynamically -->
@@ -306,26 +304,6 @@
 
             <!-- TAB 3: DYNAMIC SUBSCRIPTION PLANS & LIMITS MANAGEMENT -->
             <section id="view-subscriptions" class="super-tab-view space-y-6 hidden">
-                
-                <!-- Section Header -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
-                            <i class="ph ph-crown text-2xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-black text-white">إدارة الاشتراكات وقواعد الحدود</h3>
-                            <p class="text-xs text-devo-muted">التحكم الفوري والديناميكي في مظهر كروت الخطط، المميزات، وقواعد حدود واستهلاك الكريديت</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button id="addComparisonFeatureBtn" class="px-4 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all cursor-pointer">
-                            <i class="ph ph-plus-circle text-base"></i>
-                            <span>إضافة ميزة لجدول المقارنة</span>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Sub-Tabs Navigation Header -->
                 <div class="flex items-center gap-3 border-b border-devo-gray pb-3">
                     <button id="subtab-cards-btn" type="button" class="subtab-btn active-subtab px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 bg-ultra-500 text-white shadow-md cursor-pointer">
@@ -660,12 +638,6 @@
 
             <!-- TAB 5: THEMES MANAGEMENT -->
             <section id="view-themes" class="super-tab-view space-y-6 hidden">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-white">دليل السمات والمظاهر المتاحة بالنظام</h3>
-                        <p class="text-xs text-devo-muted">تطبيق المظهر النشط فورياً على كافة واجهات النظام</p>
-                    </div>
-                </div>
                 <div id="fullThemesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="py-12 text-center text-devo-muted col-span-full">جاري تحميل السمات والمظاهر...</div>
                 </div>
@@ -1037,31 +1009,48 @@
 
                         <form id="fullPageSubscriptionForm" class="space-y-6">
                             
-                            <!-- Plan Preset Selector -->
+                            <!-- Plan Preset Selector (Dynamic System Plans) -->
                             <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-2">
-                                <label class="block text-xs font-bold text-white mb-1">اختيار خطة الاشتراك (Plan Selection)</label>
+                                <label class="block text-xs font-bold text-white mb-1">اختيار خطة الاشتراك للمصنع (Plan Selection)</label>
                                 <select id="modalSelectPlanPreset" class="w-full bg-devo-dark border border-ultra-500/50 rounded-xl px-4 py-3 text-sm text-amber-400 font-bold focus:outline-none focus:border-ultra-500 cursor-pointer">
-                                    <option value="basic">الخطة الأساسية (Basic Plan - 500 منتج / 5 مستخدمين / 1,000 أوردر)</option>
-                                    <option value="pro">الخطة الاحترافية (Pro Plan - 2,500 منتج / 25 مستخدم / 10,000 أوردر)</option>
-                                    <option value="enterprise">خطة المؤسسات (Enterprise Plan - بلا حدود Unlimited)</option>
-                                    <option value="custom">خطة مخصصة (Custom Limits Plan - تعديل يدوي للحدود)</option>
+                                    <!-- Options rendered dynamically -->
                                 </select>
-                                <p class="text-[11px] text-devo-muted">عند اختيار أي خطة سيتم تطبيق حدودها تلقائياً، وتستطيع تعديل الحدود يدويًا وحفظها كخطة مخصصة.</p>
+                                <p class="text-[11px] text-devo-muted">عند اختيار أي خطة سيتم تطبيق حدودها ومدتها تلقائياً، وتستطيع تعديل الحدود والمدد يدويًا وحفظها كخطة مخصصة لهذا المصنع.</p>
+                            </div>
+
+                            <!-- Base Plan Selection for Custom Subscription -->
+                            <div id="basePlanSelectionContainer" class="p-4 rounded-xl bg-ultra-500/10 border border-ultra-500/40 space-y-2 hidden">
+                                <label class="block text-xs font-bold text-ultra-400 mb-1">الخطة الأساسية المعتمد عليها (Base Plan Reference) *</label>
+                                <select id="modalSelectBasePlan" class="w-full bg-devo-dark border border-ultra-500/50 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-ultra-500 cursor-pointer">
+                                    <option value="trial">الباقة التجريبية المجانية (5 أيام - Trial)</option>
+                                    <option value="quarterly">اشتراك 3 أشهر (ربع سنوي - Quarterly)</option>
+                                    <option value="semi_annual">اشتراك 6 أشهر (نصف سنوي - Semi Annual)</option>
+                                    <option value="annual">اشتراك سنة كاملة (سنوي - Annual)</option>
+                                </select>
+                                <p class="text-[10px] text-devo-muted">يتم اعتماد القواعد التشغيلية الثابتة (طريقة التسعير وسقف التعديلات المجمعة ورفع الإكسيل) من هذه الخطة الأساسية، مع إمكانية تعديل حدود الاستهلاك المخصصة أدناه.</p>
                             </div>
 
                             <!-- Manual Limits Inputs -->
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
                                 <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
-                                    <label class="block text-[11px] font-bold text-devo-muted">حد المنتجات المسموح</label>
+                                    <label class="block text-[11px] font-bold text-devo-muted">حد المنتجات بالمعرض</label>
                                     <input type="number" id="modalInputMaxProducts" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
                                 </div>
                                 <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
-                                    <label class="block text-[11px] font-bold text-devo-muted">حد المستخدمين المسموح</label>
+                                    <label class="block text-[11px] font-bold text-devo-muted">حد مستخدمي العمل</label>
                                     <input type="number" id="modalInputMaxUsers" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
                                 </div>
                                 <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
                                     <label class="block text-[11px] font-bold text-devo-muted">حد الأوردرات والفواتير</label>
                                     <input type="number" id="modalInputMaxOrders" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
+                                    <label class="block text-[11px] font-bold text-devo-muted">رصيد Excel / شهرياً</label>
+                                    <input type="number" id="modalInputExcelCredits" required class="w-full bg-devo-dark border border-devo-gray rounded-lg px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                    <button type="button" id="btnRechargeTenantCredits" class="mt-1.5 w-full px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-black text-[10px] font-bold border border-amber-500/30 transition flex items-center justify-center gap-1 cursor-pointer">
+                                        <i class="ph ph-lightning text-xs"></i>
+                                        <span>+ شحن دفعة كريديت</span>
+                                    </button>
                                 </div>
                                 <div class="p-3 rounded-xl bg-devo-black border border-devo-gray space-y-1">
                                     <label class="block text-[11px] font-bold text-devo-muted">المساحة (MB)</label>
@@ -1082,8 +1071,8 @@
                                         <input type="date" id="modalInputStartDate" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] font-medium text-devo-muted mb-1">تاريخ نهاية الخطة *</label>
-                                        <input type="date" id="modalInputEndDate" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-amber-400 focus:outline-none focus:border-ultra-500 font-mono font-bold">
+                                        <label class="block text-[11px] font-medium text-devo-muted mb-1">تاريخ نهاية الخطة * (محسوب تلقائياً)</label>
+                                        <input type="date" id="modalInputEndDate" class="w-full bg-devo-dark border border-ultra-500/50 rounded-xl px-3 py-2 text-xs text-amber-400 focus:outline-none focus:border-ultra-500 font-mono font-bold">
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-medium text-devo-muted mb-1">حالة الاشتراك</label>
@@ -1098,11 +1087,11 @@
 
                                 <!-- Quick Extensions -->
                                 <div class="flex items-center gap-2 pt-2 flex-wrap">
-                                    <span class="text-[10px] text-devo-muted">تمديد سريع للنهائيات:</span>
-                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="30">+شهر واحد</button>
-                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="90">+3 أشهر</button>
-                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="180">+6 أشهر</button>
-                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="365">+سنة كاملة</button>
+                                    <span class="text-[10px] text-devo-muted">تمديد سريع وتعيين مدة الخطة:</span>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="30">+شهر واحد (30 يوماً)</button>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="90">+3 أشهر (90 يوماً)</button>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="180">+6 أشهر (180 يوماً)</button>
+                                    <button type="button" class="btn-extend-days px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-ultra-500 text-white text-[10px] font-bold border border-devo-gray transition cursor-pointer" data-days="365">+سنة كاملة (365 يوماً)</button>
                                     <button type="button" id="btnClearEndDateBtn" class="px-2.5 py-1 rounded-lg bg-devo-dark hover:bg-amber-500 hover:text-black text-amber-400 text-[10px] font-bold border border-devo-gray transition cursor-pointer">بلا تاريخ نهاية (دائم)</button>
                                 </div>
 
@@ -1112,10 +1101,57 @@
                                 </div>
                             </div>
 
-                            <div class="pt-2 flex justify-end">
-                                <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition">
+                            <!-- Factory Installment Management Section -->
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-4">
+                                <div class="flex items-center justify-between border-b border-devo-gray/60 pb-3">
+                                    <h5 class="font-bold text-white text-xs flex items-center gap-2">
+                                        <i class="ph ph-receipt text-amber-400 text-base"></i>
+                                        نظام سداد وتقسيط الاشتراك للمصنع بشكل منفرد (Installment Plan)
+                                    </h5>
+                                    <label class="relative inline-flex items-center cursor-pointer gap-2">
+                                        <input type="checkbox" id="modalInstallmentEnabled" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-devo-dark border border-devo-gray peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                                        <span class="text-xs font-bold text-white">تفعيل نظام الأقساط</span>
+                                    </label>
+                                </div>
+
+                                <div id="installmentFieldsContainer" class="space-y-4 hidden pt-1">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-devo-muted mb-1">عدد الأقساط</label>
+                                            <select id="modalInstallmentCount" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-amber-500">
+                                                <option value="2">قسطان (قسط كل نصف مدة)</option>
+                                                <option value="3">3 أقساط شهرياً</option>
+                                                <option value="4">4 أقساط</option>
+                                                <option value="6">6 أقساط</option>
+                                                <option value="12">12 قسطاً شهرياً</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-devo-muted mb-1">قيمة القسط الدوري (ج.م)</label>
+                                            <input type="number" id="modalInstallmentAmount" placeholder="2500" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-amber-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-devo-muted mb-1">تاريخ استحقاق القسط القادم</label>
+                                            <input type="date" id="modalInstallmentNextDate" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-devo-muted mb-1">شروط وملاحظات اتفاق السداد بالأقساط</label>
+                                        <textarea id="modalInstallmentNotes" rows="2" placeholder="أدخل هنا أي شروط أو ملحوظات للاتفاق على الأقساط..." class="w-full bg-devo-dark border border-devo-gray rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex items-center justify-between gap-3 flex-wrap">
+                                <button type="button" id="btnSyncPlanPresetDefaults" class="px-4 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-400 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
+                                    <i class="ph ph-arrows-clockwise text-base"></i>
+                                    <span>🔄 تطبيق وإعادة مزامنة أحدث قواعد الخطة</span>
+                                </button>
+
+                                <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition cursor-pointer">
                                     <i class="ph ph-check-circle text-base"></i>
-                                    حفظ الخطة والحدود وتاريخ الاشتراك
+                                    <span>حفظ الخطة والحدود وتاريخ الاشتراك</span>
                                 </button>
                             </div>
                         </form>
@@ -1532,7 +1568,7 @@
         import { supabase } from './src/js/config/supabase.js';
         import { syncActiveTheme, loadAllThemes, activateTheme } from './src/js/services/theme.js';
         import { showToast } from './src/js/components/toast.js';
-        import { confirmDialog } from './src/js/components/modal.js';
+        import { confirmDialog, promptDialog } from './src/js/components/modal.js';
 
         // 🎨 Sync active theme immediately
         await syncActiveTheme();
@@ -1640,6 +1676,15 @@
             'users': 'المستخدمين والصلاحيات العليا'
         };
 
+        function updateTopbarActions(tabId) {
+            document.querySelectorAll('.topbar-action-btn').forEach(btn => btn.classList.add('hidden'));
+            const activeActionBtn = document.querySelector(`.tab-action-${tabId}`);
+            if (activeActionBtn) {
+                activeActionBtn.classList.remove('hidden');
+            }
+        }
+        updateTopbarActions('overview');
+
         function switchTab(tabId) {
             document.querySelectorAll('.super-tab-view').forEach(view => view.classList.add('hidden'));
 
@@ -1660,6 +1705,8 @@
             if (currentTabTitle) {
                 currentTabTitle.textContent = titleMap[tabId] || 'لوحة التحكم العليا';
             }
+
+            updateTopbarActions(tabId);
 
             if (tabId === 'themes') renderFullThemesGrid();
             if (tabId === 'domains') loadDomainsTable();
@@ -1809,6 +1856,8 @@
                 if (planName === 'ENTERPRISE') planBadgeColor = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
                 if (planName === 'CUSTOM') planBadgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
 
+                const { storeUrl, adminUrl, authUrl } = getTenantUrls(tenant.slug);
+
                 return `
                     <div class="bg-devo-dark border border-devo-gray hover:border-ultra-500/50 p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-xl transition-all relative overflow-hidden group">
                         <div class="space-y-3.5">
@@ -1850,8 +1899,24 @@
                             </div>
                         </div>
 
-                        <!-- Card Footer Action Buttons (إدارة الشركة بالكامل فقط) -->
-                        <div class="pt-3 border-t border-devo-gray">
+                        <!-- Card Footer Action Buttons -->
+                        <div class="pt-3 border-t border-devo-gray/70 space-y-2">
+                            <!-- 3 Quick Access Buttons (Store, Admin, Auth) -->
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <a href="${storeUrl}" target="_blank" class="py-2 px-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500/60 hover:bg-ultra-500/10 text-devo-text hover:text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-all text-center group/btn" title="الموقع الرئيسي للمصنع">
+                                    <i class="ph ph-globe text-ultra-400 text-sm group-hover/btn:scale-110 transition"></i>
+                                    <span>الموقع</span>
+                                </a>
+                                <a href="${adminUrl}" target="_blank" class="py-2 px-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500/60 hover:bg-ultra-500/10 text-devo-text hover:text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-all text-center group/btn" title="لوحة تحكم الأدمن">
+                                    <i class="ph ph-gear-six text-amber-400 text-sm group-hover/btn:scale-110 transition"></i>
+                                    <span>الأدمن</span>
+                                </a>
+                                <a href="${authUrl}" target="_blank" class="py-2 px-1.5 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500/60 hover:bg-ultra-500/10 text-devo-text hover:text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-all text-center group/btn" title="تسجيل الدخول">
+                                    <i class="ph ph-sign-in text-emerald-400 text-sm group-hover/btn:scale-110 transition"></i>
+                                    <span>الدخول</span>
+                                </a>
+                            </div>
+
                             <!-- Main Action: Open Full Screen Management Page -->
                             <button data-id="${tenant.id}" class="view-tenant-btn w-full py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-ultra-500/20 transition-all cursor-pointer">
                                 <i class="ph ph-sliders text-base"></i>
@@ -1913,21 +1978,56 @@
             document.getElementById('modalInputTaxNumber').value = tenant.tax_number || '';
 
             // Populate Subscription & Limits Inputs
-            const planVal = (sub ? sub.plan : 'basic').toLowerCase();
-            document.getElementById('modalSelectPlanPreset').value = planVal;
+            const planVal = sub ? (sub.plan || 'quarterly').toLowerCase() : 'quarterly';
+            populateTenantPlanPresetsDropdown(planVal);
             document.getElementById('modalSubPlanBadge').textContent = planVal.toUpperCase();
 
-            document.getElementById('modalInputMaxProducts').value = sub ? sub.max_products : 500;
-            document.getElementById('modalInputMaxUsers').value = sub ? sub.max_users : 10;
-            document.getElementById('modalInputMaxOrders').value = sub ? (sub.max_orders || 5000) : 5000;
-            document.getElementById('modalInputMaxStorage').value = sub ? (sub.max_storage_mb || 5000) : 5000;
+            const customLimits = sub ? (sub.custom_limits || {}) : {};
+            const basePlanContainer = document.getElementById('basePlanSelectionContainer');
+            const modalSelectBasePlan = document.getElementById('modalSelectBasePlan');
+
+            if (planVal === 'custom') {
+                if (basePlanContainer) basePlanContainer.classList.remove('hidden');
+                if (modalSelectBasePlan) modalSelectBasePlan.value = customLimits.base_plan || 'quarterly';
+            } else {
+                if (basePlanContainer) basePlanContainer.classList.add('hidden');
+                if (modalSelectBasePlan) modalSelectBasePlan.value = planVal;
+            }
+
+            const lim = globalPlanLimitsMap[planVal] || {};
+
+            document.getElementById('modalInputMaxProducts').value = sub ? (sub.max_products ?? 500) : (lim.max_products ?? 500);
+            document.getElementById('modalInputMaxUsers').value = sub ? (sub.max_users ?? 10) : (lim.max_users ?? 10);
+            document.getElementById('modalInputMaxOrders').value = sub ? (sub.max_orders ?? 5000) : (lim.max_invoices ?? 5000);
+            document.getElementById('modalInputExcelCredits').value = sub ? (sub.monthly_excel_credits ?? customLimits.monthly_excel_credits ?? 200) : (lim.monthly_excel_credits ?? 200);
+            document.getElementById('modalInputMaxStorage').value = sub ? (sub.max_storage_mb ?? 5000) : (lim.max_storage_mb ?? 5000);
 
             // Dates & Sub Status
-            const startDateStr = sub && sub.start_date ? new Date(sub.start_date).toISOString().split('T')[0] : '';
-            const endDateStr = sub && sub.end_date ? new Date(sub.end_date).toISOString().split('T')[0] : '';
+            const todayStr = new Date().toISOString().split('T')[0];
+            const startDateStr = sub && sub.start_date ? new Date(sub.start_date).toISOString().split('T')[0] : todayStr;
             document.getElementById('modalInputStartDate').value = startDateStr;
-            document.getElementById('modalInputEndDate').value = endDateStr;
+
+            if (sub && sub.end_date) {
+                document.getElementById('modalInputEndDate').value = new Date(sub.end_date).toISOString().split('T')[0];
+            } else {
+                autoCalculateEndDate(startDateStr, 3, 0);
+            }
             document.getElementById('modalInputSubStatus').value = sub ? (sub.status || 'active') : 'active';
+
+            // Installment details populate
+            const instDetails = (sub && sub.installment_details) ? sub.installment_details : (customLimits.installment_details || {});
+            const instEnabled = instDetails.enabled || false;
+            document.getElementById('modalInstallmentEnabled').checked = instEnabled;
+            document.getElementById('modalInstallmentCount').value = instDetails.count || 2;
+            document.getElementById('modalInstallmentAmount').value = instDetails.amount || '';
+            document.getElementById('modalInstallmentNextDate').value = instDetails.next_due_date || '';
+            document.getElementById('modalInstallmentNotes').value = instDetails.notes || '';
+
+            const instFieldsContainer = document.getElementById('installmentFieldsContainer');
+            if (instFieldsContainer) {
+                if (instEnabled) instFieldsContainer.classList.remove('hidden');
+                else instFieldsContainer.classList.add('hidden');
+            }
 
             // Master Onboarding Packet Details
             document.getElementById('modalMasterEmail').textContent = masterEmail;
@@ -2022,33 +2122,120 @@
             });
         });
 
+        // Helper to populate dynamic plan presets in factory subscription modal
+        function populateTenantPlanPresetsDropdown(selectedPlanKey = 'quarterly') {
+            const selectEl = document.getElementById('modalSelectPlanPreset');
+            if (!selectEl) return;
+
+            const plans = (globalPlansList && globalPlansList.length > 0) ? globalPlansList : DEFAULT_PLANS_SEED;
+
+            let html = plans.map(p => {
+                const lim = globalPlanLimitsMap[p.key] || {};
+                const prods = lim.max_products !== undefined ? (lim.max_products === -1 ? 'غير محدود' : lim.max_products) : (p.max_products_val || 200);
+                const users = lim.max_users !== undefined ? (lim.max_users === -1 ? 'غير محدود' : lim.max_users) : (p.max_users_val || 4);
+                const orders = lim.max_invoices !== undefined ? (lim.max_invoices === -1 ? 'غير محدود' : lim.max_invoices) : 5000;
+                
+                let periodText = '3 أشهر';
+                if (p.key === 'semi_annual' || p.period_months === 6) periodText = '6 أشهر';
+                if (p.key === 'annual' || p.period_months === 12) periodText = 'سنة';
+                if (p.key === 'trial' || p.period_months === 0) periodText = '5 أيام';
+
+                return `<option value="${p.key}">${p.name} (${periodText} - ${prods} منتج / ${users} مستخدم / ${orders} أوردر)</option>`;
+            }).join('');
+
+            html += `<option value="custom">⚡ خطة مخصصة (Custom Limits Plan - تعديل يدوي للحدود)</option>`;
+
+            selectEl.innerHTML = html;
+            selectEl.value = selectedPlanKey;
+        }
+
+        // Helper to auto calculate end date from start date & duration
+        function autoCalculateEndDate(startDateVal, months = 3, days = 0) {
+            let start = startDateVal ? new Date(startDateVal) : new Date();
+            if (isNaN(start.getTime())) start = new Date();
+
+            let end = new Date(start);
+            if (months > 0) {
+                end.setMonth(end.getMonth() + months);
+            } else if (days > 0) {
+                end.setDate(end.getDate() + days);
+            }
+
+            const endDateInput = document.getElementById('modalInputEndDate');
+            if (endDateInput) {
+                endDateInput.value = end.toISOString().split('T')[0];
+            }
+        }
+
+        function applyPlanPresetDefaultsToInputs(planKey) {
+            const badge = document.getElementById('modalSubPlanBadge');
+            const basePlanContainer = document.getElementById('basePlanSelectionContainer');
+            const modalSelectBasePlan = document.getElementById('modalSelectBasePlan');
+
+            if (planKey === 'custom') {
+                if (badge) badge.textContent = 'CUSTOM';
+                if (basePlanContainer) basePlanContainer.classList.remove('hidden');
+                return;
+            }
+
+            if (basePlanContainer) basePlanContainer.classList.add('hidden');
+            if (modalSelectBasePlan) modalSelectBasePlan.value = planKey;
+            if (badge) badge.textContent = planKey.toUpperCase();
+
+            const effectiveKey = planKey === 'trial' ? 'semi_annual' : planKey;
+            const sysPlan = (globalPlansList || []).find(p => p.key === planKey) || (DEFAULT_PLANS_SEED || []).find(p => p.key === planKey);
+            const lim = globalPlanLimitsMap[effectiveKey] || globalPlanLimitsMap[planKey] || {};
+
+            document.getElementById('modalInputMaxProducts').value = lim.max_products !== undefined ? (lim.max_products === -1 ? 99999 : lim.max_products) : (sysPlan ? sysPlan.max_products_val : 650);
+            document.getElementById('modalInputMaxUsers').value = lim.max_users !== undefined ? (lim.max_users === -1 ? 999 : lim.max_users) : (sysPlan ? sysPlan.max_users_val : 10);
+            document.getElementById('modalInputMaxOrders').value = lim.max_invoices !== undefined ? (lim.max_invoices === -1 ? 999999 : lim.max_invoices) : 3000;
+            document.getElementById('modalInputExcelCredits').value = lim.monthly_excel_credits !== undefined ? (lim.monthly_excel_credits === -1 ? 99999 : lim.monthly_excel_credits) : (sysPlan ? sysPlan.excel_credits_val : 1000);
+            document.getElementById('modalInputMaxStorage').value = lim.max_storage_mb || 5000;
+
+            // Auto calculate end date
+            let months = sysPlan ? (sysPlan.period_months || 3) : 3;
+            let days = 0;
+            if (planKey === 'trial') { months = 0; days = 5; }
+            const startDateVal = document.getElementById('modalInputStartDate').value;
+            autoCalculateEndDate(startDateVal, months, days);
+        }
+
         // Attach Handlers for Plan Selector Presets & Custom Editing
         const modalSelectPlanPreset = document.getElementById('modalSelectPlanPreset');
+        const basePlanContainer = document.getElementById('basePlanSelectionContainer');
+        const modalSelectBasePlan = document.getElementById('modalSelectBasePlan');
+
         if (modalSelectPlanPreset) {
             modalSelectPlanPreset.addEventListener('change', (e) => {
-                const plan = e.target.value;
-                if (plan === 'basic') {
-                    document.getElementById('modalInputMaxProducts').value = 500;
-                    document.getElementById('modalInputMaxUsers').value = 5;
-                    document.getElementById('modalInputMaxOrders').value = 1000;
-                    document.getElementById('modalInputMaxStorage').value = 2000;
-                } else if (plan === 'pro') {
-                    document.getElementById('modalInputMaxProducts').value = 2500;
-                    document.getElementById('modalInputMaxUsers').value = 25;
-                    document.getElementById('modalInputMaxOrders').value = 10000;
-                    document.getElementById('modalInputMaxStorage').value = 10000;
-                } else if (plan === 'enterprise') {
-                    document.getElementById('modalInputMaxProducts').value = 99999;
-                    document.getElementById('modalInputMaxUsers').value = 999;
-                    document.getElementById('modalInputMaxOrders').value = 999999;
-                    document.getElementById('modalInputMaxStorage').value = 50000;
-                }
-                document.getElementById('modalSubPlanBadge').textContent = plan.toUpperCase();
+                applyPlanPresetDefaultsToInputs(e.target.value);
+            });
+        }
+
+        // Dedicated Manual Re-Sync Button Handler
+        const btnSyncPlanPresetDefaults = document.getElementById('btnSyncPlanPresetDefaults');
+        if (btnSyncPlanPresetDefaults) {
+            btnSyncPlanPresetDefaults.addEventListener('click', () => {
+                const currentPlan = modalSelectPlanPreset ? modalSelectPlanPreset.value : 'quarterly';
+                applyPlanPresetDefaultsToInputs(currentPlan);
+                showToast('تمت مزامنة وتطبيق أحدث إعدادات وقواعد الخطة بنجاح!', 'success');
+            });
+        }
+
+        // Auto calculate end date when start date changes
+        const startDateInputEl = document.getElementById('modalInputStartDate');
+        if (startDateInputEl) {
+            startDateInputEl.addEventListener('change', (e) => {
+                const planKey = modalSelectPlanPreset ? modalSelectPlanPreset.value : 'quarterly';
+                const sysPlan = (globalPlansList || []).find(p => p.key === planKey);
+                let months = sysPlan ? (sysPlan.period_months || 3) : 3;
+                let days = 0;
+                if (planKey === 'trial') { months = 0; days = 5; }
+                autoCalculateEndDate(e.target.value, months, days);
             });
         }
 
         // Auto switch plan preset to custom if manual edits are done on inputs
-        ['modalInputMaxProducts', 'modalInputMaxUsers', 'modalInputMaxOrders', 'modalInputMaxStorage'].forEach(id => {
+        ['modalInputMaxProducts', 'modalInputMaxUsers', 'modalInputMaxOrders', 'modalInputExcelCredits', 'modalInputMaxStorage'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.addEventListener('input', () => {
@@ -2059,12 +2246,25 @@
             }
         });
 
+        // Installment checkbox toggle
+        const modalInstallmentEnabled = document.getElementById('modalInstallmentEnabled');
+        if (modalInstallmentEnabled) {
+            modalInstallmentEnabled.addEventListener('change', (e) => {
+                const instFieldsContainer = document.getElementById('installmentFieldsContainer');
+                if (instFieldsContainer) {
+                    if (e.target.checked) instFieldsContainer.classList.remove('hidden');
+                    else instFieldsContainer.classList.add('hidden');
+                }
+            });
+        }
+
         // Date Extension Shortcut Handlers
         document.querySelectorAll('.btn-extend-days').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const days = parseInt(e.currentTarget.dataset.days);
                 const endDateInput = document.getElementById('modalInputEndDate');
-                let baseDate = endDateInput.value ? new Date(endDateInput.value) : new Date();
+                const startDateInput = document.getElementById('modalInputStartDate');
+                let baseDate = startDateInput.value ? new Date(startDateInput.value) : new Date();
                 if (isNaN(baseDate.getTime())) baseDate = new Date();
 
                 baseDate.setDate(baseDate.getDate() + days);
@@ -2150,7 +2350,7 @@
             });
         }
 
-        // Handle Full Page Subscription Form Submit (الخطط والحدود وتواريخ النهاية)
+        // Handle Full Page Subscription Form Submit (الخطط والحدود وتواريخ النهاية والأقساط)
         const fullPageSubscriptionForm = document.getElementById('fullPageSubscriptionForm');
         if (fullPageSubscriptionForm) {
             fullPageSubscriptionForm.addEventListener('submit', async (e) => {
@@ -2161,43 +2361,175 @@
                 const maxProducts = parseInt(document.getElementById('modalInputMaxProducts').value);
                 const maxUsers = parseInt(document.getElementById('modalInputMaxUsers').value);
                 const maxOrders = parseInt(document.getElementById('modalInputMaxOrders').value);
+                const monthlyExcelCredits = parseInt(document.getElementById('modalInputExcelCredits').value);
                 const maxStorageMb = parseInt(document.getElementById('modalInputMaxStorage').value);
 
                 const startDate = document.getElementById('modalInputStartDate').value || null;
                 const endDate = document.getElementById('modalInputEndDate').value || null;
                 const status = document.getElementById('modalInputSubStatus').value;
 
+                const instEnabled = document.getElementById('modalInstallmentEnabled').checked;
+                const installment_details = {
+                    enabled: instEnabled,
+                    count: parseInt(document.getElementById('modalInstallmentCount').value) || 2,
+                    amount: parseFloat(document.getElementById('modalInstallmentAmount').value) || 0,
+                    next_due_date: document.getElementById('modalInstallmentNextDate').value || null,
+                    notes: document.getElementById('modalInstallmentNotes').value.trim()
+                };
+
+                const existingSub = Array.isArray(activeSelectedTenant.subscriptions) 
+                    ? activeSelectedTenant.subscriptions[0] 
+                    : activeSelectedTenant.subscriptions;
+
+                const basePlanKey = plan === 'custom' 
+                    ? (document.getElementById('modalSelectBasePlan')?.value || existingSub?.custom_limits?.base_plan || 'quarterly') 
+                    : plan;
+
+                const planRules = globalPlanLimitsMap[basePlanKey] || globalPlanLimitsMap['quarterly'] || {};
+
+                let custom_limits = {
+                    ...(existingSub ? (existingSub.custom_limits || {}) : {}),
+                    installment_details,
+                    monthly_excel_credits: monthlyExcelCredits,
+                    base_plan: basePlanKey
+                };
+
+                if (plan === 'custom') {
+                    custom_limits = {
+                        ...custom_limits,
+                        bulk_edit_pricing_mode: planRules.bulk_edit_pricing_mode || 'per_item',
+                        bulk_edit_per_op_cost: planRules.bulk_edit_per_op_cost ?? 5,
+                        bulk_edit_per_item_cost: planRules.bulk_edit_per_item_cost ?? 1,
+                        bulk_edit_max_cap: planRules.bulk_edit_max_cap ?? 500,
+                        excel_upload_colors_cost: planRules.excel_upload_colors_cost ?? 5,
+                        excel_upload_items_cost: planRules.excel_upload_items_cost ?? 5,
+                        excel_upload_stock_cost: planRules.excel_upload_stock_cost ?? 10
+                    };
+                } else {
+                    delete custom_limits.bulk_edit_pricing_mode;
+                    delete custom_limits.bulk_edit_per_op_cost;
+                    delete custom_limits.bulk_edit_per_item_cost;
+                    delete custom_limits.bulk_edit_max_cap;
+                    delete custom_limits.excel_upload_colors_cost;
+                    delete custom_limits.excel_upload_items_cost;
+                    delete custom_limits.excel_upload_stock_cost;
+                }
+
                 try {
-                    // Update Subscription Record
-                    const { error: subErr } = await supabase
-                        .from('subscriptions')
-                        .update({
-                            plan,
-                            max_products: maxProducts,
-                            max_users: maxUsers,
-                            max_orders: maxOrders,
-                            max_storage_mb: maxStorageMb,
-                            start_date: startDate ? new Date(startDate).toISOString() : null,
-                            end_date: endDate ? new Date(endDate).toISOString() : null,
-                            status
-                        })
-                        .eq('tenant_id', activeSelectedTenant.id);
+                    const subPayload = {
+                        tenant_id: activeSelectedTenant.id,
+                        plan,
+                        max_products: maxProducts,
+                        max_users: maxUsers,
+                        max_orders: maxOrders,
+                        max_storage_mb: maxStorageMb,
+                        monthly_excel_credits: monthlyExcelCredits,
+                        installment_details: installment_details,
+                        start_date: startDate ? new Date(startDate).toISOString() : null,
+                        end_date: endDate ? new Date(endDate).toISOString() : null,
+                        status,
+                        custom_limits
+                    };
 
-                    if (subErr) throw subErr;
+                    let savedRecord = null;
 
-                    // If subscription status is suspended or expired, also update tenant status
-                    if (status === 'suspended' || status === 'expired') {
-                        await supabase.from('tenants').update({ status: 'suspended' }).eq('id', activeSelectedTenant.id);
-                    } else if (status === 'active') {
-                        await supabase.from('tenants').update({ status: 'active' }).eq('id', activeSelectedTenant.id);
+                    // 1. If existing sub with ID exists, attempt update by ID
+                    if (existingSub && existingSub.id) {
+                        const { data, error } = await supabase
+                            .from('subscriptions')
+                            .update(subPayload)
+                            .eq('id', existingSub.id)
+                            .select();
+
+                        if (!error && data && data.length > 0) {
+                            savedRecord = data[0];
+                        }
                     }
 
-                    showToast('تم حفظ تفاصيل خطة الاشتراك والحدود وتواريخ الانتهاء بنجاح!', 'success');
-                    loadTenants();
+                    // 2. If no saved record yet, attempt update by tenant_id
+                    if (!savedRecord) {
+                        const { data, error } = await supabase
+                            .from('subscriptions')
+                            .update(subPayload)
+                            .eq('tenant_id', activeSelectedTenant.id)
+                            .select();
+
+                        if (!error && data && data.length > 0) {
+                            savedRecord = data[0];
+                        }
+                    }
+
+                    // 3. If still no record updated (none existed for this tenant), insert a new row
+                    if (!savedRecord) {
+                        const { data, error } = await supabase
+                            .from('subscriptions')
+                            .insert([subPayload])
+                            .select();
+
+                        if (error) throw error;
+                        savedRecord = data ? data[0] : null;
+                    }
+
+                    // Update in-memory tenant subscription
+                    if (savedRecord) {
+                        activeSelectedTenant.subscriptions = [savedRecord];
+                    }
+
+                    // Sync tenant status
+                    if (status === 'suspended' || status === 'expired') {
+                        await supabase.from('tenants').update({ status: 'suspended' }).eq('id', activeSelectedTenant.id);
+                        activeSelectedTenant.status = 'suspended';
+                    } else if (status === 'active') {
+                        await supabase.from('tenants').update({ status: 'active' }).eq('id', activeSelectedTenant.id);
+                        activeSelectedTenant.status = 'active';
+                    }
+
+                    showToast('تم حفظ خطة الاشتراك والحدود وسجلات السداد بنجاح!', 'success');
+                    await loadTenants();
                 } catch (err) {
+                    console.error('Subscription save error:', err);
                     showToast('فشل حفظ خطة الاشتراك: ' + err.message, 'error');
                 }
             });
+        }
+
+        // ⚡ زر شحن الكريديت للمصنع من السوبر أدمن
+        const btnRecharge = document.getElementById('btnRechargeTenantCredits');
+        if (btnRecharge) {
+            btnRecharge.onclick = async () => {
+                const amountStr = await promptDialog({
+                    title: `⚡ شحن دفعة كريديت إضافية للمصنع`,
+                    message: `أدخل عدد الكريديتس المراد شحنها وإضافتها لحساب (${activeSelectedTenant.name}):`,
+                    defaultValue: '500',
+                    placeholder: 'أدخل عدد الكريديت (مثال: 500)',
+                    confirmText: 'شحن الكريديت ⚡',
+                    cancelText: 'إلغاء'
+                });
+                if (!amountStr) return;
+                const amount = parseFloat(amountStr);
+                if (isNaN(amount) || amount <= 0) {
+                    showToast('الرجاء إدخال رقم صحيح للكريديت', 'error');
+                    return;
+                }
+
+                try {
+                    const { data, error } = await supabase.rpc('add_credits_to_tenant', {
+                        p_tenant_id: activeSelectedTenant.id,
+                        p_credits_to_add: amount,
+                        p_user_name: 'Super Admin'
+                    });
+
+                    if (error) throw error;
+                    showToast(`تم شحن ${amount} كريديت إضافي بنجاح للمصنع! الرصيد المتبقي الجديد: ${data.remaining}`, 'success');
+
+                    const currentVal = parseInt(document.getElementById('modalInputExcelCredits').value) || 0;
+                    if (currentVal !== -1 && currentVal < 99999) {
+                        document.getElementById('modalInputExcelCredits').value = currentVal + amount;
+                    }
+                } catch (err) {
+                    showToast('فشل شحن الكريديت: ' + err.message, 'error');
+                }
+            };
         }
 
         // 🗑️ Cascade Delete Tenant Function
@@ -2703,6 +3035,8 @@
                     plan,
                     max_products: maxProducts,
                     max_users: maxUsers,
+                    max_orders: maxOrders || 5000,
+                    monthly_excel_credits: maxExcelCredits || 200,
                     status: 'active'
                 });
 
@@ -2788,14 +3122,14 @@
                 price: 0,
                 currency: 'ج.م',
                 subtitle: 'كافة خصائص ومميزات باقة الـ 6 أشهر مجاناً وبدون أي رسوم لمدة 5 أيام',
-                max_products_label: 'حتى 600 موديل (3 أضعاف)',
-                excel_credits_label: '500 كريديت / شهرياً',
-                max_users_label: 'حتى 10 مستخدمين',
+                max_products_label: 'حتى 650 موديل (2.2x)',
+                excel_credits_label: '1000 كريديت / شهرياً (2.5x)',
+                max_users_label: 'حتى 10 مستخدمين (1.7x)',
                 features_list: [
                     "تجربة مجانية بالكامل بدون أي رسوم أو فيزا",
                     "كافة خصائص ومميزات باقة الـ 6 أشهر",
-                    "حتى 600 موديل نشط بالمعرض",
-                    "500 كريديت رفع وتعديل (Excel)",
+                    "حتى 650 موديل نشط بالمعرض",
+                    "1000 كريديت رفع وتعديل (Excel)",
                     "حتى 10 مستخدمين وفريق عمل كامل",
                     "دعم فني وتدريب كامل خلال فترة التجربة"
                 ],
@@ -2921,7 +3255,8 @@
 
         // Helper to render dynamic limit badges inside plan card
         function renderPlanCardLimitBadges(planKey, plan, badgeBgClass) {
-            const lim = globalPlanLimitsMap[planKey] || {};
+            const effectivePlanKey = planKey === 'trial' ? 'semi_annual' : planKey;
+            const lim = globalPlanLimitsMap[effectivePlanKey] || globalPlanLimitsMap[planKey] || {};
             const baseLim = globalPlanLimitsMap['quarterly'] || {};
 
             const isBase = planKey === 'quarterly';
@@ -2940,11 +3275,17 @@
                 { label: 'مستخدمو فريق العمل:', value: fmtUsers(lim.max_users, baseLim.max_users) }
             ];
 
-            // Render Custom Limit Badges if added in plan
+            const standardKeywords = ['إجمالي الموديلات', 'الموديلات النشطة', 'حد الفواتير', 'رصيد الرفع', 'مستخدمو فريق العمل', 'Excel', 'مستخدمين'];
+
+            // Render Custom Limit Badges if added in plan (excluding duplicate standard keywords)
             const customBadges = Array.isArray(plan.custom_limit_badges) ? plan.custom_limit_badges : [];
             customBadges.forEach(cb => {
                 if (cb && cb.label && cb.value) {
-                    badges.push(cb);
+                    const labelNorm = (cb.label || '').trim();
+                    const isDuplicateStandard = standardKeywords.some(kw => labelNorm.includes(kw));
+                    if (!isDuplicateStandard) {
+                        badges.push(cb);
+                    }
                 }
             });
 
@@ -3380,13 +3721,60 @@
             document.getElementById('editPlanSavingsInput').value = plan.savings_tag || '';
             document.getElementById('editPlanSubtitleInput').value = plan.subtitle || '';
 
-            // Render Custom Badges
+            // Render Standard Badges Preview + Custom Badges
             if (customLimitBadgesContainer) {
                 customLimitBadgesContainer.innerHTML = '';
+
+                // 1. Standard limits preview
+                const lim = globalPlanLimitsMap[planKey] || {};
+                const baseLim = globalPlanLimitsMap['quarterly'] || {};
+                const isBase = planKey === 'quarterly';
+
+                const fmtActive = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 200} موديل`) + (isBase ? '' : getRatioMultiplierTag(base, v));
+                const fmtTotal = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 500} موديل`) + (isBase ? '' : getRatioMultiplierTag(base, v));
+                const fmtInvoices = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 1000} فاتورة`) + (isBase ? '' : getRatioMultiplierTag(base, v));
+                const fmtCredits = (v, base) => (v === -1 ? 'غير محدود ∞' : `${v ?? 200} كريديت / شهرياً`) + (isBase ? '' : getRatioMultiplierTag(base, v));
+                const fmtUsers = (v, base) => (v === -1 ? 'غير محدود ∞' : `حتى ${v ?? 4} مستخدمين`) + (isBase ? '' : getRatioMultiplierTag(base, v));
+
+                const standardBadges = [
+                    { label: 'إجمالي الموديلات بالمحل/المعرض:', value: fmtTotal(lim.max_total_products, baseLim.max_total_products) },
+                    { label: 'الموديلات النشطة المعروضة:', value: fmtActive(lim.max_products, baseLim.max_products) },
+                    { label: 'حد الفواتير المسموح بها:', value: fmtInvoices(lim.max_invoices, baseLim.max_invoices) },
+                    { label: 'رصيد الرفع والتعديل (Excel):', value: fmtCredits(lim.monthly_excel_credits, baseLim.monthly_excel_credits) },
+                    { label: 'مستخدمو فريق العمل:', value: fmtUsers(lim.max_users, baseLim.max_users) }
+                ];
+
+                const stdPreviewDiv = document.createElement('div');
+                stdPreviewDiv.className = 'mb-3 p-3 rounded-xl bg-devo-dark border border-emerald-500/30 space-y-2';
+                stdPreviewDiv.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-devo-gray/50 pb-2">
+                        <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
+                            <i class="ph ph-check-circle text-base"></i>
+                            معاينة شارات الحدود الأساسية الخمسة للكارت (تلقائية من محرك الحدود):
+                        </span>
+                        <span class="text-[10px] text-devo-muted">تُعدل قيمها من تبويب "قواعد الحدود"</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        ${standardBadges.map(b => `
+                            <div class="flex items-center justify-between text-devo-text gap-2">
+                                <span class="text-devo-muted font-bold text-[11px] whitespace-nowrap">${b.label}</span>
+                                <span class="font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md font-mono text-[11px] whitespace-nowrap">${b.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                customLimitBadgesContainer.appendChild(stdPreviewDiv);
+
+                // 2. Render Custom Badges
+                const standardKeywords = ['إجمالي الموديلات', 'الموديلات النشطة', 'حد الفواتير', 'رصيد الرفع', 'مستخدمو فريق العمل', 'Excel', 'مستخدمين'];
                 const customBadges = Array.isArray(plan.custom_limit_badges) ? plan.custom_limit_badges : [];
                 customBadges.forEach(b => {
                     if (b && b.label && b.value) {
-                        addCustomLimitBadgeInput(b.label, b.value);
+                        const labelNorm = (b.label || '').trim();
+                        const isDuplicateStandard = standardKeywords.some(kw => labelNorm.includes(kw));
+                        if (!isDuplicateStandard) {
+                            addCustomLimitBadgeInput(b.label, b.value);
+                        }
                     }
                 });
             }
@@ -3571,9 +3959,15 @@
         if (deleteComparisonFeatureBtn) {
             deleteComparisonFeatureBtn.onclick = async () => {
                 const featureId = document.getElementById('editComparisonFeatureIdInput').value;
-                if (!featureId) return;
+                const isConfirmed = await confirmDialog({
+                    title: 'تأكيد الحذف',
+                    message: 'هل أنت متأكد من إزالة هذا البند من جدول المقارنة؟ لا يمكن التراجع عن هذا الإجراء.',
+                    confirmText: 'نعم، حذف البند',
+                    cancelText: 'إلغاء',
+                    isDestructive: true
+                });
 
-                if (confirm('هل أنت متأكد من إزالة هذا البند من جدول المقارنة؟')) {
+                if (isConfirmed) {
                     globalComparisonFeaturesList = globalComparisonFeaturesList.filter(f => f.id !== featureId);
                     renderComparisonTable(globalComparisonFeaturesList);
                     closeCompModalFunc();

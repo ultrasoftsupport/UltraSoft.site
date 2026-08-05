@@ -1,8 +1,8 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { confirmDialog } from '../../components/modal.js';
+import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { checkModelsInInvoices } from './models.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 
 let isBulkInitialized = false;
 let bulkAllModels = []; 
@@ -497,11 +497,21 @@ window.toggleSingleBulkCheck = (cb) => {
     updateBulkActionBar();
 };
 
-function updateBulkActionBar() {
+async function updateBulkActionBar() {
     const bar = document.getElementById('bulk-action-bar');
+    const btn = document.getElementById('btn-bulk-execute');
     if (selectedModelIds.size > 0 || lastSnapshot !== null) {
         bar.classList.remove('hidden');
         bar.classList.add('block');
+
+        if (btn && selectedModelIds.size > 0) {
+            try {
+                const rules = await getTenantCreditRules();
+                const cost = calculateOperationCredits('bulk_edit', selectedModelIds.size, rules);
+                const costLabel = rules.is_unlimited ? 'مجاناً ⚡' : `${cost} ⚡`;
+                btn.innerHTML = `<i class="ph ph-lightning text-lg"></i> <span>تنفيذ التعديلات (${costLabel})</span>`;
+            } catch (e) {}
+        }
     } else {
         bar.classList.add('hidden');
         bar.classList.remove('block');
@@ -556,6 +566,20 @@ window.executeBulkEdit = async () => {
     if (action === 'change_class' && !classSelectVal) return showToast('الرجاء اختيار الفئة العمرية الجديدة', 'error');
 
     const isDelete = action === 'delete_models';
+
+    // ⚡ 1. فحص رصيد الكريديت قبل البدء
+    const creditRules = await getTenantCreditRules();
+    const requiredCredits = calculateOperationCredits('bulk_edit', selectedModelIds.size, creditRules);
+
+    if (!creditRules.is_unlimited && creditRules.remaining_credits < requiredCredits) {
+        showSubscriptionUpgradeModal({
+            quotaType: 'excel_credits',
+            limit: creditRules.remaining_credits,
+            title: '⚠️ وصول للحد الأقصى لرصيد الكريديت (Excel)',
+            message: `تعذر تنفيذ التعديلات المجمعة: تتطلب العملية (${requiredCredits} كريديت) بينما الرصيد المتاح لديك (${creditRules.remaining_credits} كريديت).`
+        });
+        return;
+    }
 
     const btn = document.getElementById('btn-bulk-execute');
     const originalBtnText = btn.innerHTML;
@@ -868,6 +892,14 @@ window.executeBulkEdit = async () => {
                 ${errorsCollected.map(err => `<div>• ${err}</div>`).join('')}
             `;
             progressErrors.classList.remove('hidden');
+        }
+
+        // ⚡ 2. خصم الكريديت وتوثيق العملية بسجل استهلاك الكريديت
+        try {
+            await deductTenantCredits('bulk_edit', 'التعديلات المجمعة', requiredCredits, selectedModelIds.size);
+        } catch (deductErr) {
+            console.error('Error deducting credits:', deductErr);
+            showToast(`تنبيه: اكتمل التعديل ولكن فشل خصم الكريديت: ${deductErr.message || deductErr}`, 'warning');
         }
 
         await fetchBulkModels();

@@ -1,7 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { confirmDialog } from '../../components/modal.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
+import { getCurrentTenantId, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 
 let currentTab = 'categories'; 
 let allData = []; 
@@ -382,6 +382,18 @@ window.processColorExcelPreview = async () => {
             dupWarning.classList.add('hidden');
         }
 
+        const importBtn = document.getElementById('color-excel-import-btn');
+        if (importBtn) {
+            try {
+                const creditRules = await getTenantCreditRules();
+                const cost = calculateOperationCredits('excel_colors_import', newColors.length, creditRules);
+                const costLabel = creditRules.is_unlimited ? 'مجاناً ⚡' : `${cost} ⚡`;
+                importBtn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد وحفظ الألوان الجديدة (${costLabel})</span>`;
+            } catch (e) {
+                importBtn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد وحفظ الألوان الجديدة</span>`;
+            }
+        }
+
         document.getElementById('color-excel-step-1').classList.add('hidden');
         document.getElementById('color-excel-step-2').classList.remove('hidden');
         document.getElementById('color-excel-step-2').classList.add('flex');
@@ -404,6 +416,21 @@ window.executeColorExcelImport = async () => {
 
     const btn = document.getElementById('color-excel-import-btn');
     btn.disabled = true;
+
+    // ⚡ 1. فحص رصيد الكريديت قبل البدء
+    const creditRules = await getTenantCreditRules();
+    const requiredCredits = calculateOperationCredits('excel_colors_import', pendingExcelColors.length, creditRules);
+
+    if (!creditRules.is_unlimited && creditRules.remaining_credits < requiredCredits) {
+        btn.disabled = false;
+        showSubscriptionUpgradeModal({
+            quotaType: 'excel_credits',
+            limit: creditRules.remaining_credits,
+            title: '⚠️ وصول للحد الأقصى لرصيد الكريديت (Excel)',
+            message: `تعذر استيراد ملف ألوان الإكسيل: تتطلب العملية خصم (${requiredCredits} كريديت) بينما الرصيد المتاح لديك (${creditRules.remaining_credits} كريديت).`
+        });
+        return;
+    }
 
     try {
         const CHUNK_SIZE = 500; // الألوان خفيفة، 500 سجل في الدفعة رقم ممتاز وآمن
@@ -429,6 +456,13 @@ window.executeColorExcelImport = async () => {
             successCount += chunk.length;
         }
 
+        // ⚡ 2. خصم الكريديت وتوثيق العملية بسجل استهلاك الكريديت
+        try {
+            await deductTenantCredits('excel_colors_import', 'استيراد ألوان إكسيل', requiredCredits, successCount);
+        } catch (deductErr) {
+            console.error('Error deducting excel colors credits:', deductErr);
+        }
+
         showToast(`تم استيراد وحفظ ${successCount} لون بنجاح!`, 'success');
         
         // إغلاق النافذة
@@ -445,8 +479,14 @@ window.executeColorExcelImport = async () => {
     } catch (error) {
         console.error(error);
         showToast(error.message || 'حدث خطأ أثناء الحفظ', 'error');
-    } finally {
-        btn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> تأكيد وحفظ الألوان الجديدة`;
+        try {
+            const creditRules = await getTenantCreditRules();
+            const cost = calculateOperationCredits('excel_colors_import', pendingExcelColors.length, creditRules);
+            const costLabel = creditRules.is_unlimited ? 'مجاناً ⚡' : `${cost} ⚡`;
+            btn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد وحفظ الألوان الجديدة (${costLabel})</span>`;
+        } catch (e) {
+            btn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد وحفظ الألوان الجديدة</span>`;
+        }
         btn.disabled = false;
         
         // 🌟 3. تفريغ المصفوفة الصحيحة بعد الانتهاء 🌟

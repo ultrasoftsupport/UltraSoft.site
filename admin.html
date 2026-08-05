@@ -269,6 +269,13 @@
                 <span class="sidebar-label whitespace-nowrap transition-all duration-300">العروض والإعلانات</span>
                 <span class="sidebar-tooltip">العروض والإعلانات</span>
             </a>
+
+            <!-- 👑 الاشتراك والباقة -->
+            <a href="#" data-target="view-subscription" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="الاشتراك والباقة">
+                <i class="ph ph-crown text-xl text-amber-400 shrink-0"></i>
+                <span class="sidebar-label whitespace-nowrap transition-all duration-300">الاشتراك والباقة</span>
+                <span class="sidebar-tooltip">تفاصيل الاشتراك والحدود</span>
+            </a>
             
             <!-- ⚙️ تابة الإعدادات - مخفية بالافتراضي وتظهر للمالك فقط -->
             <a href="#" data-target="view-settings" class="nav-link sidebar-item hidden group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="الإعدادات">
@@ -369,7 +376,7 @@
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 relative" id="main-content">
+        <div class="flex-1 overflow-y-auto p-2  relative" id="main-content">
             
 <div id="view-dashboard" class="view-section hidden h-full">
     <div class="animate-fade-in space-y-6 pb-20">
@@ -895,7 +902,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
             <div class="bg-devo-dark border border-devo-gray py-2 px-4 rounded-xl flex justify-between items-center shadow-sm">
                 <span class="text-devo-muted text-xs font-bold">إجمالي الحسابات</span>
                 <span class="text-lg text-white font-bold" id="u-stat-total">0</span>
@@ -911,6 +918,15 @@
             <div class="bg-devo-dark border border-devo-success/30 py-2 px-4 rounded-xl flex justify-between items-center shadow-sm">
                 <span class="text-devo-success text-xs font-bold">العمال (Workers)</span>
                 <span class="text-lg text-devo-success font-bold" id="u-stat-workers">0</span>
+            </div>
+            <div class="bg-devo-dark border border-amber-500/30 py-2 px-4 rounded-xl flex justify-between items-center shadow-sm col-span-2 lg:col-span-1">
+                <div>
+                    <div class="flex items-center gap-1.5 text-amber-400 text-xs font-bold">
+                        <i class="ph ph-users-three"></i> حد فريق العمل
+                    </div>
+                    <span class="text-[10px] text-devo-muted font-medium" id="u-stat-quota-rem">متبقي 0 مستخدم</span>
+                </div>
+                <span class="text-sm text-amber-300 font-bold" id="u-stat-quota-text">0 / 0</span>
             </div>
         </div>
 
@@ -2870,6 +2886,100 @@
                 </div>
             </div><!-- /view-invoice-settings -->
 
+            <!-- 2. إدارة المظهر (Themes) -->
+            <div id="view-theme-manager" class="settings-subview hidden space-y-5 overflow-y-auto custom-scrollbar max-h-full pb-10">
+                <div class="animate-fade-in relative space-y-5">
+                    <!-- Header & Header/Footer Layout Controls Card -->
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-devo-gray/60 pb-3">
+                            <div>
+                                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-palette text-devo-orange text-xl"></i> إدارة مظهر الموقع والهيدر والفوتر
+                                </h2>
+                                <p class="text-devo-muted text-xs mt-0.5">تخصيص الثيم والألوان وتصميم الهيدر والفوتر بسلاسة</p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
+                                    <i class="ph ph-floppy-disk"></i> حفظ الهيدر والفوتر
+                                </button>
+                                <button onclick="openCreateThemeModal()" class="bg-devo-gray hover:bg-white/10 border border-devo-gray text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                                    <i class="ph ph-plus-circle text-sm text-devo-orange"></i> ثيم جديد
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                    <i class="ph ph-browser text-devo-orange"></i> تصميم الشريط العلوي (Header Layout)
+                                </label>
+                                <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                    <i class="ph ph-columns text-purple-400"></i> تصميم الشريط السفلي (Footer Layout)
+                                </label>
+                                <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="themes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="col-span-full py-12 text-center text-devo-muted">
+                            <i class="ph ph-spinner animate-spin text-4xl text-devo-orange mb-3 block mx-auto"></i>
+                            جاري تحميل المظاهر المتاحة...
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /view-theme-manager -->
+
+            <!-- 3. إعدادات الباركود والـ QR كود -->
+            <div id="view-barcode-settings" class="settings-subview hidden space-y-6">
+                <div class="animate-fade-in relative pb-10 space-y-6">
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
+                                    <i class="ph ph-qr-code"></i> إعدادات ماسح الباركود والـ QR كود (Barcode & QR Settings)
+                                </h3>
+                                <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
+                            </div>
+                            <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
+                                <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-camera text-devo-orange"></i> طريقة عمل الكاميرا (Scan Mode)
+                                </label>
+                                <p class="text-xs text-devo-muted">حدد النمط المناسب لقارئ الباركود عند فتح الكاميرا بالمتصفح</p>
+                                <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                    <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
+                                    <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
+                                    <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-barcode text-purple-400"></i> نوع الكود للتعرف على المنتج (Product Code Match)
+                                </label>
+                                <p class="text-xs text-devo-muted">تخصيص مطابقة الباركود الممسوح إما بكود السيستم أو كود المصنع الأصلي</p>
+                                <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
+                                    <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
+                                    <option value="system">كود السيستم فقط (System Code)</option>
+                                    <option value="factory">كود المصنع فقط (Factory Code)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /view-barcode-settings -->
+
             <!-- 4. إعدادات بوت التليجرام والربط والإشعارات -->
             <div id="view-telegram-settings" class="settings-subview hidden space-y-6">
                 <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm space-y-6">
@@ -3069,6 +3179,7 @@
                     
                     <button onclick="broadcastCustomNotification()" id="broadcast-btn" class="w-full py-2.5 rounded-lg bg-devo-orange hover:bg-devo-orangeHover text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md">
                         <i class="ph ph-paper-plane-tilt text-base"></i> بث التنبيه الآن
+                    </button>
                 </div>
             </div>
         </div>
@@ -3165,132 +3276,280 @@
     </div>
 </div>
 
-<!-- 2. إدارة المظهر (Themes) -->
-<div id="view-theme-manager" class="settings-subview hidden space-y-5 overflow-y-auto custom-scrollbar max-h-full pb-10">
-    <div class="animate-fade-in relative space-y-5">
+<!-- ============================================================ -->
+<!-- VIEW: Factory Subscription & Plan Details (الاشتراك والباقة) -->
+<!-- ============================================================ -->
+<!-- ============================================================ -->
+<!-- VIEW: Factory Subscription & Plan Details (الاشتراك والباقة) -->
+<!-- ============================================================ -->
+<div id="view-subscription" class="view-section hidden h-full overflow-y-auto custom-scrollbar">
+    <div class="animate-fade-in space-y-6 pb-12 max-w-7xl mx-auto">
         
-        <!-- Header & Header/Footer Layout Controls Card (Compact & Simple) -->
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-devo-gray/60 pb-3">
+        <!-- HEADER BAR WITH INTEGRATED SUB-TABS & CTA -->
+        <div class="bg-devo-dark border border-devo-gray p-4 md:p-5 rounded-2xl shadow-md flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex items-center gap-3 relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <i class="ph ph-crown text-2xl"></i>
+                </div>
                 <div>
-                    <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-palette text-devo-orange text-xl"></i> إدارة مظهر الموقع والهيدر والفوتر
+                    <h2 class="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                        <span>تفاصيل الاشتراك وباقة المصنع</span>
                     </h2>
-                    <p class="text-devo-muted text-xs mt-0.5">تخصيص الثيم والألوان وتصميم الهيدر والفوتر بسلاسة</p>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <span class="text-xs text-devo-muted font-bold">الباقة:</span>
+                        <span id="sub-view-plan-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500/20 text-amber-400 border border-amber-500/40">...</span>
+                        <span id="sub-view-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">نشط</span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
-                        <i class="ph ph-floppy-disk"></i> حفظ الهيدر والفوتر
+            </div>
+
+            <!-- MERGED NAVIGATION SUB-TABS & CTA -->
+            <div class="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <div class="flex items-center gap-1.5 bg-devo-black/90 p-1.5 rounded-xl border border-devo-gray overflow-x-auto w-full sm:w-auto">
+                    <button type="button" class="sub-tab-btn flex-1 sm:flex-initial py-2 px-3.5 rounded-lg text-xs font-black bg-ultra-500/15 text-ultra-400 border border-ultra-500/30 flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap" data-tab="limits">
+                        <i class="ph ph-chart-pie-slice text-base"></i>
+                        <span>تفاصيل حدود الخطة</span>
                     </button>
-                    <button onclick="openCreateThemeModal()" class="bg-devo-gray hover:bg-white/10 border border-devo-gray text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
-                        <i class="ph ph-plus-circle text-sm text-devo-orange"></i> ثيم جديد
+                    <button type="button" class="sub-tab-btn flex-1 sm:flex-initial py-2 px-3.5 rounded-lg text-xs font-bold text-devo-muted hover:bg-devo-gray hover:text-white flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap" data-tab="features">
+                        <i class="ph ph-check-square-offset text-base"></i>
+                        <span>مميزات وصلاحيات باقتك</span>
+                    </button>
+                    <button type="button" class="sub-tab-btn flex-1 sm:flex-initial py-2 px-3.5 rounded-lg text-xs font-bold text-devo-muted hover:bg-devo-gray hover:text-white flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap" data-tab="credits">
+                        <i class="ph ph-history text-base"></i>
+                        <span>سجل استهلاك الكريديت</span>
                     </button>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Selector 1: Top Header Theme -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
-                        <i class="ph ph-browser text-devo-orange"></i> تصميم الشريط العلوي (Header Layout)
-                    </label>
-                    <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
-                        <!-- Populated dynamically -->
-                    </select>
-                </div>
-
-                <!-- Selector 2: Bottom Footer Theme -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
-                        <i class="ph ph-columns text-purple-400"></i> تصميم الشريط السفلي (Footer Layout)
-                    </label>
-                    <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
-                        <!-- Populated dynamically -->
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Themes Grid List -->
-
-        <!-- Themes Grid List -->
-        <div id="themes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full py-12 text-center text-devo-muted">
-                <i class="ph ph-spinner animate-spin text-4xl text-devo-orange mb-3 block mx-auto"></i>
-                جاري تحميل المظاهر المتاحة...
-            </div>
-        </div>
-
-    </div>
-</div><!-- /view-theme-manager -->
-
-<!-- 3. إعدادات الباركود والـ QR كود -->
-<div id="view-barcode-settings" class="settings-subview hidden space-y-6">
-    <div class="animate-fade-in relative pb-10 space-y-6">
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 border-b border-devo-gray pb-4">
-                <div>
-                    <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
-                        <i class="ph ph-qr-code"></i> إعدادات ماسح الباركود والـ QR كود (Barcode & QR Settings)
-                    </h3>
-                    <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
-                </div>
-                <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-devo-orange/20">
-                    <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
+                <button id="btn-redirect-pricing" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition-all transform hover:scale-[1.02] cursor-pointer shrink-0">
+                    <i class="ph ph-sparkle text-base"></i>
+                    <span>ترقية الخطة أو التجديد</span>
+                    <i class="ph ph-arrow-up-right text-sm"></i>
                 </button>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="block text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-camera text-devo-orange"></i> طريقة عمل الكاميرا (Scan Mode)
-                    </label>
-                    <p class="text-xs text-devo-muted">حدد النمط المناسب لقارئ الباركود عند فتح الكاميرا بالمتصفح</p>
-                    <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                        <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
-                        <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
-                        <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
-                    </select>
+        <!-- MAIN SUB-TAB CONTENT AREA -->
+        <div class="space-y-6">
+            
+            <!-- SUB TAB 1: Subscription Summary & Live Limits (تفاصيل حدود الخطة) -->
+            <div id="sub-view-tab-limits" class="sub-tab-view space-y-6">
+                
+                <!-- System Dates & Payment Box Grid (4 Cards) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+                    
+                    <!-- Box 1: Start Date -->
+                    <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+                            <i class="ph ph-calendar-blank text-xl"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-[11px] font-bold text-devo-muted block">تاريخ البداية</span>
+                            <span id="sub-view-start-date" class="text-sm font-black text-white font-mono truncate block">--/--/----</span>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: End Date -->
+                    <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                            <i class="ph ph-calendar-check text-xl"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-[11px] font-bold text-devo-muted block">تاريخ الانتهاء</span>
+                            <span id="sub-view-end-date" class="text-sm font-black text-amber-400 font-mono truncate block">--/--/----</span>
+                        </div>
+                    </div>
+
+                    <!-- Box 3: Days Left -->
+                    <div class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                            <i class="ph ph-hourglass-medium text-xl"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-[11px] font-bold text-devo-muted block">الأيام المتبقية</span>
+                            <span id="sub-view-days-left" class="text-sm font-black text-emerald-400 font-mono truncate block">-- يوماً</span>
+                        </div>
+                    </div>
+
+                    <!-- Box 4: Payment System -->
+                    <div id="sub-inst-pill-container" class="bg-devo-dark border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
+                            <i class="ph ph-receipt text-xl"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-[11px] font-bold text-devo-muted block">نظام السداد</span>
+                            <span id="sub-inst-pill-text" class="text-xs font-black text-purple-300 font-mono truncate block">سداد مباشر</span>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="space-y-2">
-                    <label class="block text-sm font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-barcode text-purple-400"></i> نوع الكود للتعرف على المنتج (Product Code Match)
-                    </label>
-                    <p class="text-xs text-devo-muted">تخصيص مطابقة الباركود الممسوح إما بكود السيستم أو كود المصنع الأصلي</p>
-                    <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-3 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                        <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
-                        <option value="system">كود السيستم فقط (System Code)</option>
-                        <option value="factory">كود المصنع فقط (Factory Code)</option>
-                    </select>
+
+                <!-- Section Title -->
+                <div class="flex items-center justify-between border-b border-devo-gray pb-3 pt-2">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="ph ph-chart-line-up text-ultra-400"></i>
+                        مؤشرات الاستهلاك والحدود المتاحة باشتراكك
+                    </h3>
+                    <span class="text-xs text-devo-muted">تحديث مباشر من قاعدة البيانات</span>
+                </div>
+
+                <!-- 4 Metrics Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Metric 1: Products -->
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-t-shirt text-ultra-400 text-base"></i> حد المنتجات بالمعرض
+                            </span>
+                            <span id="sub-products-pct" class="text-xs font-black text-ultra-400 bg-ultra-500/10 px-2 py-0.5 rounded-full border border-ultra-500/20">0%</span>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 id="sub-products-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                            <span id="sub-products-remaining" class="text-[11px] font-bold text-devo-muted">متبقي 0</span>
+                        </div>
+                        <div class="w-full bg-devo-black rounded-full h-2 overflow-hidden border border-devo-gray">
+                            <div id="sub-products-bar" class="bg-ultra-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 2: Users -->
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-users text-amber-400 text-base"></i> حد فريق العمل
+                            </span>
+                            <span id="sub-users-pct" class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">0%</span>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 id="sub-users-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                            <span id="sub-users-remaining" class="text-[11px] font-bold text-devo-muted">متبقي 0</span>
+                        </div>
+                        <div class="w-full bg-devo-black rounded-full h-2 overflow-hidden border border-devo-gray">
+                            <div id="sub-users-bar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 3: Orders -->
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-receipt text-emerald-400 text-base"></i> حد الفواتير والأوردرات
+                            </span>
+                            <span id="sub-orders-pct" class="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">0%</span>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 id="sub-orders-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                            <span id="sub-orders-remaining" class="text-[11px] font-bold text-devo-muted">متبقي 0</span>
+                        </div>
+                        <div class="w-full bg-devo-black rounded-full h-2 overflow-hidden border border-devo-gray">
+                            <div id="sub-orders-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 4: Excel Credits -->
+                    <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-file-xls text-purple-400 text-base"></i> رصيد الكريديت (Excel)
+                            </span>
+                            <span id="sub-credits-pct" class="text-xs font-black text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">0%</span>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 id="sub-credits-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                            <span id="sub-credits-remaining" class="text-[11px] font-bold text-devo-muted">يتجدد شهرياً</span>
+                        </div>
+                        <div class="w-full bg-devo-black rounded-full h-2 overflow-hidden border border-devo-gray">
+                            <div id="sub-credits-bar" class="bg-purple-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-        </div>
-    </div>
-</div><!-- /view-barcode-settings -->
 
-<!-- 4. النسخ الاحتياطي والاستعادة -->
-<div id="view-backup-restore" class="settings-subview hidden space-y-6">
-    <div id="backup-restore-content">
-        <!-- يتم حقن المحتوى بواسطة backup_restore.js -->
-        <div class="flex items-center justify-center h-48">
-            <div class="w-8 h-8 rounded-full border-2 border-devo-orange/30 border-t-devo-orange animate-spin"></div>
-        </div>
-    </div>
-</div><!-- /view-backup-restore -->
+            <!-- SUB TAB 2: Active Plan Pricing Card & Dedicated Specs Table -->
+            <div id="sub-view-tab-features" class="sub-tab-view space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- RIGHT SIDE IN RTL: Active Plan Pricing Card (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-3">
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-crown text-amber-400 text-lg"></i>
+                            <span>كارت باقتك الحالية بالنظام</span>
+                        </h4>
 
-<!-- 5. إعادة تهيئة النظام (OWNER ONLY) -->
-<div id="view-system-reset" class="settings-subview hidden space-y-6">
-    <div id="reset-view-content">
-        <!-- يتم حقن المحتوى بواسطة system_reset.js -->
-        <div class="flex items-center justify-center h-48">
-            <div class="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
-        </div>
-    </div>
-</div><!-- /view-system-reset -->
+                        <div id="active-plan-card-container">
+                            <!-- Populated dynamically by factory_subscription.js -->
+                        </div>
+                    </div>
 
-        </div> <!-- End of settings-subviews-container -->
-    </div> <!-- End of animate-fade-in -->
-</div> <!-- End of view-settings -->
+                    <!-- LEFT SIDE IN RTL: Dedicated Specifications Table (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-list-checks text-ultra-400 text-lg"></i>
+                            <span>تفاصيل مميزات وصلاحيات الخطة النشطة</span>
+                        </h4>
+
+                        <div class="overflow-x-auto rounded-2xl border border-devo-gray bg-devo-dark shadow-lg">
+                            <table class="w-full text-right text-xs">
+                                <thead class="bg-devo-black text-devo-muted border-b border-devo-gray">
+                                    <tr>
+                                        <th class="p-3.5 text-xs font-bold text-white flex items-center gap-2">
+                                            <i class="ph ph-sliders text-ultra-400 text-base"></i>
+                                            <span>الميزة / الخصائص</span>
+                                        </th>
+                                        <th id="active-table-col-header" class="p-3.5 text-center font-black text-emerald-400 bg-emerald-500/10 border-r border-devo-gray">
+                                            ...
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="active-plan-table-tbody" class="divide-y divide-devo-gray/40 text-white">
+                                    <!-- Populated dynamically by factory_subscription.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SUB TAB 3: Credits Usage Log (سجل استهلاك الكريديت) -->
+            <div id="sub-view-tab-credits" class="sub-tab-view space-y-4 hidden">
+                <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-md space-y-4">
+                    <div class="flex items-center justify-between border-b border-devo-gray pb-3">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-history text-purple-400 text-lg"></i>
+                            <span>سجل عمليات واستهلاك الكريديت المجمع</span>
+                        </h3>
+                        <span class="text-xs text-devo-muted">استيراد وتعديل الموديلات عبر Excel</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-devo-gray">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-devo-black text-white border-b border-devo-gray">
+                                <tr>
+                                    <th class="p-3.5 font-bold text-xs">التاريخ والتوقيت</th>
+                                    <th class="p-3.5 font-bold text-xs">نوع العملية</th>
+                                    <th class="p-3.5 font-bold text-xs">المستخدم (اسم الحساب)</th>
+                                    <th class="p-3.5 font-bold text-xs">الكريديت المستهلك</th>
+                                    <th class="p-3.5 font-bold text-xs">الرصيد المتبقي</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sub-credits-log-tbody" class="divide-y divide-devo-gray/40 text-white bg-devo-black/30">
+                                <tr>
+                                    <td colspan="5" class="p-8 text-center text-devo-muted italic">لا توجد عمليات استهلاك كريديت مسجلة مؤخراً.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
 
 <!-- ============================================================ -->
 <!-- MODAL: إنشاء مظهر جديد -->

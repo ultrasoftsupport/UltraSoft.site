@@ -1,7 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
-import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl, getTenantModelQuotaDetails, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -29,59 +29,63 @@ let currentOpenModelId = null;
 let currentModelMovements = [];
 
 export async function initModelsView() {
-    if (isInitialized) return;
-    
-    // نص البحث: debounce على input فقط (لتجنب الثقل عند كل حرف)
-    const searchEl = document.getElementById('model-search');
-    if (searchEl) searchEl.addEventListener('input', () => debouncedApplyFilters(200));
+    if (!isInitialized) {
+        // نص البحث: debounce على input فقط (لتجنب الثقل عند كل حرف)
+        const searchEl = document.getElementById('model-search');
+        if (searchEl) searchEl.addEventListener('input', () => debouncedApplyFilters(200));
 
-    // الـ selects: change فقط (مرة واحدة بدون تكرار) + debounce خفيف
-    ['filter-status', 'filter-category', 'filter-class', 'filter-stock'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', () => debouncedApplyFilters(80));
-    });
-
-    // فلتر كمية المخزون: ربط خاص لإظهار/إخفاء حقل الكمية
-    const stockOp = document.getElementById('filter-stock-op');
-    const stockQty = document.getElementById('filter-stock-qty');
-    if (stockOp && stockQty) {
-        stockOp.addEventListener('change', () => {
-            if (stockOp.value) {
-                stockQty.classList.remove('hidden');
-            } else {
-                stockQty.classList.add('hidden');
-                stockQty.value = '';
-            }
-            debouncedApplyFilters(80);
+        // الـ selects: change فقط (مرة واحدة بدون تكرار) + debounce خفيف
+        ['filter-status', 'filter-category', 'filter-class', 'filter-stock'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', () => debouncedApplyFilters(80));
         });
-        stockQty.addEventListener('input', () => debouncedApplyFilters(300));
-    }
 
-    // فلتر التاريخ
-    ['filter-date-from', 'filter-date-to'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', () => debouncedApplyFilters(80));
-    });
-    
-    document.getElementById('model-form')?.addEventListener('submit', handleSaveModel);
-    document.getElementById('add-stock-form')?.addEventListener('submit', handleAddStockSubmit);
-    
-    document.getElementById('m-status')?.addEventListener('change', (e) => {
-        document.getElementById('m-status-text').textContent = e.target.checked ? 'نشط' : 'معطل';
-    });
+        // فلتر كمية المخزون: ربط خاص لإظهار/إخفاء حقل الكمية
+        const stockOp = document.getElementById('filter-stock-op');
+        const stockQty = document.getElementById('filter-stock-qty');
+        if (stockOp && stockQty) {
+            stockOp.addEventListener('change', () => {
+                if (stockOp.value) {
+                    stockQty.classList.remove('hidden');
+                } else {
+                    stockQty.classList.add('hidden');
+                    stockQty.value = '';
+                }
+                debouncedApplyFilters(80);
+            });
+            stockQty.addEventListener('input', () => debouncedApplyFilters(300));
+        }
+
+        // فلتر التاريخ
+        ['filter-date-from', 'filter-date-to'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', () => debouncedApplyFilters(80));
+        });
+        
+        document.getElementById('model-form')?.addEventListener('submit', handleSaveModel);
+        document.getElementById('add-stock-form')?.addEventListener('submit', handleAddStockSubmit);
+        
+        document.getElementById('m-status')?.addEventListener('change', (e) => {
+            document.getElementById('m-status-text').textContent = e.target.checked ? 'نشط' : 'معطل';
+        });
+
+        setupAdminRealtimeTracker(); 
+        isInitialized = true;
+    }
 
     await loadDefinitionsCache();
     await fetchAllModelsChunked(); 
-    setupAdminRealtimeTracker(); 
 
     const urlParams = new URLSearchParams(window.location.search);
     const adminModelId = urlParams.get('admin_model');
     if (adminModelId) {
         setTimeout(() => { window.viewDetails(adminModelId); }, 500);
     }
-
-    isInitialized = true;
 }
+
+window.refreshModelsData = async () => {
+    await fetchAllModelsChunked();
+};
 
 // ==========================================
 // 🌟 1. البيانات الأساسية 🌟
@@ -943,6 +947,26 @@ async function handleSaveModel(e) {
         is_active: document.getElementById('m-status').checked
     };
 
+    // 🛑 فحص حد الاشتراك (Subscription Quota Enforcement)
+    const quotaDetails = await getTenantModelQuotaDetails();
+    if (!quotaDetails.isUnlimited) {
+        if (!id && quotaDetails.totalCount >= quotaDetails.maxProducts) {
+            showSubscriptionUpgradeModal({ limit: quotaDetails.maxProducts });
+            return;
+        }
+
+        // إذا كان تعديل موديل موجود وتم تغيير حالته من معطل إلى نشط
+        if (id && modelData.is_active) {
+            const existingModel = allModels.find(m => m.id === id);
+            const wasActive = existingModel ? existingModel.is_active : false;
+
+            if (!wasActive && quotaDetails.activeCount >= quotaDetails.maxProducts) {
+                modelData.is_active = false;
+                showToast(`⚠️ تنبيه الباقة: تم حفظ الموديل كـ معطل نظراً لوصولك للحد الأقصى للموديلات النشطة المسموح بها (${quotaDetails.maxProducts} موديل).`, 'warning');
+            }
+        }
+    }
+
     const invRows = document.querySelectorAll('#m-inventory-container > div');
     const inventoryData = [];
     
@@ -1425,12 +1449,26 @@ function renderExcelPreviewTable() {
     document.getElementById('excel-selected-count').textContent = selectedCount;
     document.getElementById('excel-new-count').textContent = newCount;
     document.getElementById('excel-dup-count').textContent = dupCount;
-    document.getElementById('excel-btn-selected-count').textContent = selectedCount;
+    updateExcelModelsBtnCreditBadge();
 
     // Master Select-All checkbox status
     const masterCb = document.getElementById('excel-preview-select-all');
     if (masterCb) {
         masterCb.checked = filteredExcelModels.length > 0 && filteredExcelModels.every(m => selectedExcelModelCodes.has(m.system_code));
+    }
+}
+
+async function updateExcelModelsBtnCreditBadge() {
+    const btn = document.getElementById('excel-import-btn');
+    if (!btn) return;
+    const selectedCount = selectedExcelModelCodes.size;
+    try {
+        const creditRules = await getTenantCreditRules();
+        const cost = calculateOperationCredits('excel_models_import', selectedCount, creditRules);
+        const costLabel = creditRules.is_unlimited ? 'مجاناً ⚡' : `${cost} ⚡`;
+        btn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد واستيراد الأصناف المصطادة ( ${selectedCount} صنف - ${costLabel} )</span>`;
+    } catch (e) {
+        btn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> <span>تأكيد واستيراد الأصناف المصطادة ( <span id="excel-btn-selected-count">${selectedCount}</span> صنف )</span>`;
     }
 }
 
@@ -1454,7 +1492,7 @@ window.toggleExcelModelSelection = (sysCode, checked) => {
     }
 
     document.getElementById('excel-selected-count').textContent = selectedExcelModelCodes.size;
-    document.getElementById('excel-btn-selected-count').textContent = selectedExcelModelCodes.size;
+    updateExcelModelsBtnCreditBadge();
 
     const masterCb = document.getElementById('excel-preview-select-all');
     if (masterCb) {
@@ -1513,45 +1551,112 @@ window.executeExcelImport = async () => {
         if (progressBar) progressBar.style.width = '5%';
         if (progressPercent) progressPercent.textContent = '5%';
 
+        const currentTenantId = getCurrentTenantId();
+
         // Extract unique categories needed for selected models
         const categoriesNeeded = new Set(modelsToInsertRaw.map(m => m.category_name).filter(Boolean));
         const newCatsToInsert = [];
         for (const catName of categoriesNeeded) {
-            if (!defCache.cats.find(c => c.name === catName)) {
-                newCatsToInsert.push({ name: catName });
+            const trimmed = String(catName).trim();
+            if (!trimmed) continue;
+            const exists = defCache.cats.find(c => String(c.name).trim().toLowerCase() === trimmed.toLowerCase());
+            if (!exists) {
+                const catObj = { name: trimmed };
+                if (currentTenantId) catObj.tenant_id = currentTenantId;
+                newCatsToInsert.push(catObj);
             }
         }
 
         if (newCatsToInsert.length > 0) {
-            const { data, error } = await supabase.from('categories').insert(newCatsToInsert).select();
-            if (error) throw error;
-            if (data) {
-                defCache.cats.push(...data);
+            const { error: catErr } = await supabase
+                .from('categories')
+                .upsert(newCatsToInsert, { onConflict: 'tenant_id,name', ignoreDuplicates: true });
+
+            if (catErr) {
+                console.warn('Category upsert warning:', catErr);
+            }
+
+            // Refresh categories cache for current tenant
+            let catQ = supabase.from('categories').select('id, name');
+            if (currentTenantId) catQ = catQ.eq('tenant_id', currentTenantId);
+            const { data: freshCats } = await catQ;
+            if (freshCats) defCache.cats = freshCats;
+        }
+
+        const seenFactoryCodes = new Set();
+        const modelsToInsert = modelsToInsertRaw.map(m => {
+            const { category_name, is_duplicate, ...cleanModel } = m;
+            let fCode = cleanModel.factory_code ? String(cleanModel.factory_code).trim() : '';
+            if (!fCode) {
+                fCode = String(cleanModel.system_code).trim();
+            }
+            if (seenFactoryCodes.has(fCode)) {
+                fCode = `${fCode}_${cleanModel.system_code}`;
+            }
+            seenFactoryCodes.add(fCode);
+
+            const item = {
+                ...cleanModel,
+                factory_code: fCode,
+                category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
+            };
+            if (currentTenantId) item.tenant_id = currentTenantId;
+            return item;
+        });
+
+        let effectiveModelsToInsert = modelsToInsert;
+        let skippedDueToQuota = 0;
+        const quotaDetails = await getTenantModelQuotaDetails();
+
+        if (!quotaDetails.isUnlimited) {
+            const remainingQuota = quotaDetails.remainingTotal;
+            if (remainingQuota <= 0) {
+                showSubscriptionUpgradeModal({ 
+                    limit: quotaDetails.maxProducts,
+                    message: `تعذر إضافة أي موديل جديد: لقد وصلت بالفعل إلى الحد الأقصى المسموح به في باقتك الحالية (${quotaDetails.maxProducts} موديل).`
+                });
+                if (progressText) progressText.textContent = 'فشلت العملية لامتلاء الباقة';
+                return;
+            }
+
+            if (modelsToInsert.length > remainingQuota) {
+                skippedDueToQuota = modelsToInsert.length - remainingQuota;
+                effectiveModelsToInsert = modelsToInsert.slice(0, remainingQuota);
             }
         }
 
-        const modelsToInsert = modelsToInsertRaw.map(m => {
-            const { category_name, is_duplicate, ...cleanModel } = m;
-            return {
-                ...cleanModel,
-                category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
-            };
-        });
+        // ⚡ 1. فحص رصيد الكريديت قبل بدء العملية
+        const creditRules = await getTenantCreditRules();
+        const requiredCredits = calculateOperationCredits('excel_models_import', effectiveModelsToInsert.length, creditRules);
+
+        if (!creditRules.is_unlimited && creditRules.remaining_credits < requiredCredits) {
+            isExcelImporting = false;
+            btn.disabled = false;
+            if (resetBtn) resetBtn.disabled = false;
+            if (progressContainer) progressContainer.classList.add('hidden');
+            showSubscriptionUpgradeModal({
+                quotaType: 'excel_credits',
+                limit: creditRules.remaining_credits,
+                title: '⚠️ وصول للحد الأقصى لرصيد الكريديت (Excel)',
+                message: `تعذر استيراد ملف الإكسيل: تتطلب العملية خصم (${requiredCredits} كريديت) بينما الرصيد المتاح لديك (${creditRules.remaining_credits} كريديت).`
+            });
+            return;
+        }
 
         const batchSize = 200;
-        const totalModels = modelsToInsert.length;
+        const totalModels = effectiveModelsToInsert.length;
         const totalBatches = Math.ceil(totalModels / batchSize);
         
         for (let i = 0; i < totalModels; i += batchSize) {
             const batchNum = Math.floor(i / batchSize) + 1;
-            const currentBatch = modelsToInsert.slice(i, i + batchSize);
+            const currentBatch = effectiveModelsToInsert.slice(i, i + batchSize);
             
             if (progressText) {
-                progressText.textContent = `جاري رفع الأصناف المصطادة (${modelsToInsert.length} صنف - مجموعة ${batchNum} من ${totalBatches})...`;
+                progressText.textContent = `جاري رفع الأصناف المصطادة (${effectiveModelsToInsert.length} صنف - مجموعة ${batchNum} من ${totalBatches})...`;
             }
             
             const { error } = await supabase.from('models').upsert(currentBatch, { 
-                onConflict: 'system_code', 
+                onConflict: 'tenant_id,system_code', 
                 ignoreDuplicates: true 
             });
             
@@ -1568,25 +1673,47 @@ window.executeExcelImport = async () => {
 
         await fetchAllModelsChunked();
 
+        // ⚡ 2. خصم الكريديت وتسجيل العملية بسجل الاستهلاك
+        try {
+            await deductTenantCredits('excel_models_import', 'استيراد موديلات إكسيل', requiredCredits, effectiveModelsToInsert.length);
+        } catch (deductErr) {
+            console.error('Error deducting excel credits:', deductErr);
+        }
+
         if (progressBar) progressBar.style.width = '100%';
         if (progressPercent) progressPercent.textContent = '100%';
         if (progressText) progressText.textContent = 'تم حفظ جميع الأصناف المصطادة بنجاح!';
         
-        showToast(`تم استيراد ${modelsToInsert.length} صنف بنجاح`, 'success');
+        showToast(`تم استيراد ${effectiveModelsToInsert.length} صنف بنجاح`, 'success');
         
+        if (skippedDueToQuota > 0) {
+            setTimeout(() => {
+                showSubscriptionUpgradeModal({
+                    limit: quotaDetails.maxProducts,
+                    title: '⚠️ تم استيراد الموديلات المتاحة واكتفاء الباقة',
+                    message: `تم استيراد ${effectiveModelsToInsert.length} موديل بنجاح حتى الوصول للحد الأقصى المسموح به في باقتك الحالية (${quotaDetails.maxProducts} موديل). تم تخطي ${skippedDueToQuota} موديل زائدة.`
+                });
+            }, 500);
+        }
+
         setTimeout(() => {
             closeExcelImportModal();
             resetExcelModal();
         }, 1000);
 
     } catch (err) { 
-        showToast(`حدث خطأ أثناء الرفع: ${err.message || err}`, 'error'); 
+        if (err.message && err.message.includes('SUBSCRIPTION_LIMIT_EXCEEDED')) {
+            const match = err.message.match(/\d+/);
+            showSubscriptionUpgradeModal({ limit: match ? match[0] : 'المحدد' });
+        } else {
+            showToast(`حدث خطأ أثناء الرفع: ${err.message || err}`, 'error'); 
+        }
         if (progressText) progressText.textContent = 'فشلت العملية';
     } 
     finally { 
         isExcelImporting = false;
         btn.disabled = false; 
-        btn.innerHTML = `<i class="ph ph-check-circle text-xl"></i> تأكيد واستيراد الأصناف المصطادة (<span id="excel-btn-selected-count">0</span> صنف)`; 
+        updateExcelModelsBtnCreditBadge();
         if (resetBtn) resetBtn.disabled = false;
     }
 };
