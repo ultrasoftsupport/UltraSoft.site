@@ -2,6 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantModelQuotaDetails, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -1473,6 +1474,7 @@ async function handleConfirmSave() {
         const inventoryInserts = [];
         const allMovementsToInsert = [...initialMovements];
 
+        const currentTenantId = getCurrentTenantId();
         for (const item of selectedPreviewData) {
             if (!item.modelId) continue;
 
@@ -1480,6 +1482,7 @@ async function handleConfirmSave() {
             if (!item.isNew && item.priceChanged) {
                 priceUpdates.push({
                     id: item.modelId,
+                    tenant_id: item.tenantId || currentTenantId,
                     price: item.newPrice,
                     updated_at: new Date()
                 });
@@ -1508,10 +1511,12 @@ async function handleConfirmSave() {
                     if (existingInvId) {
                         inventoryUpdates.push({
                             id: existingInvId,
+                            tenant_id: item.tenantId || currentTenantId,
                             available_series: dbSeriesVal
                         });
                     } else {
                         inventoryInserts.push({
+                            tenant_id: item.tenantId || currentTenantId,
                             model_id: item.modelId,
                             color_id: targetColorId,
                             available_series: dbSeriesVal
@@ -1593,6 +1598,17 @@ async function handleConfirmSave() {
         // ⚡ 2. خصم الكريديت وتسجيل العملية بسجل الاستهلاك
         try {
             await deductTenantCredits('excel_stock_import', 'رفع مخزون إكسيل', requiredCredits, selectedPreviewData.length);
+            await logAuditEvent({
+                module: 'excel_imports',
+                actionType: 'excel_import',
+                entityType: 'stock_excel',
+                details: {
+                    notes: `استيراد وتحديث مخزون إكسيل لعدد ${selectedPreviewData.length} عنصر وتوريد رصيد جديد للمخزن`,
+                    items_count: selectedPreviewData.length,
+                    credits_deducted: requiredCredits,
+                    operation_type: 'استيراد رصيد مخزون إكسيل'
+                }
+            });
         } catch (deductErr) {
             console.error('Error deducting excel credits:', deductErr);
         }

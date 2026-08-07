@@ -2,6 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 let currentTab = 'categories'; 
 let allData = []; 
@@ -233,6 +234,29 @@ async function handleSaveDefinition(e) {
 
         showToast(id ? 'تم تحديث البيانات بنجاح' : 'تمت الإضافة بنجاح', 'success');
         closeDefinitionModal();
+
+        const tableLabels = {
+            colors: 'لون',
+            categories: 'تصنيف رئيسي',
+            classes: 'فئة فرعية',
+            sizes: 'مقاس'
+        };
+        const typeLabel = tableLabels[table] || 'تعريف';
+        const actionText = id ? `تعديل ${typeLabel}` : `إضافة ${typeLabel} جديد`;
+
+        await logAuditEvent({
+            module: 'definitions',
+            actionType: id ? 'update' : 'create',
+            entityType: table,
+            entityId: savedId,
+            details: {
+                notes: `${actionText} باسم "${name}"`,
+                definition_name: name,
+                type: typeLabel,
+                table_name: table
+            }
+        });
+
         await loadCurrentTabData();
         if (typeof window.refreshAllSystemData === 'function') await window.refreshAllSystemData({ silent: true });
 
@@ -282,6 +306,24 @@ window.handleDeleteDefinition = async (table, id) => {
         }
     } else {
         showToast('تم الحذف بنجاح', 'success');
+        const tableLabels = {
+            colors: 'لون',
+            categories: 'تصنيف رئيسي',
+            classes: 'فئة فرعية',
+            sizes: 'مقاس'
+        };
+        const typeLabel = tableLabels[table] || 'تعريف';
+        await logAuditEvent({
+            module: 'definitions',
+            actionType: 'delete',
+            entityType: table,
+            entityId: id,
+            details: {
+                notes: `حذف ${typeLabel} من شجرة التعريفات الأساسية`,
+                type: typeLabel,
+                table_name: table
+            }
+        });
         await loadCurrentTabData();
         if (typeof window.refreshAllSystemData === 'function') await window.refreshAllSystemData({ silent: true });
     }

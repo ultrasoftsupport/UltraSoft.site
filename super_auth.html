@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraSoft | بوابة دخول الإدارة العليا Super Admin</title>
+    <link rel="icon" type="image/png" href="./src/assets/icons/ultrasoft_transparent.png">
+    
+    <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
+    
+    <!-- 🎨 Early Theme Loader: Default Light Mode & Super Admin Dynamic Theme Reader -->
+    <script>
+        (function() {
+            try {
+                const savedThemeStr = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                let colors = null;
+                if (savedThemeStr) {
+                    try {
+                        const parsed = JSON.parse(savedThemeStr);
+                        colors = parsed.colors || parsed;
+                    } catch(e) {}
+                }
+
+                // Default Light Theme Fallback Colors
+                const bgBlack = colors?.page?.bg || '#f7fbff';
+                const bgDark = colors?.page?.bg_secondary || colors?.page?.surface || '#ffffff';
+                const devoOrange = colors?.brand?.primary || '#0284c7';
+                const devoOrangeHover = colors?.brand?.primary_hover || '#0369a1';
+                const devoText = colors?.page?.text || '#0f172a';
+                const devoMuted = colors?.page?.text_muted || '#475569';
+                
+                const isLight = bgBlack !== '#0b1329' && bgBlack !== '#0f172a' && bgBlack !== '#0a0a0a' && bgBlack !== '#171717';
+                const defaultGray = isLight ? (colors?.brand?.secondary || '#e1effe') : '#1e293b';
+                const defaultGrayHover = isLight ? (colors?.brand?.secondary_hover || '#bae6fd') : '#334155';
+                const devoGray = colors?.borders?.color || defaultGray;
+                const devoGrayHover = colors?.brand?.secondary_hover || defaultGrayHover;
+
+                const styleEl = document.createElement('style');
+                styleEl.id = 'devo-theme-styles-early';
+                styleEl.innerHTML = `
+                    :root {
+                        --devo-black: ${bgBlack};
+                        --devo-dark: ${bgDark};
+                        --devo-gray: ${devoGray};
+                        --devo-gray-hover: ${devoGrayHover};
+                        --devo-orange: ${devoOrange};
+                        --devo-orange-hover: ${devoOrangeHover};
+                        --devo-text: ${devoText};
+                        --devo-muted: ${devoMuted};
+                    }
+                `;
+                document.head.appendChild(styleEl);
+            } catch(e) { console.error('Theme early load error:', e); }
+        })();
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        const withOpacity = (variableName, fallback) => {
+            return ({ opacityValue }) => {
+                if (opacityValue !== undefined) {
+                    return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
+                }
+                return `var(${variableName}, ${fallback})`;
+            };
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        devo: {
+                            black: withOpacity('--devo-black', '#f7fbff'),
+                            dark: withOpacity('--devo-dark', '#ffffff'),
+                            gray: withOpacity('--devo-gray', '#e1effe'),
+                            grayHover: withOpacity('--devo-gray-hover', '#f0f9ff'),
+                            orange: withOpacity('--devo-orange', '#0284c7'),
+                            orangeHover: withOpacity('--devo-orange-hover', '#0369a1'),
+                            text: withOpacity('--devo-text', '#0f172a'),
+                            muted: withOpacity('--devo-muted', '#475569')
+                        },
+                        ultra: {
+                            400: '#38BDF8',
+                            500: '#0284C7',
+                            600: '#0369A1'
+                        }
+                    },
+                    fontFamily: { sans: ['Cairo', 'Tajawal', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    
+    <style> 
+        body { font-family: 'Cairo', 'Tajawal', sans-serif; } 
+    </style>
+</head>
+<body class="bg-devo-black min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-devo-text transition-colors duration-300">
+
+    <!-- Glowing Background Aura -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-devo-orange/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div id="super-login-container" class="w-full max-w-md bg-devo-dark border border-devo-gray rounded-2xl p-8 shadow-2xl relative z-10 space-y-6 transition-all duration-300">
+        
+        <!-- Header -->
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 rounded-2xl bg-devo-orange/10 border border-devo-orange/30 flex items-center justify-center mx-auto text-devo-orange text-3xl font-black shadow-inner mb-3">
+                <i class="ph ph-crown"></i>
+            </div>
+            <h1 class="text-3xl font-black text-devo-text">
+                Ultra<span class="text-devo-orange">Soft</span>
+            </h1>
+            <p class="text-xs text-devo-orange font-bold tracking-wider">بوابة دخول الإدارة العليا (Super Admin Portal)</p>
+            <p class="text-[11px] text-devo-muted">منطقة دخول مشددة ومخصصة لمشرفي ومسؤولي النظام فقط</p>
+        </div>
+
+        <!-- STAGE 1 FORM: Username & Password -->
+        <form id="super-stage1-form" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-devo-muted mb-2">اسم المستخدم السوبر أدمن</label>
+                <div class="relative">
+                    <i class="ph ph-shield-user absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-orange"></i>
+                    <input type="text" id="username" required autocomplete="off" dir="ltr"
+                        class="w-full bg-devo-black border border-devo-gray rounded-xl pr-12 pl-4 py-3 text-sm text-devo-text placeholder-devo-muted/60 focus:outline-none focus:border-devo-orange font-mono transition-colors"
+                        placeholder="أدخل اسم المستخدم" style="text-align: right;">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-devo-muted mb-2">كلمة المرور الخاصة</label>
+                <div class="relative">
+                    <i class="ph ph-lock-key absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-orange"></i>
+                    <input type="password" id="password" required autocomplete="current-password" dir="ltr"
+                        class="w-full bg-devo-black border border-devo-gray rounded-xl pr-12 pl-4 py-3 text-sm text-devo-text placeholder-devo-muted/60 focus:outline-none focus:border-devo-orange font-mono transition-colors"
+                        placeholder="أدخل كلمة المرور" style="text-align: right;">
+                </div>
+            </div>
+
+            <button type="submit" id="stage1-submit-btn" class="w-full bg-devo-orange hover:bg-devo-orangeHover text-white font-black py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-devo-orange/20 cursor-pointer text-sm">
+                <span id="btn-text">التحقق المبدئي والدخول</span>
+                <i id="btn-icon" class="ph ph-arrow-left text-xl font-bold"></i>
+            </button>
+        </form>
+
+        <!-- STAGE 2 FORM: Master Security PIN Verification (Hidden initially) -->
+        <form id="super-stage2-form" class="space-y-5 hidden">
+            <div class="p-3 rounded-xl bg-devo-orange/10 border border-devo-orange/30 text-devo-orange text-xs text-center font-bold">
+                ⚠️ تفعيل المرحلة الثانية: أدخل رمز الحماية الماستر 6-Digits
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-devo-muted mb-2 text-center">رمز الحماية الماستر (Master Security PIN)</label>
+                <input type="password" id="security-pin-input" required maxlength="10" placeholder="••••••" dir="ltr" autocomplete="off"
+                    class="w-full bg-devo-black border border-devo-orange/50 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-devo-orange tracking-[0.5em] focus:outline-none focus:border-devo-orange transition-all shadow-inner">
+            </div>
+
+            <div id="pin-error-alert" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs text-center hidden font-bold"></div>
+
+            <div class="flex items-center gap-3">
+                <button type="button" id="back-to-stage1-btn" class="py-3 px-4 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-devo-text text-xs font-bold transition">
+                    إلغاء
+                </button>
+                <button type="submit" id="stage2-submit-btn" class="flex-1 bg-devo-orange hover:bg-devo-orangeHover text-white font-black py-3 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg text-xs cursor-pointer">
+                    <span>تأكيد رمز PIN</span>
+                    <i class="ph ph-arrow-left text-lg font-bold"></i>
+                </button>
+            </div>
+        </form>
+
+        <!-- STAGE 3 FORM: Google Authenticator TOTP Code (Hidden initially) -->
+        <form id="super-stage3-form" class="space-y-5 hidden">
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs text-center font-bold">
+                🔒 تفعيل المرحلة الثالثة: أدخل رمز Google Authenticator الـ 6 أرقام
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-devo-muted mb-2 text-center">رمز الـ 2FA المولد من تطبيق Authenticator أو رمز الاسترداد</label>
+                <input type="text" id="totp-2fa-input" required maxlength="12" placeholder="123456" dir="ltr" autocomplete="off"
+                    class="w-full bg-devo-black border border-emerald-500/50 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-emerald-400 tracking-widest focus:outline-none focus:border-emerald-400 transition-all shadow-inner">
+                <p class="text-[10px] text-devo-muted text-center mt-1">افتح تطبيق Google Authenticator بالموبايل واكتب الرمز المكون من 6 أرقام</p>
+            </div>
+
+            <div id="totp-error-alert" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs text-center hidden font-bold"></div>
+
+            <div class="flex items-center gap-3">
+                <button type="button" id="back-to-stage2-btn" class="py-3 px-4 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-devo-text text-xs font-bold transition">
+                    إلغاء
+                </button>
+                <button type="submit" id="stage3-submit-btn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black py-3 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg text-xs cursor-pointer">
+                    <span>تأكيد رمز الـ 2FA ودخول المنظومة</span>
+                    <i class="ph ph-shield-check text-lg"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="pt-2 text-center border-t border-devo-gray">
+            <a href="auth.html" class="text-xs text-devo-muted hover:text-devo-text transition flex items-center justify-center gap-1">
+                <i class="ph ph-arrow-right"></i>
+                <span>العودة لبوابة دخول المصانع والمتاجر</span>
+            </a>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 left-6 z-[500] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script type="module">
+        import { loginUser, getCurrentSession, logoutUser } from './src/js/services/auth.js';
+        import { showToast } from './src/js/components/toast.js';
+        import { supabase } from './src/js/config/supabase.js';
+        import { syncActiveTheme } from './src/js/services/theme.js';
+        import { verifySuperAdminPin, isSuperAdminPinVerified, verifySuperAdminTotp, isSuperAdminTotpVerified } from './src/js/services/super_admin_security.js';
+
+        await syncActiveTheme();
+
+        const stage1Form = document.getElementById('super-stage1-form');
+        const stage2Form = document.getElementById('super-stage2-form');
+        const stage3Form = document.getElementById('super-stage3-form');
+
+        const submitBtn1 = document.getElementById('stage1-submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+
+        let pendingSuperAdminUser = null;
+
+        // Auto Check Active Session
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { session } = getCurrentSession();
+            if (session && session.user && session.user.role === 'super_admin') {
+                pendingSuperAdminUser = session.user;
+                const isPinVerified = isSuperAdminPinVerified(session.user.id);
+                const isTotpEnabled = Boolean(session.user.totp_enabled);
+                const isTotpVerified = isSuperAdminTotpVerified(session.user.id);
+
+                if (isPinVerified && (!isTotpEnabled || isTotpVerified)) {
+                    window.location.href = 'super_admin.html';
+                } else if (!isPinVerified) {
+                    stage1Form.classList.add('hidden');
+                    stage2Form.classList.remove('hidden');
+                    setTimeout(() => document.getElementById('security-pin-input')?.focus(), 100);
+                } else if (isTotpEnabled && !isTotpVerified) {
+                    stage1Form.classList.add('hidden');
+                    stage2Form.classList.add('hidden');
+                    stage3Form.classList.remove('hidden');
+                    setTimeout(() => document.getElementById('totp-2fa-input')?.focus(), 100);
+                }
+            }
+        });
+
+        // Stage 1: Username & Password Submission
+        stage1Form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            submitBtn1.disabled = true;
+            submitBtn1.classList.add('opacity-70');
+            btnText.textContent = 'جاري التحقق الأولي...';
+            btnIcon.className = 'ph ph-spinner animate-spin text-xl';
+
+            const { user, error } = await loginUser(username, password);
+
+            submitBtn1.disabled = false;
+            submitBtn1.classList.remove('opacity-70');
+            btnText.textContent = 'التحقق المبدئي والدخول';
+            btnIcon.className = 'ph ph-arrow-left text-xl font-bold';
+
+            if (error) {
+                showToast(error.message || 'بيانات الدخول غير صحيحة', 'error');
+                return;
+            }
+
+            if (user.role !== 'super_admin') {
+                await logoutUser();
+                showToast('عفواً! هذه البوابة مخصصة فقط لحسابات الإدارة العليا (Super Admin).', 'error');
+                return;
+            }
+
+            pendingSuperAdminUser = user;
+            showToast('تم التحقق المبدئي، أدخل رمز PIN الماستر لتأمين الجلسة', 'success');
+            stage1Form.classList.add('hidden');
+            stage2Form.classList.remove('hidden');
+            setTimeout(() => document.getElementById('security-pin-input')?.focus(), 100);
+        });
+
+        // Back to Stage 1
+        document.getElementById('back-to-stage1-btn')?.addEventListener('click', () => {
+            stage2Form.classList.add('hidden');
+            stage1Form.classList.remove('hidden');
+            pendingSuperAdminUser = null;
+        });
+
+        // Stage 2: Master Security PIN Submission
+        stage2Form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!pendingSuperAdminUser) return;
+
+            const pinCode = document.getElementById('security-pin-input').value.trim();
+            const submitBtn2 = document.getElementById('stage2-submit-btn');
+            const errAlert = document.getElementById('pin-error-alert');
+
+            if (!pinCode) return;
+
+            if (errAlert) errAlert.classList.add('hidden');
+            submitBtn2.disabled = true;
+            submitBtn2.classList.add('opacity-70');
+
+            const res = await verifySuperAdminPin(pendingSuperAdminUser.id, pinCode);
+
+            submitBtn2.disabled = false;
+            submitBtn2.classList.remove('opacity-70');
+
+            if (res && res.success) {
+                // Check if user has TOTP 2FA enabled
+                let isTotpEnabled = false;
+                try {
+                    const { data: userRecord } = await supabase
+                        .from('system_users')
+                        .select('totp_enabled')
+                        .eq('id', pendingSuperAdminUser.id)
+                        .maybeSingle();
+                    isTotpEnabled = Boolean(userRecord?.totp_enabled);
+                } catch (e) {
+                    isTotpEnabled = false;
+                }
+
+                if (isTotpEnabled) {
+                    showToast('تم التحقق من الـ PIN، يرجى إدخال رمز Google Authenticator الـ 6 أرقام 🔒', 'info');
+                    stage2Form.classList.add('hidden');
+                    stage3Form.classList.remove('hidden');
+                    setTimeout(() => document.getElementById('totp-2fa-input')?.focus(), 100);
+                } else {
+                    showToast('تم التأمين والتحقق بنجاح 🔒', 'success');
+                    window.location.href = 'super_admin.html';
+                }
+            } else {
+                const msg = res?.message || 'رمز الحماية الماستر غير صحيح';
+                if (errAlert) {
+                    errAlert.textContent = msg;
+                    errAlert.classList.remove('hidden');
+                }
+                showToast(msg, 'error');
+            }
+        });
+
+        // Back to Stage 2
+        document.getElementById('back-to-stage2-btn')?.addEventListener('click', () => {
+            stage3Form.classList.add('hidden');
+            stage2Form.classList.remove('hidden');
+        });
+
+        // Stage 3: Google Authenticator TOTP Code Submission
+        stage3Form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!pendingSuperAdminUser) return;
+
+            const totpCode = document.getElementById('totp-2fa-input').value.trim();
+            const submitBtn3 = document.getElementById('stage3-submit-btn');
+            const errAlert = document.getElementById('totp-error-alert');
+
+            if (!totpCode) return;
+
+            if (errAlert) errAlert.classList.add('hidden');
+            submitBtn3.disabled = true;
+            submitBtn3.classList.add('opacity-70');
+
+            const res = await verifySuperAdminTotp(pendingSuperAdminUser.id, totpCode);
+
+            submitBtn3.disabled = false;
+            submitBtn3.classList.remove('opacity-70');
+
+            if (res && res.success) {
+                showToast(res.message || 'تمت المصادقة الثنائية بنجاح 🔒', 'success');
+                window.location.href = 'super_admin.html';
+            } else {
+                const msg = res?.message || 'رمز الـ 2FA غير صحيح';
+                if (errAlert) {
+                    errAlert.textContent = msg;
+                    errAlert.classList.remove('hidden');
+                }
+                showToast(msg, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

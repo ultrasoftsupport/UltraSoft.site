@@ -2,6 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl, getTenantModelQuotaDetails, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -1039,6 +1040,28 @@ async function handleSaveModel(e) {
         showToast((id ? 'تم الحفظ' : 'تمت الإضافة') + statusMessage, 'success');
         closeModelModal();
 
+        const catSelect = document.getElementById('m-category-id');
+        const categoryName = catSelect?.options[catSelect?.selectedIndex]?.text || '';
+
+        const actionText = id ? 'تعديل بيانات الموديل' : 'إضافة موديل جديد';
+        const modelNote = `${actionText} "${modelData.name}" (كود المصنع: ${modelData.factory_code || '-'}, الكود النظامي: ${modelData.system_code || '-'}) | السعر: ${modelData.price} ج.م`;
+
+        await logAuditEvent({
+            module: 'models',
+            actionType: id ? 'update' : 'create',
+            entityType: 'model',
+            entityId: modelId,
+            details: {
+                notes: modelNote,
+                model_name: modelData.name,
+                factory_code: modelData.factory_code,
+                system_code: modelData.system_code,
+                price: `${modelData.price} ج.م`,
+                category: categoryName,
+                status: modelData.is_active ? 'نشط' : 'غير نشط'
+            }
+        });
+
         // 🔄 تحديث فوري للـ UI بدون انتظار الـ Realtime
         // نجلب بيانات الموديل الكاملة من قاعدة البيانات مباشرةً ونحدث الـ allModels
         try {
@@ -1141,6 +1164,22 @@ window.handleDeleteModel = async (id) => {
             return;
         }
         showToast('تم حذف الموديل بنجاح', 'success');
+
+        const deletedModel = Array.isArray(allModels) ? allModels.find(m => m.id === id) : null;
+        const modelName = deletedModel?.name || 'موديل';
+        const factoryCode = deletedModel?.factory_code || '-';
+
+        await logAuditEvent({
+            module: 'models',
+            actionType: 'delete',
+            entityType: 'model',
+            entityId: id,
+            details: {
+                notes: `حذف الموديل "${modelName}" (كود المصنع: ${factoryCode}) نهائياً من النظام`,
+                model_name: modelName,
+                factory_code: factoryCode
+            }
+        });
         if (typeof window.refreshAllSystemData === 'function') await window.refreshAllSystemData({ silent: true });
     } catch (err) {
         showToast('حدث خطأ غير متوقع أثناء محاولة الحذف', 'error');

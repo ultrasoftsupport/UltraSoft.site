@@ -3,6 +3,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { checkModelsInInvoices } from './models.js';
 import { getCurrentTenantId, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 let isBulkInitialized = false;
 let bulkAllModels = []; 
@@ -683,6 +684,9 @@ window.executeBulkEdit = async () => {
         const modelsToEdit = bulkAllModels.filter(m => selectedModelIds.has(m.id));
         const CHUNK_SIZE = 100; // معالجة الموديلات على دفعات من 100
         const errorsCollected = [];
+        let totalModifiedCount = 0;
+        const currentTenantId = getCurrentTenantId();
+        const effectiveTenantId = modelsToEdit[0]?.tenant_id || currentTenantId;
 
         if (isDelete) {
             // 🌟 حفظ لقطة تراجع للحذف المجمع 🌟
@@ -690,6 +694,7 @@ window.executeBulkEdit = async () => {
                 actionType: 'delete',
                 models: modelsToEdit.map(m => ({
                     id: m.id,
+                    tenant_id: m.tenant_id || currentTenantId,
                     system_code: m.system_code,
                     factory_code: m.factory_code,
                     name: m.name,
@@ -712,6 +717,7 @@ window.executeBulkEdit = async () => {
                 inventory: modelsToEdit.flatMap(m => 
                     (m.model_inventory || []).map(mi => ({
                         id: mi.id,
+                        tenant_id: mi.tenant_id || m.tenant_id || currentTenantId,
                         model_id: m.id,
                         color_id: mi.color_id,
                         available_series: mi.available_series
@@ -769,9 +775,15 @@ window.executeBulkEdit = async () => {
         } else {
             // 🌟 التعديل المجمع على دفعات 🌟
             lastSnapshot = modelsToEdit.map(m => ({
-                id: m.id, system_code: m.system_code, factory_code: m.factory_code,
-                name: m.name, price: m.price, category_id: m.category_id, 
-                class_id: m.class_id, is_active: m.is_active
+                id: m.id,
+                tenant_id: m.tenant_id || currentTenantId,
+                system_code: m.system_code,
+                factory_code: m.factory_code,
+                name: m.name,
+                price: m.price,
+                category_id: m.category_id, 
+                class_id: m.class_id,
+                is_active: m.is_active
             }));
 
             const updatedModels = lastSnapshot.map(m => {
@@ -807,8 +819,69 @@ window.executeBulkEdit = async () => {
                 }
 
                 try {
-                    const { error } = await supabase.from('models').upsert(chunk);
-                    if (error) throw error;
+                    const chunkIds = chunk.map(m => m.id);
+                    const val = parseFloat(inputVal) || null;
+                    const catId = (action === 'change_category') ? selectVal : null;
+                    const clsId = (action === 'change_class') ? classSelectVal : null;
+
+                    // ⚡ 1. المحاولة المباشرة عبر RPC bulk_update_models المجهزة لكسر حظر RLS والجلسات المنعزلة
+                    let rpcResult = null;
+                    try {
+                        const { data: rpcData, error: rpcErr } = await supabase.rpc('bulk_update_models', {
+                            p_tenant_id: effectiveTenantId,
+                            p_action: action,
+                            p_model_ids: chunkIds,
+                            p_value: val,
+                            p_category_id: catId,
+                            p_class_id: clsId
+                        });
+
+                        if (!rpcErr && rpcData && rpcData.success) {
+                            rpcResult = rpcData;
+                        }
+                    } catch (e) {
+                        console.warn('RPC bulk_update_models fallback to standard REST:', e);
+                    }
+
+                    if (rpcResult && typeof rpcResult.modified_count === 'number') {
+                        totalModifiedCount += rpcResult.modified_count;
+                    } else {
+                        // ⚡ 2. Fallback: التحديث القياسي عبر REST API
+                        if (['status_active', 'status_inactive', 'price_fixed', 'change_category', 'change_class'].includes(action)) {
+                            let updatePayload = {};
+                            switch (action) {
+                                case 'status_active': updatePayload.is_active = true; break;
+                                case 'status_inactive': updatePayload.is_active = false; break;
+                                case 'price_fixed': updatePayload.price = val; break;
+                                case 'change_category': updatePayload.category_id = selectVal; break;
+                                case 'change_class': updatePayload.class_id = classSelectVal; break;
+                            }
+
+                            const { data, error } = await supabase.from('models').update(updatePayload).in('id', chunkIds).select('id');
+                            if (error) throw error;
+                            if (data && data.length > 0) {
+                                totalModifiedCount += data.length;
+                            } else {
+                                const promises = chunk.map(m => {
+                                    return supabase.from('models').update(updatePayload).eq('id', m.id).select('id');
+                                });
+                                const results = await Promise.all(promises);
+                                results.forEach(r => {
+                                    if (r.data && r.data.length > 0) totalModifiedCount += r.data.length;
+                                });
+                            }
+                        } else {
+                            const updatePromises = chunk.map(m => {
+                                return supabase.from('models').update({ price: m.price }).eq('id', m.id).select('id');
+                            });
+                            const results = await Promise.all(updatePromises);
+                            const firstErr = results.find(r => r.error)?.error;
+                            if (firstErr) throw firstErr;
+                            results.forEach(r => {
+                                if (r.data && r.data.length > 0) totalModifiedCount += r.data.length;
+                            });
+                        }
+                    }
                 } catch (chunkErr) {
                     console.error(`Error updating models batch ${batchNum}:`, chunkErr);
                     errorsCollected.push(`المجموعة ${batchNum} (تعديل الموديلات): ${chunkErr.message || chunkErr}`);
@@ -834,6 +907,7 @@ window.executeBulkEdit = async () => {
                             const newSeries = Math.floor(totalPieces / S_new);
                             inventoryUpdates.push({
                                 id: inv.id,
+                                tenant_id: inv.tenant_id || m.tenant_id || effectiveTenantId,
                                 model_id: m.id,
                                 color_id: inv.color_id,
                                 available_series: newSeries
@@ -870,9 +944,13 @@ window.executeBulkEdit = async () => {
             if (progressBar) progressBar.style.width = '100%';
             if (progressPercent) progressPercent.textContent = '100%';
 
-            if (errorsCollected.length === 0) {
-                showToast(`تم تعديل ${selectedModelIds.size} موديل بنجاح!`, 'success');
+            if (errorsCollected.length === 0 && totalModifiedCount > 0) {
+                showToast(`تم تعديل ${totalModifiedCount} موديل بنجاح!`, 'success');
                 if (progressText) progressText.textContent = 'تم إتمام التعديل المجمع بنجاح!';
+            } else if (totalModifiedCount === 0) {
+                showToast(`لم يتم تعديل أي موديل في قاعدة البيانات. يرجى التأكد من اختيار موديلات تابعة للمصنع الحالي.`, 'warning');
+                errorsCollected.push('لم يتم تعديل أي صف في قاعدة البيانات (0 صفوف متأثرة).');
+                if (progressText) progressText.textContent = 'فشلت العملية: لم تتأثر أية صفوف في قاعدة البيانات.';
             } else {
                 showToast(`اكتمل التعديل مع وجود أخطاء في بعض المجموعات`, 'warning');
                 if (progressText) progressText.textContent = 'اكتملت العملية مع وجود أخطاء.';
@@ -894,12 +972,39 @@ window.executeBulkEdit = async () => {
             progressErrors.classList.remove('hidden');
         }
 
-        // ⚡ 2. خصم الكريديت وتوثيق العملية بسجل استهلاك الكريديت
-        try {
-            await deductTenantCredits('bulk_edit', 'التعديلات المجمعة', requiredCredits, selectedModelIds.size);
-        } catch (deductErr) {
-            console.error('Error deducting credits:', deductErr);
-            showToast(`تنبيه: اكتمل التعديل ولكن فشل خصم الكريديت: ${deductErr.message || deductErr}`, 'warning');
+        // ⚡ 2. خصم الكريديت وتوثيق العملية بسجل استهلاك الكريديت فقط إذا تمت التعديلات بنجاح وتم تعديل صفوف فعلياً
+        if (errorsCollected.length === 0 && (isDelete || totalModifiedCount > 0)) {
+            try {
+                const targetTenantId = modelsToEdit[0]?.tenant_id || getCurrentTenantId();
+                await deductTenantCredits('bulk_edit', 'التعديلات المجمعة', requiredCredits, isDelete ? selectedModelIds.size : totalModifiedCount, targetTenantId);
+                showToast('تم تسجيل الخصم في سجل الكريديت بنجاح', 'success');
+
+                // 📝 تسـجيل العملية في سجلات النظام
+                const affectedCount = isDelete ? selectedModelIds.size : totalModifiedCount;
+                const bulkNote = isDelete 
+                    ? `حذف مجمع لعدد ${affectedCount} موديل من قاعدة البيانات`
+                    : `تعديل مجمع لعدد ${affectedCount} موديل (خصم ${requiredCredits} ⚡ كريديت)`;
+
+                await logAuditEvent({
+                    module: 'excel_imports',
+                    actionType: isDelete ? 'delete' : 'bulk_edit',
+                    entityType: 'model_batch',
+                    details: {
+                        notes: bulkNote,
+                        action: action,
+                        count: affectedCount,
+                        items_count: affectedCount,
+                        credits_deducted: requiredCredits,
+                        operation_type: isDelete ? 'حذف مجمع' : 'تعديل مجمع للموديلات'
+                    },
+                    tenantIdParam: targetTenantId
+                });
+            } catch (deductErr) {
+                console.error('Error deducting credits:', deductErr);
+                showToast(`تنبيه: اكتمل التعديل ولكن فشل خصم الكريديت: ${deductErr.message || deductErr}`, 'warning');
+            }
+        } else if (!isDelete && totalModifiedCount === 0) {
+            showToast('لم يتم خصم أي كريديت نظراً لعدم تنفيذ أي تعديلات فعلياً على السيرفر.', 'info');
         }
 
         await fetchBulkModels();
@@ -983,7 +1088,7 @@ window.undoBulkEdit = async () => {
                 }
                 
                 try {
-                    const { error } = await supabase.from('models').insert(chunk);
+                    const { error } = await supabase.from('models').upsert(chunk, { onConflict: 'id' });
                     if (error) throw error;
                 } catch (chunkErr) {
                     console.error(`Error restoring models batch ${batchNum}:`, chunkErr);
@@ -1098,8 +1203,21 @@ window.undoBulkEdit = async () => {
                 }
                 
                 try {
-                    const { error } = await supabase.from('models').upsert(chunk);
-                    if (error) throw error;
+                    const updatePromises = chunk.map(m => {
+                        const payload = {
+                            system_code: m.system_code,
+                            factory_code: m.factory_code,
+                            name: m.name,
+                            price: m.price,
+                            category_id: m.category_id,
+                            class_id: m.class_id,
+                            is_active: m.is_active
+                        };
+                        return supabase.from('models').update(payload).eq('id', m.id);
+                    });
+                    const results = await Promise.all(updatePromises);
+                    const firstErr = results.find(r => r.error)?.error;
+                    if (firstErr) throw firstErr;
                 } catch (chunkErr) {
                     console.error(`Error restoring updates batch ${batchNum}:`, chunkErr);
                     errorsCollected.push(`المجموعة ${batchNum} (استعادة التعديلات السابقة): ${chunkErr.message || chunkErr}`);

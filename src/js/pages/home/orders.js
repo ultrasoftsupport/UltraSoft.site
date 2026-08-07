@@ -169,8 +169,11 @@ async function fetchMyOrders() {
                 ),
                 colors (name)
             )
-        `)
-        .or(`worker_id.eq.${currentUser.id},assigned_worker_id.eq.${currentUser.id}`);
+        `);
+
+    if (!['owner', 'admin'].includes(currentUser.role)) {
+        query = query.or(`worker_id.eq.${currentUser.id},assigned_worker_id.eq.${currentUser.id}`);
+    }
 
     if (currentTenantId) {
         query = query.eq('tenant_id', currentTenantId);

@@ -180,7 +180,7 @@ async function loadViewLogic(targetId) {
             initDefinitionsView();
             break;
         case 'view-models':
-            const { initModelsView } = await import('./models.js?v=8.0'); 
+            const { initModelsView } = await import('./models.js?v=8.1'); 
             await initModelsView(); 
             break;
         case 'view-settings':
@@ -198,7 +198,7 @@ async function loadViewLogic(targetId) {
             await initPrintBarcodesView();
             break;
         case 'view-admin-orders':
-            const { initAdminOrdersView } = await import('./admin_orders.js?v=8.0');
+            const { initAdminOrdersView } = await import('./admin_orders.js?v=8.1');
             await initAdminOrdersView();
             break;
         case 'view-deposit-reports':
@@ -223,6 +223,10 @@ async function loadViewLogic(targetId) {
         case 'view-subscription':
             const { initFactorySubscriptionView } = await import('./factory_subscription.js');
             await initFactorySubscriptionView();
+            break;
+        case 'view-system-audit-logs':
+            const { initSystemAuditLogs } = await import('./system_audit_logs.js');
+            await initSystemAuditLogs();
             break;
         case 'view-notifications':
             const { initNotificationsView } = await import('./notifications_view.js');

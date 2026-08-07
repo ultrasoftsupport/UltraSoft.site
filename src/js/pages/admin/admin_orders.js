@@ -4,6 +4,7 @@ import { confirmDialog } from '../../components/modal.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { printOrderCustomerInvoice, fetchInvoicePrintSettings, getUltraSoftBarcodeSVG } from '../../utils/print.js?v=2';
 import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 let isInitialized = false;
 let allAdminOrders = [];
@@ -51,7 +52,7 @@ export async function fetchAdminOrders() {
         .from('orders')
         .select(`
             *,
-            system_users!worker_id (full_name),
+            system_users!orders_worker_id_fkey (full_name),
             order_items (
                 *,
                 models (name, factory_code, system_code, model_sizes(size_id), classes(class_sizes(size_id))),
@@ -82,7 +83,7 @@ async function fetchFullOrderById(orderId) {
             .from('orders')
             .select(`
                 *,
-                system_users!worker_id (full_name),
+                system_users!orders_worker_id_fkey (full_name),
                 order_items (
                     *,
                     models (name, factory_code, system_code, model_sizes(size_id), classes(class_sizes(size_id))),
@@ -1495,13 +1496,31 @@ window.executeOrderAssignment = async () => {
 };
 
 // دالة لتسجيل حركات وتعديلات الأوردرات بسجل الملاحظات
-async function logOrderAction(orderId, actionType, notes) {
+async function logOrderAction(orderId, actionType, notes, extraMeta = {}) {
     try {
         const { session } = getCurrentSession();
         const userId = session?.user?.id || null;
         const userName = currentUserProfile?.full_name || 'نظام DEVO';
         const currentTenantId = getCurrentTenantId();
         
+        let orderObj = null;
+        if (orderId && Array.isArray(allOrders)) {
+            orderObj = allOrders.find(o => String(o.id) === String(orderId));
+        }
+
+        const enrichedDetails = {
+            notes: notes,
+            action: actionType,
+            invoice_number: extraMeta.invoice_number || (orderObj?.invoice_number ? `#${orderObj.invoice_number}` : null),
+            customer_name: extraMeta.customer_name || orderObj?.customer_name || null,
+            phone: extraMeta.phone || orderObj?.customer_phone || orderObj?.phone || null,
+            status: extraMeta.new_status || (orderObj?.status ? getArabicStatusName(orderObj.status) : null),
+            total_price: extraMeta.total_price || (orderObj?.total_price ? `${orderObj.total_price} ج.م` : null),
+            deposit: extraMeta.deposit || (orderObj?.deposit !== undefined ? `${orderObj.deposit} ج.م` : null),
+            user_name: userName,
+            ...extraMeta
+        };
+
         const { error } = await supabase.from('order_logs').insert([{
             tenant_id: currentTenantId,
             order_id: orderId,
@@ -1509,11 +1528,23 @@ async function logOrderAction(orderId, actionType, notes) {
             user_name: userName,
             action_type: actionType,
             notes: notes,
-            details: notes
+            details: JSON.stringify(enrichedDetails)
         }]);
         if (error) {
             console.error('Database error inserting order log:', error);
         }
+
+        // 📝 تسـجيل الإجراء في سجلات النظام الشاملة
+        logAuditEvent({
+            module: 'orders',
+            actionType: actionType === 'status_changed' ? 'status_change' : (actionType.includes('delete') ? 'delete' : 'update'),
+            entityType: 'order',
+            entityId: orderId,
+            details: enrichedDetails,
+            tenantIdParam: currentTenantId,
+            userNameParam: userName
+        }).catch(e => console.warn(e));
+
     } catch (err) {
         console.error('Error logging order action:', err);
     }

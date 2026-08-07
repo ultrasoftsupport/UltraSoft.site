@@ -108,7 +108,7 @@ export async function fetchDepositOrders() {
             .from('orders')
             .select(`
                 *,
-                system_users!worker_id (full_name)
+                system_users!orders_worker_id_fkey (full_name)
             `)
             .gt('deposit', 0);
 

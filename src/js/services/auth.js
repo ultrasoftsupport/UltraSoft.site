@@ -34,13 +34,33 @@ export async function loginUser(usernameInput, password) {
             query = query.eq('tenant_id', currentTenantId);
         }
 
-        const { data: matchedUsers } = await query;
+        let { data: matchedUsers } = await query;
+        let targetUser = (matchedUsers && matchedUsers.length > 0) ? matchedUsers[0] : null;
 
-        if (!matchedUsers || matchedUsers.length === 0) {
-            throw new Error('هذا الحساب غير موجود بالنظام');
+        if (!targetUser) {
+            // 👑 توليد وحقن حساب super_admin تلقائياً إذا لم يكن موجوداً بقاعدة البيانات
+            if (cleanInput === 'super_admin') {
+                try {
+                    await supabase.rpc('create_super_admin_account', {
+                        p_username: 'super_admin',
+                        p_full_name: 'Super Admin UltraSoft',
+                        p_email: 'admin@ultrasoft.com',
+                        p_password: password,
+                        p_security_pin: '123456'
+                    });
+                    const { data: retryUsers } = await supabase.from('system_users').select('*').eq('username', 'super_admin');
+                    if (retryUsers && retryUsers.length > 0) {
+                        targetUser = retryUsers[0];
+                    }
+                } catch (e) {
+                    console.warn('Super admin auto-provision fallback info:', e);
+                }
+            }
+
+            if (!targetUser) {
+                throw new Error('هذا الحساب غير موجود بالنظام');
+            }
         }
-
-        const targetUser = matchedUsers[0];
 
         if (!targetUser.is_active) {
             throw new Error('هذا الحساب معطل، يرجى مراجعة الإدارة.');
@@ -87,7 +107,7 @@ export async function loginUser(usernameInput, password) {
             throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
         }
 
-        // جـ) حفظ وتحديث بيانات الجلسة المنعزلة لكل مصنع
+        // جـ) حفظ وتحديث بيانات الجلسة المنعزلة لكل مصنع وسوبر أدمن
         await supabase
             .from('system_users')
             .update({ login_count: (targetUser.login_count || 0) + 1 })
@@ -103,12 +123,17 @@ export async function loginUser(usernameInput, password) {
             tenant_slug: activeSlug
         };
 
-        // 🔑 حفظ الجلسة بصورة منعزلة لكل مصنع لتمكين فتح أكثر من جلسة في نفس الوقت
-        localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(sessionData));
-        if (targetUser.tenant_id) {
-            localStorage.setItem(`devo_session_${targetUser.tenant_id}`, JSON.stringify(sessionData));
+        if (targetUser.role === 'super_admin') {
+            // 👑 مفتاح منفصل ومستقل للجلسة العليا بالسوبر أدمن لعدم تدمير أو مسح جلسات المصانع
+            localStorage.setItem('devo_super_admin_session', JSON.stringify(sessionData));
+        } else {
+            // 🔑 حفظ الجلسة بصورة منعزلة لكل مصنع لتمكين فتح أكثر من جلسة في نفس الوقت
+            localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(sessionData));
+            if (targetUser.tenant_id) {
+                localStorage.setItem(`devo_session_${targetUser.tenant_id}`, JSON.stringify(sessionData));
+            }
+            localStorage.setItem('devo_session', JSON.stringify(sessionData));
         }
-        localStorage.setItem('devo_session', JSON.stringify(sessionData));
 
         return { user: sessionData, error: null };
     } catch (error) {
@@ -118,10 +143,25 @@ export async function loginUser(usernameInput, password) {
 }
 
 /**
- * 🚪 تسجيل الخروج ومسح الجلسة الخاصة بالمصنع الحالي فقط دون تأثر المصانع الأخرى المفتوحة
+ * 🚪 تسجيل الخروج ومسح الجلسة الخاصة بالمصنع الحالي فقط أو السوبر أدمن دون تأثر الجلسات الأخرى
  */
 export async function logoutUser() {
     try {
+        const isSuperAdminPage = window.location.pathname.includes('super_admin') || window.location.pathname.includes('super_auth');
+
+        if (isSuperAdminPage) {
+            localStorage.removeItem('devo_super_admin_session');
+            // مسح مفتاح التحقق من الـ PIN أيضاً للسوبر أدمن
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('devo_super_admin_pin_verified_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            await supabase.auth.signOut();
+            window.location.href = 'super_auth.html';
+            return;
+        }
+
         const slug = getTenantSlugFromURL() || 'default';
         const currentTenant = getCurrentTenant();
 
@@ -150,9 +190,23 @@ export async function logoutUser() {
 }
 
 /**
- * 🛡️ جلب بيانات المستخدم الحالي المنعزلة للمصنع النشط فقط مع التأكد الصارم من عدم تسريب أو تداخل الجلسات
+ * 🛡️ جلب بيانات المستخدم الحالي المنعزلة للمصنع النشط أو السوبر أدمن مع التأكد الصارم من عدم تسريب أو تداخل الجلسات
  */
 export function getCurrentSession() {
+    const isSuperAdminPage = window.location.pathname.includes('super_admin') || window.location.pathname.includes('super_auth');
+
+    if (isSuperAdminPage) {
+        const superSessionStr = localStorage.getItem('devo_super_admin_session');
+        if (!superSessionStr) return { session: null };
+        try {
+            const session = JSON.parse(superSessionStr);
+            if (!session || session.role !== 'super_admin') return { session: null };
+            return { session: { user: session } };
+        } catch (e) {
+            return { session: null };
+        }
+    }
+
     const slug = getTenantSlugFromURL() || 'default';
     const currentTenant = getCurrentTenant();
     const currentTenantId = currentTenant?.id || getCurrentTenantId();
@@ -172,12 +226,15 @@ export function getCurrentSession() {
         const session = JSON.parse(sessionStr);
         if (!session || !session.id) return { session: null };
 
-        // 🔒 حاجز العزل والتحقق الصارم: إذا كان الحساب ليس Super Admin ولا ينتمي لهذا المصنع، ترفض الجلسة فوراً لهذا الموقع
-        if (session.role !== 'super_admin') {
-            if (currentTenantId && session.tenant_id && session.tenant_id !== currentTenantId) {
-                console.warn(`[Session Guard] Foreign session blocked. User (${session.username}) belongs to tenant (${session.tenant_id}), but active site is (${currentTenantId}).`);
-                return { session: null };
-            }
+        // التغافل عن جلسات السوبر أدمن بالصفحات العادية لضمان بقائها للمصانع فقط
+        if (session.role === 'super_admin') {
+            return { session: null };
+        }
+
+        // 🔒 حاجز العزل والتحقق الصارم للمصانع
+        if (currentTenantId && session.tenant_id && session.tenant_id !== currentTenantId) {
+            console.warn(`[Session Guard] Foreign session blocked. User (${session.username}) belongs to tenant (${session.tenant_id}), but active site is (${currentTenantId}).`);
+            return { session: null };
         }
 
         return { session: { user: session } }; 
@@ -192,17 +249,27 @@ export function getCurrentSession() {
 export function requireAuth(allowedRoles = []) {
     const { session } = getCurrentSession();
     const slug = getTenantSlugFromURL();
+    const isSuperAdminRoute = allowedRoles.includes('super_admin') || window.location.pathname.includes('super_admin');
     
     if (!session) {
-        window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        if (isSuperAdminRoute) {
+            window.location.href = 'super_auth.html';
+        } else {
+            window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        }
         return null;
     }
 
     const user = session.user;
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-        if (user.role === 'worker') window.location.href = `index.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
-        else window.location.href = `admin.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        if (user.role === 'super_admin') {
+            window.location.href = 'super_admin.html';
+        } else if (user.role === 'worker') {
+            window.location.href = `index.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        } else {
+            window.location.href = `admin.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
+        }
         return null;
     }
 

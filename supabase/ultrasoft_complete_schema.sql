@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS public.return_items (
 CREATE TABLE IF NOT EXISTS public.inbound_invoices (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     invoice_number text NOT NULL CONSTRAINT inbound_invoices_invoice_number_key UNIQUE,
-    supplier_name text NOT NULL,
+    supplier_name text DEFAULT 'توريد داخلي',
     notes text,
     total_series integer DEFAULT 0,
     total_cost numeric DEFAULT 0,
@@ -1110,47 +1110,83 @@ RETURNS jsonb AS $$
 DECLARE
     v_inbound_id uuid;
     v_invoice_number text;
+    v_tenant_id uuid;
     v_item record;
+    v_next_num bigint;
 BEGIN
+    -- Determine tenant_id from invoice data, current tenant context, or system_users
+    v_tenant_id := (p_invoice_data->>'tenant_id')::uuid;
+    IF v_tenant_id IS NULL THEN
+        v_tenant_id := public.current_tenant_id();
+    END IF;
+    IF v_tenant_id IS NULL AND auth.uid() IS NOT NULL THEN
+        SELECT tenant_id INTO v_tenant_id FROM public.system_users WHERE id = auth.uid();
+    END IF;
+    IF v_tenant_id IS NULL THEN
+        v_tenant_id := '00000000-0000-0000-0000-000000000001'::uuid;
+    END IF;
+
     IF p_invoice_id IS NOT NULL THEN
         v_inbound_id := p_invoice_id;
-        SELECT invoice_number INTO v_invoice_number FROM public.inbound_invoices WHERE id = v_inbound_id;
+        SELECT invoice_number, tenant_id INTO v_invoice_number, v_tenant_id 
+        FROM public.inbound_invoices 
+        WHERE id = v_inbound_id;
 
         UPDATE public.inbound_invoices SET
-            supplier_name = p_invoice_data->>'supplier_name',
+            supplier_name = COALESCE(NULLIF(TRIM(p_invoice_data->>'supplier_name'), ''), 'توريد داخلي'),
             notes = p_invoice_data->>'notes',
-            total_series = (p_invoice_data->>'total_series')::integer,
-            total_cost = (p_invoice_data->>'total_cost')::numeric
+            total_series = COALESCE((p_invoice_data->>'total_series')::integer, 0),
+            total_cost = COALESCE((p_invoice_data->>'total_cost')::numeric, 0)
         WHERE id = v_inbound_id;
 
         DELETE FROM public.inbound_invoice_items WHERE inbound_invoice_id = v_inbound_id;
     ELSE
-        v_invoice_number := p_invoice_data->>'invoice_number';
+        -- Automatically generate invoice_number if missing or empty
+        v_invoice_number := NULLIF(TRIM(COALESCE(p_invoice_data->>'invoice_number', '')), '');
+        IF v_invoice_number IS NULL THEN
+            SELECT COALESCE(MAX(NULLIF(regexp_replace(invoice_number, '\D', '', 'g'), '')::bigint), 0) + 1 
+            INTO v_next_num
+            FROM public.inbound_invoices
+            WHERE tenant_id = v_tenant_id OR (v_tenant_id IS NULL AND tenant_id IS NULL);
 
-        INSERT INTO public.inbound_invoices (invoice_number, supplier_name, notes, total_series, total_cost, created_by)
+            v_invoice_number := 'IN-' || v_next_num::text;
+        END IF;
+
+        INSERT INTO public.inbound_invoices (tenant_id, invoice_number, supplier_name, notes, total_series, total_cost, created_by)
         VALUES (
+            v_tenant_id,
             v_invoice_number,
-            p_invoice_data->>'supplier_name',
+            COALESCE(NULLIF(TRIM(p_invoice_data->>'supplier_name'), ''), 'توريد داخلي'),
             p_invoice_data->>'notes',
-            (p_invoice_data->>'total_series')::integer,
-            (p_invoice_data->>'total_cost')::numeric,
+            COALESCE((p_invoice_data->>'total_series')::integer, 0),
+            COALESCE((p_invoice_data->>'total_cost')::numeric, 0),
             (p_invoice_data->>'created_by')::uuid
         ) RETURNING id INTO v_inbound_id;
     END IF;
 
     FOR v_item IN SELECT * FROM jsonb_to_recordset(p_invoice_items) AS x(model_id uuid, color_id uuid, qty int, unit_cost numeric, total_cost numeric) LOOP
-        INSERT INTO public.inbound_invoice_items (inbound_invoice_id, model_id, color_id, quantity, unit_cost, total_cost)
-        VALUES (v_inbound_id, v_item.model_id, v_item.color_id, v_item.qty, v_item.unit_cost, v_item.total_cost);
+        -- Strict Factory Isolation: Ensure selected model belongs to the active tenant
+        IF EXISTS (
+            SELECT 1 FROM public.models 
+            WHERE id = v_item.model_id 
+            AND tenant_id IS NOT NULL 
+            AND tenant_id <> v_tenant_id
+        ) THEN
+            RAISE EXCEPTION 'خطأ أمني: لا يمكنك إضافة رصيد لموديل لا ينتمي لمصنعك.';
+        END IF;
 
-        INSERT INTO public.model_inventory (model_id, color_id, available_series)
-        VALUES (v_item.model_id, v_item.color_id, 0)
+        INSERT INTO public.inbound_invoice_items (inbound_invoice_id, model_id, color_id, quantity, unit_cost, total_cost)
+        VALUES (v_inbound_id, v_item.model_id, v_item.color_id, v_item.qty, COALESCE(v_item.unit_cost, 0), COALESCE(v_item.total_cost, 0));
+
+        INSERT INTO public.model_inventory (tenant_id, model_id, color_id, available_series)
+        VALUES (v_tenant_id, v_item.model_id, v_item.color_id, 0)
         ON CONFLICT (model_id, color_id) DO NOTHING;
 
         UPDATE public.model_inventory SET available_series = available_series + v_item.qty
         WHERE model_id = v_item.model_id AND color_id = v_item.color_id;
 
-        INSERT INTO public.stock_movements (model_id, color_id, movement_type, quantity, reference, inbound_id)
-        VALUES (v_item.model_id, v_item.color_id, 'in', v_item.qty, 'توريد رسالة: ' || v_invoice_number, v_inbound_id);
+        INSERT INTO public.stock_movements (tenant_id, model_id, color_id, movement_type, quantity, reference, inbound_id)
+        VALUES (v_tenant_id, v_item.model_id, v_item.color_id, 'in', v_item.qty, 'توريد رسالة: ' || v_invoice_number, v_inbound_id);
     END LOOP;
 
     RETURN jsonb_build_object('success', true, 'invoice_id', v_inbound_id, 'invoice_number', v_invoice_number);
@@ -1705,28 +1741,28 @@ CREATE POLICY "promo_cards_admin_write" ON public.promo_cards FOR ALL TO authent
 CREATE POLICY "themes_owner_write" ON public.themes FOR ALL TO authenticated USING (public.get_my_role() = 'owner') WITH CHECK (public.get_my_role() = 'owner');
 
 -- System Users & Profiles Policies
-CREATE POLICY "system_users_select" ON public.system_users FOR SELECT TO authenticated USING (id = auth.uid() OR public.get_my_role() IN ('owner', 'admin'));
-CREATE POLICY "profiles_select" ON public.profiles FOR SELECT TO authenticated USING (id = auth.uid() OR public.get_my_role() IN ('owner', 'admin'));
-CREATE POLICY "profiles_admin_write" ON public.profiles FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
+CREATE POLICY "Allow select system_users by tenant" ON public.system_users FOR SELECT USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
+CREATE POLICY "profiles_select" ON public.profiles FOR SELECT USING (id = auth.uid() OR public.get_my_role() IN ('owner', 'admin'));
+CREATE POLICY "profiles_admin_write" ON public.profiles FOR ALL USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
 
--- Orders & Items Access
-CREATE POLICY "orders_select" ON public.orders FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin') OR (public.get_my_role() = 'worker' AND (worker_id = auth.uid() OR assigned_worker_id = auth.uid())));
-CREATE POLICY "orders_admin_all" ON public.orders FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
+-- Orders & Items Access (Tenant Isolated for public/anon/authenticated)
+CREATE POLICY "Allow select orders by tenant" ON public.orders FOR SELECT USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
+CREATE POLICY "Allow write orders by tenant" ON public.orders FOR ALL USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true) WITH CHECK (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
 
-CREATE POLICY "order_items_select" ON public.order_items FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin') OR EXISTS (SELECT 1 FROM public.orders WHERE orders.id = order_items.order_id AND (orders.worker_id = auth.uid() OR orders.assigned_worker_id = auth.uid())));
-CREATE POLICY "order_items_admin_all" ON public.order_items FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
+CREATE POLICY "Allow select order_items by tenant" ON public.order_items FOR SELECT USING (EXISTS (SELECT 1 FROM public.orders WHERE orders.id = order_items.order_id AND (orders.tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true)));
+CREATE POLICY "Allow write order_items by tenant" ON public.order_items FOR ALL USING (EXISTS (SELECT 1 FROM public.orders WHERE orders.id = order_items.order_id AND (orders.tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true))) WITH CHECK (EXISTS (SELECT 1 FROM public.orders WHERE orders.id = order_items.order_id AND (orders.tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true)));
 
-CREATE POLICY "prep_status_log_select" ON public.preparation_status_log FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin', 'worker'));
-CREATE POLICY "prep_status_log_admin" ON public.preparation_status_log FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
+CREATE POLICY "prep_status_log_select" ON public.preparation_status_log FOR SELECT USING (true);
+CREATE POLICY "prep_status_log_admin" ON public.preparation_status_log FOR ALL USING (true) WITH CHECK (true);
 
--- Warehouse Inbound, Stock Movements & Returns Policies
-CREATE POLICY "inbound_invoices_select" ON public.inbound_invoices FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin') OR (public.get_my_role() = 'worker' AND EXISTS (SELECT 1 FROM public.system_users WHERE id = auth.uid() AND worker_job IN ('warehouse', 'both'))));
-CREATE POLICY "inbound_invoices_admin_all" ON public.inbound_invoices FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
+-- Warehouse Inbound, Stock Movements & Returns Policies (Tenant Isolated)
+CREATE POLICY "Allow select inbound_invoices by tenant" ON public.inbound_invoices FOR SELECT USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
+CREATE POLICY "inbound_invoices_admin_all" ON public.inbound_invoices FOR ALL USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true) WITH CHECK (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
 
-CREATE POLICY "stock_movements_select" ON public.stock_movements FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin', 'worker'));
+CREATE POLICY "stock_movements_select" ON public.stock_movements FOR SELECT USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
 
-CREATE POLICY "returns_select" ON public.returns FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin', 'worker'));
-CREATE POLICY "returns_admin_all" ON public.returns FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));
+CREATE POLICY "Allow select returns by tenant" ON public.returns FOR SELECT USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
+CREATE POLICY "returns_admin_all" ON public.returns FOR ALL USING (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true) WITH CHECK (tenant_id = public.current_tenant_id() OR public.current_tenant_id() IS NULL OR public.is_super_admin() = true);
 
 CREATE POLICY "return_items_select" ON public.return_items FOR SELECT TO authenticated USING (public.get_my_role() IN ('owner', 'admin', 'worker'));
 CREATE POLICY "return_items_admin_all" ON public.return_items FOR ALL TO authenticated USING (public.get_my_role() IN ('owner', 'admin')) WITH CHECK (public.get_my_role() IN ('owner', 'admin'));

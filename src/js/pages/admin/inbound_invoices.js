@@ -2,6 +2,8 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { getCurrentSession } from '../../services/auth.js';
+import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 let isInitialized = false;
 let inboundInvoices = [];
@@ -73,8 +75,10 @@ export async function loadInboundData() {
             `;
         }
 
-        // 1. Fetch Inbound Invoices
-        const { data: invoicesData, error: invoicesError } = await supabase
+        const currentTenantId = getCurrentTenantId();
+
+        // 1. Fetch Inbound Invoices (filtered by current factory tenant)
+        let invoicesQuery = supabase
             .from('inbound_invoices')
             .select(`
                 id, invoice_number, supplier_name, total_series, notes, created_at,
@@ -82,11 +86,16 @@ export async function loadInboundData() {
             `)
             .order('created_at', { ascending: false });
 
+        if (currentTenantId) {
+            invoicesQuery = invoicesQuery.eq('tenant_id', currentTenantId);
+        }
+
+        const { data: invoicesData, error: invoicesError } = await invoicesQuery;
         if (invoicesError) throw invoicesError;
         inboundInvoices = invoicesData || [];
 
-        // 2. Fetch Models and their inventories (only active models)
-        const { data: modelsData, error: modelsError } = await supabase
+        // 2. Fetch Models and their inventories (filtered strictly by current factory tenant)
+        let modelsQuery = supabase
             .from('models')
             .select(`
                 id, system_code, factory_code, name, is_active, price, class_id,
@@ -94,6 +103,12 @@ export async function loadInboundData() {
                 model_sizes(size_id, sizes(id, name)),
                 model_inventory(color_id, available_series, colors(id, name))
             `);
+
+        if (currentTenantId) {
+            modelsQuery = modelsQuery.eq('tenant_id', currentTenantId);
+        }
+
+        const { data: modelsData, error: modelsError } = await modelsQuery;
 
         if (modelsError) throw modelsError;
 
@@ -511,11 +526,13 @@ async function handleSaveInboundInvoice() {
         const { data, error } = await supabase.rpc('process_inbound_transaction', {
             p_invoice_id: draftInvoice.id,
             p_invoice_data: {
-                supplier_name: null,
-                notes: null,
+                invoice_number: draftInvoice.invoice_number || null,
+                supplier_name: draftInvoice.supplier_name?.trim() || 'توريد داخلي',
+                notes: draftInvoice.notes || null,
                 total_series: totalSeries,
                 created_by: currentUser?.id || null,
-                worker_id: currentUser?.id || null
+                worker_id: currentUser?.id || null,
+                tenant_id: getCurrentTenantId()
             },
             p_invoice_items: itemsToSend
         });
@@ -523,7 +540,26 @@ async function handleSaveInboundInvoice() {
         if (error) throw error;
 
         if (data && data.success) {
-            showToast(draftInvoice.id ? 'تمت تعديل فاتورة الدخل بنجاح' : 'تم حفظ فاتورة الدخل وإضافة الرصيد بنجاح', 'success');
+            const invoiceNum = data.invoice_number || draftInvoice.invoice_number || 'جديدة';
+            const isEdit = !!draftInvoice.id;
+            const actionText = isEdit ? 'تعديل فاتورة توريد رصيد' : 'إضافة فاتورة توريد رصيد جديدة';
+
+            showToast(isEdit ? 'تمت تعديل فاتورة الدخل بنجاح' : 'تم حفظ فاتورة الدخل وإضافة الرصيد بنجاح', 'success');
+
+            logAuditEvent({
+                module: 'inventory',
+                actionType: isEdit ? 'update' : 'create',
+                entityType: 'inbound_invoice',
+                entityId: data.invoice_id || draftInvoice.id,
+                details: {
+                    notes: `${actionText} (#${invoiceNum}) إجمالي الكمية المضافة: ${totalSeries} سري`,
+                    invoice_number: `#${invoiceNum}`,
+                    total_series: `${totalSeries} سري`,
+                    count: itemsToSend.length,
+                    user_name: currentUser?.full_name || 'الإداري'
+                }
+            }).catch(e => console.warn(e));
+
             closeInboundInvoiceForm();
             await loadInboundData();
             
@@ -650,6 +686,20 @@ async function deleteInboundInvoice(invoiceId) {
 
         if (data) {
             showToast(`تم حذف فاتورة الدخل (${inv.invoice_number}) وتحديث المخزون بنجاح`, 'success');
+            
+            logAuditEvent({
+                module: 'inventory',
+                actionType: 'delete',
+                entityType: 'inbound_invoice',
+                entityId: invoiceId,
+                details: {
+                    notes: `حذف فاتورة توريد المخزون (#${inv.invoice_number}) وخصم كمياتها (${inv.total_series} سري) من المخزن`,
+                    invoice_number: `#${inv.invoice_number}`,
+                    total_series: `${inv.total_series} سري`,
+                    user_name: currentUser?.full_name || 'الإداري'
+                }
+            }).catch(e => console.warn(e));
+
             await loadInboundData();
 
             // Trigger global data refresh to sync stock levels across dashboard/models page

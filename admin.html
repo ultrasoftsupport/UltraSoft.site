@@ -276,6 +276,13 @@
                 <span class="sidebar-label whitespace-nowrap transition-all duration-300">الاشتراك والباقة</span>
                 <span class="sidebar-tooltip">تفاصيل الاشتراك والحدود</span>
             </a>
+
+            <!-- 📜 سجلات النظام (System Audit Logs) -->
+            <a href="#" data-target="view-system-audit-logs" class="nav-link sidebar-item group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="سجلات النظام">
+                <i class="ph ph-receipt-text text-xl text-emerald-400 shrink-0"></i>
+                <span class="sidebar-label whitespace-nowrap transition-all duration-300">سجلات النظام</span>
+                <span class="sidebar-tooltip">سجلات وفعاليات النظام</span>
+            </a>
             
             <!-- ⚙️ تابة الإعدادات - مخفية بالافتراضي وتظهر للمالك فقط -->
             <a href="#" data-target="view-settings" class="nav-link sidebar-item hidden group flex items-center gap-3 px-3 py-3 rounded-xl text-devo-muted hover:bg-devo-gray hover:text-white transition-colors relative" title="الإعدادات">
@@ -3282,8 +3289,8 @@
 <!-- ============================================================ -->
 <!-- VIEW: Factory Subscription & Plan Details (الاشتراك والباقة) -->
 <!-- ============================================================ -->
-<div id="view-subscription" class="view-section hidden h-full overflow-y-auto custom-scrollbar">
-    <div class="animate-fade-in space-y-6 pb-12 max-w-7xl mx-auto">
+<div id="view-subscription" class="view-section hidden h-full overflow-y-auto custom-scrollbar p-6 space-y-6">
+    <div class="animate-fade-in space-y-6 pb-12 w-full">
         
         <!-- HEADER BAR WITH INTEGRATED SUB-TABS & CTA -->
         <div class="bg-devo-dark border border-devo-gray p-4 md:p-5 rounded-2xl shadow-md flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 relative overflow-hidden">
@@ -3533,7 +3540,7 @@
                                     <th class="p-3.5 font-bold text-xs">نوع العملية</th>
                                     <th class="p-3.5 font-bold text-xs">المستخدم (اسم الحساب)</th>
                                     <th class="p-3.5 font-bold text-xs">الكريديت المستهلك</th>
-                                    <th class="p-3.5 font-bold text-xs">الرصيد المتبقي</th>
+                                    <th class="p-3.5 font-bold text-xs">التفاصيل والإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="sub-credits-log-tbody" class="divide-y divide-devo-gray/40 text-white bg-devo-black/30">
@@ -3548,6 +3555,119 @@
 
         </div>
 
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 📜 SECTION: سجلات النظام الشاملة (System Audit Logs) -->
+<!-- ============================================================ -->
+<div id="view-system-audit-logs" class="view-section hidden h-full overflow-y-auto custom-scrollbar p-6 space-y-6">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-devo-black via-devo-dark to-devo-black border border-devo-gray p-6 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl shadow-lg">
+                <i class="ph ph-receipt-text"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-white flex items-center gap-2">
+                    سجلات النظام والفعاليات
+                    <span id="audit-logs-count" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">0 سجل</span>
+                </h1>
+                <p class="text-xs text-devo-muted mt-1">سجل شامل ومؤرخ لكافة العمليات والتغييرات والإجراءات المنفذة في النظام بمختلف الأقسام.</p>
+            </div>
+        </div>
+
+        <button id="btn-refresh-audit-logs" class="px-4 py-2.5 rounded-xl bg-devo-dark hover:bg-devo-gray border border-devo-gray text-white text-xs font-bold transition-all flex items-center gap-2">
+            <i class="ph ph-arrows-clockwise text-devo-orange"></i> تحديث السجلات
+        </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-devo-dark border border-devo-gray p-4 rounded-2xl shadow-md space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Search Input -->
+            <div class="lg:col-span-2">
+                <label class="block text-[11px] font-bold text-devo-muted mb-1">بحث في السجل:</label>
+                <div class="relative">
+                    <i class="ph ph-magnifying-glass absolute right-3 top-3 text-devo-muted"></i>
+                    <input type="text" id="audit-search-input" placeholder="اسم المستخدم، التفاصيل، الـ ID..." class="w-full bg-devo-black border border-devo-gray rounded-xl pr-9 pl-3 py-2 text-xs text-white focus:border-emerald-500 outline-none">
+                </div>
+            </div>
+
+            <!-- Module Filter -->
+            <div>
+                <label class="block text-[11px] font-bold text-devo-muted mb-1">القسم / الموديول:</label>
+                <select id="audit-filter-module" class="w-full bg-devo-black border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none cursor-pointer">
+                    <option value="">كل الأقسام</option>
+                    <option value="orders">الطلبات والأوردت</option>
+                    <option value="models">الموديلات والمخزون</option>
+                    <option value="definitions">التعريفات الأساسية</option>
+                    <option value="excel_imports">استيراد إكسيل</option>
+                    <option value="notifications">الإشعارات والرسائل</option>
+                    <option value="offers">العروض والخصومات</option>
+                    <option value="settings">إعدادات النظام</option>
+                    <option value="accounts">إدارة المستخدمين</option>
+                    <option value="credits">الكريديت والاشتراكات</option>
+                </select>
+            </div>
+
+            <!-- Action Filter -->
+            <div>
+                <label class="block text-[11px] font-bold text-devo-muted mb-1">نوع الإجراء:</label>
+                <select id="audit-filter-action" class="w-full bg-devo-black border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none cursor-pointer">
+                    <option value="">كل الإجراءات</option>
+                    <option value="create">إنشاء جديد</option>
+                    <option value="update">تعديل</option>
+                    <option value="delete">حذف</option>
+                    <option value="bulk_edit">تعديل مجمع</option>
+                    <option value="excel_import">رفع إكسيل</option>
+                    <option value="status_change">تغيير حالة</option>
+                    <option value="recharge">شحن رصيد</option>
+                </select>
+            </div>
+
+            <!-- User Filter -->
+            <div>
+                <label class="block text-[11px] font-bold text-devo-muted mb-1">المستخدم:</label>
+                <select id="audit-filter-user" class="w-full bg-devo-black border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none cursor-pointer">
+                    <option value="">كل المستخدمين</option>
+                </select>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div>
+                <label class="block text-[11px] font-bold text-devo-muted mb-1">من تاريخ:</label>
+                <input type="date" id="audit-filter-date-start" class="w-full bg-devo-black border border-devo-gray rounded-xl px-3 py-1.5 text-xs text-white focus:border-emerald-500 outline-none">
+            </div>
+
+            <div class="hidden lg:block">
+                <label class="block text-[11px] font-bold text-devo-muted mb-1">إلى تاريخ:</label>
+                <input type="date" id="audit-filter-date-end" class="w-full bg-devo-black border border-devo-gray rounded-xl px-3 py-1.5 text-xs text-white focus:border-emerald-500 outline-none">
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="bg-devo-dark border border-devo-gray rounded-2xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-sm">
+                <thead class="bg-devo-black text-white border-b border-devo-gray/50">
+                    <tr>
+                        <th class="p-3.5 font-bold text-xs">التاريخ والوقت</th>
+                        <th class="p-3.5 font-bold text-xs">المستخدم والحيّز</th>
+                        <th class="p-3.5 font-bold text-xs">القسم / الموديول</th>
+                        <th class="p-3.5 font-bold text-xs">نوع الإجراء</th>
+                        <th class="p-3.5 font-bold text-xs">معاينة التفاصيل</th>
+                        <th class="p-3.5 text-center font-bold text-xs">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-logs-tbody" class="divide-y divide-devo-gray/40 text-white bg-devo-black/20">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="audit-pagination-container" class="p-4 border-t border-devo-gray/40"></div>
     </div>
 </div>
 

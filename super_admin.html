@@ -163,11 +163,15 @@
         </nav>
 
         <!-- Sidebar Footer Info -->
-        <div class="p-3 border-t border-devo-gray shrink-0">
+        <div class="p-3 border-t border-devo-gray shrink-0 space-y-1">
             <a href="admin.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray hover:text-white transition-all">
                 <i class="ph ph-arrow-right text-lg shrink-0"></i>
                 <span class="sidebar-label">العودة للوحة المصنع</span>
             </a>
+            <button id="sidebarLogoutBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-400 hover:bg-red-500/10 hover:border-red-500/30 border border-transparent transition-all cursor-pointer text-right">
+                <i class="ph ph-sign-out text-lg shrink-0"></i>
+                <span class="sidebar-label">تسجيل الخروج</span>
+            </button>
         </div>
     </aside>
 
@@ -183,20 +187,20 @@
 
             <!-- Topbar Quick Actions Container -->
             <div id="topbarActions" class="flex items-center gap-3">
-                <!-- Action for Tenants Tab -->
-                <button id="openNewTenantModal" class="topbar-action-btn tab-action-tenants px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all cursor-pointer">
+                <!-- Action for Tenants Tab (Hidden initially) -->
+                <button id="openNewTenantModal" class="topbar-action-btn tab-action-tenants px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 items-center gap-2 transition-all cursor-pointer hidden">
                     <i class="ph ph-plus-circle text-base"></i>
                     <span>إضافة مصنع / شركة جديدة</span>
                 </button>
 
-                <!-- Action for Subscriptions Tab -->
-                <button id="addComparisonFeatureBtn" class="topbar-action-btn tab-action-subscriptions px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-2 transition-all cursor-pointer">
+                <!-- Action for Subscriptions Tab (Hidden initially) -->
+                <button id="addComparisonFeatureBtn" class="topbar-action-btn tab-action-subscriptions px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 items-center gap-2 transition-all cursor-pointer hidden">
                     <i class="ph ph-plus-circle text-base"></i>
                     <span>إضافة ميزة لجدول المقارنة</span>
                 </button>
 
-                <!-- Action for Themes Tab -->
-                <button id="openThemeModalBtn" class="topbar-action-btn tab-action-themes px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-devo-text hover:text-white flex items-center gap-2 transition-all cursor-pointer">
+                <!-- Action for Themes Tab (Hidden initially) -->
+                <button id="openThemeModalBtn" class="topbar-action-btn tab-action-themes px-3.5 py-2 rounded-xl bg-devo-black border border-devo-gray hover:border-ultra-500 text-xs font-bold text-devo-text hover:text-white items-center gap-2 transition-all cursor-pointer hidden">
                     <i class="ph ph-palette text-base text-ultra-400"></i>
                     <span>تغيير المظهر</span>
                 </button>
@@ -204,6 +208,12 @@
                 <!-- Refresh Button (Always visible) -->
                 <button id="refreshBtn" title="تحديث البيانات" class="p-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white hover:border-ultra-500 transition-all cursor-pointer">
                     <i class="ph ph-arrows-clockwise text-lg"></i>
+                </button>
+
+                <!-- Super Admin Logout Button -->
+                <button id="superLogoutBtn" title="تسجيل الخروج من البوابة" class="px-3.5 py-2 rounded-xl bg-red-500/10 border border-red-500/30 hover:bg-red-600 hover:text-white text-xs font-bold text-red-400 flex items-center gap-1.5 transition-all cursor-pointer">
+                    <i class="ph ph-sign-out text-base"></i>
+                    <span class="hidden sm:inline">تسجيل الخروج</span>
                 </button>
             </div>
         </header>
@@ -643,13 +653,117 @@
                 </div>
             </section>
 
-            <!-- TAB 6: USERS MANAGEMENT -->
+            <!-- TAB 6: USERS MANAGEMENT & SECURITY SURVEILLANCE CENTER -->
             <section id="view-users" class="super-tab-view space-y-6 hidden">
-                <div class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden p-6">
-                    <h3 class="font-bold text-white mb-2">إدارة مستخدمي الإدارة العليا (Super Admins)</h3>
-                    <p class="text-xs text-devo-muted mb-4">المستخدمون ذوو صلاحية <code class="text-ultra-400">super_admin</code> لديهم وصول شامل لإدارة كافة المصانع والاشتراكات.</p>
+                
+                <!-- Sub-Tabs Navigation for Users & Security -->
+                <div class="flex items-center gap-3 border-b border-devo-gray pb-3 overflow-x-auto">
+                    <button id="subtabBtnAccounts" onclick="window.switchUsersSubtab('accounts')" class="users-subtab-btn px-5 py-3 rounded-xl text-xs font-black transition-all bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-2 cursor-pointer shadow-sm shrink-0">
+                        <i class="ph ph-users-three text-lg"></i>
+                        <span>حسابات الإدارة العليا (Super Admins)</span>
+                    </button>
+                    <button id="subtabBtnAuditLogs" onclick="window.switchUsersSubtab('audit-logs')" class="users-subtab-btn px-5 py-3 rounded-xl text-xs font-black transition-all bg-devo-black text-devo-muted border border-devo-gray hover:text-white hover:border-ultra-500/40 flex items-center gap-2 cursor-pointer shrink-0">
+                        <i class="ph ph-shield-checkered text-lg"></i>
+                        <span>سجل المراقبة والرقابة المشددة (Security Audit Logs)</span>
+                    </button>
                 </div>
+
+                <!-- SUB-TAB 1: SUPER ADMIN ACCOUNTS VIEW -->
+                <div id="usersSubtabAccounts" class="users-subtab-view space-y-6">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden shadow-xl">
+                        <div class="p-5 border-b border-devo-gray flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-black text-white text-base flex items-center gap-2">
+                                    <i class="ph ph-users-three text-amber-400 text-xl"></i>
+                                    حسابات الإدارة العليا (Super Admins)
+                                </h3>
+                                <p class="text-xs text-devo-muted mt-0.5">الحسابات ذات الوصول المباشر لكافة شركات المنظومة مع حماية رمز PIN المشدد</p>
+                            </div>
+                            <button id="openCreateSuperAdminModalBtn" onclick="window.handleOpenCreateSuperAdminModal()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-black text-xs shadow-md shadow-amber-500/20 flex items-center gap-2 transition-all cursor-pointer">
+                                <i class="ph ph-plus-circle text-base"></i>
+                                <span>إضافة حساب سوبر أدمن جديد</span>
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead class="bg-devo-black/60 text-xs text-devo-muted uppercase tracking-wider border-b border-devo-gray">
+                                    <tr>
+                                        <th class="py-3.5 px-6">المستخدم</th>
+                                        <th class="py-3.5 px-6">البريد الإلكتروني</th>
+                                        <th class="py-3.5 px-6">رمز PIN الماستر</th>
+                                        <th class="py-3.5 px-6">حالة الحساب</th>
+                                        <th class="py-3.5 px-6">آخر تحقق أمني</th>
+                                        <th class="py-3.5 px-6 text-center">الإجراءات والرقابة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="superAdminUsersTableBody" class="divide-y divide-devo-gray/50 text-sm">
+                                    <tr>
+                                        <td colspan="6" class="py-8 text-center text-devo-muted">جاري تحميل حسابات السوبر أدمن...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 2: LIVE SECURITY & SURVEILLANCE AUDIT LOG VIEW -->
+                <div id="usersSubtabAuditLogs" class="users-subtab-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl overflow-hidden shadow-xl space-y-4">
+                        <div class="p-5 border-b border-devo-gray flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-black text-white text-base flex items-center gap-2">
+                                    <i class="ph ph-shield-checkered text-ultra-400 text-xl"></i>
+                                    سجل المراقبة والرقابة المشددة (Security Audit Logs)
+                                </h3>
+                                <p class="text-xs text-devo-muted mt-0.5">توثيق حي ومباشر لكافة عمليات تسجيل الدخول، أدخال الرمز السرّي، وتغيير الصلاحيات</p>
+                            </div>
+
+                            <!-- Filters -->
+                            <div class="flex items-center gap-3 flex-wrap w-full sm:w-auto">
+                                <div class="relative flex-1 sm:w-64">
+                                    <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted text-base"></i>
+                                    <input type="text" id="securityLogSearchInput" placeholder="بحث بالاسم أو الحدث..." class="w-full bg-devo-black border border-devo-gray rounded-xl pr-9 pl-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                                </div>
+
+                                <select id="securityLogSeveritySelect" class="bg-devo-black border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
+                                    <option value="ALL">كل مستويات الخطورة</option>
+                                    <option value="LOW">عادي (LOW)</option>
+                                    <option value="MEDIUM">متوسط (MEDIUM)</option>
+                                    <option value="HIGH">عالي (HIGH)</option>
+                                    <option value="CRITICAL">حرج (CRITICAL)</option>
+                                </select>
+
+                                <button id="refreshSecurityLogsBtn" title="تحديث السجل" class="p-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white transition cursor-pointer">
+                                    <i class="ph ph-arrows-clockwise text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead class="bg-devo-black/60 text-xs text-devo-muted uppercase tracking-wider border-b border-devo-gray">
+                                    <tr>
+                                        <th class="py-3.5 px-6">التوقيت</th>
+                                        <th class="py-3.5 px-6">المستخدم</th>
+                                        <th class="py-3.5 px-6">نوع الحدث الأمنية</th>
+                                        <th class="py-3.5 px-6">مستوى الخطورة</th>
+                                        <th class="py-3.5 px-6">الـ IP / المتصفح</th>
+                                        <th class="py-3.5 px-6">التفاصيل والأحداث</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="securityLogsTableBody" class="divide-y divide-devo-gray/50 text-xs font-mono">
+                                    <tr>
+                                        <td colspan="6" class="py-8 text-center text-devo-muted font-sans">جاري تحميل سجلات التدقيق والأمان...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </section>
+
 
         </main>
     </div>
@@ -802,10 +916,10 @@
         </header>
 
         <!-- Main Content with Inner Sidebar -->
-        <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-8 items-start">
+        <main class="flex-1 p-4 md:p-6 max-w-[1800px] mx-auto w-full flex flex-col md:flex-row gap-6 items-start">
 
             <!-- ===== INNER SIDEBAR FOR FACTORY MANAGEMENT ===== -->
-            <aside class="w-full md:w-64 bg-devo-dark border border-devo-gray p-3 rounded-2xl shrink-0 space-y-1.5 sticky top-20 shadow-xl">
+            <aside class="w-full md:w-72 bg-devo-dark border border-devo-gray p-3.5 rounded-2xl shrink-0 space-y-1.5 sticky top-20 shadow-xl">
                 <div class="px-3 py-2 border-b border-devo-gray mb-2">
                     <p class="text-[11px] font-bold text-devo-muted uppercase tracking-wider">أقسام إدارة المصنع</p>
                 </div>
@@ -815,14 +929,34 @@
                     <span>بيانات ومعلومات المصنع</span>
                 </button>
 
+                <button data-inner-tab="sub-settings" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-gear text-lg shrink-0"></i>
+                    <span>تعديل الخطة والحدود للأدمن</span>
+                </button>
+
                 <button data-inner-tab="owner" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
                     <i class="ph ph-key text-lg shrink-0"></i>
                     <span>حساب الإدارة والأونر</span>
                 </button>
 
-                <button data-inner-tab="subscription" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
-                    <i class="ph ph-crown text-lg shrink-0"></i>
-                    <span>الاشتراكات والحدود</span>
+                <button data-inner-tab="sub-limits" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-chart-pie-slice text-lg shrink-0"></i>
+                    <span>تفاصيل حدود الخطة والاستهلاك</span>
+                </button>
+
+                <button data-inner-tab="sub-features" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-check-square-offset text-lg shrink-0"></i>
+                    <span>مميزات وصلاحيات باقتك</span>
+                </button>
+
+                <button data-inner-tab="sub-credits" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-history text-lg shrink-0"></i>
+                    <span>سجل استهلاك الكريديت</span>
+                </button>
+
+                <button data-inner-tab="sub-full-audit" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-receipt-text text-lg shrink-0"></i>
+                    <span>سجل الفعاليات الكامل للمصنع</span>
                 </button>
 
                 <button data-inner-tab="operations" class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
@@ -996,19 +1130,321 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: SUBSCRIPTIONS & LIMITS -->
-                <div id="inner-tab-subscription" class="inner-tenant-view space-y-6 hidden">
+                <!-- VIEW 1: SUBSCRIPTION LIMITS & CONSUMPTION (تفاصيل حدود الخطة والاستهلاك) -->
+                <div id="inner-tab-sub-limits" class="inner-tenant-view space-y-6 hidden">
                     <div class="bg-devo-dark border border-ultra-500/40 rounded-2xl p-6 space-y-6 shadow-xl relative">
+                        <!-- HEADER BANNER -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-devo-gray pb-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                                    <i class="ph ph-chart-pie-slice text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                                        تفاصيل حدود الخطة ومؤشرات الاستهلاك
+                                    </h3>
+                                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                        <span class="text-xs text-devo-muted font-bold">الباقة:</span>
+                                        <span id="sa-sub-view-plan-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500/20 text-amber-400 border border-amber-500/40">...</span>
+                                        <span id="sa-sub-view-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">نشط</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-devo-muted">تحديث مباشر من قاعدة البيانات</span>
+                        </div>
+
+                        <!-- System Dates & Payment Box Grid (4 Cards) -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+                            
+                            <!-- Box 1: Start Date -->
+                            <div class="bg-devo-black border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+                                    <i class="ph ph-calendar-blank text-xl"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-[11px] font-bold text-devo-muted block">تاريخ البداية</span>
+                                    <span id="sa-sub-view-start-date" class="text-sm font-black text-white font-mono truncate block">--/--/----</span>
+                                </div>
+                            </div>
+
+                            <!-- Box 2: End Date -->
+                            <div class="bg-devo-black border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                                <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                                    <i class="ph ph-calendar-check text-xl"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-[11px] font-bold text-devo-muted block">تاريخ الانتهاء</span>
+                                    <span id="sa-sub-view-end-date" class="text-sm font-black text-amber-400 font-mono truncate block">--/--/----</span>
+                                </div>
+                            </div>
+
+                            <!-- Box 3: Days Left -->
+                            <div class="bg-devo-black border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                                    <i class="ph ph-hourglass-medium text-xl"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-[11px] font-bold text-devo-muted block">الأيام المتبقية</span>
+                                    <span id="sa-sub-view-days-left" class="text-sm font-black text-emerald-400 font-mono truncate block">-- يوماً</span>
+                                </div>
+                            </div>
+
+                            <!-- Box 4: Payment System -->
+                            <div id="sa-sub-inst-pill-container" class="bg-devo-black border border-devo-gray p-4 rounded-xl flex items-center gap-3 shadow-sm">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
+                                    <i class="ph ph-receipt text-xl"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-[11px] font-bold text-devo-muted block">نظام السداد</span>
+                                    <span id="sa-sub-inst-pill-text" class="text-xs font-black text-purple-300 font-mono truncate block">سداد مباشر</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Section Title -->
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-3 pt-2">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="ph ph-chart-line-up text-ultra-400"></i>
+                                مؤشرات الاستهلاك والحدود المتاحة باشتراك هذا المصنع
+                            </h3>
+                            <span class="text-xs text-devo-muted">تحديث مباشر من قاعدة البيانات</span>
+                        </div>
+
+                        <!-- 4 Metrics Cards Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            
+                            <!-- Metric 1: Products -->
+                            <div class="bg-devo-black border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                        <i class="ph ph-t-shirt text-ultra-400 text-base"></i> حد المنتجات بالمعرض
+                                    </span>
+                                    <span id="sa-sub-products-pct" class="text-xs font-black text-ultra-400 bg-ultra-500/10 px-2 py-0.5 rounded-full border border-ultra-500/20">0%</span>
+                                </div>
+                                <div class="flex items-baseline justify-between">
+                                    <h3 id="sa-sub-products-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                                    <span id="sa-sub-products-remaining" class="text-[11px] font-bold text-devo-muted">متبقي 0</span>
+                                </div>
+                                <div class="w-full bg-devo-dark rounded-full h-2 overflow-hidden border border-devo-gray">
+                                    <div id="sa-sub-products-bar" class="bg-ultra-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Metric 2: Users -->
+                            <div class="bg-devo-black border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                        <i class="ph ph-users text-amber-400 text-base"></i> حد فريق العمل
+                                    </span>
+                                    <span id="sa-sub-users-pct" class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">0%</span>
+                                </div>
+                                <div class="flex items-baseline justify-between">
+                                    <h3 id="sa-sub-users-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                                    <span id="sa-sub-users-remaining" class="text-[11px] font-bold text-devo-muted">متبقي 0</span>
+                                </div>
+                                <div class="w-full bg-devo-dark rounded-full h-2 overflow-hidden border border-devo-gray">
+                                    <div id="sa-sub-users-bar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Metric 3: Orders -->
+                            <div class="bg-devo-black border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                        <i class="ph ph-receipt text-emerald-400 text-base"></i> حد الفواتير والأوردرات
+                                    </span>
+                                    <span id="sa-sub-orders-pct" class="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">0%</span>
+                                </div>
+                                <div class="flex items-baseline justify-between">
+                                    <h3 id="sa-sub-orders-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                                    <span id="sa-sub-orders-remaining" class="text-[11px] font-bold text-devo-muted">متبقي 0</span>
+                                </div>
+                                <div class="w-full bg-devo-dark rounded-full h-2 overflow-hidden border border-devo-gray">
+                                    <div id="sa-sub-orders-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Metric 4: Excel Credits -->
+                            <div class="bg-devo-black border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                        <i class="ph ph-file-xls text-purple-400 text-base"></i> رصيد الكريديت (Excel)
+                                    </span>
+                                    <span id="sa-sub-credits-pct" class="text-xs font-black text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">0%</span>
+                                </div>
+                                <div class="flex items-baseline justify-between">
+                                    <h3 id="sa-sub-credits-text" class="text-2xl font-black text-white font-mono">0 / 0</h3>
+                                    <span id="sa-sub-credits-remaining" class="text-[11px] font-bold text-devo-muted">يتجدد شهرياً</span>
+                                </div>
+                                <div class="w-full bg-devo-dark rounded-full h-2 overflow-hidden border border-devo-gray">
+                                    <div id="sa-sub-credits-bar" class="bg-purple-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: ACTIVE PLAN PRICING CARD & SPECS TABLE (مميزات وصلاحيات باقتك) -->
+                <div id="inner-tab-sub-features" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl relative">
+                        <!-- HEADER BANNER -->
                         <div class="flex items-center justify-between border-b border-devo-gray pb-4">
-                            <h4 class="font-black text-white text-base flex items-center gap-2">
-                                <i class="ph ph-crown text-amber-400 text-xl"></i>
-                                إدارة باقة الاشتراك والحدود وتحديد المدة
-                            </h4>
-                            <span id="modalSubPlanBadge" class="px-3 py-1 rounded-full text-xs font-black bg-ultra-500 text-white">BASIC</span>
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-sky-500/15 text-sky-400 border border-sky-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                                    <i class="ph ph-check-square-offset text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                                        مميزات وصلاحيات باقتك
+                                    </h3>
+                                    <p class="text-xs text-devo-muted mt-0.5">كارت الخطة النشطة وجدول المميزات والتفاصيل الكاملة</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            <!-- RIGHT SIDE IN RTL: Active Plan Pricing Card (5 Cols) -->
+                            <div class="lg:col-span-5 space-y-3">
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-crown text-amber-400 text-lg"></i>
+                                    <span>كارت باقتك الحالية بالنظام</span>
+                                </h4>
+
+                                <div id="sa-active-plan-card-container">
+                                    <!-- Populated dynamically by super_admin script -->
+                                </div>
+                            </div>
+
+                            <!-- LEFT SIDE IN RTL: Dedicated Specifications Table (7 Cols) -->
+                            <div class="lg:col-span-7 space-y-3">
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-list-checks text-ultra-400 text-lg"></i>
+                                    <span>تفاصيل مميزات وصلاحيات الخطة النشطة</span>
+                                </h4>
+
+                                <div class="overflow-x-auto rounded-2xl border border-devo-gray bg-devo-black shadow-lg">
+                                    <table class="w-full text-right text-xs">
+                                        <thead class="bg-devo-dark text-devo-muted border-b border-devo-gray">
+                                            <tr>
+                                                <th class="p-3.5 text-xs font-bold text-white flex items-center gap-2">
+                                                    <i class="ph ph-sliders text-ultra-400 text-base"></i>
+                                                    <span>الميزة / الخصائص</span>
+                                                </th>
+                                                <th id="sa-active-table-col-header" class="p-3.5 text-center font-black text-emerald-400 bg-emerald-500/10 border-r border-devo-gray">
+                                                    ...
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="sa-active-plan-table-tbody" class="divide-y divide-devo-gray/40 text-white">
+                                            <!-- Populated dynamically by super_admin script -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: CREDITS USAGE LOG (سجل استهلاك الكريديت) -->
+                <div id="inner-tab-sub-credits" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <!-- HEADER BANNER -->
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                                    <i class="ph ph-history text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                                        سجل عمليات واستهلاك الكريديت المجمع لهذا المصنع
+                                    </h3>
+                                    <p class="text-xs text-devo-muted mt-0.5">استيراد وتعديل الموديلات وتحديث الأسعار عبر Excel</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-devo-gray bg-devo-black shadow-lg">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-devo-dark text-white border-b border-devo-gray">
+                                    <tr>
+                                        <th class="p-3.5 font-bold text-xs">التاريخ والتوقيت</th>
+                                        <th class="p-3.5 font-bold text-xs">نوع العملية</th>
+                                        <th class="p-3.5 font-bold text-xs">المستخدم (اسم الحساب)</th>
+                                        <th class="p-3.5 font-bold text-xs">الكريديت المستهلك</th>
+                                        <th class="p-3.5 font-bold text-xs">الرصيد المتبقي</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sa-sub-credits-log-tbody" class="divide-y divide-devo-gray/40 text-white bg-devo-dark/50">
+                                    <tr>
+                                        <td colspan="5" class="p-8 text-center text-devo-muted italic">لا توجد عمليات استهلاك كريديت مسجلة مؤخراً لهذا المصنع.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3.5: FULL FACTORY AUDIT LOGS (سجل الفعاليات الكامل للمصنع) -->
+                <div id="inner-tab-sub-full-audit" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <!-- HEADER BANNER -->
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                                    <i class="ph ph-receipt-text text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                                        سجل الفعاليات والحركات الكامل لهذا المصنع
+                                    </h3>
+                                    <p class="text-xs text-devo-muted mt-0.5">جميع الحركات والعمليات الإدارية المنفذة في قاعدة بيانات المصنع (غير متفلتر)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-devo-gray bg-devo-black shadow-lg">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-devo-dark text-white border-b border-devo-gray">
+                                    <tr>
+                                        <th class="p-3.5 font-bold text-xs">التاريخ والوقت</th>
+                                        <th class="p-3.5 font-bold text-xs">المستخدم المسؤول</th>
+                                        <th class="p-3.5 font-bold text-xs">القسم / الموديول</th>
+                                        <th class="p-3.5 font-bold text-xs">نوع الإجراء</th>
+                                        <th class="p-3.5 font-bold text-xs">تفاصيل وتوضيح العملية</th>
+                                        <th class="p-3.5 font-bold text-xs text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sa-sub-full-audit-tbody" class="divide-y divide-devo-gray/40 text-white bg-devo-dark/50">
+                                    <tr>
+                                        <td colspan="6" class="p-8 text-center text-devo-muted italic">لا توجد حركات مسجلة مؤخراً لهذا المصنع.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: EDIT PLAN & SUBSCRIPTION SETTINGS (تعديل الخطة والحدود للأدمن) -->
+                <div id="inner-tab-sub-settings" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <!-- HEADER BANNER -->
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                                    <i class="ph ph-gear text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white flex items-center gap-2">
+                                        تعديل وتخصيص خطة الاشتراك والحدود والأقساط
+                                    </h3>
+                                    <p class="text-xs text-devo-muted mt-0.5">التحكم الفائق للسوبر أدمن لربط وتعديل خطة المصنع وشحن الكريديت</p>
+                                </div>
+                            </div>
                         </div>
 
                         <form id="fullPageSubscriptionForm" class="space-y-6">
-                            
                             <!-- Plan Preset Selector (Dynamic System Plans) -->
                             <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-2">
                                 <label class="block text-xs font-bold text-white mb-1">اختيار خطة الاشتراك للمصنع (Plan Selection)</label>
@@ -1563,15 +1999,312 @@
         </div>
     </div>
 
+    <!-- ===== MODAL: CREATE NEW SUPER ADMIN ===== -->
+    <div id="createSuperAdminModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[120] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative text-devo-text">
+            <button id="closeCreateSuperAdminModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl font-bold">
+                    <i class="ph ph-user-plus"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-white">إضافة حساب سوبر أدمن جديد</h3>
+                    <p class="text-xs text-devo-muted">منح صلاحيات الإدارة العليا وتخصيص رمز Master PIN</p>
+                </div>
+            </div>
+
+            <form id="createSuperAdminForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">اسم المستخدم (Username) *</label>
+                    <input type="text" id="newSuperAdminUsername" required placeholder="مثال: super_ahmed" dir="ltr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">الاسم الكامل *</label>
+                    <input type="text" id="newSuperAdminFullName" required placeholder="مثال: م. أحمد الإداري" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">البريد الإلكتروني الرسمي *</label>
+                    <input type="email" id="newSuperAdminEmail" required placeholder="admin@ultrasoft.site" dir="ltr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-mono">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">كلمة المرور *</label>
+                        <input type="password" id="newSuperAdminPassword" required placeholder="••••••••" dir="ltr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-amber-400 font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">رمز Master PIN (6-Digits) *</label>
+                        <input type="password" id="newSuperAdminPin" required maxlength="10" placeholder="123456" dir="ltr" class="w-full bg-devo-black border border-amber-500/40 rounded-xl px-4 py-2.5 text-xs text-center text-amber-400 focus:outline-none focus:border-amber-400 font-mono tracking-widest">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-3 border-t border-devo-gray">
+                    <button type="button" id="cancelCreateSuperAdminBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                        <i class="ph ph-check-circle text-base"></i>
+                        إنشاء حساب السوبر أدمن
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: UPDATE SUPER ADMIN SECURITY PIN ===== -->
+    <div id="changeSuperAdminPinModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[120] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl relative text-devo-text">
+            <button id="closeChangePinModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
+                    <i class="ph ph-key font-bold"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-white">تحديث رمز Master PIN</h3>
+                    <p id="changePinTargetUsernameText" class="text-xs text-amber-400 font-mono">--</p>
+                </div>
+            </div>
+
+            <form id="changeSuperAdminPinForm" class="space-y-4">
+                <input type="hidden" id="changePinTargetUserIdInput">
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-2 text-center">رمز الحماية الماستر الجديد (Security PIN)</label>
+                    <input type="password" id="newSecurityPinInput" required maxlength="10" placeholder="••••••" dir="ltr"
+                           class="w-full bg-devo-black border border-amber-500/40 rounded-xl px-4 py-3 text-center text-xl font-mono text-amber-400 tracking-widest focus:outline-none focus:border-amber-400">
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-devo-gray">
+                    <button type="button" id="cancelChangePinBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                        <i class="ph ph-floppy-disk text-base"></i>
+                        تأكيد وحفظ PIN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EDIT SUPER ADMIN USER ACCOUNT ===== -->
+    <div id="editSuperAdminModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[150] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative text-devo-text">
+            <button id="closeEditSuperAdminModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
+                    <i class="ph ph-user-gear"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-white">تعديل حساب السوبر أدمن</h3>
+                    <p id="editSuperAdminTargetSubtitle" class="text-xs text-devo-muted">تحديث البيانات والبريد الرسمي والحالة</p>
+                </div>
+            </div>
+
+            <form id="editSuperAdminForm" class="space-y-4">
+                <input type="hidden" id="editSuperAdminIdInput">
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">اسم المستخدم (Username) *</label>
+                    <input type="text" id="editSuperAdminUsername" required dir="ltr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">الاسم الكامل *</label>
+                    <input type="text" id="editSuperAdminFullName" required class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">البريد الإلكتروني الرسمي *</label>
+                    <input type="email" id="editSuperAdminEmail" required dir="ltr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">تغيير كلمة المرور (اختياري - اترك فارغاً للإبقاء)</label>
+                    <input type="password" id="editSuperAdminPassword" placeholder="••••••••" dir="ltr" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-amber-400 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-1">حالة الحساب</label>
+                    <select id="editSuperAdminStatus" class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-bold">
+                        <option value="true">نشط الفعالية (Active)</option>
+                        <option value="false">معطل / مجمد (Disabled)</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-3 border-t border-devo-gray">
+                    <button type="button" id="cancelEditSuperAdminBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                        <i class="ph ph-floppy-disk text-base"></i>
+                        حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: SETUP GOOGLE AUTHENTICATOR TOTP 2FA ===== -->
+    <div id="setupTotpModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[200] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-emerald-500/50 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative text-devo-text">
+            <button id="closeSetupTotpModalBtn" type="button" class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-devo-gray pb-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                    <i class="ph ph-qr-code"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-white">تفعيل Google Authenticator (2FA)</h3>
+                    <p id="setupTotpUsernameText" class="text-xs text-emerald-400 font-mono">--</p>
+                </div>
+            </div>
+
+            <form id="setupTotpForm" class="space-y-4">
+                <input type="hidden" id="setupTotpUserIdInput">
+                <input type="hidden" id="setupTotpSecretInput">
+
+                <!-- Step 1: Scan QR Code -->
+                <div class="p-4 rounded-xl bg-devo-black border border-devo-gray space-y-3 text-center">
+                    <p class="text-xs text-devo-muted font-bold">1. امسح رمز الـ QR بتطبيق Google Authenticator:</p>
+                    <div class="w-44 h-44 bg-white p-2 rounded-xl mx-auto flex items-center justify-center shadow-inner">
+                        <img id="totpQrCodeImg" src="" alt="QR Code" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-devo-muted">أو اكتب المفتاح اليدوي التالي بالتطبيق:</p>
+                        <div class="flex items-center justify-center gap-2 mt-1">
+                            <span id="totpSecretText" class="font-mono text-xs font-bold text-amber-400 bg-devo-dark px-3 py-1 rounded border border-amber-500/30 select-all">--</span>
+                            <button type="button" id="copyTotpSecretBtn" class="p-1 rounded bg-devo-gray hover:bg-amber-500 hover:text-black text-white text-xs transition">
+                                <i class="ph ph-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Confirm 6-digit Code -->
+                <div>
+                    <label class="block text-xs font-bold text-devo-muted mb-2 text-center">2. أدخل رمز الـ 6 أرقام المولد بالتطبيق لتأكيد التفعيل *</label>
+                    <input type="text" id="setupTotpCodeInput" required maxlength="6" placeholder="123456" dir="ltr" autocomplete="off"
+                           class="w-full bg-devo-black border border-emerald-500/50 rounded-xl px-4 py-3 text-center text-xl font-mono text-emerald-400 tracking-widest focus:outline-none focus:border-emerald-400">
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-devo-gray">
+                    <button type="button" id="cancelSetupTotpBtn" class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                        <i class="ph ph-check-circle text-base"></i>
+                        تأكيد وتفعيل 2FA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: BACKUP RECOVERY CODES DISPLAY ===== -->
+    <div id="totpRecoveryCodesModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[250] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative text-devo-text">
+            <div class="text-center space-y-2 border-b border-devo-gray pb-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 text-3xl font-bold shadow-inner">
+                    <i class="ph ph-warning-circle"></i>
+                </div>
+                <h3 class="text-lg font-black text-white">رموز استرداد الطوارئ (Backup Recovery Codes)</h3>
+                <p class="text-xs text-amber-400 font-bold">⚠️ احفظ هذه الرموز في مكان آمن جداً! كل رمز يستخدم مرة واحدة فقط لدخول النظام عند فقدان الموبايل.</p>
+            </div>
+
+            <div id="recoveryCodesGrid" class="grid grid-cols-2 gap-2 bg-devo-black p-4 rounded-xl border border-devo-gray font-mono text-xs text-center text-amber-300 font-bold select-all">
+                <!-- Dynamic 8 Recovery Codes -->
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button type="button" id="copyRecoveryCodesBtn" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="ph ph-copy text-base"></i>
+                    <span>نسخ جميع الرموز</span>
+                </button>
+                <button type="button" id="closeRecoveryCodesBtn" class="px-5 py-2.5 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white text-xs font-bold transition">
+                    تم الحفظ والمتابعة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== OVERLAY: SUPER ADMIN SECURITY GUARD SCREEN ===== -->
+    <div id="superAdminSecurityGuardOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[300] hidden items-center justify-center p-4">
+        <div class="bg-devo-dark border border-amber-500/50 rounded-2xl w-full max-w-md p-8 space-y-6 shadow-2xl relative text-center">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400 text-4xl font-black shadow-inner">
+                <i class="ph ph-shield-warning"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black text-white mb-2">منطقة حماية السوبر أدمن 🔒</h3>
+                <p class="text-xs text-devo-muted leading-relaxed">جلسة الدخول تتطلب التثبت من رمز الحماية الماستر (Master Security PIN) لحماية بيانات ومقدرات كافة المصانع بالنظام.</p>
+            </div>
+
+            <form id="guard-pin-form" class="space-y-4">
+                <div>
+                    <input type="password" id="guard-pin-input" required maxlength="10" placeholder="••••••" dir="ltr" autocomplete="off"
+                           class="w-full bg-devo-black border border-amber-500/40 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-amber-400 tracking-[0.5em] focus:outline-none focus:border-amber-400 transition-all shadow-inner">
+                </div>
+
+                <div id="guard-pin-error-alert" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center hidden font-bold"></div>
+
+                <div class="flex items-center gap-3">
+                    <button type="button" id="guard-logout-btn" class="flex-1 py-3 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-white text-xs font-bold transition">
+                        تسجيل الخروج
+                    </button>
+                    <button type="submit" id="guard-pin-submit-btn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-black py-3 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg text-xs cursor-pointer">
+                        <span>فك قفل الأمان</span>
+                        <i class="ph ph-lock-key-open text-base"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JS Scripts -->
     <script type="module">
         import { supabase } from './src/js/config/supabase.js';
         import { syncActiveTheme, loadAllThemes, activateTheme } from './src/js/services/theme.js';
         import { showToast } from './src/js/components/toast.js';
         import { confirmDialog, promptDialog } from './src/js/components/modal.js';
+        import { getCurrentSession, logoutUser } from './src/js/services/auth.js';
+        import {
+            verifySuperAdminPin,
+            isSuperAdminPinVerified,
+            revokeSuperAdminPinVerification,
+            fetchSecurityLogs,
+            fetchSuperAdminUsers,
+            createSuperAdminUser,
+            updateSuperAdminPin,
+            toggleSuperAdminActiveStatus,
+            generateSuperAdminTotpSecret,
+            enableSuperAdminTotp,
+            disableSuperAdminTotp,
+            logSecurityEvent
+        } from './src/js/services/super_admin_security.js';
 
         // 🎨 Sync active theme immediately
         await syncActiveTheme();
+
+        // 🔒 Super Admin Guard Check: Ensure Session is Valid and PIN Verified
+        const { session: currentSessionData } = getCurrentSession();
+        if (!currentSessionData || currentSessionData.user?.role !== 'super_admin') {
+            window.location.href = 'super_auth.html';
+        } else {
+            if (!isSuperAdminPinVerified(currentSessionData.user.id)) {
+                const overlay = document.getElementById('superAdminSecurityGuardOverlay');
+                if (overlay) {
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                    setTimeout(() => document.getElementById('guard-pin-input')?.focus(), 100);
+                }
+            }
+        }
 
         // Helper to construct dynamic environment URLs
         function getTenantUrls(slug) {
@@ -1677,10 +2410,14 @@
         };
 
         function updateTopbarActions(tabId) {
-            document.querySelectorAll('.topbar-action-btn').forEach(btn => btn.classList.add('hidden'));
+            document.querySelectorAll('.topbar-action-btn').forEach(btn => {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            });
             const activeActionBtn = document.querySelector(`.tab-action-${tabId}`);
             if (activeActionBtn) {
                 activeActionBtn.classList.remove('hidden');
+                activeActionBtn.classList.add('flex');
             }
         }
         updateTopbarActions('overview');
@@ -1710,6 +2447,7 @@
 
             if (tabId === 'themes') renderFullThemesGrid();
             if (tabId === 'domains') loadDomainsTable();
+            if (tabId === 'users') loadSuperAdminUsersAndSecurityLogs();
             if (tabId === 'subscriptions') {
                 loadSystemPlans();
                 loadComparisonFeatures();
@@ -1960,27 +2698,54 @@
             const { storeUrl, adminUrl, authUrl } = getTenantUrls(tenant.slug);
 
             // Populate Header & Logo
-            document.getElementById('modalCompanyName').textContent = tenant.name;
-            document.getElementById('modalCompanyLegalName').textContent = tenant.legal_name || tenant.name;
-            document.getElementById('modalCompanyHeaderLogoImg').src = logoUrl;
-            document.getElementById('modalCompanyLogoPreview').src = logoUrl;
-            document.getElementById('modalLogoUrlInput').value = tenant.logo_url || settings.logo_url || '';
-            document.getElementById('modalTenantId').textContent = tenant.id;
+            const modalCompanyName = document.getElementById('modalCompanyName');
+            if (modalCompanyName) modalCompanyName.textContent = tenant.name;
+
+            const modalCompanyLegalName = document.getElementById('modalCompanyLegalName');
+            if (modalCompanyLegalName) modalCompanyLegalName.textContent = tenant.legal_name || tenant.name;
+
+            const modalCompanyHeaderLogoImg = document.getElementById('modalCompanyHeaderLogoImg');
+            if (modalCompanyHeaderLogoImg) modalCompanyHeaderLogoImg.src = logoUrl;
+
+            const modalCompanyLogoPreview = document.getElementById('modalCompanyLogoPreview');
+            if (modalCompanyLogoPreview) modalCompanyLogoPreview.src = logoUrl;
+
+            const modalLogoUrlInput = document.getElementById('modalLogoUrlInput');
+            if (modalLogoUrlInput) modalLogoUrlInput.value = tenant.logo_url || settings.logo_url || '';
+
+            const modalTenantId = document.getElementById('modalTenantId');
+            if (modalTenantId) modalTenantId.textContent = tenant.id;
 
             // Populate Profile Form Inputs
-            document.getElementById('modalInputTenantName').value = tenant.name || '';
-            document.getElementById('modalInputTenantLegalName').value = tenant.legal_name || '';
-            document.getElementById('modalInputTenantSlug').value = tenant.slug || '';
-            document.getElementById('modalInputCompanyType').value = tenant.company_type || 'factory';
-            document.getElementById('modalInputTenantPhone').value = tenant.phone || '';
-            document.getElementById('modalInputTenantEmail').value = tenant.email || '';
-            document.getElementById('modalInputCommercialRegister').value = tenant.commercial_register || '';
-            document.getElementById('modalInputTaxNumber').value = tenant.tax_number || '';
+            const modalInputTenantName = document.getElementById('modalInputTenantName');
+            if (modalInputTenantName) modalInputTenantName.value = tenant.name || '';
+
+            const modalInputTenantLegalName = document.getElementById('modalInputTenantLegalName');
+            if (modalInputTenantLegalName) modalInputTenantLegalName.value = tenant.legal_name || '';
+
+            const modalInputTenantSlug = document.getElementById('modalInputTenantSlug');
+            if (modalInputTenantSlug) modalInputTenantSlug.value = tenant.slug || '';
+
+            const modalInputCompanyType = document.getElementById('modalInputCompanyType');
+            if (modalInputCompanyType) modalInputCompanyType.value = tenant.company_type || 'factory';
+
+            const modalInputTenantPhone = document.getElementById('modalInputTenantPhone');
+            if (modalInputTenantPhone) modalInputTenantPhone.value = tenant.phone || '';
+
+            const modalInputTenantEmail = document.getElementById('modalInputTenantEmail');
+            if (modalInputTenantEmail) modalInputTenantEmail.value = tenant.email || '';
+
+            const modalInputCommercialRegister = document.getElementById('modalInputCommercialRegister');
+            if (modalInputCommercialRegister) modalInputCommercialRegister.value = tenant.commercial_register || '';
+
+            const modalInputTaxNumber = document.getElementById('modalInputTaxNumber');
+            if (modalInputTaxNumber) modalInputTaxNumber.value = tenant.tax_number || '';
 
             // Populate Subscription & Limits Inputs
             const planVal = sub ? (sub.plan || 'quarterly').toLowerCase() : 'quarterly';
             populateTenantPlanPresetsDropdown(planVal);
-            document.getElementById('modalSubPlanBadge').textContent = planVal.toUpperCase();
+            const modalSubPlanBadge = document.getElementById('modalSubPlanBadge') || document.getElementById('sa-sub-view-plan-badge');
+            if (modalSubPlanBadge) modalSubPlanBadge.textContent = planVal.toUpperCase();
 
             const customLimits = sub ? (sub.custom_limits || {}) : {};
             const basePlanContainer = document.getElementById('basePlanSelectionContainer');
@@ -1996,32 +2761,57 @@
 
             const lim = globalPlanLimitsMap[planVal] || {};
 
-            document.getElementById('modalInputMaxProducts').value = sub ? (sub.max_products ?? 500) : (lim.max_products ?? 500);
-            document.getElementById('modalInputMaxUsers').value = sub ? (sub.max_users ?? 10) : (lim.max_users ?? 10);
-            document.getElementById('modalInputMaxOrders').value = sub ? (sub.max_orders ?? 5000) : (lim.max_invoices ?? 5000);
-            document.getElementById('modalInputExcelCredits').value = sub ? (sub.monthly_excel_credits ?? customLimits.monthly_excel_credits ?? 200) : (lim.monthly_excel_credits ?? 200);
-            document.getElementById('modalInputMaxStorage').value = sub ? (sub.max_storage_mb ?? 5000) : (lim.max_storage_mb ?? 5000);
+            const modalInputMaxProducts = document.getElementById('modalInputMaxProducts');
+            if (modalInputMaxProducts) modalInputMaxProducts.value = sub ? (sub.max_products ?? 500) : (lim.max_products ?? 500);
+
+            const modalInputMaxUsers = document.getElementById('modalInputMaxUsers');
+            if (modalInputMaxUsers) modalInputMaxUsers.value = sub ? (sub.max_users ?? 10) : (lim.max_users ?? 10);
+
+            const modalInputMaxOrders = document.getElementById('modalInputMaxOrders');
+            if (modalInputMaxOrders) modalInputMaxOrders.value = sub ? (sub.max_orders ?? 5000) : (lim.max_invoices ?? 5000);
+
+            const modalInputExcelCredits = document.getElementById('modalInputExcelCredits');
+            if (modalInputExcelCredits) modalInputExcelCredits.value = sub ? (sub.monthly_excel_credits ?? customLimits.monthly_excel_credits ?? 200) : (lim.monthly_excel_credits ?? 200);
+
+            const modalInputMaxStorage = document.getElementById('modalInputMaxStorage');
+            if (modalInputMaxStorage) modalInputMaxStorage.value = sub ? (sub.max_storage_mb ?? 5000) : (lim.max_storage_mb ?? 5000);
 
             // Dates & Sub Status
             const todayStr = new Date().toISOString().split('T')[0];
             const startDateStr = sub && sub.start_date ? new Date(sub.start_date).toISOString().split('T')[0] : todayStr;
-            document.getElementById('modalInputStartDate').value = startDateStr;
+            const modalInputStartDate = document.getElementById('modalInputStartDate');
+            if (modalInputStartDate) modalInputStartDate.value = startDateStr;
 
-            if (sub && sub.end_date) {
-                document.getElementById('modalInputEndDate').value = new Date(sub.end_date).toISOString().split('T')[0];
-            } else {
-                autoCalculateEndDate(startDateStr, 3, 0);
+            const modalInputEndDate = document.getElementById('modalInputEndDate');
+            if (modalInputEndDate) {
+                if (sub && sub.end_date) {
+                    modalInputEndDate.value = new Date(sub.end_date).toISOString().split('T')[0];
+                } else {
+                    autoCalculateEndDate(startDateStr, 3, 0);
+                }
             }
-            document.getElementById('modalInputSubStatus').value = sub ? (sub.status || 'active') : 'active';
+
+            const modalInputSubStatus = document.getElementById('modalInputSubStatus');
+            if (modalInputSubStatus) modalInputSubStatus.value = sub ? (sub.status || 'active') : 'active';
 
             // Installment details populate
             const instDetails = (sub && sub.installment_details) ? sub.installment_details : (customLimits.installment_details || {});
             const instEnabled = instDetails.enabled || false;
-            document.getElementById('modalInstallmentEnabled').checked = instEnabled;
-            document.getElementById('modalInstallmentCount').value = instDetails.count || 2;
-            document.getElementById('modalInstallmentAmount').value = instDetails.amount || '';
-            document.getElementById('modalInstallmentNextDate').value = instDetails.next_due_date || '';
-            document.getElementById('modalInstallmentNotes').value = instDetails.notes || '';
+
+            const modalInstallmentEnabled = document.getElementById('modalInstallmentEnabled');
+            if (modalInstallmentEnabled) modalInstallmentEnabled.checked = instEnabled;
+
+            const modalInstallmentCount = document.getElementById('modalInstallmentCount');
+            if (modalInstallmentCount) modalInstallmentCount.value = instDetails.count || 2;
+
+            const modalInstallmentAmount = document.getElementById('modalInstallmentAmount');
+            if (modalInstallmentAmount) modalInstallmentAmount.value = instDetails.amount || '';
+
+            const modalInstallmentNextDate = document.getElementById('modalInstallmentNextDate');
+            if (modalInstallmentNextDate) modalInstallmentNextDate.value = instDetails.next_due_date || '';
+
+            const modalInstallmentNotes = document.getElementById('modalInstallmentNotes');
+            if (modalInstallmentNotes) modalInstallmentNotes.value = instDetails.notes || '';
 
             const instFieldsContainer = document.getElementById('installmentFieldsContainer');
             if (instFieldsContainer) {
@@ -2030,19 +2820,36 @@
             }
 
             // Master Onboarding Packet Details
-            document.getElementById('modalMasterEmail').textContent = masterEmail;
-            document.getElementById('modalMasterPassword').textContent = masterPassword;
-            document.getElementById('modalStoreUrlText').textContent = storeUrl;
-            document.getElementById('modalAdminUrlText').textContent = adminUrl;
-            document.getElementById('modalAuthUrlText').textContent = authUrl;
+            const modalMasterEmail = document.getElementById('modalMasterEmail');
+            if (modalMasterEmail) modalMasterEmail.textContent = masterEmail;
 
-            document.getElementById('modalStoreUrlLink').href = storeUrl;
-            document.getElementById('modalAdminUrlLink').href = adminUrl;
-            document.getElementById('modalAuthUrlLink').href = authUrl;
+            const modalMasterPassword = document.getElementById('modalMasterPassword');
+            if (modalMasterPassword) modalMasterPassword.textContent = masterPassword;
+
+            const modalStoreUrlText = document.getElementById('modalStoreUrlText');
+            if (modalStoreUrlText) modalStoreUrlText.textContent = storeUrl;
+
+            const modalAdminUrlText = document.getElementById('modalAdminUrlText');
+            if (modalAdminUrlText) modalAdminUrlText.textContent = adminUrl;
+
+            const modalAuthUrlText = document.getElementById('modalAuthUrlText');
+            if (modalAuthUrlText) modalAuthUrlText.textContent = authUrl;
+
+            const modalStoreUrlLink = document.getElementById('modalStoreUrlLink');
+            if (modalStoreUrlLink) modalStoreUrlLink.href = storeUrl;
+
+            const modalAdminUrlLink = document.getElementById('modalAdminUrlLink');
+            if (modalAdminUrlLink) modalAdminUrlLink.href = adminUrl;
+
+            const modalAuthUrlLink = document.getElementById('modalAuthUrlLink');
+            if (modalAuthUrlLink) modalAuthUrlLink.href = authUrl;
 
             // Direct Links
-            document.getElementById('modalOpenStoreLink').href = storeUrl;
-            document.getElementById('modalOpenAdminLink').href = adminUrl;
+            const modalOpenStoreLink = document.getElementById('modalOpenStoreLink');
+            if (modalOpenStoreLink) modalOpenStoreLink.href = storeUrl;
+
+            const modalOpenAdminLink = document.getElementById('modalOpenAdminLink');
+            if (modalOpenAdminLink) modalOpenAdminLink.href = adminUrl;
 
             // Status Badge
             const statusBadge = document.getElementById('modalCompanyStatusBadge');
@@ -2085,6 +2892,9 @@
                 deleteBtn.onclick = () => deleteTenantCascade(tenant.id);
             }
 
+            // Initialize Factory Subscription & Credit Logs View for this tenant
+            initSuperAdminFactorySubscriptionView(tenant);
+
             // Default to profile tab on open
             switchInnerTenantTab('profile');
 
@@ -2095,6 +2905,8 @@
 
         // 🔄 Inner Tenant Sidebar Tab Switching Function
         function switchInnerTenantTab(tabId) {
+            if (tabId === 'subscription') tabId = 'sub-limits';
+
             document.querySelectorAll('.inner-tenant-tab-btn').forEach(btn => {
                 btn.classList.remove('bg-ultra-500/10', 'text-ultra-400', 'border-r-4', 'border-ultra-500');
                 btn.classList.add('text-devo-muted', 'hover:bg-devo-gray/50', 'hover:text-white');
@@ -2113,6 +2925,15 @@
             if (targetView) {
                 targetView.classList.remove('hidden');
             }
+
+            if (activeSelectedTenant && (tabId.startsWith('sub-') || tabId === 'subscription')) {
+                initSuperAdminFactorySubscriptionView(activeSelectedTenant);
+                if (tabId === 'sub-credits') {
+                    loadSaCreditsLogTable(activeSelectedTenant.id);
+                } else if (tabId === 'sub-full-audit') {
+                    loadSaFullAuditLogTable(activeSelectedTenant.id);
+                }
+            }
         }
 
         document.querySelectorAll('.inner-tenant-tab-btn').forEach(btn => {
@@ -2121,6 +2942,752 @@
                 if (tabId) switchInnerTenantTab(tabId);
             });
         });
+
+        // ==========================================
+        // 👑 Super Admin Factory Subscription & Consumption & Credit Logs View Logic
+        // ==========================================
+        async function initSuperAdminFactorySubscriptionView(tenant) {
+            if (!tenant || !tenant.id) return;
+
+            try {
+                // 1. جلب بيانات الاشتراك للمصنع من Supabase
+                const { data: subList } = await supabase
+                    .from('subscriptions')
+                    .select('*')
+                    .eq('tenant_id', tenant.id)
+                    .order('created_at', { ascending: false });
+
+                const sub = (subList && subList.length > 0) ? subList[0] : {};
+                const planKey = (sub.plan || 'quarterly').toLowerCase();
+                const customLimits = sub.custom_limits || {};
+                const instDetails = (sub.installment_details) ? sub.installment_details : (customLimits.installment_details || {});
+
+                // 2. جلب الأعداد الفعلية المستهلكة لهذا المصنع
+                const [{ count: productsCount }, { count: usersCount }, { count: ordersCount }] = await Promise.all([
+                    supabase.from('models').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id),
+                    supabase.from('system_users').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id),
+                    supabase.from('orders').select('id', { count: 'exact', head: true }).eq('tenant_id', tenant.id)
+                ]);
+
+                const currentProducts = productsCount || 0;
+                const currentUsers = usersCount || 0;
+                const currentOrders = ordersCount || 0;
+
+                const maxProducts = sub.max_products !== undefined ? (sub.max_products === -1 ? 99999 : sub.max_products) : 500;
+                const maxUsers = sub.max_users !== undefined ? (sub.max_users === -1 ? 999 : sub.max_users) : 10;
+                const maxOrders = sub.max_orders !== undefined ? (sub.max_orders === -1 ? 999999 : sub.max_orders) : 5000;
+                const maxExcelCredits = sub.monthly_excel_credits ?? customLimits.monthly_excel_credits ?? 200;
+                const consumedExcelCredits = customLimits.consumed_excel_credits || 0;
+
+                // 3. تعبئة شارات الهيدر العلوي
+                const planBadge = document.getElementById('sa-sub-view-plan-badge');
+                if (planBadge) planBadge.textContent = getSaPlanTitle(planKey);
+
+                const statusBadge = document.getElementById('sa-sub-view-status-badge');
+                const isExpired = sub.end_date && new Date(sub.end_date) < new Date();
+                const statusText = isExpired ? 'منتهي' : (sub.status === 'active' ? 'نشط' : 'موقوف');
+                if (statusBadge) {
+                    statusBadge.textContent = statusText;
+                    statusBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-black ${statusText === 'نشط' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'}`;
+                }
+
+                // التواريخ والأيام المتبقية
+                const startDateStr = sub.start_date ? new Date(sub.start_date).toLocaleDateString('ar-EG') : 'غير محدد';
+                const endDateStr = sub.end_date ? new Date(sub.end_date).toLocaleDateString('ar-EG') : 'دائم (بلا تاريخ)';
+
+                document.getElementById('sa-sub-view-start-date').textContent = startDateStr;
+                document.getElementById('sa-sub-view-end-date').textContent = endDateStr;
+
+                const daysLeftEl = document.getElementById('sa-sub-view-days-left');
+                if (daysLeftEl) {
+                    if (sub.end_date) {
+                        const diffTime = new Date(sub.end_date) - new Date();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        daysLeftEl.textContent = diffDays > 0 ? `${diffDays} يوماً` : 'منتهي الصلاحية';
+                        daysLeftEl.className = `font-black font-mono ${diffDays > 15 ? 'text-emerald-400' : 'text-amber-400'}`;
+                    } else {
+                        daysLeftEl.textContent = 'اشتراك دائم';
+                        daysLeftEl.className = 'font-black text-emerald-400 font-mono';
+                    }
+                }
+
+                // نظام السداد والأقساط
+                const instTextEl = document.getElementById('sa-sub-inst-pill-text');
+                if (instTextEl) {
+                    if (instDetails && instDetails.enabled) {
+                        instTextEl.textContent = `${instDetails.count || 1} أقساط (${(instDetails.amount || 0).toLocaleString()} ج.م)`;
+                    } else {
+                        instTextEl.textContent = 'سداد مباشر (كامل)';
+                    }
+                }
+
+                // 4. تحديث كروت حدود الاستهلاك
+                updateSaMetricCard('sa-sub-products', currentProducts, maxProducts, 'منتج');
+                updateSaMetricCard('sa-sub-users', currentUsers, maxUsers, 'مستخدم');
+                updateSaMetricCard('sa-sub-orders', currentOrders, maxOrders, 'أوردر');
+                updateSaMetricCard('sa-sub-credits', consumedExcelCredits, maxExcelCredits, 'كريديت');
+
+                // 5. بناء كارت الباقة النشطة وجدول المميزات التفصيلية
+                renderSaActivePlanPricingCard(planKey, maxProducts, maxUsers, maxExcelCredits, maxOrders);
+                renderSaActivePlanDedicatedTable(planKey, maxProducts, maxUsers, maxExcelCredits, maxOrders);
+
+                // 6. تحميل سجل استهلاك الكريديت للمصنع
+                loadSaCreditsLogTable(tenant.id);
+
+            } catch (err) {
+                console.error('Error initializing super admin factory subscription view:', err);
+            }
+        }
+
+        function getSaPlanTitle(planKey) {
+            switch (planKey) {
+                case 'quarterly': return 'باقة البداية الاقتصادية';
+                case 'semi_annual': return 'الباقة الأكثر طلباً (6 أشهر)';
+                case 'annual': return 'أفضل قيمة وتوفير (سنة كاملة)';
+                case 'trial': return 'الباقة التجريبية المجانية';
+                default: return 'باقة مخصصة (Custom)';
+            }
+        }
+
+        function updateSaMetricCard(idPrefix, current, max, unitLabel) {
+            const textEl = document.getElementById(`${idPrefix}-text`);
+            const pctEl = document.getElementById(`${idPrefix}-pct`);
+            const remEl = document.getElementById(`${idPrefix}-remaining`);
+            const barEl = document.getElementById(`${idPrefix}-bar`);
+
+            if (!textEl || !barEl) return;
+
+            const maxDisplay = (max === 99999 || max === 999999) ? '∞' : max;
+            textEl.textContent = `${current.toLocaleString()} / ${maxDisplay.toLocaleString()}`;
+
+            let pct = 0;
+            if (max > 0 && max !== 99999 && max !== 999999) {
+                pct = Math.min(100, Math.round((current / max) * 100));
+            }
+
+            pctEl.textContent = `${pct}%`;
+            barEl.style.width = `${pct}%`;
+
+            if (remEl) {
+                if (max === 99999 || max === 999999) {
+                    remEl.textContent = 'غير محدود';
+                } else {
+                    const rem = Math.max(0, max - current);
+                    remEl.textContent = `متبقي ${rem.toLocaleString()} ${unitLabel}`;
+                }
+            }
+        }
+
+        function renderSaActivePlanPricingCard(planKey, maxProducts, maxUsers, maxExcelCredits, maxOrders) {
+            const container = document.getElementById('sa-active-plan-card-container');
+            if (!container) return;
+
+            const isPurple = planKey === 'trial';
+            const isEmerald = planKey === 'quarterly';
+            const isSky = planKey === 'semi_annual';
+            const isAmber = planKey === 'annual';
+
+            let cardHtml = '';
+
+            if (isPurple) {
+                cardHtml = `
+                    <div class="bg-gradient-to-b from-purple-500/15 via-devo-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                        
+                        <!-- Top Header Badge -->
+                        <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-purple-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                            <i class="ph-fill ph-gift text-amber-300"></i>
+                            <span>الباقة التجريبية المجانية</span>
+                        </div>
+
+                        <div class="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-purple-400 text-slate-950 font-black text-[10px] sm:text-xs shadow-md border border-purple-300 whitespace-nowrap z-10">
+                            مجاناً 100%
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                                <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">تجربة مجانية (5 أيام)</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-purple-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">5 أيام تجريبية</span>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-3xl sm:text-5xl font-black text-purple-400">مجاناً</span>
+                                    <span class="text-devo-muted text-xs font-bold">(5 أيام تجريبية)</span>
+                                </div>
+                                <p class="text-[11px] sm:text-xs text-purple-300/90 font-bold mt-1">كافة خصائص ومميزات باقة الـ 6 أشهر مجاناً وبدون أي رسوم لمدة 5 أيام</p>
+                            </div>
+
+                            <!-- Spec Box -->
+                            <div class="bg-devo-black/80 border border-purple-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : Math.round(maxProducts * 2.5).toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : maxProducts.toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                                    <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxOrders === 999999 ? 'غير محدود' : maxOrders.toLocaleString()} ف</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">${maxExcelCredits.toLocaleString()} ⚡/ش</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxUsers === 999 ? 'غير محدود' : maxUsers.toLocaleString()} فرد</span>
+                                </div>
+                            </div>
+
+                            <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>تجربة مجانية بالكامل بدون أي رسوم أو فيزا</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>كافة خصائص ومميزات باقة الـ 6 أشهر</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>حتى ${maxProducts.toLocaleString()} موديل نشط بالمعرض</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>${maxExcelCredits.toLocaleString()} كريديت رفع وتعديل (Excel)</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>حتى ${maxUsers.toLocaleString()} مستخدمين وفريق عمل كامل</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
+                                    <span>دعم فني وتدريب كامل خلال فترة التجربة</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="w-full py-3.5 rounded-2xl bg-purple-500 text-white font-black text-xs sm:text-sm text-center flex items-center justify-center gap-2 shadow-lg">
+                            <i class="ph-fill ph-check-circle text-amber-300 text-lg"></i>
+                            <span>✅ باقتك النشطة حالياً</span>
+                        </div>
+                    </div>
+                `;
+            } else if (isEmerald) {
+                cardHtml = `
+                    <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                        <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                            <i class="ph-fill ph-sparkle text-slate-950"></i>
+                            <span>باقة البداية الاقتصادية</span>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                                <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 3 أشهر</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm whitespace-nowrap">ربع سنوي</span>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-3xl sm:text-5xl font-black text-emerald-400">7,000</span>
+                                    <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                                </div>
+                                <p class="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1">الباقة الأساسية للمحلات والمتاجر الناشئة</p>
+                            </div>
+
+                            <!-- Spec Box -->
+                            <div class="bg-devo-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : Math.round(maxProducts * 2.5).toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : maxProducts.toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                                    <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxOrders === 999999 ? 'غير محدود' : maxOrders.toLocaleString()} ف</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">${maxExcelCredits.toLocaleString()} ⚡/ش</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxUsers === 999 ? 'غير محدود' : maxUsers.toLocaleString()} فرد</span>
+                                </div>
+                            </div>
+
+                            <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
+                                    <span>إدارة المعرض وتصدير فواتير A4 والحراري</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
+                                    <span>إشعارات وتنبيهات الأوردرات الفورية</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
+                                    <span>دعم فني وتحديثات دورية مستمرة</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="w-full py-3.5 rounded-2xl bg-emerald-500 text-slate-950 font-black text-xs sm:text-sm text-center flex items-center justify-center gap-2 shadow-lg">
+                            <i class="ph-fill ph-check-circle text-slate-950 text-lg"></i>
+                            <span>✅ باقتك النشطة حالياً</span>
+                        </div>
+                    </div>
+                `;
+            } else if (isSky) {
+                cardHtml = `
+                    <div class="bg-gradient-to-b from-sky-500/10 via-devo-dark to-sky-600/15 border-2 border-sky-500/60 hover:border-sky-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                        <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-sky-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                            <i class="ph-fill ph-rocket text-amber-300"></i>
+                            <span>الباقة الأكثر طلباً</span>
+                        </div>
+
+                        <div class="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs shadow-md border border-sky-300 whitespace-nowrap z-10">
+                            توفير 28%
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                                <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 6 أشهر</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">نصف سنوي</span>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-3xl sm:text-5xl font-black text-sky-400">10,000</span>
+                                    <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                                </div>
+                                <p class="text-[11px] sm:text-xs text-sky-400 font-bold mt-1">الباقة المتكاملة لنشاط تجاري متوسط ومتوسع</p>
+                            </div>
+
+                            <!-- Spec Box -->
+                            <div class="bg-devo-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : Math.round(maxProducts * 2.5).toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : maxProducts.toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                                    <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxOrders === 999999 ? 'غير محدود' : maxOrders.toLocaleString()} ف</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">${maxExcelCredits.toLocaleString()} ⚡/ش</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxUsers === 999 ? 'غير محدود' : maxUsers.toLocaleString()} فرد</span>
+                                </div>
+                            </div>
+
+                            <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
+                                    <span>جميع مميزات وتسهيلات باقة الـ 3 أشهر</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
+                                    <span>توفير اقتصادي ممتاز بنسبة 28%</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
+                                    <span>تخصيص الشعار والألوان والهوية على الفاتورة</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
+                                    <span>أولوية مرتفعة في الدعم الفني والتدريب</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="w-full py-3.5 rounded-2xl bg-sky-500 text-white font-black text-xs sm:text-sm text-center flex items-center justify-center gap-2 shadow-lg">
+                            <i class="ph-fill ph-check-circle text-white text-lg"></i>
+                            <span>✅ باقتك النشطة حالياً</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                cardHtml = `
+                    <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                        <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
+                            <i class="ph-fill ph-crown text-slate-950"></i>
+                            <span>أفضل قيمة وتوفير</span>
+                        </div>
+                        <div class="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs shadow-md border border-amber-300 whitespace-nowrap z-10">
+                            خصم 46%
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-3 pt-3 gap-2">
+                                <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك سنة كاملة</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">توفير 13,000 ج.م</span>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-3xl sm:text-5xl font-black text-amber-400">15,000</span>
+                                    <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                                </div>
+                                <p class="text-[11px] sm:text-xs text-amber-400/90 font-bold mt-1">الباقة الملكية الشاملة بأعلى مستويات الحدود والتوفير</p>
+                            </div>
+
+                            <!-- Spec Box -->
+                            <div class="bg-devo-black/80 border border-amber-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : Math.round(maxProducts * 2.5).toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                    <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxProducts === 99999 ? 'غير محدود' : maxProducts.toLocaleString()} م</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                                    <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxOrders === 999999 ? 'غير محدود' : maxOrders.toLocaleString()} ف</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">${maxExcelCredits.toLocaleString()} ⚡/ش</span>
+                                </div>
+                                <div class="flex items-center justify-between text-devo-text gap-2">
+                                    <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى ${maxUsers === 999 ? 'غير محدود' : maxUsers.toLocaleString()} فرد</span>
+                                </div>
+                            </div>
+
+                            <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
+                                    <span>جميع الخصائص والتسهيلات بلا قيود</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
+                                    <span>أقصى نسبة توفير مالي سنوياً</span>
+                                </li>
+                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
+                                    <span>أولوية قصوى 24/7 والدعم المباشر</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="w-full py-3.5 rounded-2xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm text-center flex items-center justify-center gap-2 shadow-lg">
+                            <i class="ph-fill ph-check-circle text-slate-950 text-lg"></i>
+                            <span>✅ باقتك النشطة حالياً</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = cardHtml;
+        }
+
+        function renderSaActivePlanDedicatedTable(planKey, maxProducts, maxUsers, maxExcelCredits, maxOrders) {
+            const headerEl = document.getElementById('sa-active-table-col-header');
+            const tbody = document.getElementById('sa-active-plan-table-tbody');
+
+            if (!headerEl || !tbody) return;
+
+            let planLabel = '';
+            let themeColorClass = 'text-emerald-400';
+
+            if (planKey === 'trial') {
+                planLabel = 'تجربة مجانية (5 أيام)';
+                themeColorClass = 'text-purple-400';
+            } else if (planKey === 'quarterly') {
+                planLabel = 'اشتراك 3 أشهر (7,000 ج.م)';
+                themeColorClass = 'text-emerald-400';
+            } else if (planKey === 'semi_annual') {
+                planLabel = 'اشتراك 6 أشهر (10,000 ج.م)';
+                themeColorClass = 'text-sky-400';
+            } else {
+                planLabel = 'اشتراك سنة كاملة (15,000 ج.م)';
+                themeColorClass = 'text-amber-400';
+            }
+
+            headerEl.textContent = planLabel;
+            headerEl.className = `p-3 text-center font-black ${themeColorClass} bg-devo-dark border-r border-devo-gray text-xs`;
+
+            const specsRows = [
+                { title: 'حدود الموديلات النشطة بالمعرض', icon: 'ph-t-shirt text-ultra-400', val: `حتى ${maxProducts === 99999 ? 'غير محدود' : maxProducts.toLocaleString()} موديل` },
+                { title: 'إجمالي الموديلات بالمعرض (نشطة + غير نشطة)', icon: 'ph-rows text-sky-400', val: `حتى ${maxProducts === 99999 ? 'غير محدود' : (maxProducts * 2.5).toLocaleString()} موديل` },
+                { title: 'حد الفواتير المسموح إنشاؤها', icon: 'ph-receipt text-emerald-400', val: `حتى ${maxOrders === 999999 ? 'غير محدود' : maxOrders.toLocaleString()} فاتورة` },
+                { title: 'رصيد الرفع والتعديل المجمع (Excel)', icon: 'ph-file-xls text-purple-400', val: `${maxExcelCredits.toLocaleString()} كريديت / شهرياً` },
+                { title: 'حسابات المستخدمين وفريق العمل', icon: 'ph-users text-amber-400', val: `حتى ${maxUsers === 999 ? 'غير محدود' : maxUsers.toLocaleString()} مستخدمين` },
+                { title: 'إشعارات المتصفح الفورية والتليجرام', icon: 'ph-paper-plane-tilt text-blue-400', val: 'متاح ✅' },
+                { title: 'المزامنة والمشاركة اللحظية على الأجهزة', icon: 'ph-arrows-clockwise text-emerald-400', val: 'متاح ✅' },
+                { title: 'تنبيهات نواقص الأصناف والطلبات صوتياً', icon: 'ph-bell-ringing text-amber-400', val: 'متاح ✅' },
+                { title: 'تعديل الفواتير والأوردرات وإعادة تحميلها', icon: 'ph-pencil-line text-sky-400', val: 'متاح ✅' },
+                { title: 'إسناد الطلبات وتغيير العامل المسؤول', icon: 'ph-user-switch text-purple-400', val: 'متاح ✅' },
+                { title: 'تخصيص ألوان الواجهة والمظهر (Themes)', icon: 'ph-palette text-pink-400', val: 'متاح ✅' },
+                { title: 'حساب العربون والمتبقي وتقارير الإيداعات', icon: 'ph-hand-coins text-emerald-400', val: 'متاح ✅' },
+                { title: 'معرض الموديلات وقارئ الباركود الكاميرا', icon: 'ph-qr-code text-ultra-400', val: 'متاح ✅' },
+                { title: 'إدارة المخزن وشحن دفعات الرصيد', icon: 'ph-package text-amber-400', val: 'متاح ✅' },
+                { title: 'الفواتير والطباعة (حراري & A4)', icon: 'ph-printer text-sky-400', val: 'متاح ✅' },
+                { title: 'الدعم الفني والتدريب', icon: 'ph-headphones text-red-400', val: planKey === 'annual' ? '24/7 طوال الأسبوع' : (planKey === 'semi_annual' ? 'مرتفع' : 'عادي') },
+                { title: 'النسخ الاحتياطي واستعادة البيانات', icon: 'ph-database text-teal-400', val: 'تلقائي سحابي ✅' }
+            ];
+
+            tbody.innerHTML = specsRows.map(r => `
+                <tr class="hover:bg-devo-gray/30 transition">
+                    <td class="p-3 font-bold text-white flex items-center gap-2">
+                        <i class="ph ${r.icon} text-base shrink-0"></i>
+                        <span>${r.title}</span>
+                    </td>
+                    <td class="p-3 text-center font-bold ${themeColorClass} bg-devo-dark/50 border-r border-devo-gray font-mono">
+                        ${r.val}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadSaCreditsLogTable(tenantId) {
+            const tbody = document.getElementById('sa-sub-credits-log-tbody');
+            if (!tbody || !tenantId) return;
+
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center"><i class="ph ph-spinner animate-spin text-2xl text-purple-400"></i><p class="text-xs text-devo-muted mt-2">جاري تحميل سجل استهلاك الكريديت للمصنع...</p></td></tr>`;
+
+            try {
+                // 1. جلب سجلات جدول الكريديت المباشر للمصنع
+                const { data: excelLogs } = await supabase
+                    .from('excel_credits_log')
+                    .select('*')
+                    .eq('tenant_id', tenantId)
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                // 2. جلب سجلات الفعاليات والمرتبطة بالإكسيل والتعديلات المجمعة من سجل النظام للمصنع
+                const { data: auditLogs } = await supabase
+                    .from('system_audit_logs')
+                    .select('*')
+                    .eq('tenant_id', tenantId)
+                    .or('module.in.(credits,excel_imports),action_type.in.(bulk_edit,excel_import,recharge)')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                // 3. توحيد ودمج السجلات
+                const combinedMap = new Map();
+
+                (excelLogs || []).forEach(log => {
+                    combinedMap.set(`excel_${log.id}`, {
+                        id: log.id,
+                        created_at: log.created_at,
+                        operation_type: log.location_name || log.operation_type || 'استهلاك كريديت',
+                        user_name: log.user_name,
+                        credits_deducted: log.credits_deducted || 0,
+                        remaining_balance_after: log.remaining_balance_after,
+                        items_count: log.items_count,
+                        source: 'excel_credits_log'
+                    });
+                });
+
+                (auditLogs || []).forEach(audit => {
+                    const details = audit.details || {};
+                    const creditsDeducted = details.credits_deducted || details.credits || details.deducted || details.consumed || 0;
+                    const remaining = details.remaining_credits || details.remaining_balance || details.remaining || '-';
+
+                    let title = details.notes || details.message || details.info || '';
+                    if (!title) {
+                        if (audit.action_type === 'bulk_edit') title = 'تعديلات مجمعة للموديلات';
+                        else if (audit.action_type === 'excel_import') title = 'استيراد بيانات عبر Excel';
+                        else if (audit.action_type === 'recharge') title = 'شحن رصيد الكريديت';
+                        else title = 'عملية استهلاك كريديت';
+                    }
+
+                    combinedMap.set(`audit_${audit.id}`, {
+                        id: audit.id,
+                        audit_id: audit.id,
+                        created_at: audit.created_at,
+                        operation_type: title,
+                        user_name: audit.user_name,
+                        credits_deducted: creditsDeducted,
+                        remaining_balance_after: remaining,
+                        items_count: details.items_count || details.count || null,
+                        source: 'system_audit_logs'
+                    });
+                });
+
+                const sortedLogs = Array.from(combinedMap.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (sortedLogs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-devo-muted italic">لا توجد عمليات استهلاك كريديت مسجلة مؤخراً لهذا المصنع.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = sortedLogs.map(log => {
+                    const dateStr = new Date(log.created_at).toLocaleString('ar-EG');
+                    const itemCountLabel = log.items_count ? `${log.items_count} عنصر` : '';
+                    const modeLabel = log.source === 'excel_credits_log' ? 'سجل الكريديت' : 'سجل الفعاليات';
+                    const subText = [itemCountLabel, modeLabel].filter(Boolean).join(' • ');
+
+                    let displayName = log.user_name || 'مستخدم النظام';
+                    if (displayName.includes('@')) displayName = displayName.split('@')[0];
+
+                    const creditsText = log.credits_deducted > 0 ? `-${log.credits_deducted} ⚡` : (log.credits_deducted < 0 ? `+${Math.abs(log.credits_deducted)} ⚡` : 'خصم كريديت ⚡');
+
+                    return `
+                        <tr class="hover:bg-devo-gray/30 transition-colors">
+                            <td class="p-3 font-mono text-xs text-devo-muted font-bold">${dateStr}</td>
+                            <td class="p-3">
+                                <span class="font-bold text-white block text-xs">${log.operation_type}</span>
+                                <span class="text-[11px] text-devo-muted block mt-0.5">${subText}</span>
+                            </td>
+                            <td class="p-3 text-xs text-white font-extrabold">
+                                <div class="flex items-center gap-1.5">
+                                    <i class="ph-fill ph-user-circle text-amber-400 text-base"></i>
+                                    <span>${displayName}</span>
+                                </div>
+                            </td>
+                            <td class="p-3 font-black text-amber-400 text-xs">
+                                ${creditsText}
+                            </td>
+                            <td class="p-3 text-xs text-devo-muted">
+                                <div class="flex items-center gap-2">
+                                    ${log.items_count ? `<span class="px-2.5 py-1 rounded bg-devo-black/60 border border-devo-gray/40 text-devo-orange font-bold text-xs inline-flex items-center gap-1"><i class="ph ph-stack text-amber-400"></i> ${log.items_count} عنصر</span>` : `<span class="px-2.5 py-1 rounded bg-devo-black/40 text-devo-muted font-medium text-xs">عملية مجمعة</span>`}
+                                    ${log.audit_id ? `
+                                        <button onclick="window.showAuditLogDetails('${log.audit_id}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs font-bold border border-devo-gray/50 transition-colors inline-flex items-center gap-1">
+                                            <i class="ph ph-eye text-sm"></i> التفاصيل
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error loading super admin credits log table:', err);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400 text-xs">تعذر تحميل سجل الكريديت: ${err.message || 'خطأ غير معروف'}</td></tr>`;
+            }
+        }
+
+        function getSaModuleBadge(mod) {
+            const map = {
+                orders: '<span class="px-2.5 py-1 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-shopping-cart-simple"></i> الطلبات والأوردت</span>',
+                models: '<span class="px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-t-shirt"></i> الموديلات والمخزون</span>',
+                definitions: '<span class="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-tree-structure"></i> التصنيفات والفئات</span>',
+                excel_imports: '<span class="px-2.5 py-1 rounded bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-file-xls"></i> استيراد إكسيل</span>',
+                notifications: '<span class="px-2.5 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-bell-simple"></i> الإشعارات والرسائل</span>',
+                offers: '<span class="px-2.5 py-1 rounded bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-tag"></i> العروض والخصومات</span>',
+                settings: '<span class="px-2.5 py-1 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-gear"></i> إعدادات النظام</span>',
+                accounts: '<span class="px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-users"></i> إدارة المستخدمين</span>',
+                credits: '<span class="px-2.5 py-1 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-lightning"></i> الكريديت والاشتراكات</span>'
+            };
+            return map[mod] || `<span class="px-2 py-0.5 rounded bg-devo-gray text-white text-xs">${mod || 'عام'}</span>`;
+        }
+
+        function getSaActionBadge(act) {
+            const map = {
+                create: '<span class="text-devo-success font-bold text-xs"><i class="ph ph-plus-circle"></i> إنشاء جديد</span>',
+                update: '<span class="text-sky-400 font-bold text-xs"><i class="ph ph-pencil-simple"></i> تعديل</span>',
+                delete: '<span class="text-devo-error font-bold text-xs"><i class="ph ph-trash"></i> حذف</span>',
+                bulk_edit: '<span class="text-amber-400 font-bold text-xs"><i class="ph ph-lightning"></i> تعديل مجمع</span>',
+                excel_import: '<span class="text-emerald-400 font-bold text-xs"><i class="ph ph-upload-simple"></i> رفع إكسيل</span>',
+                status_change: '<span class="text-purple-400 font-bold text-xs"><i class="ph ph-arrows-clockwise"></i> تغيير حالة</span>',
+                recharge: '<span class="text-yellow-400 font-bold text-xs"><i class="ph ph-lightning"></i> شحن رصيد</span>'
+            };
+            return map[act] || `<span class="text-white text-xs">${act || 'إجراء'}</span>`;
+        }
+
+        function formatSaDetailsPreview(details) {
+            if (!details) return '-';
+            if (typeof details === 'string') return details;
+            if (details.notes) return details.notes;
+            if (details.message) return details.message;
+            if (details.info) return details.info;
+            if (details.description) return details.description;
+            if (details.name) return `اسم: ${details.name}`;
+            if (details.action) return `إجراء: ${details.action}`;
+            return JSON.stringify(details);
+        }
+
+        async function loadSaFullAuditLogTable(tenantId) {
+            const tbody = document.getElementById('sa-sub-full-audit-tbody');
+            if (!tbody || !tenantId) return;
+
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center"><i class="ph ph-spinner animate-spin text-2xl text-amber-400"></i><p class="text-xs text-devo-muted mt-2">جاري تحميل سجل الفعاليات الكامل للمصنع...</p></td></tr>`;
+
+            try {
+                const { data: auditLogs, error } = await supabase
+                    .from('system_audit_logs')
+                    .select('*')
+                    .eq('tenant_id', tenantId)
+                    .order('created_at', { ascending: false })
+                    .limit(150);
+
+                if (error) throw error;
+
+                if (!auditLogs || auditLogs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-devo-muted italic">لا توجد حركات مسجلة مؤخراً لهذا المصنع.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = auditLogs.map(audit => {
+                    const dateStr = new Date(audit.created_at).toLocaleString('ar-EG', {
+                        year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    });
+                    const moduleBadge = getSaModuleBadge(audit.module);
+                    const actionBadge = getSaActionBadge(audit.action_type);
+                    const detailsText = formatSaDetailsPreview(audit.details);
+
+                    return `
+                        <tr class="hover:bg-devo-black/40 transition-colors border-b border-devo-gray/30">
+                            <td class="p-3.5 text-xs font-mono text-devo-muted font-bold">${dateStr}</td>
+                            <td class="p-3.5">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-devo-orange/10 border border-devo-orange/20 flex items-center justify-center text-devo-orange font-bold text-xs">
+                                        ${(audit.user_name || 'م')[0]}
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-white text-xs block">${audit.user_name || 'مستخدم النظام'}</span>
+                                        <span class="text-[10px] text-devo-muted uppercase">${audit.user_role || 'staff'}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3.5">${moduleBadge}</td>
+                            <td class="p-3.5">${actionBadge}</td>
+                            <td class="p-3.5 text-xs text-devo-muted max-w-xs truncate font-mono">${detailsText}</td>
+                            <td class="p-3.5 text-center">
+                                <button onclick="window.showAuditLogDetails('${audit.id}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs border border-devo-gray/50 transition-colors flex items-center gap-1 mx-auto">
+                                    <i class="ph ph-eye text-sm"></i> التفاصيل
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error loading super admin full audit log table:', err);
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400 text-xs">تعذر تحميل سجل الفعاليات: ${err.message || 'خطأ غير معروف'}</td></tr>`;
+            }
+        }
+
+        function switchSaSubTab(tabId) {
+            const subTabMap = {
+                'limits': 'sub-limits',
+                'features': 'sub-features',
+                'credits': 'sub-credits',
+                'full-audit': 'sub-full-audit',
+                'settings': 'sub-settings'
+            };
+            const mappedTab = subTabMap[tabId] || `sub-${tabId}`;
+            switchInnerTenantTab(mappedTab);
+        }
+
+        function setupSaSubTabs() {
+            // Handled via inner-tenant-tab-btn main sidebar
+        }
 
         // Helper to populate dynamic plan presets in factory subscription modal
         function populateTenantPlanPresetsDropdown(selectedPlanKey = 'quarterly') {
@@ -2168,7 +3735,7 @@
         }
 
         function applyPlanPresetDefaultsToInputs(planKey) {
-            const badge = document.getElementById('modalSubPlanBadge');
+            const badge = document.getElementById('modalSubPlanBadge') || document.getElementById('sa-sub-view-plan-badge');
             const basePlanContainer = document.getElementById('basePlanSelectionContainer');
             const modalSelectBasePlan = document.getElementById('modalSelectBasePlan');
 
@@ -2340,6 +3907,13 @@
 
                     if (error) throw error;
 
+                    await logSecurityEvent(currentSessionData?.user?.id, currentSessionData?.user?.username, 'UPDATE_TENANT', 'HIGH', {
+                        tenant_id: activeSelectedTenant.id,
+                        name,
+                        legalName,
+                        companyType
+                    });
+
                     showToast('تم حفظ بيانات الشركة بنجاح!', 'success');
                     document.getElementById('modalCompanyName').textContent = name;
                     document.getElementById('modalCompanyLegalName').textContent = legalName || name;
@@ -2484,8 +4058,21 @@
                         activeSelectedTenant.status = 'active';
                     }
 
+                    await logSecurityEvent(currentSessionData?.user?.id, currentSessionData?.user?.username, 'UPDATE_TENANT_SUBSCRIPTION', 'HIGH', {
+                        tenant_id: activeSelectedTenant.id,
+                        plan,
+                        maxProducts,
+                        maxUsers,
+                        startDate,
+                        endDate,
+                        status
+                    });
+
                     showToast('تم حفظ خطة الاشتراك والحدود وسجلات السداد بنجاح!', 'success');
                     await loadTenants();
+                    if (activeSelectedTenant) {
+                        initSuperAdminFactorySubscriptionView(activeSelectedTenant);
+                    }
                 } catch (err) {
                     console.error('Subscription save error:', err);
                     showToast('فشل حفظ خطة الاشتراك: ' + err.message, 'error');
@@ -2525,6 +4112,9 @@
                     const currentVal = parseInt(document.getElementById('modalInputExcelCredits').value) || 0;
                     if (currentVal !== -1 && currentVal < 99999) {
                         document.getElementById('modalInputExcelCredits').value = currentVal + amount;
+                    }
+                    if (activeSelectedTenant) {
+                        initSuperAdminFactorySubscriptionView(activeSelectedTenant);
                     }
                 } catch (err) {
                     showToast('فشل شحن الكريديت: ' + err.message, 'error');
@@ -2571,6 +4161,11 @@
                 }
 
                 showToast(`تم حذف مصنع "${tenantName}" وكافة محتوياته بنجاح`, 'success');
+
+                await logSecurityEvent(currentSessionData?.user?.id, currentSessionData?.user?.username, 'DELETE_TENANT', 'CRITICAL', {
+                    tenant_id: tenantId,
+                    tenant_name: tenantName
+                });
                 
                 detailsModal.classList.add('hidden');
                 detailsModal.classList.remove('flex');
@@ -2795,6 +4390,11 @@
                     document.getElementById('modalMasterPassword').textContent = newPassword;
 
                     showToast(`تم تغيير كلمة مرور الأونر للمصنع إلى (${newPassword}) بنجاح!`, 'success');
+
+                    await logSecurityEvent(currentSessionData?.user?.id, currentSessionData?.user?.username, 'RESET_OWNER_PASSWORD', 'HIGH', {
+                        tenant_id: activeSelectedTenant.id,
+                        tenant_name: activeSelectedTenant.name
+                    });
                     resetPasswordModal.classList.add('hidden');
                     resetPasswordModal.classList.remove('flex');
 
@@ -2857,6 +4457,11 @@
                     if (error) throw error;
 
                     showToast(`تم إعادة تهيئة وتفريغ بيانات المصنع (${activeSelectedTenant.name}) بنجاح 🧹`, 'success');
+
+                    await logSecurityEvent(currentSessionData?.user?.id, currentSessionData?.user?.username, 'WIPE_TENANT_DATA', 'CRITICAL', {
+                        tenant_id: activeSelectedTenant.id,
+                        tenant_name: activeSelectedTenant.name
+                    });
                     closeWipeModalFunc();
                     loadTenants();
 
@@ -3049,6 +4654,13 @@
                 });
 
                 showToast('تم تسجيل الشركة، وباقات الاشتراك، وحساب الماستر بنجاح!', 'success');
+
+                await logSecurityEvent(currentSessionData?.user?.id, currentSessionData?.user?.username, 'CREATE_TENANT', 'HIGH', {
+                    tenant_id: tenant.id,
+                    tenant_name: name,
+                    slug,
+                    plan
+                });
                 tenantModal.classList.add('hidden');
                 tenantModal.classList.remove('flex');
                 createForm.reset();
@@ -4388,6 +6000,730 @@
         loadSystemPlans();
         loadComparisonFeatures();
         loadPlanLimits();
+
+        // ==========================================
+        // 🔒 SUPER ADMIN SECURITY & AUDIT LOGS ENGINE
+        // ==========================================
+
+        async function loadSuperAdminUsersAndSecurityLogs() {
+            await renderSuperAdminUsersTable();
+            await renderSecurityAuditLogsTable();
+        }
+
+        async function renderSuperAdminUsersTable() {
+            const tableBody = document.getElementById('superAdminUsersTableBody');
+            if (!tableBody) return;
+
+            const { users, error } = await fetchSuperAdminUsers();
+            if (error) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-red-400 font-sans">فشل تحميل الحسابات: ${error}</td></tr>`;
+                return;
+            }
+
+            const statTotal = document.getElementById('statTotalSuperAdmins');
+            const statPin = document.getElementById('statPinEnabledCount');
+            const statFailed = document.getElementById('statFailedAttemptsCount');
+
+            if (statTotal) statTotal.textContent = users.length;
+            if (statPin) statPin.textContent = users.filter(u => u.security_pin_enabled !== false).length;
+            if (statFailed) statFailed.textContent = users.filter(u => u.locked_until && new Date(u.locked_until) > new Date()).length;
+
+            if (users.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-devo-muted font-sans">لا توجد حسابات سوبر أدمن مسجلة بالنظام</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = users.map(u => {
+                const isLocked = u.locked_until && new Date(u.locked_until) > new Date();
+                const statusBadge = isLocked 
+                    ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">محظور مؤقتاً 🔒</span>`
+                    : u.is_active
+                    ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">نشط الفعالية</span>`
+                    : `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">معطل ⏸️</span>`;
+
+                const lastVerify = u.last_security_verify_at ? new Date(u.last_security_verify_at).toLocaleString('ar-EG') : 'لم يتحقق بعد';
+
+                return `
+                    <tr class="hover:bg-devo-gray/30 transition-colors">
+                        <td class="py-4 px-6 font-bold text-white">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-sm font-black">
+                                    <i class="ph ph-shield-check text-base"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-black text-white">${u.full_name || u.username}</div>
+                                    <div class="text-[11px] text-devo-muted font-mono font-normal">@${u.username}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 font-mono text-xs text-devo-muted">${u.email || '--'}</td>
+                        <td class="py-4 px-6">
+                            <div class="flex flex-col gap-1 items-start">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 w-fit">
+                                    <i class="ph ph-lock-key"></i>
+                                    <span>Master PIN 🔒</span>
+                                </span>
+                                ${u.totp_enabled 
+                                    ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 w-fit">
+                                        <i class="ph ph-shield-check"></i>
+                                        <span>Google 2FA 🔒</span>
+                                       </span>`
+                                    : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-devo-black text-devo-muted border border-devo-gray flex items-center gap-1 w-fit">
+                                        <i class="ph ph-shield-slash"></i>
+                                        <span>2FA معطل</span>
+                                       </span>`
+                                }
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">${statusBadge}</td>
+                        <td class="py-4 px-6 text-xs text-devo-muted font-mono">${lastVerify}</td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                <button onclick="window.handleOpenEditSuperAdminModal('${u.id}', '${u.username}', '${(u.full_name || '').replace(/'/g, "\\'")}', '${u.email || ''}', ${u.is_active})" title="تعديل بيانات الحساب" class="px-2.5 py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-bold border border-sky-500/30 transition cursor-pointer flex items-center gap-1">
+                                    <i class="ph ph-pencil-simple text-sm"></i>
+                                    <span>تعديل</span>
+                                </button>
+
+                                <button onclick="window.handleOpenChangePinModal('${u.id}', '${u.username}')" title="تحديث رمز Master PIN" class="px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
+                                    <i class="ph ph-key text-sm"></i>
+                                    <span>تعديل PIN</span>
+                                </button>
+
+                                <button onclick="${u.totp_enabled ? `window.handleDisableTotp('${u.id}', '${u.username}')` : `window.handleOpenSetupTotpModal('${u.id}', '${u.username}')`}" title="${u.totp_enabled ? 'تعطيل المصادقة الثنائية' : 'تفعيل Google Authenticator 2FA'}" class="px-2.5 py-1.5 rounded-lg ${u.totp_enabled ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} text-xs font-bold border transition cursor-pointer flex items-center gap-1">
+                                    <i class="ph ${u.totp_enabled ? 'ph-shield-slash' : 'ph-qr-code'} text-sm"></i>
+                                    <span>${u.totp_enabled ? 'تعطيل 2FA' : 'تفعيل 2FA'}</span>
+                                </button>
+
+                                <button onclick="window.handleToggleSuperAdminStatus('${u.id}', ${!u.is_active})" title="${u.is_active ? 'تجميد الحساب' : 'تفعيل الحساب'}" class="px-2.5 py-1.5 rounded-lg ${u.is_active ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} text-xs font-bold border transition cursor-pointer flex items-center gap-1">
+                                    <i class="ph ${u.is_active ? 'ph-pause' : 'ph-play'} text-sm"></i>
+                                    <span>${u.is_active ? 'تجميد' : 'تفعيل'}</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function renderSecurityAuditLogsTable() {
+            const tableBody = document.getElementById('securityLogsTableBody');
+            if (!tableBody) return;
+
+            const severityFilter = document.getElementById('securityLogSeveritySelect')?.value || 'ALL';
+            const searchQuery = document.getElementById('securityLogSearchInput')?.value || '';
+
+            const { data: logs, error } = await fetchSecurityLogs(100, severityFilter, searchQuery);
+            if (error) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-red-400 font-sans">فشل تحميل سجلات التدقيق: ${error}</td></tr>`;
+                return;
+            }
+
+            const statLogsCount = document.getElementById('statTotalAuditLogsCount');
+            if (statLogsCount) statLogsCount.textContent = logs.length;
+
+            if (logs.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-devo-muted font-sans">لا توجد سجلات تدقيق مطابقة للفلتر</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = logs.map(log => {
+                let severityBadge = '';
+                if (log.severity === 'CRITICAL') {
+                    severityBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">حرج CRITICAL</span>`;
+                } else if (log.severity === 'HIGH') {
+                    severityBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">عالي HIGH</span>`;
+                } else if (log.severity === 'MEDIUM') {
+                    severityBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/40">متوسط MEDIUM</span>`;
+                } else {
+                    severityBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">عادي LOW</span>`;
+                }
+
+                const dateStr = new Date(log.created_at).toLocaleString('ar-EG');
+                const detailsStr = log.details ? JSON.stringify(log.details) : '{}';
+
+                return `
+                    <tr class="hover:bg-devo-gray/30 transition-colors">
+                        <td class="py-3 px-6 text-devo-muted whitespace-nowrap">${dateStr}</td>
+                        <td class="py-3 px-6 font-bold text-amber-400 font-mono">@${log.username}</td>
+                        <td class="py-3 px-6 font-bold text-white font-sans">${log.event_type}</td>
+                        <td class="py-3 px-6 font-sans">${severityBadge}</td>
+                        <td class="py-3 px-6 text-devo-muted truncate max-w-xs" title="${log.ip_address} | ${log.user_agent}">${log.ip_address}</td>
+                        <td class="py-3 px-6 text-devo-muted truncate max-w-md font-sans text-xs" title="${detailsStr}">${detailsStr}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 📑 Inner Subtabs Switcher Function (Accounts vs Audit Logs)
+        window.switchUsersSubtab = (subtabKey) => {
+            const btnAccounts = document.getElementById('subtabBtnAccounts');
+            const btnAuditLogs = document.getElementById('subtabBtnAuditLogs');
+            const viewAccounts = document.getElementById('usersSubtabAccounts');
+            const viewAuditLogs = document.getElementById('usersSubtabAuditLogs');
+
+            if (subtabKey === 'accounts') {
+                viewAccounts?.classList.remove('hidden');
+                viewAuditLogs?.classList.add('hidden');
+
+                btnAccounts?.classList.add('bg-amber-500/10', 'text-amber-400', 'border-amber-500/30');
+                btnAccounts?.classList.remove('bg-devo-black', 'text-devo-muted', 'border-devo-gray');
+
+                btnAuditLogs?.classList.remove('bg-amber-500/10', 'text-amber-400', 'border-amber-500/30');
+                btnAuditLogs?.classList.add('bg-devo-black', 'text-devo-muted', 'border-devo-gray');
+            } else {
+                viewAccounts?.classList.add('hidden');
+                viewAuditLogs?.classList.remove('hidden');
+
+                btnAuditLogs?.classList.add('bg-amber-500/10', 'text-amber-400', 'border-amber-500/30');
+                btnAuditLogs?.classList.remove('bg-devo-black', 'text-devo-muted', 'border-devo-gray');
+
+                btnAccounts?.classList.remove('bg-amber-500/10', 'text-amber-400', 'border-amber-500/30');
+                btnAccounts?.classList.add('bg-devo-black', 'text-devo-muted', 'border-devo-gray');
+            }
+        };
+
+        // 👑 Window Global Handlers for Modals (Direct & Delegated)
+        window.handleOpenCreateSuperAdminModal = () => {
+            const modal = document.getElementById('createSuperAdminModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => document.getElementById('newSuperAdminUsername')?.focus(), 100);
+            }
+        };
+
+        window.handleOpenChangePinModal = (userId, username) => {
+            const modal = document.getElementById('changeSuperAdminPinModal');
+            if (modal) {
+                document.getElementById('changePinTargetUserIdInput').value = userId;
+                document.getElementById('changePinTargetUsernameText').textContent = `@${username}`;
+                document.getElementById('newSecurityPinInput').value = '';
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => document.getElementById('newSecurityPinInput')?.focus(), 100);
+            }
+        };
+
+        window.handleOpenEditSuperAdminModal = (userId, username, fullName, email, isActive) => {
+            const modal = document.getElementById('editSuperAdminModal');
+            if (modal) {
+                document.getElementById('editSuperAdminIdInput').value = userId;
+                document.getElementById('editSuperAdminUsername').value = username || '';
+                document.getElementById('editSuperAdminFullName').value = fullName || '';
+                document.getElementById('editSuperAdminEmail').value = email || '';
+                document.getElementById('editSuperAdminPassword').value = '';
+                document.getElementById('editSuperAdminStatus').value = isActive ? 'true' : 'false';
+                document.getElementById('editSuperAdminTargetSubtitle').textContent = `تحديث بيانات الحساب @${username}`;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => document.getElementById('editSuperAdminFullName')?.focus(), 100);
+            }
+        };
+
+        window.handleOpenSetupTotpModal = async (userId, username) => {
+            const modal = document.getElementById('setupTotpModal');
+            if (!modal) return;
+
+            const secret = await generateSuperAdminTotpSecret();
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`otpauth://totp/UltraSoft:${username}?secret=${secret}&issuer=UltraSoft`)}`;
+
+            document.getElementById('setupTotpUserIdInput').value = userId;
+            document.getElementById('setupTotpSecretInput').value = secret;
+            document.getElementById('setupTotpUsernameText').textContent = `@${username}`;
+            document.getElementById('totpSecretText').textContent = secret;
+            document.getElementById('totpQrCodeImg').src = qrUrl;
+            document.getElementById('setupTotpCodeInput').value = '';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('setupTotpCodeInput')?.focus(), 100);
+        };
+
+        window.handleDisableTotp = async (userId, username) => {
+            const ok = await confirmDialog(
+                'تعطيل المصادقة الثنائية 2FA',
+                `هل أنت تأكد من إلغاء تفعيل Google Authenticator لحساب @${username}؟`
+            );
+            if (!ok) return;
+
+            const res = await disableSuperAdminTotp(userId, currentSessionData?.user?.username || 'super_admin');
+            if (res?.success) {
+                showToast(res.message, 'success');
+                await renderSuperAdminUsersTable();
+                await renderSecurityAuditLogsTable();
+            } else {
+                showToast(res?.message || 'فشل التعطيل', 'error');
+            }
+        };
+
+        document.getElementById('setupTotpForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('setupTotpUserIdInput').value;
+            const secret = document.getElementById('setupTotpSecretInput').value;
+            const code = document.getElementById('setupTotpCodeInput').value.trim();
+
+            if (!code) return;
+
+            const res = await enableSuperAdminTotp(userId, secret, code);
+            if (res?.success) {
+                const setupModal = document.getElementById('setupTotpModal');
+                setupModal?.classList.add('hidden');
+                setupModal?.classList.remove('flex');
+
+                showToast(res.message || 'تم تفعيل الـ 2FA بنجاح 🔒', 'success');
+
+                const recoveryModal = document.getElementById('totpRecoveryCodesModal');
+                const grid = document.getElementById('recoveryCodesGrid');
+                if (recoveryModal && grid && res.recovery_codes) {
+                    grid.innerHTML = res.recovery_codes.map(c => `
+                        <div class="p-2 rounded bg-devo-dark border border-amber-500/30">${c}</div>
+                    `).join('');
+                    recoveryModal.classList.remove('hidden');
+                    recoveryModal.classList.add('flex');
+                }
+
+                await renderSuperAdminUsersTable();
+                await renderSecurityAuditLogsTable();
+            } else {
+                showToast(res?.message || 'رمز التحقق غير صحيح', 'error');
+            }
+        });
+
+        document.getElementById('copyTotpSecretBtn')?.addEventListener('click', () => {
+            const secret = document.getElementById('totpSecretText')?.textContent;
+            if (secret) {
+                navigator.clipboard.writeText(secret);
+                showToast('تم نسخ المفتاح السري للحافظة 📋', 'success');
+            }
+        });
+
+        document.getElementById('copyRecoveryCodesBtn')?.addEventListener('click', () => {
+            const grid = document.getElementById('recoveryCodesGrid');
+            if (grid) {
+                const text = Array.from(grid.children).map(el => el.textContent.trim()).join('\n');
+                navigator.clipboard.writeText(text);
+                showToast('تم نسخ جميع رموز الطوارئ للحافظة 📋', 'success');
+            }
+        });
+
+        document.getElementById('closeRecoveryCodesBtn')?.addEventListener('click', () => {
+            const modal = document.getElementById('totpRecoveryCodesModal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        });
+
+        document.getElementById('closeSetupTotpModalBtn')?.addEventListener('click', () => {
+            const modal = document.getElementById('setupTotpModal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        });
+
+        document.getElementById('cancelSetupTotpBtn')?.addEventListener('click', () => {
+            const modal = document.getElementById('setupTotpModal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        });
+
+        window.handleToggleSuperAdminStatus = async (userId, newStatus) => {
+            const ok = await confirmDialog(
+                newStatus ? 'تفعيل حساب السوبر أدمن' : 'تجميد حساب السوبر أدمن',
+                newStatus ? 'هل أنت تأكد من تفعيل هذا الحساب؟' : 'هل أنت متاكد من تجميد الحساب ومنعه من الوصول؟'
+            );
+            if (!ok) return;
+
+            const res = await toggleSuperAdminActiveStatus(userId, newStatus, currentSessionData.user.username);
+            if (res?.success) {
+                showToast(res.message, 'success');
+                await renderSuperAdminUsersTable();
+                await renderSecurityAuditLogsTable();
+            } else {
+                showToast(res?.message || 'فشل تغيير الحالة', 'error');
+            }
+        };
+
+        // Create Super Admin Modal Handlers & Event Delegation
+        const createSuperAdminModal = document.getElementById('createSuperAdminModal');
+        
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#openCreateSuperAdminModalBtn')) {
+                window.handleOpenCreateSuperAdminModal();
+            }
+        });
+
+        document.getElementById('openCreateSuperAdminModalBtn')?.addEventListener('click', window.handleOpenCreateSuperAdminModal);
+        document.getElementById('closeCreateSuperAdminModalBtn')?.addEventListener('click', () => {
+            createSuperAdminModal?.classList.add('hidden');
+            createSuperAdminModal?.classList.remove('flex');
+        });
+        document.getElementById('cancelCreateSuperAdminBtn')?.addEventListener('click', () => {
+            createSuperAdminModal?.classList.add('hidden');
+            createSuperAdminModal?.classList.remove('flex');
+        });
+
+        document.getElementById('createSuperAdminForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('newSuperAdminUsername').value.trim();
+            const full_name = document.getElementById('newSuperAdminFullName').value.trim();
+            const email = document.getElementById('newSuperAdminEmail').value.trim();
+            const password = document.getElementById('newSuperAdminPassword').value;
+            const security_pin = document.getElementById('newSuperAdminPin').value.trim();
+
+            const res = await createSuperAdminUser({ username, full_name, email, password, security_pin }, currentSessionData.user.username);
+            if (res?.success) {
+                showToast(res.message, 'success');
+                createSuperAdminModal.classList.add('hidden');
+                createSuperAdminModal.classList.remove('flex');
+                document.getElementById('createSuperAdminForm').reset();
+                await renderSuperAdminUsersTable();
+                await renderSecurityAuditLogsTable();
+            } else {
+                showToast(res?.message || 'فشل إنشاء الحساب', 'error');
+            }
+        });
+
+        // Edit Super Admin User Form Handler
+        const editSuperAdminModal = document.getElementById('editSuperAdminModal');
+        document.getElementById('closeEditSuperAdminModalBtn')?.addEventListener('click', () => {
+            editSuperAdminModal.classList.add('hidden');
+            editSuperAdminModal.classList.remove('flex');
+        });
+        document.getElementById('cancelEditSuperAdminBtn')?.addEventListener('click', () => {
+            editSuperAdminModal.classList.add('hidden');
+            editSuperAdminModal.classList.remove('flex');
+        });
+
+        document.getElementById('editSuperAdminForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = document.getElementById('editSuperAdminIdInput').value;
+            const username = document.getElementById('editSuperAdminUsername').value.trim().toLowerCase();
+            const fullName = document.getElementById('editSuperAdminFullName').value.trim();
+            const email = document.getElementById('editSuperAdminEmail').value.trim().toLowerCase();
+            const password = document.getElementById('editSuperAdminPassword').value;
+            const isActive = document.getElementById('editSuperAdminStatus').value === 'true';
+
+            try {
+                const updateData = {
+                    username: username,
+                    full_name: fullName,
+                    email: email,
+                    is_active: isActive
+                };
+
+                const { error: sysErr } = await supabase
+                    .from('system_users')
+                    .update(updateData)
+                    .eq('id', targetUserId);
+
+                if (sysErr) throw sysErr;
+
+                if (password && password.trim()) {
+                    await supabase.rpc('reset_tenant_owner_password', {
+                        p_user_id: targetUserId,
+                        p_new_password: password.trim()
+                    });
+                }
+
+                await logSecurityEvent(
+                    targetUserId, username, 'SUPER_ADMIN_UPDATED', 'MEDIUM',
+                    { updated_fields: updateData, password_changed: Boolean(password) }
+                );
+
+                showToast('تم تحديث بيانات حساب السوبر أدمن بنجاح!', 'success');
+                editSuperAdminModal.classList.add('hidden');
+                editSuperAdminModal.classList.remove('flex');
+                await renderSuperAdminUsersTable();
+                await renderSecurityAuditLogsTable();
+            } catch (err) {
+                showToast('فشل تحديث بيانات الحساب: ' + err.message, 'error');
+            }
+        });
+
+        // Change Security PIN Form Handler
+        const changePinModal = document.getElementById('changeSuperAdminPinModal');
+        document.getElementById('closeChangePinModalBtn')?.addEventListener('click', () => {
+            changePinModal.classList.add('hidden');
+            changePinModal.classList.remove('flex');
+        });
+        document.getElementById('cancelChangePinBtn')?.addEventListener('click', () => {
+            changePinModal.classList.add('hidden');
+            changePinModal.classList.remove('flex');
+        });
+
+        document.getElementById('changeSuperAdminPinForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = document.getElementById('changePinTargetUserIdInput').value;
+            const newPin = document.getElementById('newSecurityPinInput').value.trim();
+
+            if (!newPin) {
+                showToast('يرجى إدخال رمز PIN الماستر الجديد', 'error');
+                return;
+            }
+
+            const res = await updateSuperAdminPin(targetUserId, newPin, currentSessionData.user.username);
+            if (res?.success) {
+                showToast(res.message, 'success');
+                changePinModal.classList.add('hidden');
+                changePinModal.classList.remove('flex');
+                await renderSuperAdminUsersTable();
+                await renderSecurityAuditLogsTable();
+            } else {
+                showToast(res?.message || 'فشل تحديث الرمز', 'error');
+            }
+        });
+
+        // Security Audit Logs Listeners
+        document.getElementById('securityLogSeveritySelect')?.addEventListener('change', renderSecurityAuditLogsTable);
+        document.getElementById('securityLogSearchInput')?.addEventListener('input', renderSecurityAuditLogsTable);
+        document.getElementById('refreshSecurityLogsBtn')?.addEventListener('click', () => {
+            renderSecurityAuditLogsTable();
+            showToast('تم تحديث سجل التدقيق والأمان', 'info');
+        });
+
+        // Guard Overlay Form Handler
+        document.getElementById('guard-pin-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pinCode = document.getElementById('guard-pin-input').value.trim();
+            const errAlert = document.getElementById('guard-pin-error-alert');
+            const submitBtn = document.getElementById('guard-pin-submit-btn');
+
+            if (!pinCode) return;
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70');
+
+            const res = await verifySuperAdminPin(currentSessionData.user.id, pinCode);
+
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-70');
+
+            if (res && res.success) {
+                showToast('تم فك قفل الأمان وإثبات هوية السوبر أدمن بنجاح 🔒', 'success');
+                const overlay = document.getElementById('superAdminSecurityGuardOverlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                }
+            } else {
+                const msg = res?.message || 'رمز الحماية الماستر غير صحيح';
+                if (errAlert) {
+                    errAlert.textContent = msg;
+                    errAlert.classList.remove('hidden');
+                }
+                showToast(msg, 'error');
+                if (res?.locked) {
+                    submitBtn.disabled = true;
+                }
+            }
+        });
+
+        const handleSuperLogout = async () => {
+            const ok = await confirmDialog(
+                'تسجيل الخروج من بوابة الإدارة العليا',
+                'هل أنت تأكد من تسجيل الخروج وإنهاء جلسة السوبر أدمن الحالية؟'
+            );
+            if (!ok) return;
+
+            if (currentSessionData?.user?.id) {
+                revokeSuperAdminPinVerification(currentSessionData.user.id);
+                localStorage.removeItem(`super_admin_2fa_verified_${currentSessionData.user.id}`);
+            }
+
+            await logoutUser();
+            showToast('تم تسجيل الخروج بنجاح 👋', 'info');
+            setTimeout(() => {
+                window.location.href = 'super_auth.html';
+            }, 300);
+        };
+
+        function renderHumanReadableDetails(details) {
+            if (!details) return '<p class="text-devo-muted italic">لا توجد تفاصيل إضافية مسجلة.</p>';
+            
+            let parsedDetails = details;
+            if (typeof details === 'string') {
+                try {
+                    parsedDetails = JSON.parse(details);
+                } catch (e) {
+                    return `<div class="bg-devo-black/60 p-4 rounded-xl border border-devo-gray/40 text-white text-xs font-semibold leading-relaxed">${details}</div>`;
+                }
+            }
+
+            if (typeof parsedDetails !== 'object' || parsedDetails === null) {
+                return `<div class="bg-devo-black/60 p-4 rounded-xl border border-devo-gray/40 text-white text-xs font-semibold leading-relaxed">${parsedDetails}</div>`;
+            }
+
+            const keyTranslations = {
+                notes: 'بيان العملية والوصف',
+                message: 'رسالة التوضيح',
+                info: 'معلومات الفعالية',
+                description: 'الوصف التفصيلي',
+                action: 'نوع الإجراء',
+                invoice_number: 'رقم الفاتورة',
+                customer_name: 'اسم العميل',
+                phone: 'رقم الهاتف',
+                governorate: 'المحافظة / المدينة',
+                model_name: 'اسم الموديل',
+                factory_code: 'كود المصنع',
+                system_code: 'الكود النظامي',
+                price: 'السعر',
+                piece_price: 'سعر القطعة',
+                total_price: 'إجمالي الفاتورة',
+                deposit: 'مبلغ العربون',
+                remaining: 'المبلغ المتبقي',
+                count: 'عدد العناصر',
+                items_count: 'عدد القطع / العناصر',
+                total_series: 'إجمالي السريات',
+                total_cost: 'التكلفة الإجمالية',
+                supplier_name: 'اسم المورد',
+                credits: 'الكريديت المستهلك',
+                credits_deducted: 'الكريديت المستقطع',
+                remaining_credits: 'رصيد الكريديت المتبقي',
+                status: 'الحالة الجديدة',
+                old_status: 'الحالة السابقة',
+                assigned_worker: 'الموظف المسند إليه',
+                reason: 'السبب / الداعي',
+                category: 'التصنيف الرئيسي',
+                class: 'الفئة الفرعية',
+                size: 'المقاس',
+                color: 'اللون',
+                user_name: 'المُفَـذ / المسؤول',
+                user_role: 'صلاحية المستخدم',
+                tenant_id: 'معرف المصنع',
+                type: 'نوع البند / التعريف',
+                table_name: 'الجدول المستهدف',
+                operation_type: 'طبيعة العملية'
+            };
+
+            const actionTranslations = {
+                status_changed: 'تغيير حالة طلب',
+                status_change: 'تغيير حالة طلب',
+                created: 'إنشاء جديد',
+                create: 'إنشاء جديد',
+                updated: 'تعديل بيانات',
+                update: 'تعديل بيانات',
+                deleted: 'حذف عنصر',
+                delete: 'حذف عنصر',
+                bulk_edit: 'تعديل مجمع للموديلات',
+                excel_import: 'استيراد عبر ملف إكسيل',
+                recharge: 'شحن رصيد كريديت',
+                assigned: 'إسناد وتعيين',
+                locked: 'قفل واستلام',
+                unlocked: 'فك قفل'
+            };
+
+            let mainNotes = parsedDetails.notes || parsedDetails.message || parsedDetails.info || parsedDetails.description || '';
+            
+            const items = [];
+            for (const [key, value] of Object.entries(parsedDetails)) {
+                if (['notes', 'message', 'info', 'description'].includes(key) && mainNotes === value) continue;
+                if (value === null || value === undefined || value === '') continue;
+
+                const label = keyTranslations[key] || key;
+                let displayVal = value;
+
+                if (key === 'action' && actionTranslations[value]) {
+                    displayVal = actionTranslations[value];
+                } else if (typeof value === 'object') {
+                    displayVal = JSON.stringify(value, null, 2);
+                }
+
+                items.push(`
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-devo-black/50 border border-devo-gray/30 hover:border-devo-orange/30 transition-colors">
+                        <span class="text-devo-muted font-bold text-xs">${label}:</span>
+                        <span class="text-white font-extrabold text-xs dir-rtl text-right font-mono">${displayVal}</span>
+                    </div>
+                `);
+            }
+
+            return `
+                <div class="space-y-3.5">
+                    ${mainNotes ? `
+                        <div class="p-4 rounded-xl bg-gradient-to-r from-devo-orange/15 to-amber-500/10 border border-devo-orange/30 text-xs font-medium flex items-start gap-3 shadow-inner">
+                            <div class="w-8 h-8 rounded-lg bg-devo-orange/20 border border-devo-orange/40 flex items-center justify-center text-devo-orange shrink-0">
+                                <i class="ph ph-receipt-text text-lg"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-devo-orange font-black block text-[11px] uppercase tracking-wider">البيان الرسمي للعملية:</span>
+                                <p class="text-white leading-relaxed font-bold text-xs">${mainNotes}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${items.length > 0 ? `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-2">
+                            ${items.join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        window.renderHumanReadableDetails = renderHumanReadableDetails;
+
+        window.showAuditLogDetails = window.showAuditLogDetails || async function(id, fallbackObj = null) {
+            let log = fallbackObj;
+            if (!log && id) {
+                try {
+                    const { data } = await supabase.from('system_audit_logs').select('*').eq('id', id).maybeSingle();
+                    if (data) log = data;
+                } catch (e) {}
+            }
+            if (!log) {
+                if (typeof showToast === 'function') showToast('تعذر العثور على تفاصيل السجل', 'warning');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4';
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+            const detailsHtml = renderHumanReadableDetails(log.details);
+
+            modal.innerHTML = `
+                <div class="bg-devo-dark border border-devo-gray rounded-xl w-full max-w-xl p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200 dir-rtl text-right">
+                    <div class="flex items-center justify-between border-b border-devo-gray/50 pb-4 mb-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-receipt-text text-devo-orange text-xl"></i>
+                            تفاصيل سجل الفعالية
+                        </h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-devo-muted hover:text-white text-xl"><i class="ph ph-x"></i></button>
+                    </div>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="grid grid-cols-2 gap-3 bg-devo-black/50 p-3.5 rounded-lg border border-devo-gray/30">
+                            <div><span class="text-devo-muted block text-[11px] mb-0.5">التاريخ والوقت:</span> <span class="text-white font-mono font-bold">${log.created_at ? new Date(log.created_at).toLocaleString('ar-EG') : 'غير محدد'}</span></div>
+                            <div><span class="text-devo-muted block text-[11px] mb-0.5">المستخدم المسؤول:</span> <span class="text-devo-orange font-bold">${log.user_name || 'مستخدم النظام'} (${log.user_role || 'staff'})</span></div>
+                            <div><span class="text-devo-muted block text-[11px] mb-0.5">القسم / الموديول:</span> <span class="text-white font-bold">${log.module || 'نظامي'}</span></div>
+                            <div><span class="text-devo-muted block text-[11px] mb-0.5">نوع الإجراء:</span> <span class="text-white font-bold">${log.action_type || 'فعالية'}</span></div>
+                        </div>
+
+                        <div>
+                            <label class="text-white font-bold block mb-2 text-xs flex items-center gap-1.5">
+                                <i class="ph ph-list-bullets text-devo-orange"></i>
+                                تفاصيل وتوضيح العملية:
+                            </label>
+                            ${detailsHtml}
+                        </div>
+
+                        <details class="group mt-3">
+                            <summary class="cursor-pointer text-[11px] text-devo-muted hover:text-white flex items-center gap-1 font-mono select-none">
+                                <i class="ph ph-code"></i> عرض البيانات البرمجية الدقيقة (JSON Data)
+                            </summary>
+                            <pre class="mt-2 bg-devo-black p-3.5 rounded-lg border border-devo-gray/50 font-mono text-[10px] text-emerald-400 overflow-x-auto max-h-48 dir-ltr text-left">${JSON.stringify(log.details || {}, null, 2)}</pre>
+                        </details>
+                    </div>
+
+                    <div class="mt-6 text-left border-t border-devo-gray/30 pt-4">
+                        <button onclick="this.closest('.fixed').remove()" class="px-5 py-2 rounded-lg bg-devo-gray/50 hover:bg-devo-gray text-white text-xs font-bold transition-colors">إغلاق</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+
+        document.getElementById('superLogoutBtn')?.addEventListener('click', handleSuperLogout);
+        document.getElementById('sidebarLogoutBtn')?.addEventListener('click', handleSuperLogout);
+        document.getElementById('guard-logout-btn')?.addEventListener('click', handleSuperLogout);
     </script>
 </body>
 </html>

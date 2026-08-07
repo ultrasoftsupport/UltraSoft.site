@@ -598,51 +598,104 @@ export async function loadCreditsLogTable() {
     const tbody = document.getElementById('sub-credits-log-tbody');
     if (!tbody) return;
 
-    const currentTenantId = getCurrentTenantId();
+    const activeTenant = getCurrentTenant();
+    const currentTenantId = activeTenant?.id || getCurrentTenantId();
     if (!currentTenantId) return;
 
     tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center"><i class="ph ph-spinner animate-spin text-2xl text-purple-400"></i><p class="text-xs text-devo-muted mt-2">جاري تحميل سجل استهلاك الكريديت...</p></td></tr>`;
 
     try {
-        const { data: logs, error } = await supabase
-            .from('excel_credits_log')
-            .select('*')
-            .eq('tenant_id', currentTenantId)
+        // 1. جلب سجلات جدول الكريديت المباشر
+        let excelQuery = supabase.from('excel_credits_log').select('*');
+        if (currentTenantId) {
+            excelQuery = excelQuery.eq('tenant_id', currentTenantId);
+        }
+        const { data: excelLogs } = await excelQuery.order('created_at', { ascending: false }).limit(100);
+
+        // 2. جلب سجلات استهلاك الكريديت والفعاليات المرتبطة بالإكسيل والتعديلات المجمعة من سجل النظام
+        let auditQuery = supabase.from('system_audit_logs').select('*');
+        if (currentTenantId) {
+            auditQuery = auditQuery.eq('tenant_id', currentTenantId);
+        }
+        const { data: auditLogs } = await auditQuery
+            .or('module.in.(credits,excel_imports),action_type.in.(bulk_edit,excel_import,recharge)')
             .order('created_at', { ascending: false })
             .limit(100);
 
-        if (error) throw error;
+        // 3. توحيد ودمج السجلات في مصفوفة واحدة
+        const combinedMap = new Map();
 
-        if (!logs || logs.length === 0) {
+        (excelLogs || []).forEach(log => {
+            combinedMap.set(`excel_${log.id}`, {
+                id: log.id,
+                created_at: log.created_at,
+                operation_type: log.location_name || log.operation_type || 'استهلاك كريديت',
+                user_name: log.user_name,
+                credits_deducted: log.credits_deducted || 0,
+                remaining_balance_after: log.remaining_balance_after,
+                pricing_mode: log.pricing_mode,
+                items_count: log.items_count,
+                source: 'excel_credits_log'
+            });
+        });
+
+        (auditLogs || []).forEach(audit => {
+            const details = audit.details || {};
+            const creditsDeducted = details.credits_deducted || details.credits || details.deducted || details.consumed || 0;
+            const remaining = details.remaining_credits || details.remaining_balance || details.remaining || '-';
+
+            let title = details.notes || details.message || details.info || '';
+            if (!title) {
+                if (audit.action_type === 'bulk_edit') title = 'تعديلات مجمعة للموديلات';
+                else if (audit.action_type === 'excel_import') title = 'استيراد بيانات عبر Excel';
+                else if (audit.action_type === 'recharge') title = 'شحن رصيد الكريديت';
+                else title = 'عملية استهلاك كريديت';
+            }
+
+            combinedMap.set(`audit_${audit.id}`, {
+                id: audit.id,
+                audit_id: audit.id,
+                created_at: audit.created_at,
+                operation_type: title,
+                user_name: audit.user_name,
+                credits_deducted: creditsDeducted,
+                remaining_balance_after: remaining,
+                items_count: details.items_count || details.count || null,
+                source: 'system_audit_logs'
+            });
+        });
+
+        const sortedLogs = Array.from(combinedMap.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        if (sortedLogs.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-devo-muted italic">لا توجد عمليات استهلاك كريديت مسجلة مؤخراً.</td></tr>`;
             return;
         }
 
-        tbody.innerHTML = logs.map(log => {
-            const dateStr = new Date(log.created_at).toLocaleString('ar-EG');
-            const isExcelUpload = (log.operation_type && log.operation_type.includes('excel')) || (log.location_name && log.location_name.includes('إكسيل'));
-            const isFixed = log.pricing_mode === 'per_operation' || isExcelUpload;
+        const activeOwnerName = window.currentUserProfile?.full_name 
+            || window.currentUser?.full_name 
+            || localStorage.getItem('devo_user_fullname');
 
-            const modeLabel = isFixed ? 'خصم ثابت بالعملية' : 'خصم بحسب العدد';
+        tbody.innerHTML = sortedLogs.map(log => {
+            const dateStr = new Date(log.created_at).toLocaleString('ar-EG');
             const itemCountLabel = log.items_count ? `${log.items_count} عنصر` : '';
+            const modeLabel = log.source === 'excel_credits_log' ? 'سجل الكريديت' : 'سجل الفعاليات';
             const subText = [itemCountLabel, modeLabel].filter(Boolean).join(' • ');
 
             let displayName = log.user_name || 'مستخدم النظام';
-            const activeOwnerName = window.currentUserProfile?.full_name 
-                || window.currentUser?.full_name 
-                || localStorage.getItem('devo_user_fullname');
-
             if ((!displayName || displayName === 'admin' || displayName.includes('admin_') || displayName.includes('@')) && activeOwnerName) {
                 displayName = activeOwnerName;
             } else if (displayName.includes('@')) {
                 displayName = displayName.split('@')[0];
             }
 
+            const creditsText = log.credits_deducted > 0 ? `-${log.credits_deducted} ⚡` : (log.credits_deducted < 0 ? `+${Math.abs(log.credits_deducted)} ⚡` : 'خصم كريديت ⚡');
+
             return `
                 <tr class="hover:bg-devo-gray/30 transition-colors">
                     <td class="p-3.5 font-mono text-xs text-devo-muted font-bold">${dateStr}</td>
                     <td class="p-3.5">
-                        <span class="font-bold text-white block text-sm">${log.location_name || log.operation_type}</span>
+                        <span class="font-bold text-white block text-sm">${log.operation_type}</span>
                         <span class="text-xs text-devo-muted block mt-0.5">${subText}</span>
                     </td>
                     <td class="p-3.5 text-sm text-white font-extrabold">
@@ -652,10 +705,17 @@ export async function loadCreditsLogTable() {
                         </div>
                     </td>
                     <td class="p-3.5 font-black text-amber-400 text-sm">
-                        -${log.credits_deducted} ⚡
+                        ${creditsText}
                     </td>
-                    <td class="p-3.5 font-bold font-mono text-emerald-400 text-sm">
-                        ${log.remaining_balance_after === 99999 ? 'غير محدود ∞' : `${log.remaining_balance_after} كريديت`}
+                    <td class="p-3.5 text-xs text-devo-muted">
+                        <div class="flex items-center gap-2">
+                            ${log.items_count ? `<span class="px-2.5 py-1 rounded bg-devo-black/60 border border-devo-gray/40 text-devo-orange font-bold text-xs inline-flex items-center gap-1"><i class="ph ph-stack text-amber-400"></i> ${log.items_count} عنصر</span>` : `<span class="px-2.5 py-1 rounded bg-devo-black/40 text-devo-muted font-medium text-xs">عملية مجمعة</span>`}
+                            ${log.audit_id ? `
+                                <button onclick="window.showAuditLogDetails('${log.audit_id}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs font-bold border border-devo-gray/50 transition-colors inline-flex items-center gap-1">
+                                    <i class="ph ph-eye text-sm"></i> التفاصيل
+                                </button>
+                            ` : ''}
+                        </div>
                     </td>
                 </tr>
             `;

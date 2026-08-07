@@ -470,7 +470,8 @@ export function calculateOperationCredits(operationType, itemsCount, rules) {
  * ⚡ 6.6 خصم الكريديت وتوثيق العملية بسجل استهلاك الكريديت (Atomic Deduction & Audit Logging)
  */
 export async function deductTenantCredits(operationType, locationName, creditsToDeduct, itemsCount, tenantIdParam = null) {
-    const tenantId = tenantIdParam || getCurrentTenantId();
+    const activeTenant = getCurrentTenant();
+    const tenantId = tenantIdParam || activeTenant?.id || getCurrentTenantId();
     if (!tenantId) return { success: true, remaining: 99999, is_unlimited: true };
 
     const session = (await supabase.auth.getSession())?.data?.session;

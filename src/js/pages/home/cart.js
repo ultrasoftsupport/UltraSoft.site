@@ -4,6 +4,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js'; 
 import { printOrderCustomerInvoice } from '../../utils/print.js?v=2';
 import { getCurrentTenantId, getTenantOrderQuotaDetails } from '../../services/tenant_service.js';
+import { logAuditEvent } from '../../services/audit_service.js';
 
 function getTenantCartKey() {
     const tenantId = getCurrentTenantId() || 'default';
@@ -712,10 +713,22 @@ async function handleCheckout(e) {
         localStorage.removeItem('devo_edit_order_data_cache');
 
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
+        const totalItemsCount = orderItemsData.reduce((acc, item) => acc + (item.qty || 0), 0);
+        const orderMeta = {
+            invoice_number: rpcData.invoice_number,
+            customer_name: orderData.customer_name,
+            phone: orderData.customer_phone,
+            governorate: orderData.governorate,
+            total_price: orderData.total_price,
+            deposit: orderData.deposit || 0,
+            remaining: (orderData.total_price || 0) - (orderData.deposit || 0),
+            items_count: totalItemsCount
+        };
+
         if (finalEditingOrderId) {
-            await logOrderAction(orderIdToPrint, 'edited_in_cart', `تم تعديل أصناف الأوردر وإعادة حفظه من السلة بواسطة (${userName})`);
+            await logOrderAction(orderIdToPrint, 'edited_in_cart', `تعديل أصناف الطلب (#${rpcData.invoice_number}) وإعادة حفظه للعميل "${orderData.customer_name}" بواسطة (${userName})`, orderMeta);
         } else {
-            await logOrderAction(orderIdToPrint, 'created', `تم إنشاء الأوردر بواسطة (${userName})`);
+            await logOrderAction(orderIdToPrint, 'created', `إنشاء فاتورة طلب جديدة (#${rpcData.invoice_number}) للعميل "${orderData.customer_name}" بواسطة (${userName})`, orderMeta);
         }
 
         if (window.refreshWorkerOrders) {
@@ -805,7 +818,7 @@ async function showInvoiceModal(order, items) {
             .from('orders')
             .select(`
                 *,
-                system_users!worker_id (full_name),
+                system_users!orders_worker_id_fkey (full_name),
                 order_items (
                     *,
                     models (
@@ -825,7 +838,7 @@ async function showInvoiceModal(order, items) {
                 )
             `)
             .eq('id', order.id)
-            .single();
+            .maybeSingle();
             
         if (!error && o) {
             lastOrderForPrinting = o;
@@ -934,11 +947,26 @@ window.addEventListener('beforeunload', () => {
 });
 
 // دالة لتسجيل حركات وتعديلات الأوردرات بسجل الملاحظات (للسلة والمبيعات)
-async function logOrderAction(orderId, actionType, notes) {
+async function logOrderAction(orderId, actionType, notes, extraMeta = {}) {
     try {
         const userId = currentUser?.id || null;
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
         const currentTenantId = getCurrentTenantId();
+
+        const enrichedDetails = {
+            notes: notes,
+            action: actionType,
+            invoice_number: extraMeta.invoice_number ? `#${extraMeta.invoice_number}` : null,
+            customer_name: extraMeta.customer_name || null,
+            phone: extraMeta.phone || null,
+            governorate: extraMeta.governorate || null,
+            total_price: extraMeta.total_price ? `${extraMeta.total_price} ج.م` : null,
+            deposit: extraMeta.deposit ? `${extraMeta.deposit} ج.م` : '0 ج.م',
+            remaining: extraMeta.remaining !== undefined ? `${extraMeta.remaining} ج.م` : null,
+            items_count: extraMeta.items_count ? `${extraMeta.items_count} قطعة/سري` : null,
+            user_name: userName,
+            ...extraMeta
+        };
         
         const { error } = await supabase.from('order_logs').insert([{
             tenant_id: currentTenantId,
@@ -947,11 +975,23 @@ async function logOrderAction(orderId, actionType, notes) {
             user_name: userName,
             action_type: actionType,
             notes: notes,
-            details: notes
+            details: JSON.stringify(enrichedDetails)
         }]);
         if (error) {
             console.error('Database error inserting order log:', error);
         }
+
+        // 📝 تسـجيل الإجراء في سجلات النظام الشاملة
+        logAuditEvent({
+            module: 'orders',
+            actionType: actionType === 'created' ? 'create' : 'update',
+            entityType: 'order',
+            entityId: orderId,
+            details: enrichedDetails,
+            tenantIdParam: currentTenantId,
+            userNameParam: userName
+        }).catch(e => console.warn(e));
+
     } catch (err) {
         console.error('Error logging order action:', err);
     }

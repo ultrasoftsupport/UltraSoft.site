@@ -197,6 +197,8 @@
         </button>
     </div>
 
+    </div>
+
     <div id="toast-container" class="fixed bottom-6 left-6 z-[500] flex flex-col gap-3 pointer-events-none"></div>
 
     <script type="module">
@@ -240,8 +242,16 @@
 
         function handleUserRedirection(user) {
             const role = user.role;
-            const workerJob = user.worker_job;
             
+            // 🔒 حظر حسابات السوبر أدمن من صفحة المصانع العادية
+            if (role === 'super_admin') {
+                showToast('هذا الحساب يخص الإدارة العليا. يرجى التوجه لبوابة الدخول المخصصة للسوبر أدمن.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'super_auth.html';
+                }, 1500);
+                return;
+            }
+
             const tenantParam = new URLSearchParams(window.location.search).get('tenant');
             const appendTenant = (path) => path + (tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' ? '?tenant=' + tenantParam : '');
 
@@ -306,6 +316,15 @@
                         logoutUser();
                         return;
                     }
+
+                    if (user.role === 'super_admin') {
+                        // Prevent super admin from staying logged in on auth.html
+                        showToast('يرجى الدخول عبر بوابة الإدارة العليا المخصصة (super_auth.html)', 'info');
+                        setTimeout(() => {
+                            window.location.href = 'super_auth.html';
+                        }, 1200);
+                        return;
+                    }
                     
                     const activeSlug = activeTenant?.slug || 'default';
                     const freshSession = {
@@ -323,9 +342,14 @@
                         localStorage.setItem(`devo_session_${user.tenant_id}`, JSON.stringify(freshSession));
                     }
                     localStorage.setItem('devo_session', JSON.stringify(freshSession));
+
                     handleUserRedirection(freshSession);
                 } catch (e) {
-                    handleUserRedirection(session.user);
+                    if (session.user.role === 'super_admin') {
+                        window.location.href = 'super_auth.html';
+                    } else {
+                        handleUserRedirection(session.user);
+                    }
                 }
             }
         });
@@ -354,12 +378,22 @@
                 btnText.textContent = 'تسجيل الدخول';
                 btnIcon.className = 'ph ph-sign-in text-xl';
             } else {
-                // Success route
-                showToast('تم تسجيل الدخول بنجاح، جاري التوجيه...', 'success');
-                
-                setTimeout(() => {
-                    handleUserRedirection(user);
-                }, 1000);
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                btnText.textContent = 'تسجيل الدخول';
+                btnIcon.className = 'ph ph-sign-in text-xl';
+
+                if (user.role === 'super_admin') {
+                    showToast('هذا الحساب يخص الإدارة العليا، جاري التوجيه للبوابة المخصصة...', 'info');
+                    setTimeout(() => {
+                        window.location.href = 'super_auth.html';
+                    }, 1200);
+                } else {
+                    showToast('تم تسجيل الدخول بنجاح، جاري التوجيه...', 'success');
+                    setTimeout(() => {
+                        handleUserRedirection(user);
+                    }, 800);
+                }
             }
         });
     </script>
