@@ -391,7 +391,13 @@ function applyFilters() {
             if (m.is_active || totalQty >= 5) isMatch = false;
         }
 
-        if (term && !m.factory_code?.toLowerCase().includes(term) && !m.name?.toLowerCase().includes(term)) isMatch = false;
+        if (term) {
+            const cleanTerm = (term.startsWith('f') || term.startsWith('s')) && term.length > 1 ? term.slice(1) : term;
+            const matchesFactory = m.factory_code?.toLowerCase().includes(term) || m.factory_code?.toLowerCase().includes(cleanTerm) || ('f' + (m.factory_code || '')).toLowerCase().includes(term);
+            const matchesSystem = m.system_code?.toLowerCase().includes(term) || m.system_code?.toLowerCase().includes(cleanTerm) || ('s' + (m.system_code || '')).toLowerCase().includes(term);
+            const matchesName = m.name?.toLowerCase().includes(term);
+            if (!matchesFactory && !matchesSystem && !matchesName) isMatch = false;
+        }
         if (catId && m.category_id !== catId) isMatch = false;
         if (classId && m.class_id !== classId) isMatch = false;
         if (stockStatus === 'in_stock' && totalQty === 0) isMatch = false;

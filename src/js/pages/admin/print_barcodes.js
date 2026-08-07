@@ -754,13 +754,21 @@ window.generateAndPrintBulkBarcodes = () => {
             colorsList = [''];
         }
 
+        let targetVal = (valueSource === 'system' ? m.system_code : m.factory_code) || m.system_code || '0000000';
+        let formattedValue = String(targetVal).trim();
+        if (valueSource === 'system') {
+            if (!formattedValue.toUpperCase().startsWith('S')) formattedValue = 'S' + formattedValue;
+        } else {
+            if (!formattedValue.toUpperCase().startsWith('F')) formattedValue = 'F' + formattedValue;
+        }
+
         const baseLabel = {
             name: m.name,
             factory_code: m.factory_code,
             system_code: m.system_code,
             price: m.price,
             sizesStr: getModelSizesString(m),
-            value: (valueSource === 'system' ? m.system_code : m.factory_code) || m.system_code || '0000000'
+            value: formattedValue
         };
 
         if (qtyMode === 'by_color') {
@@ -1239,4 +1247,426 @@ window.deleteBarcodeTemplate = () => {
     window.loadBarcodeTemplate();
 
     showToast(`تم حذف قالب "${templateName}" بنجاح`, 'success');
+};
+
+// =========================================================================
+// 🌟 9. مولّد الباركود والـ QR المستقل (Standalone Generator) 🌟
+// =========================================================================
+
+let generatorState = {
+    selectedModel: null,
+    source: 'factory', // 'factory', 'system', 'link', 'custom'
+    type: 'barcode', // 'barcode', 'qrcode'
+    codeValue: '',
+    transparentBg: true,
+    centerLogo: false,
+    color: '#000000'
+};
+
+window.switchBarcodeSubTab = (tab) => {
+    const btnBulk = document.getElementById('btn-subtab-bulk');
+    const btnGen = document.getElementById('btn-subtab-generator');
+    const subtabBulk = document.getElementById('barcode-subtab-bulk');
+    const subtabGen = document.getElementById('barcode-subtab-generator');
+
+    if (tab === 'generator') {
+        if (subtabBulk) subtabBulk.classList.add('hidden');
+        if (subtabGen) subtabGen.classList.remove('hidden');
+
+        if (btnBulk) {
+            btnBulk.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-black text-devo-muted hover:text-white border border-transparent";
+        }
+        if (btnGen) {
+            btnGen.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md";
+        }
+
+        window.initStandaloneGenerator();
+    } else {
+        if (subtabGen) subtabGen.classList.add('hidden');
+        if (subtabBulk) subtabBulk.classList.remove('hidden');
+
+        if (btnGen) {
+            btnGen.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-black text-devo-muted hover:text-white border border-transparent";
+        }
+        if (btnBulk) {
+            btnBulk.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md";
+        }
+    }
+};
+
+window.initStandaloneGenerator = async () => {
+    try {
+        await loadPrintingLibraries();
+    } catch(e) {
+        console.error("Error loading barcode libs:", e);
+    }
+
+    if (!barcodeAllModels || barcodeAllModels.length === 0) {
+        fetchBarcodeModels().then(() => {
+            window.updateStandaloneGenerator();
+        });
+    } else {
+        window.updateStandaloneGenerator();
+    }
+};
+
+window.onGeneratorModelSearchInput = (field) => {
+    const suggestionsEl = document.getElementById('gen-model-suggestions');
+    if (!suggestionsEl) return;
+
+    let term = '';
+    if (field === 'factory') term = document.getElementById('gen-model-factory-input')?.value.toLowerCase().trim() || '';
+    if (field === 'system') term = document.getElementById('gen-model-system-input')?.value.toLowerCase().trim() || '';
+    if (field === 'name') term = document.getElementById('gen-model-name-input')?.value.toLowerCase().trim() || '';
+
+    if (!term) {
+        suggestionsEl.classList.add('hidden');
+        return;
+    }
+
+    const matches = barcodeAllModels.filter(m => {
+        if (field === 'factory') return m.factory_code?.toLowerCase().includes(term);
+        if (field === 'system') return m.system_code?.toLowerCase().includes(term);
+        if (field === 'name') return m.name?.toLowerCase().includes(term);
+        return false;
+    }).slice(0, 10);
+
+    if (matches.length === 0) {
+        suggestionsEl.innerHTML = `<div class="p-2 text-center text-xs text-devo-muted">لا يوجد موديل مطابق</div>`;
+        suggestionsEl.classList.remove('hidden');
+        return;
+    }
+
+    suggestionsEl.innerHTML = matches.map(m => `
+        <div onclick="selectGeneratorModel('${m.id}')" class="p-2 hover:bg-devo-black rounded cursor-pointer transition-colors flex justify-between items-center text-xs">
+            <span class="font-bold text-white">${m.name}</span>
+            <div class="flex items-center gap-2 text-[11px] font-mono text-devo-orange">
+                ${m.factory_code ? `<span>مصنع: F${m.factory_code}</span>` : ''}
+                ${m.system_code ? `<span>سيستم: S${m.system_code}</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+    suggestionsEl.classList.remove('hidden');
+};
+
+window.selectGeneratorModel = (modelId) => {
+    const model = barcodeAllModels.find(m => m.id === modelId);
+    if (!model) return;
+
+    generatorState.selectedModel = model;
+
+    const facInput = document.getElementById('gen-model-factory-input');
+    const sysInput = document.getElementById('gen-model-system-input');
+    const nameInput = document.getElementById('gen-model-name-input');
+    const suggestionsEl = document.getElementById('gen-model-suggestions');
+    const codeInput = document.getElementById('gen-code-input');
+
+    if (facInput) facInput.value = model.factory_code || '';
+    if (sysInput) sysInput.value = model.system_code || '';
+    if (nameInput) nameInput.value = model.name || '';
+    if (suggestionsEl) suggestionsEl.classList.add('hidden');
+
+    if (codeInput) {
+        if (generatorState.source === 'factory') codeInput.value = model.factory_code || '';
+        else if (generatorState.source === 'system') codeInput.value = model.system_code || '';
+        else codeInput.value = model.name || '';
+    }
+
+    window.updateStandaloneGenerator();
+};
+
+window.clearGeneratorModelSelection = () => {
+    generatorState.selectedModel = null;
+
+    const facInput = document.getElementById('gen-model-factory-input');
+    const sysInput = document.getElementById('gen-model-system-input');
+    const nameInput = document.getElementById('gen-model-name-input');
+    const codeInput = document.getElementById('gen-code-input');
+    const suggestionsEl = document.getElementById('gen-model-suggestions');
+
+    if (facInput) facInput.value = '';
+    if (sysInput) sysInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (codeInput) codeInput.value = '';
+    if (suggestionsEl) suggestionsEl.classList.add('hidden');
+
+    window.updateStandaloneGenerator();
+};
+
+window.setGeneratorSource = (source) => {
+    generatorState.source = source;
+
+    const sources = ['factory', 'system', 'link', 'custom'];
+    sources.forEach(src => {
+        const btn = document.getElementById(`gen-src-btn-${src}`);
+        if (!btn) return;
+        if (src === source) {
+            btn.className = "gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-orange/20 border-devo-orange text-devo-orange";
+        } else {
+            btn.className = "gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-black border-devo-gray text-devo-muted hover:text-white";
+        }
+    });
+
+    const prefixBadge = document.getElementById('gen-code-prefix-badge');
+    const codeInput = document.getElementById('gen-code-input');
+
+    if (source === 'factory') {
+        if (prefixBadge) {
+            prefixBadge.textContent = 'F';
+            prefixBadge.classList.remove('hidden');
+        }
+        if (codeInput) codeInput.placeholder = "أدخل كود المصنع فقط (مثال: 5556)...";
+    } else if (source === 'system') {
+        if (prefixBadge) {
+            prefixBadge.textContent = 'S';
+            prefixBadge.classList.remove('hidden');
+        }
+        if (codeInput) codeInput.placeholder = "أدخل كود السيستم فقط (مثال: 5556)...";
+    } else if (source === 'link') {
+        if (prefixBadge) prefixBadge.classList.add('hidden');
+        if (codeInput) codeInput.placeholder = "أدخل الرابط المباشر (https://...)...";
+    } else {
+        if (prefixBadge) prefixBadge.classList.add('hidden');
+        if (codeInput) codeInput.placeholder = "أدخل أي نص مخصص...";
+    }
+
+    if (generatorState.selectedModel && codeInput) {
+        if (source === 'factory') codeInput.value = generatorState.selectedModel.factory_code || '';
+        else if (source === 'system') codeInput.value = generatorState.selectedModel.system_code || '';
+    }
+
+    window.updateStandaloneGenerator();
+};
+
+window.setGeneratorType = (type) => {
+    generatorState.type = type;
+
+    const btnQrcode = document.getElementById('gen-type-btn-qrcode');
+    const btnBarcode = document.getElementById('gen-type-btn-barcode');
+    const logoLabel = document.getElementById('gen-logo-checkbox-label');
+
+    if (type === 'qrcode') {
+        if (btnQrcode) btnQrcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-orange border-devo-orange text-white shadow-md";
+        if (btnBarcode) btnBarcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-black border-devo-gray text-devo-muted hover:text-white";
+        if (logoLabel) logoLabel.classList.remove('opacity-50', 'pointer-events-none');
+    } else {
+        if (btnBarcode) btnBarcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-orange border-devo-orange text-white shadow-md";
+        if (btnQrcode) btnQrcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-black border-devo-gray text-devo-muted hover:text-white";
+        if (logoLabel) logoLabel.classList.add('opacity-50', 'pointer-events-none');
+    }
+
+    window.updateStandaloneGenerator();
+};
+
+function getEffectiveEncodedCode() {
+    const rawVal = document.getElementById('gen-code-input')?.value.trim() || '';
+    if (!rawVal) {
+        return generatorState.source === 'factory' ? 'F101' : (generatorState.source === 'system' ? 'S101' : '101');
+    }
+
+    if (generatorState.source === 'factory') {
+        if (rawVal.toUpperCase().startsWith('F')) return rawVal.toUpperCase();
+        return 'F' + rawVal;
+    } else if (generatorState.source === 'system') {
+        if (rawVal.toUpperCase().startsWith('S')) return rawVal.toUpperCase();
+        return 'S' + rawVal;
+    } else {
+        return rawVal;
+    }
+}
+
+window.updateStandaloneGenerator = () => {
+    const effectiveCode = getEffectiveEncodedCode();
+    const lengthBadge = document.getElementById('gen-code-length-badge');
+    if (lengthBadge) {
+        lengthBadge.textContent = `${effectiveCode.length} حرف (${effectiveCode})`;
+    }
+
+    const color = document.getElementById('gen-code-color')?.value || '#000000';
+    const isTransparent = document.getElementById('gen-transparent-bg')?.checked ?? true;
+    const centerLogo = document.getElementById('gen-center-logo')?.checked ?? false;
+
+    const barcodeSvg = document.getElementById('gen-barcode-svg');
+    const qrcodeImg = document.getElementById('gen-qrcode-img');
+    const previewCard = document.getElementById('gen-preview-card');
+
+    if (previewCard) {
+        if (isTransparent) {
+            previewCard.className = "bg-transparent p-6 rounded-xl shadow-2xl max-w-full flex flex-col items-center justify-center transition-all duration-300 border border-dashed border-devo-gray/50";
+        } else {
+            previewCard.className = "bg-white p-6 rounded-xl shadow-2xl max-w-full flex flex-col items-center justify-center transition-all duration-300";
+        }
+    }
+
+    if (generatorState.type === 'barcode') {
+        if (qrcodeImg) qrcodeImg.classList.add('hidden');
+        if (barcodeSvg) {
+            barcodeSvg.classList.remove('hidden');
+            try {
+                if (typeof JsBarcode !== 'undefined') {
+                    JsBarcode(barcodeSvg, effectiveCode, {
+                        format: "CODE128",
+                        width: 3.5,
+                        height: 140,
+                        lineColor: color,
+                        background: isTransparent ? "transparent" : "#ffffff",
+                        displayValue: true,
+                        fontSize: 18,
+                        textMargin: 8,
+                        margin: 15
+                    });
+                }
+            } catch(e) {
+                console.error("Standalone JsBarcode error:", e);
+            }
+        }
+    } else {
+        if (barcodeSvg) barcodeSvg.classList.add('hidden');
+        if (qrcodeImg) {
+            qrcodeImg.classList.remove('hidden');
+            if (typeof QRCode !== 'undefined') {
+                QRCode.toDataURL(effectiveCode, {
+                    width: 350,
+                    margin: 1,
+                    color: {
+                        dark: color,
+                        light: isTransparent ? '#00000000' : '#FFFFFF'
+                    }
+                }).then(url => {
+                    qrcodeImg.src = url;
+                }).catch(err => {
+                    console.error("Standalone QRCode error:", err);
+                    qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(effectiveCode)}`;
+                });
+            } else {
+                qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(effectiveCode)}`;
+            }
+        }
+    }
+
+    const dimBadge = document.getElementById('gen-preview-dimensions');
+    if (dimBadge) {
+        dimBadge.textContent = generatorState.type === 'barcode' ? '2560 × 1360 px' : '1360 × 1360 px';
+    }
+};
+
+async function generateHighResCanvas() {
+    const effectiveCode = getEffectiveEncodedCode();
+    const color = document.getElementById('gen-code-color')?.value || '#000000';
+    const isTransparent = document.getElementById('gen-transparent-bg')?.checked ?? true;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 2560;
+    canvas.height = 1360;
+    const ctx = canvas.getContext('2d');
+
+    if (!isTransparent) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    if (generatorState.type === 'barcode') {
+        const tempCanvas = document.createElement('canvas');
+        if (typeof JsBarcode !== 'undefined') {
+            JsBarcode(tempCanvas, effectiveCode, {
+                format: "CODE128",
+                width: 8,
+                height: 500,
+                lineColor: color,
+                background: isTransparent ? "transparent" : "#ffffff",
+                displayValue: true,
+                fontSize: 48,
+                textMargin: 20,
+                margin: 40
+            });
+        }
+        const aspect = tempCanvas.width / tempCanvas.height;
+        let targetH = 900;
+        let targetW = targetH * aspect;
+        if (targetW > 2300) {
+            targetW = 2300;
+            targetH = targetW / aspect;
+        }
+        const x = (canvas.width - targetW) / 2;
+        const y = (canvas.height - targetH) / 2;
+        ctx.drawImage(tempCanvas, x, y, targetW, targetH);
+    } else {
+        const tempCanvas = document.createElement('canvas');
+        if (typeof QRCode !== 'undefined') {
+            await QRCode.toCanvas(tempCanvas, effectiveCode, {
+                width: 1000,
+                margin: 2,
+                color: {
+                    dark: color,
+                    light: isTransparent ? '#00000000' : '#ffffff'
+                }
+            });
+        }
+        const size = 1000;
+        const x = (canvas.width - size) / 2;
+        const y = (canvas.height - size) / 2;
+        ctx.drawImage(tempCanvas, x, y, size, size);
+    }
+
+    return canvas;
+}
+
+window.copyGeneratorImageToClipboard = async () => {
+    try {
+        const canvas = await generateHighResCanvas();
+        canvas.toBlob(async (blob) => {
+            if (!blob) return showToast('تعذر معالجة الصورة للنسخ', 'error');
+            try {
+                const item = new ClipboardItem({ 'image/png': blob });
+                await navigator.clipboard.write([item]);
+                showToast('تم نسخ صورة الباركود إلى الحافظة بنجاح! 📋', 'success');
+            } catch (err) {
+                console.error("Clipboard write error:", err);
+                showToast('نسخ الصورة غير مدعوم مباشرة في هذا المتصفح، يمكنك تحميلها كـ PNG', 'warning');
+            }
+        });
+    } catch (e) {
+        console.error("Copy error:", e);
+        showToast('حدث خطأ أثناء إنشاء الصورة للنسخ', 'error');
+    }
+};
+
+window.downloadGeneratorImage = async (format) => {
+    const effectiveCode = getEffectiveEncodedCode();
+    const fileName = `barcode_${effectiveCode}.${format}`;
+
+    if (format === 'svg' && generatorState.type === 'barcode') {
+        const svgEl = document.getElementById('gen-barcode-svg');
+        if (svgEl) {
+            const svgData = new XMLSerializer().serializeToString(svgEl);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`تم تحميل ملف SVG بنجاح! 📐`, 'success');
+            return;
+        }
+    }
+
+    try {
+        const canvas = await generateHighResCanvas();
+        const url = canvas.toDataURL(`image/${format === 'svg' ? 'png' : format}`);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast(`تم تحميل صورة ${format.toUpperCase()} بنجاح! 📥`, 'success');
+    } catch(e) {
+        console.error("Download error:", e);
+        showToast('حدث خطأ أثناء تحميل الصورة', 'error');
+    }
 };

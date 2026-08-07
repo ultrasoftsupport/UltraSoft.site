@@ -1673,7 +1673,21 @@
 <div id="view-print-barcodes" class="view-section hidden h-full">
     <div class="animate-fade-in relative h-full flex flex-col space-y-4">
         
-        <div class="bg-devo-dark border border-devo-gray rounded-xl shadow-sm shrink-0 transition-all duration-300">
+        <!-- Navigation Subtabs Bar -->
+        <div class="flex items-center gap-2 bg-devo-dark/90 p-1.5 rounded-xl border border-devo-gray shrink-0 shadow-sm">
+            <button id="btn-subtab-bulk" type="button" onclick="switchBarcodeSubTab('bulk')" class="flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md">
+                <i class="ph ph-printer text-lg"></i>
+                <span>تصدير وطباعة الملصقات المجمعة 🏷️</span>
+            </button>
+            <button id="btn-subtab-generator" type="button" onclick="switchBarcodeSubTab('generator')" class="flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-black text-devo-muted hover:text-white border border-transparent">
+                <i class="ph ph-qr-code text-lg"></i>
+                <span>مولّد الباركود والـ QR المستقل 🔳</span>
+            </button>
+        </div>
+
+        <!-- SUBTAB 1: BULK BARCODES & MODEL HUNTER -->
+        <div id="barcode-subtab-bulk" class="flex-1 flex flex-col space-y-4">
+            <div class="bg-devo-dark border border-devo-gray rounded-xl shadow-sm shrink-0 transition-all duration-300">
             <div class="p-4 flex justify-between items-center cursor-pointer select-none border-b border-transparent hover:border-devo-gray/50 transition-colors" onclick="toggleBarcodeFilters()">
                 <h2 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
                     <i class="ph ph-funnel text-devo-orange"></i> صياد الموديلات (فلترة متقدمة للباركود)
@@ -1875,6 +1889,171 @@
                         <i class="ph ph-printer text-lg"></i> تجهيز وطباعة الباركود للمحدد 🏷️
                     </button>
                 </div>
+            </div>
+        </div>
+        </div> <!-- End of barcode-subtab-bulk -->
+
+        <!-- SUBTAB 2: STANDALONE BARCODE AND QR GENERATOR -->
+        <div id="barcode-subtab-generator" class="hidden flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar pb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- RIGHT COLUMN: CONTROLS & INPUTS (lg:col-span-7) -->
+                <div class="lg:col-span-7 flex flex-col gap-4">
+                    
+                    <!-- 1. اختيار موديل من السيستم -->
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b border-devo-gray/50 pb-2">
+                            <h3 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
+                                <i class="ph ph-magnifying-glass text-devo-orange"></i>
+                                <span>اختيار موديل من السيستم</span>
+                            </h3>
+                            <button type="button" onclick="clearGeneratorModelSelection()" class="text-xs text-devo-muted hover:text-devo-orange transition-colors flex items-center gap-1">
+                                <i class="ph ph-x-circle"></i>
+                                <span>مسح الاختيار</span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <input type="text" id="gen-model-factory-input" placeholder="كود المصنع (مثال: 63)..." autocomplete="off" oninput="onGeneratorModelSearchInput('factory')" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white outline-none focus:border-devo-orange text-xs">
+                                </div>
+                                <div>
+                                    <input type="text" id="gen-model-system-input" placeholder="كود السيستم (مثال: 63)..." autocomplete="off" oninput="onGeneratorModelSearchInput('system')" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white outline-none focus:border-devo-orange text-xs">
+                                </div>
+                                <div>
+                                    <input type="text" id="gen-model-name-input" placeholder="اسم الموديل..." autocomplete="off" oninput="onGeneratorModelSearchInput('name')" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white outline-none focus:border-devo-orange text-xs">
+                                </div>
+                            </div>
+                            <!-- Suggestions Dropdown -->
+                            <div id="gen-model-suggestions" class="hidden absolute top-full right-0 left-0 mt-1 bg-devo-dark border border-devo-gray rounded-lg p-2 z-50 shadow-devo-float max-h-48 overflow-y-auto custom-scrollbar flex flex-col gap-1"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. مصدر ونوع الكود المراد تشفيره -->
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 shadow-sm space-y-3">
+                        <label class="block text-xs font-bold text-devo-muted">مصدر ونوع الكود المراد تشفيره:</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <button type="button" id="gen-src-btn-factory" onclick="setGeneratorSource('factory')" class="gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-orange/20 border-devo-orange text-devo-orange">
+                                <span>كود المصنع 🏷️</span>
+                            </button>
+                            <button type="button" id="gen-src-btn-system" onclick="setGeneratorSource('system')" class="gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-black border-devo-gray text-devo-muted hover:text-white">
+                                <span>كود السيستم ⚙️</span>
+                            </button>
+                            <button type="button" id="gen-src-btn-link" onclick="setGeneratorSource('link')" class="gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-black border-devo-gray text-devo-muted hover:text-white">
+                                <span>رابط مباشر 🌐</span>
+                            </button>
+                            <button type="button" id="gen-src-btn-custom" onclick="setGeneratorSource('custom')" class="gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-black border-devo-gray text-devo-muted hover:text-white">
+                                <span>نص مخصص ✍️</span>
+                            </button>
+                        </div>
+
+                        <!-- 3. نص الكود المراد تشفيره -->
+                        <div class="space-y-1 pt-2">
+                            <div class="flex justify-between items-center text-xs font-bold">
+                                <span class="text-devo-muted">نص الكود المراد تشفيره:</span>
+                                <span id="gen-code-length-badge" class="text-devo-orange font-mono text-[11px]">0 حرف</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span id="gen-code-prefix-badge" class="px-4 py-3 bg-devo-orange/20 border border-l-0 border-devo-orange/40 text-devo-orange font-bold font-mono text-sm rounded-r-xl shrink-0">F</span>
+                                <input type="text" id="gen-code-input" placeholder="أدخل كود المصنع فقط (مثال: 5556)..." oninput="updateStandaloneGenerator()" class="w-full bg-devo-black border border-devo-gray rounded-l-xl px-3 py-2.5 text-white font-mono text-sm outline-none focus:border-devo-orange transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. نوع الرمز المطلوب -->
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 shadow-sm space-y-3">
+                        <label class="block text-xs font-bold text-devo-muted">نوع الرمز المطلوب:</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="gen-type-btn-qrcode" onclick="setGeneratorType('qrcode')" class="gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-black border-devo-gray text-devo-muted hover:text-white">
+                                <i class="ph ph-qr-code text-lg"></i>
+                                <span>QR Code</span>
+                            </button>
+                            <button type="button" id="gen-type-btn-barcode" onclick="setGeneratorType('barcode')" class="gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-orange border-devo-orange text-white shadow-md">
+                                <i class="ph ph-barcode text-lg"></i>
+                                <span>باركود شريطي</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5. التخصيص والمظهر الخاص بالصورة -->
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b border-devo-gray/50 pb-2">
+                            <h4 class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
+                                <i class="ph ph-sliders text-devo-orange"></i>
+                                <span>التخصيص والمظهر الخاص بالصورة</span>
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-devo-muted font-bold">لون الرمز:</span>
+                                <input type="color" id="gen-code-color" value="#000000" onchange="updateStandaloneGenerator()" class="w-7 h-7 rounded border border-devo-gray bg-devo-black cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <label class="flex items-center justify-between bg-devo-black border border-devo-gray rounded-xl px-4 py-3 cursor-pointer text-xs font-bold text-white select-none hover:border-devo-orange/50 transition-all">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-3.5 h-3.5 rounded bg-purple-600 inline-block"></span>
+                                    <span>خلفية شفافة (PNG)</span>
+                                </span>
+                                <input type="checkbox" id="gen-transparent-bg" checked onchange="updateStandaloneGenerator()" class="accent-devo-orange w-4 h-4 rounded">
+                            </label>
+                            <label id="gen-logo-checkbox-label" class="flex items-center justify-between bg-devo-black border border-devo-gray rounded-xl px-4 py-3 cursor-pointer text-xs font-bold text-white select-none opacity-50 pointer-events-none hover:border-devo-orange/50 transition-all">
+                                <span class="flex items-center gap-2">
+                                    <i class="ph ph-globe text-devo-info text-sm"></i>
+                                    <span>شعار بالمنتصف</span>
+                                </span>
+                                <input type="checkbox" id="gen-center-logo" onchange="updateStandaloneGenerator()" class="accent-devo-orange w-4 h-4 rounded">
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- LEFT COLUMN: LIVE HIGH-RES PREVIEW & EXPORT ACTIONS (lg:col-span-5) -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                    <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
+                                <i class="ph ph-eye text-devo-orange"></i>
+                                <span>المعاينة المباشرة (High-Res)</span>
+                            </h3>
+                            <span id="gen-preview-dimensions" class="text-[11px] bg-devo-orange/10 border border-devo-orange/30 text-devo-orange font-mono px-2 py-0.5 rounded">2560 × 1360 px</span>
+                        </div>
+
+                        <!-- Canvas Box with Dotted Grid Background -->
+                        <div class="relative bg-devo-black/90 border border-devo-gray/60 rounded-2xl p-6 min-h-[300px] flex items-center justify-center overflow-hidden shadow-inner bg-[radial-gradient(#ffffff22_1px,transparent_1px)] [background-size:16px_16px]">
+                            <!-- SVG or Image Container -->
+                            <div id="gen-preview-card" class="bg-white p-6 rounded-xl shadow-2xl max-w-full flex flex-col items-center justify-center transition-all duration-300">
+                                <svg id="gen-barcode-svg" class="max-w-full hidden"></svg>
+                                <img id="gen-qrcode-img" class="max-w-full hidden" alt="QR Code">
+                                <canvas id="gen-highres-canvas" class="hidden"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Info Banner -->
+                        <div class="bg-devo-black/60 border border-devo-gray/40 rounded-xl p-3 text-center text-xs text-devo-muted flex items-center justify-center gap-2">
+                            <i class="ph ph-info text-devo-orange text-sm shrink-0"></i>
+                            <span>رمز مخصص نشط ( نسخ الصورة لاستخدامها بأي تصميم)</span>
+                        </div>
+
+                        <!-- Big Orange Action Button: Copy Image -->
+                        <button type="button" id="btn-gen-copy-image" onclick="copyGeneratorImageToClipboard()" class="w-full py-3.5 bg-devo-orange hover:bg-devo-orangeHover text-white font-bold rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 active:scale-98">
+                            <i class="ph ph-copy text-lg"></i>
+                            <span>نسخ صورة الباركود</span>
+                        </button>
+
+                        <!-- Download Buttons Row -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="downloadGeneratorImage('png')" class="py-2.5 bg-devo-black hover:bg-devo-gray border border-devo-gray text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                                <i class="ph ph-download-simple text-base text-devo-orange"></i>
+                                <span>PNG 📥</span>
+                            </button>
+                            <button type="button" onclick="downloadGeneratorImage('svg')" class="py-2.5 bg-devo-black hover:bg-devo-gray border border-devo-gray text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                                <i class="ph ph-pen-nib text-base text-devo-orange"></i>
+                                <span>SVG 📐</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 

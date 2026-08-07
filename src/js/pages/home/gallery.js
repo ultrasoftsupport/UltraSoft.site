@@ -877,10 +877,36 @@ function updateFloatingCart() {
 
 export function findModelByCode(code, matchType = 'both') {
     if (!code) return null;
-    const cleanCode = code.trim().toLowerCase();
+    const cleanCode = code.trim();
+    const upperCode = cleanCode.toUpperCase();
+    const lowerClean = cleanCode.toLowerCase();
+
+    // 1. Check if barcode starts with 'S' prefix (System Code)
+    if (upperCode.startsWith('S') && cleanCode.length > 1) {
+        const baseCode = cleanCode.slice(1).trim().toLowerCase();
+        const found = allModels.find(m => {
+            if (!m.system_code) return false;
+            const sysStr = m.system_code.toString().trim().toLowerCase();
+            return sysStr === baseCode || ('s' + sysStr) === lowerClean || sysStr === lowerClean;
+        });
+        if (found) return found;
+    }
+
+    // 2. Check if barcode starts with 'F' prefix (Factory Code)
+    if (upperCode.startsWith('F') && cleanCode.length > 1) {
+        const baseCode = cleanCode.slice(1).trim().toLowerCase();
+        const found = allModels.find(m => {
+            if (!m.factory_code) return false;
+            const facStr = m.factory_code.toString().trim().toLowerCase();
+            return facStr === baseCode || ('f' + facStr) === lowerClean || facStr === lowerClean;
+        });
+        if (found) return found;
+    }
+
+    // 3. Fallback matching (legacy barcodes or raw numbers)
     return allModels.find(m => {
-        const isSystemMatch = m.system_code && m.system_code.toString().toLowerCase() === cleanCode;
-        const isFactoryMatch = m.factory_code && m.factory_code.toString().toLowerCase() === cleanCode;
+        const isSystemMatch = m.system_code && m.system_code.toString().toLowerCase() === lowerClean;
+        const isFactoryMatch = m.factory_code && m.factory_code.toString().toLowerCase() === lowerClean;
         
         if (matchType === 'system') {
             return isSystemMatch;

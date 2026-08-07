@@ -3535,7 +3535,9 @@
                     let displayName = log.user_name || 'مستخدم النظام';
                     if (displayName.includes('@')) displayName = displayName.split('@')[0];
 
-                    const creditsText = log.credits_deducted > 0 ? `-${log.credits_deducted} ⚡` : (log.credits_deducted < 0 ? `+${Math.abs(log.credits_deducted)} ⚡` : 'خصم كريديت ⚡');
+                    const isAddition = log.credits_deducted < 0;
+                    const creditsText = log.credits_deducted > 0 ? `-${log.credits_deducted} ⚡` : (isAddition ? `+${Math.abs(log.credits_deducted)} ⚡` : 'خصم كريديت ⚡');
+                    const creditsColorClass = isAddition ? 'text-emerald-400 font-extrabold' : 'text-amber-400 font-black';
 
                     return `
                         <tr class="hover:bg-devo-gray/30 transition-colors">
@@ -3550,7 +3552,7 @@
                                     <span>${displayName}</span>
                                 </div>
                             </td>
-                            <td class="p-3 font-black text-amber-400 text-xs">
+                            <td class="p-3 text-xs ${creditsColorClass}">
                                 ${creditsText}
                             </td>
                             <td class="p-3 text-xs text-devo-muted">
@@ -4080,7 +4082,6 @@
             });
         }
 
-        // ⚡ زر شحن الكريديت للمصنع من السوبر أدمن
         const btnRecharge = document.getElementById('btnRechargeTenantCredits');
         if (btnRecharge) {
             btnRecharge.onclick = async () => {
@@ -4103,20 +4104,25 @@
                     const { data, error } = await supabase.rpc('add_credits_to_tenant', {
                         p_tenant_id: activeSelectedTenant.id,
                         p_credits_to_add: amount,
-                        p_user_name: 'Super Admin'
+                        p_user_name: 'إدارة المنظومة (UltraSoft)'
                     });
 
                     if (error) throw error;
-                    showToast(`تم شحن ${amount} كريديت إضافي بنجاح للمصنع! الرصيد المتبقي الجديد: ${data.remaining}`, 'success');
+                    showToast(`تم شحن ${amount} كريديت إضافي بنجاح للمصنع! رصيد الكريديت المكتمل الجديد: ${data.new_monthly || data.remaining}`, 'success');
 
-                    const currentVal = parseInt(document.getElementById('modalInputExcelCredits').value) || 0;
-                    if (currentVal !== -1 && currentVal < 99999) {
-                        document.getElementById('modalInputExcelCredits').value = currentVal + amount;
+                    const modalInput = document.getElementById('modalInputExcelCredits');
+                    if (modalInput && data.new_monthly) {
+                        modalInput.value = data.new_monthly;
                     }
+
                     if (activeSelectedTenant) {
-                        initSuperAdminFactorySubscriptionView(activeSelectedTenant);
+                        await initSuperAdminFactorySubscriptionView(activeSelectedTenant);
+                        loadSaCreditsLogTable(activeSelectedTenant.id);
+                        loadSaFullAuditLogTable(activeSelectedTenant.id);
                     }
+                    await loadTenants();
                 } catch (err) {
+                    console.error('Credit recharge error:', err);
                     showToast('فشل شحن الكريديت: ' + err.message, 'error');
                 }
             };

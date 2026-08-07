@@ -689,7 +689,9 @@ export async function loadCreditsLogTable() {
                 displayName = displayName.split('@')[0];
             }
 
-            const creditsText = log.credits_deducted > 0 ? `-${log.credits_deducted} ⚡` : (log.credits_deducted < 0 ? `+${Math.abs(log.credits_deducted)} ⚡` : 'خصم كريديت ⚡');
+            const isAddition = log.credits_deducted < 0;
+            const creditsText = log.credits_deducted > 0 ? `-${log.credits_deducted} ⚡` : (isAddition ? `+${Math.abs(log.credits_deducted)} ⚡` : 'خصم كريديت ⚡');
+            const creditsColorClass = isAddition ? 'text-emerald-400 font-extrabold' : 'text-amber-400 font-black';
 
             return `
                 <tr class="hover:bg-devo-gray/30 transition-colors">
@@ -704,7 +706,7 @@ export async function loadCreditsLogTable() {
                             <span>${displayName}</span>
                         </div>
                     </td>
-                    <td class="p-3.5 font-black text-amber-400 text-sm">
+                    <td class="p-3.5 text-sm ${creditsColorClass}">
                         ${creditsText}
                     </td>
                     <td class="p-3.5 text-xs text-devo-muted">
