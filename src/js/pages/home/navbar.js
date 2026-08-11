@@ -121,7 +121,16 @@ export async function initNavbar() {
 
     // الاستماع لحركة الرجوع والتقدم بالمتصفح بشكل مركزي وتوحيد المنطق
     window.addEventListener('popstate', async (event) => {
-        // 1. أولاً: التحقق من روابط وتفاصيل الموديل (Deep linking / details modal)
+        // 0. أولاً: التحقق من نافذة معاينة الطباعة للفاتورة
+        const invModal = document.getElementById('invoice-modal');
+        if (invModal && !invModal.classList.contains('hidden')) {
+            if (typeof window.finishOrderAndRedirect === 'function') {
+                window.finishOrderAndRedirect(true);
+            }
+            return;
+        }
+
+        // 1. ثانياً: التحقق من روابط وتفاصيل الموديل (Deep linking / details modal)
         const urlParams = new URLSearchParams(window.location.search);
         const modelId = urlParams.get('model');
         const modal = document.getElementById('model-viewer-modal');

@@ -682,7 +682,7 @@ window.executeBulkEdit = async () => {
 
     try {
         const modelsToEdit = bulkAllModels.filter(m => selectedModelIds.has(m.id));
-        const CHUNK_SIZE = 100; // معالجة الموديلات على دفعات من 100
+        const CHUNK_SIZE = 50; // معالجة الموديلات على دفعات من 50 لتجنب تجاوز حد طول الرابط
         const errorsCollected = [];
         let totalModifiedCount = 0;
         const currentTenantId = getCurrentTenantId();

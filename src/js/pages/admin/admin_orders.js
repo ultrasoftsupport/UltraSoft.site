@@ -553,7 +553,7 @@ window.filterModalTable = (term) => {
     term = term.toLowerCase().trim();
     const rows = document.querySelectorAll('#modal-items-tbody tr');
     rows.forEach(row => {
-        const text = row.querySelector('.search-target')?.innerText.toLowerCase() || '';
+        const text = (row.getAttribute('data-search-text') || row.querySelector('.search-target')?.innerText || row.innerText || '').toLowerCase();
         row.style.display = text.includes(term) ? '' : 'none';
     });
 };
@@ -953,11 +953,18 @@ window.showAssignWorkerStep = async () => {
     select.innerHTML = '<option value="">-- اختر الموظف --</option>';
 
     try {
-        const { data: users, error } = await supabase
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase
             .from('system_users')
-            .select('id, full_name, role, worker_job')
-            .eq('is_active', true)
-            .order('full_name', { ascending: true });
+            .select('id, full_name, role, worker_job, tenant_id')
+            .eq('is_active', true);
+
+        // 🔒 تصفية الموظفين التابعين للمصنع الحالي فقط وعدم إظهار موظفي المصانع الأخرى
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data: users, error } = await query.order('full_name', { ascending: true });
 
         if (error) throw error;
 
@@ -1045,104 +1052,144 @@ async function renderLocalEditModal(o) {
     const remaining = calculateLocalRemaining(o);
     const totalPrice = calculateLocalTotalPrice();
 
-    // حفظ قيمة البحث الحالية لإعادة تطبيقها بعد إعادة الرسم لمنع فقدان التركيز والكتابة
+    // حفظ قيمة البحث ومواضع السكرول الحالية قبل إعادة الرسم لمنع قفز الشاشة للأعلى
     const searchInput = document.getElementById('ao-local-search-input');
     const term = searchInput ? searchInput.value : '';
 
-    let itemsHtml = localEditingItems.map((item, index) => {
-        if (item.isDeleted) return '';
+    const mainDetailsEl = document.getElementById('ao-details-content');
+    const mainScrollTop = mainDetailsEl ? mainDetailsEl.scrollTop : 0;
+    
+    const tableContainerEl = document.querySelector('#modal-items-tbody')?.closest('.overflow-y-auto');
+    const tableScrollTop = tableContainerEl ? tableContainerEl.scrollTop : 0;
 
-        const code = item.models?.factory_code || item.models?.system_code || '';
+    // تجميع الأصناف حسب الموديل لإنشاء كروت موديلات منفصلة وواضحة جداً
+    const activeItemsWithIndex = localEditingItems
+        .map((item, originalIndex) => ({ ...item, originalIndex }))
+        .filter(item => !item.isDeleted);
+
+    const groupedModels = [];
+    const modelGroupMap = new Map();
+
+    activeItemsWithIndex.forEach(item => {
+        const modelId = item.model_id;
+        if (!modelGroupMap.has(modelId)) {
+            const group = {
+                modelId: modelId,
+                modelName: item.models?.name || 'موديل محذوف',
+                code: item.models?.factory_code || item.models?.system_code || '',
+                items: []
+            };
+            modelGroupMap.set(modelId, group);
+            groupedModels.push(group);
+        }
+        
         const classSizes = item.models?.classes?.class_sizes || [];
         const sizesCount = classSizes.length > 0 ? classSizes.length : (item.models?.model_sizes?.length || 1);
         const pieces = item.quantity * sizesCount;
-        
-        // حساب سعر الفئة (سعر القطعة) بدلاً من سعر السيريه
         const piecePrice = item.price_per_series / sizesCount;
         const itemTotal = item.quantity * item.price_per_series;
 
         const key = `${item.model_id}_${item.color_id}`;
         const dbStock = localEditingInventory[key] !== undefined ? localEditingInventory[key] : 0;
-
-        // حساب الرصيد التفاعلي الحقيقي للكمية المتاحة بالمخزن
         const originalItem = o.order_items.find(oi => oi.model_id === item.model_id && oi.color_id === item.color_id);
         const originalQty = originalItem ? originalItem.quantity : 0;
         const realTimeStock = dbStock - (item.quantity - originalQty);
 
-        return `
-            <tr class="border-b border-devo-gray last:border-0 hover:bg-devo-black/50 transition-colors">
-                <td class="py-2.5 px-3 text-white text-sm font-bold search-target">${item.models?.name || 'موديل محذوف'} <span class="text-devo-muted text-[10px] font-mono mr-1">(${code})</span></td>
-                <td class="py-2.5 px-3 text-devo-info text-xs">
-                    ${item.colors?.name || '-'}
-                    <span class="text-[10px] block mt-0.5 ${realTimeStock <= 0 ? 'text-devo-error font-semibold' : 'text-devo-muted'}">
-                        (متاح: ${realTimeStock} سيريه)
-                    </span>
-                </td>
-                <td class="py-2.5 px-3 text-center">
-                    <div class="flex items-center justify-center bg-devo-black border border-devo-gray rounded-lg overflow-hidden h-8 w-28 mx-auto">
-                        <button type="button" onclick="updateLocalItemQty(${index}, ${item.quantity - 1})" class="px-2 text-white hover:text-devo-orange transition-colors h-full"><i class="ph ph-minus"></i></button>
-                        <input type="text" inputmode="numeric" pattern="[0-9]*" onchange="updateLocalItemQty(${index}, parseInt(this.value) || 0)" value="${item.quantity}" class="w-10 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-devo-gray leading-none">
-                        <button type="button" onclick="updateLocalItemQty(${index}, ${item.quantity + 1})" ${realTimeStock <= 0 ? 'disabled' : ''} class="px-2 h-full transition-colors ${realTimeStock <= 0 ? 'text-devo-muted cursor-not-allowed opacity-50' : 'text-white hover:text-devo-orange'}"><i class="ph ph-plus"></i></button>
-                    </div>
-                    <span class="text-[10px] text-devo-muted font-normal block mt-1">(${pieces} قطعة)</span>
-                </td>
-                <td class="py-2.5 px-3 text-devo-muted text-center">${piecePrice}</td>
-                <td class="py-2.5 px-3 text-devo-orange font-black text-left text-base">${itemTotal} ج.م</td>
-                <td class="py-2.5 px-3 text-center">
-                    <button type="button" onclick="deleteLocalItem(${index})" class="text-devo-error hover:bg-devo-error/25 p-1.5 rounded transition-colors" title="حذف الصنف"><i class="ph ph-trash text-lg"></i></button>
-                </td>
-            </tr>
+        modelGroupMap.get(modelId).items.push({
+            ...item,
+            pieces,
+            piecePrice,
+            itemTotal,
+            realTimeStock
+        });
+    });
+
+    let itemsHtml = '';
+
+    if (groupedModels.length === 0) {
+        itemsHtml = `
+            <div class="p-8 text-center bg-devo-black border border-devo-gray rounded-xl">
+                <i class="ph ph-trash text-3xl text-devo-muted mb-2 block"></i>
+                <p class="text-devo-muted text-sm font-bold">تم حذف جميع الأصناف من الفاتورة.</p>
+            </div>
         `;
-    }).join('');
+    } else {
+        itemsHtml = groupedModels.map((group, groupIdx) => {
+            const groupTotalPrice = group.items.reduce((sum, i) => sum + i.itemTotal, 0);
+            const groupTotalPieces = group.items.reduce((sum, i) => sum + i.pieces, 0);
+            
+            return `
+                <div class="bg-devo-black/80 border-2 border-devo-gray/70 hover:border-devo-orange/50 rounded-xl overflow-hidden shadow-sm transition-all mb-4" data-search-text="${group.modelName} ${group.code} ${group.items.map(i => i.colors?.name || '').join(' ')}">
+                    <!-- هيدر الموديل البارز والمنفصل -->
+                    <div class="p-3 bg-devo-dark flex flex-wrap items-center justify-between gap-2 border-b border-devo-gray/60">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-devo-orange/20 border border-devo-orange/40 flex items-center justify-center text-devo-orange font-black">
+                                <i class="ph ph-package text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-black text-sm leading-tight flex items-center gap-2">
+                                    <span>${group.modelName}</span>
+                                    ${group.code ? `<span class="text-devo-orange font-mono text-xs font-bold dir-ltr">(${group.code})</span>` : ''}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <span class="bg-devo-black border border-devo-gray/60 px-2.5 py-1 rounded-lg text-devo-muted text-xs font-semibold">
+                                ${group.items.length} ${group.items.length === 1 ? 'لون' : 'ألوان'}
+                            </span>
+                            <span class="bg-devo-orange/15 border border-devo-orange/40 px-3 py-1 rounded-lg text-devo-orange font-mono font-black text-xs">
+                                إجمالي الموديل: ${groupTotalPrice} ج.م (${groupTotalPieces} قطعة)
+                            </span>
+                        </div>
+                    </div>
 
-    if (itemsHtml.trim() === '') {
-        itemsHtml = `<tr><td colspan="6" class="p-6 text-center text-devo-muted">تم حذف جميع الأصناف من الفاتورة.</td></tr>`;
-    }
-
-    // جلب سجل الحركات بقاعدة البيانات للأوردر
-    let logsHtml = '';
-    try {
-        const { data: logs, error: logsError } = await supabase
-            .from('order_logs')
-            .select('*')
-            .eq('order_id', o.id)
-            .order('created_at', { ascending: false });
-
-        if (logsError) throw logsError;
-
-        if (logs && logs.length > 0) {
-            logsHtml = `
-                <div class="mt-4 border-t border-devo-gray pt-4 shrink-0">
-                    <h5 class="text-xs text-devo-orange font-bold mb-3 flex items-center gap-1.5"><i class="ph ph-clock-counter-clockwise"></i> سجل حركات وتعديلات الأوردر</h5>
-                    <div class="space-y-2.5 max-h-[160px] overflow-y-auto custom-scrollbar text-xs">
-                        ${logs.map(log => {
-                            const logDate = new Date(log.created_at).toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                            return `
-                                <div class="flex gap-2.5 items-start">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-devo-orange mt-1.5 shrink-0 shadow-sm shadow-devo-orange/50"></div>
-                                    <div class="flex-1 text-devo-text font-medium">
-                                        <span class="font-normal">${log.notes}</span>
-                                        <span class="text-[10px] text-devo-muted mr-1.5 font-mono">(${logDate})</span>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
+                    <!-- جدول ألوان الموديل -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm border-collapse">
+                            <thead class="bg-devo-black text-[11px] text-devo-muted border-b border-devo-gray/30">
+                                <tr>
+                                    <th class="py-2 px-3 text-right">اللون والمخزن المتاح</th>
+                                    <th class="py-2 px-3 text-center">الكمية والتعديل</th>
+                                    <th class="py-2 px-3 text-center">سعر القطعة</th>
+                                    <th class="py-2 px-3 text-left">إجمالي اللون</th>
+                                    <th class="py-2 px-3 text-center w-12">حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-devo-gray/20 bg-devo-dark/30">
+                                ${group.items.map(item => `
+                                    <tr class="hover:bg-devo-orange/5 transition-colors" data-search-text="${group.modelName} ${group.code} ${item.colors?.name || ''}">
+                                        <td class="py-2.5 px-3 text-devo-info text-xs font-bold">
+                                            <span class="search-target text-white font-bold text-sm">${item.colors?.name || '-'}</span>
+                                            <span class="text-[10px] block mt-0.5 ${item.realTimeStock <= 0 ? 'text-devo-error font-bold' : 'text-devo-muted'}">
+                                                (متاح بالمخزن: ${item.realTimeStock} سيريه)
+                                            </span>
+                                        </td>
+                                        <td class="py-2.5 px-3 text-center">
+                                            <div class="flex items-center justify-center bg-devo-black border border-devo-gray rounded-lg overflow-hidden h-8 w-28 mx-auto shadow-inner">
+                                                <button type="button" onclick="updateLocalItemQty(${item.originalIndex}, ${item.quantity - 1})" class="px-2 text-white hover:text-devo-orange transition-colors h-full"><i class="ph ph-minus"></i></button>
+                                                <input type="text" inputmode="numeric" pattern="[0-9]*" onchange="updateLocalItemQty(${item.originalIndex}, parseInt(this.value) || 0)" value="${item.quantity}" class="w-10 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-devo-gray leading-none">
+                                                <button type="button" onclick="updateLocalItemQty(${item.originalIndex}, ${item.quantity + 1})" ${item.realTimeStock <= 0 ? 'disabled' : ''} class="px-2 h-full transition-colors ${item.realTimeStock <= 0 ? 'text-devo-muted cursor-not-allowed opacity-50' : 'text-white hover:text-devo-orange'}"><i class="ph ph-plus"></i></button>
+                                            </div>
+                                            <span class="text-[10px] text-devo-muted font-normal block mt-1">(${item.pieces} قطعة)</span>
+                                        </td>
+                                        <td class="py-2.5 px-3 text-devo-muted text-center font-mono text-xs">${item.piecePrice} ج.م</td>
+                                        <td class="py-2.5 px-3 text-devo-orange font-black text-left text-sm font-mono">${item.itemTotal} ج.م</td>
+                                        <td class="py-2.5 px-3 text-center">
+                                            <button type="button" onclick="deleteLocalItem(${item.originalIndex})" class="text-devo-error hover:bg-devo-error/20 p-1.5 rounded-lg transition-colors" title="حذف هذا اللون"><i class="ph ph-trash text-lg"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `;
-        } else {
-            logsHtml = `
-                <div class="mt-4 border-t border-devo-gray pt-3 shrink-0 text-xs text-devo-muted">
-                    <i class="ph ph-info mr-1"></i> لا توجد حركات مسجلة لهذا الأوردر بعد.
-                </div>
-            `;
-        }
-    } catch (e) {
-        console.error('Error fetching logs:', e);
+        }).join('');
     }
 
     document.getElementById('ao-details-content').innerHTML = `
         <div class="flex flex-col gap-4 h-full">
+            <!-- كروت الإحصائيات والمعلومات العلوي -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 shrink-0">
                 <div class="bg-devo-black p-3 rounded-xl border border-devo-gray flex flex-col justify-center">
                     <span class="text-[10px] text-devo-muted mb-1"><i class="ph ph-user"></i> بيانات العميل</span>
@@ -1161,36 +1208,25 @@ async function renderLocalEditModal(o) {
                 </div>
             </div>
 
-            <!-- حقل البحث المماثل للتفاصيل -->
-            <div class="relative shrink-0">
-                <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted"></i>
-                <input type="text" id="ao-local-search-input" oninput="filterModalTable(this.value)" placeholder="بحث داخل الأوردر باسم الموديل أو الكود..." value="${term}"
-                    class="w-full bg-devo-black border border-devo-gray rounded-xl pr-10 pl-4 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-all shadow-sm">
-            </div>
-
-            <div class="flex-1 overflow-hidden border border-devo-gray rounded-xl bg-devo-black flex flex-col max-h-[30vh]">
-                <div class="overflow-y-auto custom-scrollbar flex-1">
-                    <table class="w-full text-right text-sm">
-                        <thead class="text-xs text-devo-muted bg-devo-dark sticky top-0 shadow-sm z-10">
-                            <tr>
-                                <th class="p-3">الموديل</th>
-                                <th class="p-3">اللون</th>
-                                <th class="p-3 text-center">الكمية</th>
-                                <th class="p-3 text-center">السعر</th>
-                                <th class="p-3 text-left">الإجمالي</th>
-                                <th class="p-3 text-center">حذف</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modal-items-tbody" class="divide-y divide-devo-gray">
-                            ${itemsHtml}
-                        </tbody>
-                    </table>
+            <!-- حقل البحث + زر فتح سجل الحركات والتعديلات -->
+            <div class="flex flex-wrap items-center gap-3 shrink-0">
+                <div class="relative flex-1 min-w-[220px]">
+                    <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted"></i>
+                    <input type="text" id="ao-local-search-input" oninput="filterModalTable(this.value)" placeholder="بحث داخل الأوردر باسم الموديل أو الكود أو اللون..." value="${term}"
+                        class="w-full bg-devo-black border border-devo-gray rounded-xl pr-10 pl-4 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-all shadow-sm">
                 </div>
+                <button type="button" onclick="showOrderLogsModal('${o.id}')" class="px-3.5 py-2.5 bg-devo-black border border-devo-gray hover:border-devo-orange text-devo-orange hover:text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm">
+                    <i class="ph ph-clock-counter-clockwise text-base"></i>
+                    <span>سجل الحركات</span>
+                </button>
             </div>
 
-            <!-- سجل حركات الأوردر -->
-            ${logsHtml}
+            <!-- مساحة جدول التعديل المريحة والواسعة -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar border border-devo-gray/70 rounded-xl p-3 bg-devo-dark/40 min-h-[420px] max-h-[62vh]" id="modal-items-tbody">
+                ${itemsHtml}
+            </div>
 
+            <!-- أزرار الحفظ والإلغاء السفلية -->
             <div class="flex justify-end gap-3 pt-2 shrink-0 border-t border-devo-gray">
                 <button id="ao-local-save-btn" onclick="saveLocalOrderEdits('${o.id}')" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md flex items-center gap-2 text-sm">
                     <i class="ph ph-check-circle text-lg"></i> حفظ التعديلات
@@ -1202,6 +1238,17 @@ async function renderLocalEditModal(o) {
         </div>
     `;
 
+    // استعادة مواضع السكرول بدقة لمنع قفز الشاشة للأعلى
+    const newMainDetailsEl = document.getElementById('ao-details-content');
+    if (newMainDetailsEl && mainScrollTop > 0) {
+        newMainDetailsEl.scrollTop = mainScrollTop;
+    }
+
+    const newTableContainerEl = document.getElementById('modal-items-tbody');
+    if (newTableContainerEl && tableScrollTop > 0) {
+        newTableContainerEl.scrollTop = tableScrollTop;
+    }
+
     // تفعيل الفلترة إذا كان هناك نص بحث نشط مسبقاً
     if (term) {
         filterModalTable(term);
@@ -1211,6 +1258,76 @@ async function renderLocalEditModal(o) {
     modal.classList.remove('hidden');
     setTimeout(() => modal.classList.remove('opacity-0'), 10);
 }
+
+// دالة إظهار سجل حركات الأوردر في نافذة منبثقة مستقلة عند الطلب
+window.showOrderLogsModal = async (orderId) => {
+    let logsHtml = '';
+    try {
+        const { data: logs, error } = await supabase
+            .from('order_logs')
+            .select('*')
+            .eq('order_id', orderId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (logs && logs.length > 0) {
+            logsHtml = logs.map(log => {
+                const logDate = new Date(log.created_at).toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="flex gap-3 items-start p-3 bg-devo-black border border-devo-gray/50 rounded-xl">
+                        <div class="w-2 h-2 rounded-full bg-devo-orange mt-1.5 shrink-0 shadow-sm shadow-devo-orange/50"></div>
+                        <div class="flex-1 text-devo-text text-xs leading-relaxed font-medium">
+                            <div class="text-white font-bold mb-0.5">${log.notes}</div>
+                            <div class="text-[10px] text-devo-muted font-mono">بواسطة: ${log.user_name || 'غير معروف'} &bull; (${logDate})</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            logsHtml = `<div class="p-6 text-center text-devo-muted text-xs"><i class="ph ph-info text-xl mb-1 block text-devo-orange"></i> لا توجد حركات مسجلة لهذا الأوردر بعد.</div>`;
+        }
+    } catch (e) {
+        console.error('Error fetching logs modal:', e);
+        logsHtml = `<div class="p-4 text-center text-devo-error text-xs">تعذر تحميل سجل الحركات</div>`;
+    }
+
+    let logsModal = document.getElementById('ao-order-logs-modal');
+    if (!logsModal) {
+        logsModal = document.createElement('div');
+        logsModal.id = 'ao-order-logs-modal';
+        logsModal.className = 'fixed inset-0 bg-black/90 backdrop-blur-md z-[300] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print';
+        document.body.appendChild(logsModal);
+    }
+
+    logsModal.innerHTML = `
+        <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-devo-float">
+            <div class="p-4 border-b border-devo-gray flex justify-between items-center bg-devo-black/80">
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="ph ph-clock-counter-clockwise text-devo-orange text-lg"></i> سجل حركات وتعديلات الأوردر
+                </h4>
+                <button onclick="closeOrderLogsModal()" class="text-devo-muted hover:text-white p-1 rounded-full hover:bg-devo-gray/40 transition-colors"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-2.5">
+                ${logsHtml}
+            </div>
+            <div class="p-3 border-t border-devo-gray text-left bg-devo-black/50">
+                <button onclick="closeOrderLogsModal()" class="px-4 py-1.5 bg-devo-gray hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-colors">إغلاق</button>
+            </div>
+        </div>
+    `;
+
+    logsModal.classList.remove('hidden');
+    setTimeout(() => logsModal.classList.remove('opacity-0'), 10);
+};
+
+window.closeOrderLogsModal = () => {
+    const modal = document.getElementById('ao-order-logs-modal');
+    if (modal) {
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+};
 
 function calculateLocalTotalSeries() {
     return localEditingItems.reduce((sum, item) => item.isDeleted ? sum : sum + item.quantity, 0);
@@ -1473,6 +1590,22 @@ window.executeOrderAssignment = async () => {
     showToast('جاري إسناد الأوردر...', 'info');
 
     try {
+        const currentTenantId = getCurrentTenantId();
+        // 🔒 التحقق الأمني: التأكد من أن الموظف ينتمي للمصنع الحالي فقط
+        const { data: targetUser, error: userErr } = await supabase
+            .from('system_users')
+            .select('id, tenant_id')
+            .eq('id', workerId)
+            .single();
+
+        if (userErr || !targetUser) {
+            return showToast('الموظف المختار غير موجود بالسيستم', 'error');
+        }
+
+        if (currentTenantId && targetUser.tenant_id && targetUser.tenant_id !== currentTenantId) {
+            return showToast('عفواً، لا يمكن إسناد الأوردر لموظف ينتمي لمصنع آخر', 'error');
+        }
+
         const { error } = await supabase
             .from('orders')
             .update({
@@ -1495,6 +1628,12 @@ window.executeOrderAssignment = async () => {
     }
 };
 
+// دالة مساعدة لتحويل اسم الحالة إلى العربية
+function getArabicStatusName(status) {
+    if (!status) return null;
+    return statusConfig[status]?.text || status;
+}
+
 // دالة لتسجيل حركات وتعديلات الأوردرات بسجل الملاحظات
 async function logOrderAction(orderId, actionType, notes, extraMeta = {}) {
     try {
@@ -1504,8 +1643,9 @@ async function logOrderAction(orderId, actionType, notes, extraMeta = {}) {
         const currentTenantId = getCurrentTenantId();
         
         let orderObj = null;
-        if (orderId && Array.isArray(allOrders)) {
-            orderObj = allOrders.find(o => String(o.id) === String(orderId));
+        const ordersList = (typeof allAdminOrders !== 'undefined' && Array.isArray(allAdminOrders)) ? allAdminOrders : ((typeof allOrders !== 'undefined' && Array.isArray(allOrders)) ? allOrders : []);
+        if (orderId && Array.isArray(ordersList)) {
+            orderObj = ordersList.find(o => String(o.id) === String(orderId));
         }
 
         const enrichedDetails = {

@@ -1112,7 +1112,7 @@ export async function checkModelsInInvoices(modelIds, onProgress = null) {
     const ids = Array.isArray(modelIds) ? modelIds : [modelIds];
     const linkedIds = new Set();
 
-    const CHUNK_SIZE = 200;
+    const CHUNK_SIZE = 50;
     const totalCount = ids.length;
 
     try {

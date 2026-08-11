@@ -2,7 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js'; 
-import { printOrderCustomerInvoice } from '../../utils/print.js?v=2';
+import { printOrderCustomerInvoice, fetchInvoicePrintSettings } from '../../utils/print.js?v=2';
 import { getCurrentTenantId, getTenantOrderQuotaDetails } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
 
@@ -200,12 +200,17 @@ function updateCartHeaderEditState(editingOrderId, invoiceNumber) {
         if (editBanner) {
             editBanner.classList.remove('hidden');
             editBanner.innerHTML = `
-                <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 p-3.5 rounded-xl flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold shadow-sm animate-pulse">
-                    <div class="flex items-center gap-2">
-                        <i class="ph ph-note-pencil text-xl text-amber-400"></i>
-                        <span>أنت تقوم حالياً بتعديل الفاتورة رقم: <strong class="font-mono text-white underline">#${invoiceNumber || ''}</strong></span>
+                <div class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 text-white p-3.5 rounded-2xl flex items-center justify-between gap-3 text-xs sm:text-sm font-bold shadow-lg ring-2 ring-amber-500/40 my-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 shadow-inner">
+                            <i class="ph-bold ph-pencil-line text-xl text-white"></i>
+                        </div>
+                        <span class="text-white drop-shadow-sm">أنت تقوم حالياً بتعديل الفاتورة رقم: <strong class="font-mono text-amber-100 bg-black/30 px-2.5 py-1 rounded-lg text-sm sm:text-base border border-white/20 font-extrabold">#${invoiceNumber || ''}</strong></span>
                     </div>
-                    <span class="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-lg text-xs font-bold border border-amber-500/40 whitespace-nowrap">وضع التعديل نشط</span>
+                    <span class="bg-white text-orange-700 px-3 py-1.5 rounded-xl text-xs font-extrabold shadow-md whitespace-nowrap flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-600 animate-ping"></span>
+                        وضع التعديل نشط
+                    </span>
                 </div>
             `;
         }
@@ -696,7 +701,14 @@ async function handleCheckout(e) {
         const finalOrderObj = { id: orderIdToPrint, invoice_number: rpcData.invoice_number, ...orderData };
 
         if (editingOrderId) {
-            // تحرير القفل والإسناد بعد نجاح الحفظ (لا تلمس أعمدة السعر/المخزون، هي بس أعلام القفل)
+            // 🔄 تحرير القفل والإسناد وإعادة حالة الأوردر تلقائياً إلى "تم الإنشاء" بعد نجاح الحفظ
+            await supabase.from('orders').update({
+                status: 'created',
+                is_locked: false,
+                assigned_admin_name: null,
+                assigned_worker_id: null
+            }).eq('id', editingOrderId);
+
             await supabase.rpc('release_order_lock', { p_order_id: editingOrderId });
         }
 
@@ -851,6 +863,13 @@ async function showInvoiceModal(order, items) {
 
     const oToUse = lastOrderForPrinting;
 
+    // Load dynamic factory invoice print settings
+    const invSettings = await fetchInvoicePrintSettings();
+    const factNameEl = document.getElementById('inv-modal-factory-name');
+    if (factNameEl) factNameEl.textContent = invSettings.factoryName;
+    const factSubEl = document.getElementById('inv-modal-factory-subtitle');
+    if (factSubEl) factSubEl.textContent = invSettings.subtitle;
+
     document.getElementById('inv-number').textContent = oToUse.invoice_number || oToUse.id;
     document.getElementById('inv-date').textContent = new Date(oToUse.created_at).toLocaleDateString('ar-EG');
     document.getElementById('inv-cust-name').textContent = oToUse.customer_name;
@@ -865,10 +884,62 @@ async function showInvoiceModal(order, items) {
         workerEl.textContent = oToUse.system_users?.full_name || 'غير معروف';
     }
 
+    // Group order items by model matching the exact format of printOrderCustomerInvoice
+    const groupedItems = {};
+    if (oToUse.order_items && oToUse.order_items.length > 0) {
+        oToUse.order_items.forEach(item => {
+            const modelId = item.model_id;
+            const code = item.models?.factory_code || item.models?.system_code || '';
+            const colorName = item.colors?.name || '-';
+            const qty = item.quantity;
+            
+            const classSizes = item.models?.classes?.class_sizes || [];
+            const sizesCount = classSizes.length > 0 ? classSizes.length : (item.models?.model_sizes?.length || 1); 
+            const pieces = qty * sizesCount;
+            const piecePrice = item.price_per_series / sizesCount;
+
+            if (!groupedItems[modelId]) {
+                groupedItems[modelId] = { 
+                    modelName: item.models?.name, 
+                    code: code, 
+                    colorsList: [colorName], 
+                    totalQty: qty, 
+                    totalPieces: pieces, 
+                    price: piecePrice, 
+                    totalPrice: item.total_price 
+                };
+            } else {
+                if (!groupedItems[modelId].colorsList.includes(colorName)) {
+                    groupedItems[modelId].colorsList.push(colorName);
+                }
+                groupedItems[modelId].totalQty += qty;
+                groupedItems[modelId].totalPieces += pieces;
+                groupedItems[modelId].totalPrice += item.total_price;
+            }
+        });
+    }
+
     const tbody = document.getElementById('inv-items-body');
     if (tbody) {
         tbody.innerHTML = '';
-        if (oToUse.order_items && oToUse.order_items.length > 0) {
+        const groupedList = Object.values(groupedItems);
+        if (groupedList.length > 0) {
+            groupedList.forEach((item, idx) => {
+                const row = `
+                    <tr class="text-xs sm:text-sm">
+                        <td class="border border-gray-300 p-1 sm:p-2 text-center">${idx + 1}</td>
+                        <td class="border border-gray-300 p-1 sm:p-2 font-bold">
+                            ${item.modelName} ${item.code ? `<span class="text-[10px] text-gray-500 font-mono pr-1">(${item.code})</span>` : ''}
+                        </td>
+                        <td class="border border-gray-300 p-1 sm:p-2 text-center text-gray-700 text-xs">${item.colorsList.join('، ')}</td>
+                        <td class="border border-gray-300 p-1 sm:p-2 font-bold text-center">${item.totalPieces}</td>
+                        <td class="border border-gray-300 p-1 sm:p-2 text-center">${item.price}</td>
+                        <td class="border border-gray-300 p-1 sm:p-2 text-center font-bold bg-gray-50">${item.totalPrice}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        } else if (oToUse.order_items && oToUse.order_items.length > 0) {
             oToUse.order_items.forEach((item, idx) => {
                 const classSizes = item.models?.classes?.class_sizes || [];
                 const sizesCount = classSizes.length > 0 ? classSizes.length : (item.models?.model_sizes?.length || 1);
@@ -921,16 +992,37 @@ async function showInvoiceModal(order, items) {
         setTimeout(() => modal.classList.remove('opacity-0'), 10);
     }
     localStorage.removeItem(getTenantEditOrderCacheKey());
+
+    // Push state for back button navigation
+    if (!window.invoiceModalHistoryPushed) {
+        window.invoiceModalHistoryPushed = true;
+        history.pushState({ invoiceModalOpen: true }, '', window.location.href);
+    }
 }
 
-window.finishOrderAndRedirect = () => {
+window.finishOrderAndRedirect = (isFromPopstate = false) => {
     const modal = document.getElementById('invoice-modal');
     if (modal) {
         modal.classList.add('opacity-0');
         setTimeout(() => {
             modal.classList.add('hidden');
-            window.switchSiteView('view-gallery');
+            cartItems = [];
+            saveCart();
+            if (editingOrderId) {
+                editingOrderId = null;
+                updateCartHeaderEditState();
+            }
+            if (typeof window.switchSiteView === 'function') {
+                window.switchSiteView('view-gallery');
+            }
         }, 300);
+    }
+
+    if (window.invoiceModalHistoryPushed) {
+        window.invoiceModalHistoryPushed = false;
+        if (!isFromPopstate && history.state?.invoiceModalOpen) {
+            history.back();
+        }
     }
 };
 

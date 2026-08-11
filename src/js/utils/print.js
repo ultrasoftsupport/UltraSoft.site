@@ -1,9 +1,10 @@
 import { supabase } from '../config/supabase.js';
-import { getCurrentTenantId } from '../services/tenant_service.js';
+import { getCurrentTenantId, getCurrentTenant } from '../services/tenant_service.js';
 
 export async function fetchInvoicePrintSettings() {
     try {
         const currentTenantId = getCurrentTenantId();
+        const tenantObj = getCurrentTenant();
         let query = supabase.from('home_settings').select('setting_key, setting_value');
         if (currentTenantId) query = query.eq('tenant_id', currentTenantId);
 
@@ -14,18 +15,23 @@ export async function fetchInvoicePrintSettings() {
                 settings[item.setting_key] = item.setting_value;
             });
         }
+
+        const fallbackName = tenantObj?.name || 'UltraSoft Collection';
+        const fallbackSub = tenantObj?.phone_1 ? `هاتف: ${tenantObj.phone_1}` : 'Phone: +20 12 12751111';
+
         return {
-            factoryName: settings['invoice_factory_name'] || 'UltraSoft Collection',
-            subtitle: settings['invoice_subtitle'] || 'Phone: +20 12 12751111',
+            factoryName: settings['invoice_factory_name'] || fallbackName,
+            subtitle: settings['invoice_subtitle'] || fallbackSub,
             customerTitle: settings['invoice_customer_title'] || 'فاتورة تفصيلية للعميل',
             adminTitle: settings['invoice_admin_title'] || 'فاتورة تفصيلية للإدارة',
             notes: settings['invoice_notes'] || '',
             siteUrl: settings['ultrasoft_site_url'] || 'https://ultrasoft.site'
         };
     } catch (e) {
+        const tenantObj = getCurrentTenant();
         return {
-            factoryName: 'UltraSoft Collection',
-            subtitle: 'Phone: +20 12 12751111',
+            factoryName: tenantObj?.name || 'UltraSoft Collection',
+            subtitle: tenantObj?.phone_1 ? `هاتف: ${tenantObj.phone_1}` : 'Phone: +20 12 12751111',
             customerTitle: 'فاتورة تفصيلية للعميل',
             adminTitle: 'فاتورة تفصيلية للإدارة',
             notes: '',

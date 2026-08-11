@@ -1394,14 +1394,17 @@ async function handleConfirmSave() {
         if (uniqueColorNamesToCreate.size > 0) {
             const existingNames = new Set(existingColors.map(c => c.name.trim()));
             const colorsToInsert = [];
+            const currentTenantIdForColors = getCurrentTenantId();
 
             [...uniqueColorNamesToCreate].forEach(name => {
                 if (!existingNames.has(name)) {
                     maxCodeNum++;
-                    colorsToInsert.push({
+                    const colorObj = {
                         color_code: String(maxCodeNum),
                         name: name
-                    });
+                    };
+                    if (currentTenantIdForColors) colorObj.tenant_id = currentTenantIdForColors;
+                    colorsToInsert.push(colorObj);
                 }
             });
 
@@ -1425,7 +1428,11 @@ async function handleConfirmSave() {
                 }
             }
 
-            const { data: allLatestColors } = await supabase.from('colors').select('id, name, color_code');
+            let latestColorsQuery = supabase.from('colors').select('id, name, color_code');
+            if (currentTenantIdForColors) {
+                latestColorsQuery = latestColorsQuery.eq('tenant_id', currentTenantIdForColors);
+            }
+            const { data: allLatestColors } = await latestColorsQuery;
             if (allLatestColors) existingColors = allLatestColors;
 
             const colorMapByName = {};
@@ -1443,18 +1450,19 @@ async function handleConfirmSave() {
             }
         }
 
-        // Step C: Fetch existing inventory records for all imported models in batch
+        // Step C: Fetch existing inventory records for all imported models in batch (chunk size 100 to prevent HTTP URL parameter length limits)
         const affectedModelIds = selectedPreviewData.map(item => item.modelId).filter(Boolean);
         const existingInventoryMap = new Map();
 
-        const totalFetchBatches = Math.ceil(affectedModelIds.length / 1000);
-        for (let i = 0; i < affectedModelIds.length; i += 1000) {
-            const batchNum = Math.floor(i / 1000) + 1;
+        const FETCH_CHUNK_SIZE = 100;
+        const totalFetchBatches = Math.ceil(affectedModelIds.length / FETCH_CHUNK_SIZE);
+        for (let i = 0; i < affectedModelIds.length; i += FETCH_CHUNK_SIZE) {
+            const batchNum = Math.floor(i / FETCH_CHUNK_SIZE) + 1;
             const percent = Math.round(35 + (i / Math.max(1, affectedModelIds.length)) * 15);
             updateProgress(`جاري فحص أرصدة المخزون المسجلة (الدفعة ${batchNum} من ${totalFetchBatches})...`, percent);
             await new Promise(r => setTimeout(r, 20));
 
-            const chunk = affectedModelIds.slice(i, i + 1000);
+            const chunk = affectedModelIds.slice(i, i + FETCH_CHUNK_SIZE);
             const { data: invData, error: fetchInvErr } = await supabase
                 .from('model_inventory')
                 .select('id, model_id, color_id')
@@ -1487,6 +1495,7 @@ async function handleConfirmSave() {
                     updated_at: new Date()
                 });
                 allMovementsToInsert.push({
+                    tenant_id: item.tenantId || currentTenantId,
                     model_id: item.modelId,
                     color_id: null,
                     movement_type: 'in',
@@ -1527,6 +1536,7 @@ async function handleConfirmSave() {
                     const roundedDiff = Math.abs(Math.round(color.calculatedQty) - color.currentQty);
                     if (roundedDiff !== 0) {
                         allMovementsToInsert.push({
+                            tenant_id: item.tenantId || currentTenantId,
                             model_id: item.modelId,
                             color_id: targetColorId,
                             movement_type: movementType,
