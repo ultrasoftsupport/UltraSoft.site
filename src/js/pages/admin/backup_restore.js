@@ -17,16 +17,14 @@ const TABLES_WITH_TENANT_ID = [
     'categories', 'classes', 'sizes', 'colors', 'models',
     'system_users', 'home_settings', 'invoices', 'inbound_invoices',
     'orders', 'returns', 'inventory_audits', 'promo_cards',
-    'system_notifications', 'stock_movements', 'order_logs', 'system_backups_log'
+    'system_notifications', 'stock_movements', 'order_logs', 'model_inventory',
+    'model_colors_inventory', 'system_backups_log'
 ];
 
 // خريطة المفاتيح الرئيسية لكل جدول لمنع التعارضات في الدفعات الكبيرة
 const PRIMARY_KEY_CONFIG = {
     class_sizes: 'class_id, size_id',
     model_sizes: 'model_id, size_id',
-    model_inventory: 'model_id, color_id',
-    model_colors_inventory: 'model_id, color_id',
-    colors: 'tenant_id, color_code',
     home_settings: 'setting_key',
     default: 'id'
 };
@@ -77,11 +75,10 @@ const EXPORT_PRESETS = {
             'categories', 'classes', 'sizes', 'colors', 'class_sizes',
             'system_users', 'themes', 'home_settings',
             'models', 'model_sizes', 'model_images', 'model_colors_inventory', 'model_inventory',
-            'stock_movements', 'promo_cards',
-            'invoices', 'invoice_items', 'inbound_invoices', 'inbound_invoice_items',
+            'promo_cards', 'inbound_invoices', 'inbound_invoice_items',
             'orders', 'order_items', 'order_item_preparation', 'preparation_status_log', 'order_logs',
-            'returns', 'return_items', 'inventory_audits', 'inventory_audit_items',
-            'system_notifications'
+            'invoices', 'invoice_items', 'returns', 'return_items', 'inventory_audits', 'inventory_audit_items',
+            'stock_movements', 'system_notifications'
         ]
     }
 };
@@ -92,21 +89,30 @@ const RESTORE_TABLE_ORDER = [
     'classes',
     'sizes',
     'colors',
-    'themes',
     'class_sizes',
+    'system_users',
+    'themes',
     'home_settings',
     'models',
     'model_sizes',
     'model_images',
     'model_colors_inventory',
     'model_inventory',
-    'stock_movements',
     'promo_cards',
-    'invoices',
-    'invoice_items',
+    'inbound_invoices',
+    'inbound_invoice_items',
     'orders',
     'order_items',
+    'order_item_preparation',
+    'preparation_status_log',
     'order_logs',
+    'invoices',
+    'invoice_items',
+    'returns',
+    'return_items',
+    'inventory_audits',
+    'inventory_audit_items',
+    'stock_movements',
     'system_notifications'
 ];
 
@@ -116,7 +122,7 @@ const TABLE_ARABIC_NAMES = {
     classes: 'الفئات والأنواع',
     sizes: 'المقاسات',
     colors: 'الألوان المعتمدة',
-    class_sizes: 'مقاسات الفئات',
+    class_sizes: 'مقاسات الفئات العمرية',
     system_users: 'حسابات المستخدمين',
     themes: 'مظاهر النظام',
     home_settings: 'إعدادات الموقع',
@@ -125,13 +131,21 @@ const TABLE_ARABIC_NAMES = {
     model_images: 'صور الموديلات',
     model_colors_inventory: 'ألوان الموديلات المتوفرة',
     model_inventory: 'رصيد مخزون الموديلات',
-    stock_movements: 'حركات وسجلات المخزون',
     promo_cards: 'البطاقات الترويجية',
-    invoices: 'فواتير الدخل والموردين',
-    invoice_items: 'عناصر الفواتير',
+    inbound_invoices: 'فواتير التوريد والموردين',
+    inbound_invoice_items: 'عناصر فواتير التوريد',
     orders: 'الأوردرات والمبيعات',
     order_items: 'تفاصيل عناصر الأوردرات',
+    order_item_preparation: 'تجهيز عناصر الأوردرات',
+    preparation_status_log: 'سجل حالات التجهيز',
     order_logs: 'سجلات تغييرات الأوردرات',
+    invoices: 'فواتير المبيعات',
+    invoice_items: 'عناصر فواتير المبيعات',
+    returns: 'مرتجعات المبيعات',
+    return_items: 'عناصر المرتجعات',
+    inventory_audits: 'جرد المخزون',
+    inventory_audit_items: 'عناصر جرد المخزون',
+    stock_movements: 'حركات وسجلات المخزون',
     system_notifications: 'إشعارات النظام'
 };
 
@@ -1885,38 +1899,6 @@ async function handleRestoreProcess(customDataPayload = null) {
         if (el) el.textContent = `${mins}:${secs}`;
     }, 1000);
 
-const TABLE_ALLOWED_COLUMNS = {
-    themes: ['id', 'name', 'theme_key', 'colors', 'is_active', 'created_at'],
-    order_items: ['id', 'order_id', 'model_id', 'color_id', 'quantity', 'price_per_series', 'total_price'],
-    orders: ['id', 'invoice_number', 'customer_name', 'phone_1', 'phone_2', 'address', 'deposit', 'deposit_receiver', 'notes', 'total_price', 'total_series', 'worker_id', 'assigned_worker_id', 'assigned_admin_name', 'status', 'preparation_status', 'prepared_by', 'preparation_started_at', 'preparation_completed_at', 'preparation_notes', 'is_archived', 'is_locked', 'created_at'],
-    invoices: ['id', 'invoice_number', 'staff_id', 'customer_name', 'customer_phone_1', 'customer_phone_2', 'customer_address', 'deposit_amount', 'deposit_receiver', 'notes', 'total_amount', 'is_archived', 'created_at', 'updated_at'],
-    invoice_items: ['id', 'invoice_id', 'model_id', 'color_id', 'series_quantity', 'unit_price', 'total_line_price', 'created_at'],
-    models: ['id', 'system_code', 'factory_code', 'name', 'category_id', 'class_id', 'price', 'is_active', 'image_url_1', 'image_url_2', 'image_url_3', 'created_at', 'updated_at'],
-    categories: ['id', 'name', 'created_at'],
-    classes: ['id', 'name', 'created_at'],
-    sizes: ['id', 'name', 'created_at'],
-    colors: ['id', 'name', 'color_code', 'created_at'],
-    class_sizes: ['class_id', 'size_id'],
-    model_sizes: ['model_id', 'size_id'],
-    model_images: ['id', 'model_id', 'image_url', 'created_at'],
-    model_colors_inventory: ['model_id', 'color_id', 'available_series_count', 'is_active'],
-    model_inventory: ['model_id', 'color_id', 'available_series', 'created_at', 'updated_at'],
-    stock_movements: ['id', 'model_id', 'color_id', 'movement_type', 'quantity', 'reference', 'order_id', 'inbound_id', 'created_at'],
-    system_users: ['id', 'username', 'full_name', 'role', 'worker_job', 'is_active', 'login_count', 'invoice_count', 'created_at'],
-    home_settings: ['setting_key', 'setting_value', 'description'],
-    promo_cards: ['id', 'title', 'description', 'icon', 'badge_text', 'badge_color', 'is_active', 'image_url', 'model_id', 'created_at'],
-    system_notifications: ['id', 'type', 'title', 'body', 'metadata', 'user_id', 'is_read', 'is_archived', 'created_at'],
-    returns: ['id', 'return_number', 'order_id', 'customer_name', 'refund_amount', 'total_series', 'notes', 'worker_id', 'created_at'],
-    return_items: ['id', 'return_id', 'model_id', 'color_id', 'quantity', 'price_per_series', 'total_price'],
-    inbound_invoices: ['id', 'invoice_number', 'supplier_name', 'notes', 'total_series', 'total_cost', 'created_by', 'created_at'],
-    inbound_invoice_items: ['id', 'inbound_invoice_id', 'model_id', 'color_id', 'quantity', 'unit_cost', 'total_cost'],
-    inventory_audits: ['id', 'audit_number', 'created_by', 'status', 'notes', 'reviewed_by', 'reviewed_at', 'review_notes', 'created_at'],
-    inventory_audit_items: ['id', 'audit_id', 'model_id', 'color_id', 'system_qty', 'counted_qty', 'difference', 'notes'],
-    order_item_preparation: ['id', 'order_item_id', 'order_id', 'model_id', 'color_id', 'is_prepared', 'has_issue', 'note', 'prepared_qty', 'updated_at', 'updated_by', 'created_at'],
-    preparation_status_log: ['id', 'order_id', 'changed_by', 'old_status', 'new_status', 'note', 'created_at'],
-    order_logs: ['id', 'order_id', 'user_id', 'user_name', 'action_type', 'details', 'created_at']
-};
-
 function sanitizeRowForTable(tableName, row, validUserIds = null) {
     if (!row || typeof row !== 'object') return row;
     let cleaned = { ...row };
@@ -1942,8 +1924,6 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
     // 🔒 3. إجبار ربط وتأمين البيانات المستعادة للجداول المعتمدة بـ tenant_id المباشر
     if (currentTenantId && TABLES_WITH_TENANT_ID.includes(tableName)) {
         cleaned.tenant_id = currentTenantId;
-    } else {
-        delete cleaned.tenant_id;
     }
 
     // تنظيف المعرفات التابعة للمستخدمين إذا كانت غير موجودة في قاعدة البيانات للحفاظ على سلامة القيود الخارجية
@@ -1970,7 +1950,7 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
         }
     }
 
-    if (tableName === 'themes') {
+    if (tableName === 'themes' && cleaned.colors) {
         let colorsPayload = cleaned.colors;
         if (!colorsPayload || cleaned.variables || cleaned.description || cleaned.is_system !== undefined) {
             const rawColors = cleaned.colors?.colors ? cleaned.colors.colors : (cleaned.colors || {});
@@ -1984,42 +1964,7 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                 visuals: cleaned.visuals || cleaned.variables?.visuals || {}
             };
         }
-        const result = {
-            id: cleaned.id,
-            name: cleaned.name,
-            theme_key: cleaned.theme_key || `theme_${(cleaned.name || 'custom').toLowerCase().replace(/\s+/g, '_')}`,
-            colors: colorsPayload,
-            is_active: typeof cleaned.is_active === 'boolean' ? cleaned.is_active : false
-        };
-        if (cleaned.created_at) result.created_at = cleaned.created_at;
-        return result;
-    }
-
-    if (tableName === 'order_items') {
-        return {
-            id: cleaned.id,
-            order_id: cleaned.order_id,
-            model_id: cleaned.model_id,
-            color_id: cleaned.color_id,
-            quantity: Number(cleaned.quantity || 1),
-            price_per_series: Number(cleaned.price_per_series || 0),
-            total_price: Number(cleaned.total_price || 0)
-        };
-    }
-
-    const allowed = TABLE_ALLOWED_COLUMNS[tableName];
-    if (allowed) {
-        const filtered = {};
-        for (const col of allowed) {
-            if (cleaned[col] !== undefined) {
-                filtered[col] = cleaned[col];
-            }
-        }
-
-        if (currentTenantId && tableName !== 'themes') {
-            filtered.tenant_id = currentTenantId;
-        }
-        return filtered;
+        cleaned.colors = colorsPayload;
     }
 
     return cleaned;
@@ -2046,7 +1991,7 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                 } catch (e) {}
             }
 
-            const rows = rawRows.map(r => sanitizeRowForTable(tableName, r, validUserIds));
+            const rows = rawRows.map(r => sanitizeRowForTable(tableName, r, validUserIds)).filter(Boolean);
             const arabicName = TABLE_ARABIC_NAMES[tableName] || tableName;
             const stepPercent = Math.round((i / totalTablesCount) * 100);
 
@@ -2085,11 +2030,9 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                             if (!rowErr) {
                                 singleSuccessCount++;
                             } else if (tableName === 'system_users' && rowErr.message?.includes('row-level security')) {
-                                // الحماية الأمنية لقواعد الحسابات (محفوظة مسبقاً)
                                 console.info(`الحساب ${row.username || row.id} محمي بسياسات الأمان RLS ولم يتأثر بالنسخ.`);
                                 singleSuccessCount++;
                             } else if (tableName === 'orders' && rowErr.message?.includes('foreign key constraint')) {
-                                // محاولة إزالة ربط المستخدم غير الموجود في النظام وإعادة حفظ الأوردر بنجاح
                                 const safeOrder = { ...row, worker_id: null, assigned_worker_id: null, prepared_by: null };
                                 const { error: safeErr } = await supabase.from('orders').upsert([safeOrder], upsertOptions);
                                 if (!safeErr) {
@@ -2098,14 +2041,20 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                                     console.error(`Failed to restore row in ${tableName}:`, safeErr.message, row);
                                     errorsList.push(`جدول ${arabicName} (أوردر #${row.invoice_number || row.id}): ${safeErr.message}`);
                                 }
-                            } else if (tableName === 'colors' && rowErr.message?.includes('colors_tenant_code_key')) {
-                                // محاولة التحديث المباشر لاسم اللون الموجود بنفس الكود لمنع تعارض القيود الفريدة
-                                const { error: updateColorErr } = await supabase
-                                    .from('colors')
-                                    .update({ name: row.name })
-                                    .eq('tenant_id', row.tenant_id)
-                                    .eq('color_code', row.color_code);
-
+                            } else if (tableName === 'colors') {
+                                const colorPayload = {
+                                    name: row.name,
+                                    color_code: row.color_code,
+                                    hex_code: row.hex_code,
+                                    is_active: row.is_active !== undefined ? row.is_active : true
+                                };
+                                let updateQuery = supabase.from('colors').update(colorPayload);
+                                if (row.id) {
+                                    updateQuery = updateQuery.eq('id', row.id);
+                                } else {
+                                    updateQuery = updateQuery.eq('tenant_id', row.tenant_id).eq('color_code', row.color_code);
+                                }
+                                const { error: updateColorErr } = await updateQuery;
                                 if (!updateColorErr) {
                                     singleSuccessCount++;
                                 } else {
@@ -2113,18 +2062,19 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                                     errorsList.push(`جدول ${arabicName} (لون ${row.name}): ${updateColorErr.message}`);
                                 }
                             } else if (tableName === 'model_inventory') {
-                                // محاولة التحديث المباشر للرصيد واللون لتجاوز حلقة التنبيهات
                                 const updatePayload = { available_series: row.available_series };
-                                let updateQuery = supabase.from('model_inventory').update(updatePayload).eq('model_id', row.model_id);
-                                if (row.color_id) {
-                                    updateQuery = updateQuery.eq('color_id', row.color_id);
+                                let updateQuery = supabase.from('model_inventory').update(updatePayload);
+                                if (row.id) {
+                                    updateQuery = updateQuery.eq('id', row.id);
+                                } else if (row.model_id && row.color_id) {
+                                    updateQuery = updateQuery.eq('model_id', row.model_id).eq('color_id', row.color_id);
                                 }
                                 const { error: updateErr } = await updateQuery;
                                 if (!updateErr) {
                                     singleSuccessCount++;
                                 } else {
                                     console.error(`Failed to restore row in ${tableName}:`, rowErr.message, row);
-                                    errorsList.push(`جدول ${arabicName} (سجل #${row.id || row.setting_key || 'مجهول'}): ${rowErr.message}`);
+                                    errorsList.push(`جدول ${arabicName} (رصيد موديل #${row.model_id}): ${rowErr.message}`);
                                 }
                             } else {
                                 console.error(`Failed to restore row in ${tableName}:`, rowErr.message, row);
@@ -2133,7 +2083,6 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                         }
 
                         insertedCount += singleSuccessCount;
-
                     } else {
                         insertedCount += chunk.length;
                     }

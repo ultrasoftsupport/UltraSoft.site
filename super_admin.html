@@ -7947,7 +7947,7 @@
             { key: 'classes', name: 'الفئات والأنواع' },
             { key: 'sizes', name: 'المقاسات' },
             { key: 'colors', name: 'الألوان المعتمدة' },
-            { key: 'class_sizes', name: 'مقاسات الفئات' },
+            { key: 'class_sizes', name: 'مقاسات الفئات العمرية' },
             { key: 'system_users', name: 'حسابات المستخدمين' },
             { key: 'themes', name: 'مظاهر النظام' },
             { key: 'home_settings', name: 'إعدادات الموقع' },
@@ -7956,18 +7956,24 @@
             { key: 'model_images', name: 'صور الموديلات' },
             { key: 'model_colors_inventory', name: 'ألوان الموديلات المتوفرة' },
             { key: 'model_inventory', name: 'رصيد مخزون الموديلات' },
-            { key: 'stock_movements', name: 'حركات وسجلات المخزون' },
             { key: 'promo_cards', name: 'البطاقات الترويجية' },
-            { key: 'inbound_invoices', name: 'فواتير الدخل والموردين' },
-            { key: 'inbound_invoice_items', name: 'عناصر الفواتير' },
+            { key: 'inbound_invoices', name: 'فواتير التوريد والموردين' },
+            { key: 'inbound_invoice_items', name: 'عناصر فواتير التوريد' },
             { key: 'orders', name: 'الأوردرات والمبيعات' },
             { key: 'order_items', name: 'تفاصيل عناصر الأوردرات' },
+            { key: 'order_item_preparation', name: 'تجهيز عناصر الأوردرات' },
+            { key: 'preparation_status_log', name: 'سجل حالات التجهيز' },
             { key: 'order_logs', name: 'سجلات تغييرات الأوردرات' },
             { key: 'invoices', name: 'فواتير المبيعات' },
+            { key: 'invoice_items', name: 'عناصر فواتير المبيعات' },
+            { key: 'returns', name: 'مرتجعات المبيعات' },
+            { key: 'return_items', name: 'عناصر المرتجعات' },
+            { key: 'inventory_audits', name: 'جرد المخزون' },
+            { key: 'inventory_audit_items', name: 'عناصر جرد المخزون' },
+            { key: 'stock_movements', name: 'حركات وسجلات المخزون' },
             { key: 'system_notifications', name: 'إشعارات النظام' },
             { key: 'tenants', name: 'بيانات المصانع والشركات' },
             { key: 'subscriptions', name: 'اشتراكات المصانع' },
-            { key: 'system_subscription_plans', name: 'خطط الاشتراكات' },
             { key: 'super_admin_broadcasts', name: 'سجل البث والإشعارات' }
         ];
 
@@ -8002,75 +8008,122 @@
 
             if (progressFill) progressFill.style.width = '0%';
             if (percentText) percentText.textContent = '0%';
-            if (stepText) stepText.textContent = 'جاري بدء استعلام جداول المنظومة جدولاَ تلو الآخر...';
+            if (stepText) stepText.textContent = 'جاري بدء استخراج وتجميع النسخة الاحتياطية السحابية الشاملة بـ SECURITY DEFINER...';
             if (liveRowsEl) liveRowsEl.textContent = '0 سجل';
             if (liveTableEl) liveTableEl.textContent = ALL_SYSTEM_TABLES[0].key;
 
-            const tablesMap = {};
+            const senderName = window.currentSessionData?.user?.username || 'super_admin';
+            let payloadObj = null;
+            let tablesMap = {};
             let grandTotalRecords = 0;
 
             try {
-                // Sequential table-by-table backup loop
-                for (let i = 0; i < ALL_SYSTEM_TABLES.length; i++) {
-                    const t = ALL_SYSTEM_TABLES[i];
-                    const pct = Math.round(((i + 1) / (ALL_SYSTEM_TABLES.length + 1)) * 90);
+                // 1. Try Backend PL/pgSQL RPC FIRST (Bypasses RLS completely and extracts 100% of all data!)
+                const { data: rpcData, error: rpcErr } = await supabase.rpc('execute_system_full_backup', { p_exported_by: senderName });
 
-                    if (progressFill) progressFill.style.width = `${pct}%`;
-                    if (percentText) percentText.textContent = `${pct}%`;
-                    if (stepText) stepText.textContent = `جاري استخراج وتجميع ${t.name}...`;
-                    if (liveTableEl) liveTableEl.textContent = t.key;
+                if (!rpcErr && rpcData && rpcData.tables) {
+                    payloadObj = rpcData;
+                    tablesMap = rpcData.tables;
+                    grandTotalRecords = rpcData.summary?.total_records || 0;
 
-                    const stepEl = document.getElementById(`bstep-${t.key}`);
-                    if (stepEl) {
-                        stepEl.className = 'text-sky-400 font-bold flex items-center justify-between p-2 rounded bg-sky-500/10 border border-sky-500/30 animate-pulse';
-                        stepEl.querySelector('span').textContent = `⚡ جاري قراءة ${t.name}...`;
-                    }
+                    // Update UI checklist smoothly
+                    for (let i = 0; i < ALL_SYSTEM_TABLES.length; i++) {
+                        const t = ALL_SYSTEM_TABLES[i];
+                        const arr = tablesMap[t.key] || [];
+                        const pct = Math.round(((i + 1) / ALL_SYSTEM_TABLES.length) * 90);
 
-                    let records = [];
-                    try {
-                        let page = 0;
-                        const pageSize = 1000;
-                        let hasMore = true;
+                        if (progressFill) progressFill.style.width = `${pct}%`;
+                        if (percentText) percentText.textContent = `${pct}%`;
+                        if (stepText) stepText.textContent = `تم استخراج ${t.name}...`;
+                        if (liveTableEl) liveTableEl.textContent = t.key;
 
-                        while (hasMore) {
-                            const from = page * pageSize;
-                            const to = from + pageSize - 1;
-                            const { data, error } = await supabase.from(t.key).select('*').range(from, to);
-
-                            if (error) {
-                                console.warn(`Error querying table ${t.key} range ${from}-${to}:`, error);
-                                break;
-                            }
-
-                            if (data && data.length > 0) {
-                                records = records.concat(data);
-                                if (data.length < pageSize) {
-                                    hasMore = false;
-                                } else {
-                                    page++;
-                                }
-                            } else {
-                                hasMore = false;
-                            }
+                        const stepEl = document.getElementById(`bstep-${t.key}`);
+                        if (stepEl) {
+                            stepEl.className = 'text-emerald-400 font-bold flex items-center justify-between p-2 rounded bg-emerald-500/10 border border-emerald-500/30';
+                            stepEl.querySelector('span').textContent = `✅ ${t.name}`;
+                            const countEl = stepEl.querySelector('.row-count');
+                            if (countEl) countEl.textContent = `تم تصدير ${arr.length} سجل بنجاح`;
                         }
-                    } catch (e) {
-                        console.warn(`Table query note for ${t.key}:`, e);
+
+                        if (liveRowsEl) liveRowsEl.textContent = `${grandTotalRecords} سجل إجمالي`;
+                        await new Promise(res => setTimeout(res, 20));
+                    }
+                } else {
+                    console.warn('RPC execute_system_full_backup fallback to client loop:', rpcErr);
+                    // 2. Client-side sequential fallback query loop
+                    for (let i = 0; i < ALL_SYSTEM_TABLES.length; i++) {
+                        const t = ALL_SYSTEM_TABLES[i];
+                        const pct = Math.round(((i + 1) / (ALL_SYSTEM_TABLES.length + 1)) * 90);
+
+                        if (progressFill) progressFill.style.width = `${pct}%`;
+                        if (percentText) percentText.textContent = `${pct}%`;
+                        if (stepText) stepText.textContent = `جاري استخراج وتجميع ${t.name}...`;
+                        if (liveTableEl) liveTableEl.textContent = t.key;
+
+                        const stepEl = document.getElementById(`bstep-${t.key}`);
+                        if (stepEl) {
+                            stepEl.className = 'text-sky-400 font-bold flex items-center justify-between p-2 rounded bg-sky-500/10 border border-sky-500/30 animate-pulse';
+                            stepEl.querySelector('span').textContent = `⚡ جاري قراءة ${t.name}...`;
+                        }
+
+                        let records = [];
+                        try {
+                            let page = 0;
+                            const pageSize = 1000;
+                            let hasMore = true;
+
+                            while (hasMore) {
+                                const from = page * pageSize;
+                                const to = from + pageSize - 1;
+                                const { data, error } = await supabase.from(t.key).select('*').range(from, to);
+
+                                if (error) {
+                                    console.warn(`Error querying table ${t.key} range ${from}-${to}:`, error);
+                                    break;
+                                }
+
+                                if (data && data.length > 0) {
+                                    records = records.concat(data);
+                                    if (data.length < pageSize) {
+                                        hasMore = false;
+                                    } else {
+                                        page++;
+                                    }
+                                } else {
+                                    hasMore = false;
+                                }
+                            }
+                        } catch (e) {
+                            console.warn(`Table query note for ${t.key}:`, e);
+                        }
+
+                        tablesMap[t.key] = records;
+                        grandTotalRecords += records.length;
+
+                        if (stepEl) {
+                            stepEl.className = 'text-emerald-400 font-bold flex items-center justify-between p-2 rounded bg-emerald-500/10 border border-emerald-500/30';
+                            stepEl.querySelector('span').textContent = `✅ ${t.name}`;
+                            const countEl = stepEl.querySelector('.row-count');
+                            if (countEl) countEl.textContent = `تم تصدير ${records.length} سجل بنجاح`;
+                        }
+
+                        if (liveRowsEl) liveRowsEl.textContent = `${grandTotalRecords} سجل إجمالي`;
+                        await new Promise(res => setTimeout(res, 40));
                     }
 
-                    tablesMap[t.key] = records;
-                    grandTotalRecords += records.length;
-
-                    if (stepEl) {
-                        stepEl.className = 'text-emerald-400 font-bold flex items-center justify-between p-2 rounded bg-emerald-500/10 border border-emerald-500/30';
-                        stepEl.querySelector('span').textContent = `✅ ${t.name}`;
-                        const countEl = stepEl.querySelector('.row-count');
-                        if (countEl) countEl.textContent = `تم تصدير ${records.length} سجل بنجاح`;
-                    }
-
-                    if (liveRowsEl) liveRowsEl.textContent = `${grandTotalRecords} سجل إجمالي`;
-
-                    // Short pause for UI updates
-                    await new Promise(res => setTimeout(res, 60));
+                    const nowIso = new Date().toISOString();
+                    payloadObj = {
+                        system: 'UltraSoft Enterprise ERP & Multi-Tenant Platform',
+                        backup_version: '2.0_full_system_snapshot',
+                        created_at: nowIso,
+                        exported_by: senderName,
+                        summary: {
+                            total_tenants: (tablesMap.tenants || []).length,
+                            total_records: grandTotalRecords,
+                            tables_backed_up: ALL_SYSTEM_TABLES.length
+                        },
+                        tables: tablesMap
+                    };
                 }
 
                 // Cloud Packaging Step
@@ -8080,23 +8133,8 @@
                     cloudStepEl.querySelector('span').textContent = '⚡ جاري التكويت السحابي والرفع على Storage وتليجرام...';
                 }
 
-                const senderName = window.currentSessionData?.user?.username || 'super_admin';
-                const nowIso = new Date().toISOString();
-                const timestampStr = nowIso.replace(/[:.]/g, '-');
+                const timestampStr = (payloadObj.created_at || new Date().toISOString()).replace(/[:.]/g, '-');
                 const filename = `ultrasoft_full_backup_${timestampStr}.json`;
-
-                const payloadObj = {
-                    system: 'UltraSoft Enterprise ERP & Multi-Tenant Platform',
-                    backup_version: '2.0_full_system_snapshot',
-                    created_at: nowIso,
-                    exported_by: senderName,
-                    summary: {
-                        total_tenants: (tablesMap.tenants || []).length,
-                        total_records: grandTotalRecords,
-                        tables_backed_up: ALL_SYSTEM_TABLES.length
-                    },
-                    tables: tablesMap
-                };
 
                 const jsonStr = JSON.stringify(payloadObj, null, 2);
                 const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -8798,14 +8836,25 @@
                 const liveErrorsEl = document.getElementById('restoreLiveErrorsCount');
                 const checklistContainer = document.getElementById('restoreTablesChecklistLog');
 
-                const tableKeys = Object.keys(finalTablesPayload);
+                const RESTORE_TOPOLOGICAL_ORDER = [
+                    'categories', 'classes', 'sizes', 'colors', 'class_sizes',
+                    'system_users', 'themes', 'home_settings', 'models', 'model_sizes',
+                    'model_images', 'model_colors_inventory', 'model_inventory', 'promo_cards',
+                    'inbound_invoices', 'inbound_invoice_items', 'orders', 'order_items',
+                    'order_item_preparation', 'preparation_status_log', 'order_logs', 'invoices',
+                    'invoice_items', 'returns', 'return_items', 'inventory_audits', 'inventory_audit_items',
+                    'stock_movements', 'system_notifications', 'super_admin_broadcasts'
+                ];
+                const rawKeys = Object.keys(finalTablesPayload);
+                const tableKeys = RESTORE_TOPOLOGICAL_ORDER.filter(k => rawKeys.includes(k));
+                rawKeys.forEach(k => { if (!tableKeys.includes(k)) tableKeys.push(k); });
 
                 const tableLabelsMap = {
                     'categories': 'التصنيفات الرئيسيّة',
                     'classes': 'الفئات والأنواع',
                     'sizes': 'المقاسات',
                     'colors': 'الألوان المعتمدة',
-                    'class_sizes': 'مقاسات الفئات',
+                    'class_sizes': 'مقاسات الفئات العمرية',
                     'system_users': 'حسابات المستخدمين',
                     'themes': 'مظاهر النظام',
                     'home_settings': 'إعدادات الموقع',
@@ -8814,15 +8863,21 @@
                     'model_images': 'صور الموديلات',
                     'model_colors_inventory': 'ألوان الموديلات المتوفرة',
                     'model_inventory': 'رصيد مخزون الموديلات',
-                    'stock_movements': 'حركات وسجلات المخزون',
                     'promo_cards': 'البطاقات الترويجية',
-                    'inbound_invoices': 'فواتير الدخل والموردين',
-                    'inbound_invoice_items': 'عناصر الفواتير',
+                    'inbound_invoices': 'فواتير التوريد والموردين',
+                    'inbound_invoice_items': 'عناصر فواتير التوريد',
                     'orders': 'الأوردرات والمبيعات',
                     'order_items': 'تفاصيل عناصر الأوردرات',
+                    'order_item_preparation': 'تجهيز عناصر الأوردرات',
+                    'preparation_status_log': 'سجل حالات التجهيز',
                     'order_logs': 'سجلات تغييرات الأوردرات',
                     'invoices': 'فواتير المبيعات',
+                    'invoice_items': 'عناصر فواتير المبيعات',
                     'returns': 'مرتجعات المبيعات',
+                    'return_items': 'عناصر المرتجعات',
+                    'inventory_audits': 'جرد المخزون',
+                    'inventory_audit_items': 'عناصر جرد المخزون',
+                    'stock_movements': 'حركات وسجلات المخزون',
                     'system_notifications': 'إشعارات النظام',
                     'super_admin_broadcasts': 'سجل الإشعارات البث'
                 };
@@ -8899,7 +8954,11 @@
                         } else {
                             // 2. Direct Client Upsert Fallback
                             const upsertOptions = {};
-                            if (key === 'home_settings') {
+                            if (key === 'class_sizes') {
+                                upsertOptions.onConflict = 'class_id, size_id';
+                            } else if (key === 'model_sizes') {
+                                upsertOptions.onConflict = 'model_id, size_id';
+                            } else if (key === 'home_settings') {
                                 upsertOptions.onConflict = 'setting_key';
                             } else if (cleanItems[0]?.id !== undefined) {
                                 upsertOptions.onConflict = 'id';
@@ -8997,6 +9056,15 @@
                     reportModal.classList.remove('hidden');
                     reportModal.classList.add('flex');
                 }
+
+                // ⚡ تفريغ الكاش المحلي لإجبار شاشات العرض والمتحكمات على جلب البيانات الحية المحدثة فوراً
+                try {
+                    Object.keys(localStorage).forEach(k => {
+                        if (k.startsWith('devo_cached_') || k.includes('gallery_models') || k.includes('models') || k.includes('orders')) {
+                            localStorage.removeItem(k);
+                        }
+                    });
+                } catch (e) {}
 
                 if (typeof window.showToast === 'function') window.showToast(`تمت عملية الاستعادة بنجاح (${grandRestoredCount} سجل) 🚀`, 'success');
                 await loadSystemBackupsVault();
