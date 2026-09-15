@@ -1,9 +1,12 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
-import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl, getTenantStorageKey } from '../../services/tenant_service.js';
 
 let allModels = [];
+if (!window.allGalleryModels) {
+    window.allGalleryModels = allModels;
+}
 let currentCategories = new Set();
 let currentUser = null;
 let isWorker = false;
@@ -23,10 +26,9 @@ export async function initGallery() {
         || (currentUser.role === 'worker' && (currentUser.worker_job === 'showroom' || currentUser.worker_job === 'both'))
     );
 
-    if (isWorker) {
-        loadLocalCart();
-        document.getElementById('floating-cart-btn').classList.remove('hidden');
-    }
+    // تحميل السلة المحلية وإظهار زر السلة العائم للجميع
+    loadLocalCart();
+    document.getElementById('floating-cart-btn')?.classList.remove('hidden');
 
     document.getElementById('gal-search')?.addEventListener('input', applyGalleryFilters);
     document.getElementById('gal-category')?.addEventListener('change', applyGalleryFilters);
@@ -70,6 +72,7 @@ async function fetchGalleryModels() {
     if (cachedData && allModels.length === 0) {
         try {
             allModels = JSON.parse(cachedData);
+            window.allGalleryModels = allModels;
             populateCategoryFilter();
             applyGalleryFilters();
         } catch (e) {
@@ -89,7 +92,7 @@ async function fetchGalleryModels() {
             categories(name),
             classes(name, class_sizes(sizes(name))),
             model_sizes(sizes(name)),
-            model_inventory(color_id, available_series, colors(name)),
+            model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(name)),
             model_images(image_url)
         `)
         .eq('is_active', true);
@@ -103,6 +106,7 @@ async function fetchGalleryModels() {
     if (error) return console.error(error);
 
     allModels = data || [];
+    window.allGalleryModels = allModels;
 
     // حفظ أحدث نسخة من البيانات في الـ LocalStorage برابط المصنع
     try {
@@ -144,6 +148,7 @@ function setupGalleryRealtime() {
             // 🚨 حالة الحذف المباشر (DELETE) - تحدث فوراً ولا تحتاج انتظار 🚨
             if (payload.eventType === 'DELETE') {
                 allModels = allModels.filter(m => m.id !== payload.old.id);
+                window.allGalleryModels = allModels;
                 applyGalleryFilters();
                 checkAndCloseModal(payload.old.id, 'تم حذف هذا الموديل من قبل الإدارة.');
                 return;
@@ -156,7 +161,7 @@ function setupGalleryRealtime() {
                     .from('models')
                     .select(`
                         *, categories(name), classes(name, class_sizes(sizes(name))),
-                        model_sizes(sizes(name)), model_inventory(color_id, available_series, colors(name)), model_images(image_url)
+                        model_sizes(sizes(name)), model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(name)), model_images(image_url)
                     `)
                     .eq('id', payload.new.id)
                     .single();
@@ -168,6 +173,7 @@ function setupGalleryRealtime() {
                         // تجنب التكرار إذا كان الموديل موجوداً بالفعل
                         if (!allModels.find(m => m.id === fullModel.id)) {
                             allModels.unshift(fullModel);
+                            window.allGalleryModels = allModels;
                             applyGalleryFilters();
                         }
                     }
@@ -175,17 +181,20 @@ function setupGalleryRealtime() {
                 else if (payload.eventType === 'UPDATE') {
                     if (!fullModel.is_active) {
                         allModels = allModels.filter(m => m.id !== fullModel.id);
+                        window.allGalleryModels = allModels;
                         applyGalleryFilters();
                         checkAndCloseModal(fullModel.id, 'تم تعطيل هذا الموديل ولم يعد متاحاً.');
                     } else {
                         const index = allModels.findIndex(m => m.id === fullModel.id);
                         if (index > -1) {
                             allModels[index] = fullModel;
+                            window.allGalleryModels = allModels;
                             updateGalleryCardDOM(fullModel.id);
                             updateModelViewerDOM(fullModel.id);
                         } else {
                             // كان معطلاً وأصبح نشطاً (إضافة جديدة للمعرض)
                             allModels.unshift(fullModel);
+                            window.allGalleryModels = allModels;
                             applyGalleryFilters();
                         }
                     }
@@ -204,11 +213,12 @@ function setupGalleryRealtime() {
             // 🔄 جلب التحديث الفعلي للمخزون لهذا الموديل من السيرفر فوراً 🔄
             const { data: freshInv } = await supabase
                 .from('model_inventory')
-                .select('color_id, available_series, colors(name)')
+                .select('color_id, available_series, color_system_code, color_factory_code, colors(name)')
                 .eq('model_id', targetModelId);
 
             if (freshInv) {
                 allModels[modelIndex].model_inventory = freshInv;
+                window.allGalleryModels = allModels;
 
                 // ⚡ تحديث الكاش المحلي فوراً ⚡
                 const cacheKey = `devo_cached_gallery_models_${currentTenantId || 'default'}`;
@@ -327,7 +337,8 @@ function applyGalleryFilters() {
 
     let filtered = allModels.filter(m => {
         let isMatch = true;
-        const searchStr = `${m.factory_code || ''} ${m.system_code || ''} ${m.name || ''}`.toLowerCase();
+        const colorCodes = m.model_inventory?.map(inv => `${inv.color_system_code || ''} ${inv.color_factory_code || ''}`).join(' ') || '';
+        const searchStr = `${m.factory_code || ''} ${m.system_code || ''} ${m.name || ''} ${colorCodes}`.toLowerCase();
         if (term && !searchStr.includes(term)) isMatch = false;
         if (cat && m.categories?.name !== cat) isMatch = false;
         return isMatch;
@@ -439,8 +450,12 @@ window.changeGalleryPage = (newPage) => {
 // 🌟 4. تفاصيل الموديل والروابط العميقة 🌟
 // ==========================================
 window.openModelViewer = (id, skipHistory = false) => {
-    const model = allModels.find(m => m.id === id);
-    if (!model) return;
+    const modelsList = (allModels && allModels.length > 0) ? allModels : (window.allGalleryModels || []);
+    const model = modelsList.find(m => m.id === id);
+    if (!model) {
+        console.warn(`[openModelViewer] لم يتم العثور على الموديل ذو المعرف: ${id} في قائمة الموديلات النشطة`);
+        return;
+    }
 
     if (!skipHistory) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -474,37 +489,37 @@ window.openModelViewer = (id, skipHistory = false) => {
     
     const sizesHtml = renderSizesTags || '<span class="text-devo-muted text-xs">غير محدد</span>';
 
-    // قسم إضافة طقم (يظهر فقط للموظفين/الآدمن)
-    let setHtml = '';
-    if (isWorker) {
-        setHtml = `
-        <div class="bg-gradient-to-r from-devo-orange/15 via-devo-dark to-devo-black border border-devo-orange/40 rounded-xl p-2.5 sm:p-3 mb-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shadow-md">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-devo-orange/20 border border-devo-orange/50 flex items-center justify-center text-devo-orange shrink-0">
-                    <i class="ph ph-package text-lg font-bold"></i>
-                </div>
-                <div>
-                    <h5 class="text-white text-xs sm:text-sm font-black flex items-center gap-1">
-                        إضافة طقم كامل
-                        <span class="text-[10px] text-devo-orange bg-devo-orange/20 px-1.5 py-0.5 rounded font-bold border border-devo-orange/30">(سيرية من كل لون)</span>
-                    </h5>
-                </div>
+    // قسم إضافة طقم كامل للسلة (متاح للجميع)
+    const setHtml = `
+    <div class="bg-gradient-to-r from-devo-orange/15 via-devo-dark to-devo-black border border-devo-orange/40 rounded-xl p-2.5 sm:p-3 mb-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shadow-md">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-devo-orange/20 border border-devo-orange/50 flex items-center justify-center text-devo-orange shrink-0">
+                <i class="ph ph-package text-lg font-bold"></i>
             </div>
+            <div>
+                <h5 class="text-white text-xs sm:text-sm font-black flex items-center gap-1">
+                    إضافة طقم كامل
+                </h5>
+            </div>
+        </div>
 
-            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <div class="flex items-center bg-devo-dark border border-devo-orange/50 rounded-lg overflow-hidden h-8 sm:h-9">
-                    <button onclick="decrementQty('set-qty-${model.id}')" class="px-2 text-white hover:text-devo-orange transition-colors"><i class="ph ph-minus text-xs"></i></button>
-                    <input type="number" id="set-qty-${model.id}" value="1" min="1" max="99" readonly class="w-8 bg-transparent text-center text-devo-orange text-xs sm:text-sm font-black outline-none border-x border-devo-gray">
-                    <button onclick="incrementQty('set-qty-${model.id}', 99)" class="px-2 text-white hover:text-devo-orange transition-colors"><i class="ph ph-plus text-xs"></i></button>
-                </div>
-                
-                <button id="add-set-btn-${model.id}" onclick="addSetToCart(event, '${model.id}')" class="flex-1 sm:flex-none px-3.5 py-1.5 sm:py-2 bg-gradient-to-r from-devo-orange to-orange-600 hover:from-devo-orangeHover hover:to-orange-700 text-white rounded-lg text-xs sm:text-sm font-black transition-all shadow-lg flex items-center justify-center gap-1.5 active:scale-95">
-                    <i class="ph ph-plus-circle text-base sm:text-lg"></i>
-                    <span>إضافة طقم</span>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <div class="flex items-center bg-devo-dark border border-devo-orange/50 rounded-lg overflow-hidden h-8 sm:h-9 shadow-inner">
+                <button type="button" onclick="decrementQty('set-qty-${model.id}')" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-devo-orange/15 transition-all shrink-0 cursor-pointer select-none" title="تقليل">
+                    <i class="ph-bold ph-minus text-xs sm:text-sm"></i>
+                </button>
+                <input type="number" id="set-qty-${model.id}" value="1" min="1" max="99" readonly class="w-9 sm:w-10 h-full bg-transparent text-center text-devo-orange text-xs sm:text-sm font-black outline-none border-x border-devo-gray/70 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none select-none">
+                <button type="button" onclick="incrementQty('set-qty-${model.id}', 99)" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-devo-orange/15 transition-all shrink-0 cursor-pointer select-none" title="زيادة">
+                    <i class="ph-bold ph-plus text-xs sm:text-sm"></i>
                 </button>
             </div>
-        </div>`;
-    }
+            
+            <button id="add-set-btn-${model.id}" onclick="addSetToCart(event, '${model.id}')" class="flex-1 sm:flex-none px-3.5 py-1.5 sm:py-2 bg-gradient-to-r from-devo-orange to-orange-600 hover:from-devo-orangeHover hover:to-orange-700 text-white rounded-lg text-xs sm:text-sm font-black transition-all shadow-lg flex items-center justify-center gap-1.5 active:scale-95">
+                <i class="ph ph-plus-circle text-base sm:text-lg"></i>
+                <span>إضافة طقم</span>
+            </button>
+        </div>
+    </div>`;
 
     if (content) {
         content.innerHTML = `
@@ -545,7 +560,8 @@ window.openModelViewer = (id, skipHistory = false) => {
 
 function getOwnedQtyForColor(modelId, colorId) {
     const tenantId = getCurrentTenantId() || 'default';
-    const savedOrderData = localStorage.getItem(`devo_edit_order_data_${tenantId}`);
+    const editKey = getTenantStorageKey('devo_edit_order_data');
+    const savedOrderData = localStorage.getItem(editKey) || localStorage.getItem(`devo_edit_order_data_${tenantId}`);
     if (!savedOrderData) return 0;
     try {
         const orderData = JSON.parse(savedOrderData);
@@ -584,10 +600,6 @@ function generateColorsHTML(model, sizesCount) {
         const ownedQty = getOwnedQtyForColor(model.id, inv.color_id);
         const available = dbAvailable + ownedQty;
         const isOut = available === 0;
-        
-        if (!isWorker) {
-            return `<div class="flex justify-between items-center p-2.5 bg-devo-black border border-devo-gray rounded-xl mb-1.5 transition-all"><span class="text-white text-xs sm:text-sm font-bold">${inv.colors?.name}</span><span class="${isOut ? 'text-devo-error' : 'text-devo-success'} text-xs font-bold">${isOut ? 'غير متوفر' : 'متوفر'}</span></div>`;
-        }
 
         const cartQty = getCartQtyForColor(model.id, inv.color_id);
         const displayAvailable = Math.max(0, available - cartQty);
@@ -597,24 +609,33 @@ function generateColorsHTML(model, sizesCount) {
             ? `<span class="inline-flex items-center gap-0.5 text-[10px] font-black text-devo-orange bg-devo-orange/15 border border-devo-orange/40 px-1.5 py-0.5 rounded-md whitespace-nowrap"><i class="ph ph-shopping-cart-simple text-[10px]"></i>${cartQty} في السلة</span>`
             : '';
 
+        // للموظف: إظهار الرصيد الفعلي. للزائر: إخفاء الأرقام تماماً والاكتفاء بحالة التوفر فقط
+        const stockStatusLabel = isWorker
+            ? `<span class="text-[10px] sm:text-xs ${isOut ? 'text-devo-error' : isDisplayOut ? 'text-devo-orange' : 'text-devo-muted'} font-mono whitespace-nowrap">${isOut ? '(نفذت)' : `(متبقي ${displayAvailable})`}</span>`
+            : (isOut ? `<span class="text-[10px] sm:text-xs text-devo-error font-bold whitespace-nowrap">(نفذت)</span>` : isDisplayOut ? `<span class="text-[10px] sm:text-xs text-devo-orange font-bold whitespace-nowrap">(بالسلة)</span>` : '');
+
         return `
         <div class="flex items-center justify-between p-2 sm:p-2.5 bg-devo-black border ${isDisplayOut && !isOut ? 'border-devo-orange/30' : isOut ? 'border-devo-error/30 opacity-70' : 'border-devo-gray'} rounded-xl mb-1.5 gap-2 transition-all duration-300">
             <div class="flex items-center gap-2 min-w-0 flex-1">
                 <span class="w-2.5 h-2.5 rounded-full shrink-0 ${isOut ? 'bg-devo-error' : isDisplayOut ? 'bg-devo-orange' : 'bg-devo-success'}"></span>
                 <div class="flex items-center gap-1.5 flex-wrap min-w-0">
                     <span class="text-white font-bold text-xs sm:text-sm truncate">${inv.colors?.name}</span>
-                    <span class="text-[10px] sm:text-xs ${isOut ? 'text-devo-error' : isDisplayOut ? 'text-devo-orange' : 'text-devo-muted'} font-mono whitespace-nowrap">${isOut ? '(نفذت)' : `(متبقي ${displayAvailable})`}</span>
+                    ${stockStatusLabel}
                     ${cartBadge}
                 </div>
             </div>
             ${isOut ? `<span class="text-[11px] font-bold text-devo-error px-2 py-1 bg-devo-error/10 border border-devo-error/20 rounded-lg shrink-0">غير متوفر</span>` : isDisplayOut ? `<span class="text-[11px] font-bold text-devo-orange px-2 py-1 bg-devo-orange/10 border border-devo-orange/20 rounded-lg shrink-0">مضافة كلها</span>` : `
                 <div class="flex items-center gap-1.5 shrink-0">
                     <div class="flex items-center bg-devo-dark border border-devo-gray rounded-lg overflow-hidden h-8 sm:h-9">
-                        <button onclick="decrementQty('qty-${inv.color_id}')" class="px-2 text-white hover:text-devo-orange transition-colors"><i class="ph ph-minus text-xs"></i></button>
-                        <input type="number" id="qty-${inv.color_id}" value="1" min="1" max="${displayAvailable}" readonly class="w-8 sm:w-10 bg-transparent text-center text-white text-xs sm:text-sm font-bold outline-none border-x border-devo-gray appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none">
-                        <button onclick="incrementQty('qty-${inv.color_id}', ${displayAvailable})" class="px-2 text-white hover:text-devo-orange transition-colors"><i class="ph ph-plus text-xs"></i></button>
+                        <button type="button" onclick="decrementQty('qty-${inv.color_id}')" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="تقليل">
+                            <i class="ph-bold ph-minus text-xs sm:text-sm"></i>
+                        </button>
+                        <input type="number" id="qty-${inv.color_id}" value="1" min="1" max="${displayAvailable}" readonly class="w-9 sm:w-10 h-full bg-transparent text-center text-white text-xs sm:text-sm font-bold outline-none border-x border-devo-gray appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none select-none">
+                        <button type="button" onclick="incrementQty('qty-${inv.color_id}', ${displayAvailable})" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="زيادة">
+                            <i class="ph-bold ph-plus text-xs sm:text-sm"></i>
+                        </button>
                     </div>
-                    <button onclick="addToCart(event, '${model.id}', '${inv.color_id}', '${model.name.replace(/'/g, "\\'")}', '${inv.colors?.name}', ${model.price}, '${mainImg}', ${dbAvailable}, ${sizesCount}, '${model.factory_code || model.system_code}')" class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-lg text-xs sm:text-sm font-bold transition-all shadow-md flex justify-center items-center gap-1 active:scale-95">
+                    <button onclick="addToCart(event, '${model.id}', '${inv.color_id}', '${model.name.replace(/'/g, "\\'")}', '${inv.colors?.name}', ${model.price}, '${mainImg}', ${dbAvailable}, ${sizesCount}, '${inv.color_system_code || inv.color_factory_code || model.factory_code || model.system_code}', '${inv.color_system_code || ''}', '${inv.color_factory_code || ''}')" class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-lg text-xs sm:text-sm font-bold transition-all shadow-md flex justify-center items-center gap-1 active:scale-95">
                         <i class="ph ph-shopping-cart-simple text-sm sm:text-base"></i> <span class="hidden xs:inline">إضافة</span>
                     </button>
                 </div>
@@ -743,7 +764,9 @@ window.addSetToCart = (event, modelId) => {
                 image: mainImg,
                 qty: qtyToAdd,
                 sizesCount: sizesCount,
-                factoryCode: factoryCode
+                factoryCode: inv.color_system_code || inv.color_factory_code || factoryCode,
+                colorSystemCode: inv.color_system_code || '',
+                colorFactoryCode: inv.color_factory_code || ''
             });
         }
         addedColorsCount++;
@@ -780,7 +803,7 @@ window.addSetToCart = (event, modelId) => {
     }
 };
 
-window.addToCart = (event, modelId, colorId, modelName, colorName, price, image, maxAvailable, sizesCount, factoryCode) => {
+window.addToCart = (event, modelId, colorId, modelName, colorName, price, image, maxAvailable, sizesCount, factoryCode, colorSystemCode = '', colorFactoryCode = '') => {
     const btn = event?.currentTarget || event?.target;
     if (btn) {
         if (btn.dataset.locked === "true") return; // 🛡️ حماية ضد الضغط المتكرر
@@ -818,7 +841,7 @@ window.addToCart = (event, modelId, colorId, modelName, colorName, price, image,
         }
         localCart[existingIndex].qty += qty;
     } else {
-        localCart.push({ modelId, colorId, modelName, colorName, price, image, qty, sizesCount, factoryCode });
+        localCart.push({ modelId, colorId, modelName, colorName, price, image, qty, sizesCount, factoryCode, colorSystemCode, colorFactoryCode });
     }
 
     saveLocalCart();
@@ -843,8 +866,7 @@ window.addToCart = (event, modelId, colorId, modelName, colorName, price, image,
 };
 
 function getTenantCartKey() {
-    const tenantId = getCurrentTenantId() || 'default';
-    return `devo_cart_${tenantId}`;
+    return getTenantStorageKey('devo_cart');
 }
 
 function loadLocalCart() {
@@ -877,17 +899,22 @@ function updateFloatingCart() {
 
 export function findModelByCode(code, matchType = 'both') {
     if (!code) return null;
-    const cleanCode = code.trim();
+    const modelsList = (allModels && allModels.length > 0) ? allModels : (window.allGalleryModels || []);
+    const cleanCode = code.toString().trim();
     const upperCode = cleanCode.toUpperCase();
     const lowerClean = cleanCode.toLowerCase();
 
     // 1. Check if barcode starts with 'S' prefix (System Code)
     if (upperCode.startsWith('S') && cleanCode.length > 1) {
         const baseCode = cleanCode.slice(1).trim().toLowerCase();
-        const found = allModels.find(m => {
-            if (!m.system_code) return false;
-            const sysStr = m.system_code.toString().trim().toLowerCase();
-            return sysStr === baseCode || ('s' + sysStr) === lowerClean || sysStr === lowerClean;
+        const found = modelsList.find(m => {
+            const sysStr = m.system_code ? m.system_code.toString().trim().toLowerCase() : '';
+            const matchSys = sysStr && (sysStr === baseCode || ('s' + sysStr) === lowerClean || sysStr === lowerClean);
+            const matchColor = m.model_inventory?.some(inv => {
+                const cStr = inv.color_system_code ? inv.color_system_code.toString().trim().toLowerCase() : '';
+                return cStr && (cStr === baseCode || ('s' + cStr) === lowerClean || cStr === lowerClean);
+            });
+            return matchSys || matchColor;
         });
         if (found) return found;
     }
@@ -895,25 +922,34 @@ export function findModelByCode(code, matchType = 'both') {
     // 2. Check if barcode starts with 'F' prefix (Factory Code)
     if (upperCode.startsWith('F') && cleanCode.length > 1) {
         const baseCode = cleanCode.slice(1).trim().toLowerCase();
-        const found = allModels.find(m => {
-            if (!m.factory_code) return false;
-            const facStr = m.factory_code.toString().trim().toLowerCase();
-            return facStr === baseCode || ('f' + facStr) === lowerClean || facStr === lowerClean;
+        const found = modelsList.find(m => {
+            const facStr = m.factory_code ? m.factory_code.toString().trim().toLowerCase() : '';
+            const matchFac = facStr && (facStr === baseCode || ('f' + facStr) === lowerClean || facStr === lowerClean);
+            const matchColor = m.model_inventory?.some(inv => {
+                const cStr = inv.color_factory_code ? inv.color_factory_code.toString().trim().toLowerCase() : '';
+                return cStr && (cStr === baseCode || ('f' + cStr) === lowerClean || cStr === lowerClean);
+            });
+            return matchFac || matchColor;
         });
         if (found) return found;
     }
 
     // 3. Fallback matching (legacy barcodes or raw numbers)
-    return allModels.find(m => {
+    return modelsList.find(m => {
         const isSystemMatch = m.system_code && m.system_code.toString().toLowerCase() === lowerClean;
         const isFactoryMatch = m.factory_code && m.factory_code.toString().toLowerCase() === lowerClean;
+        const isColorSysMatch = m.model_inventory?.some(inv => inv.color_system_code && inv.color_system_code.toString().toLowerCase() === lowerClean);
+        const isColorFacMatch = m.model_inventory?.some(inv => inv.color_factory_code && inv.color_factory_code.toString().toLowerCase() === lowerClean);
         
         if (matchType === 'system') {
-            return isSystemMatch;
+            return isSystemMatch || isColorSysMatch;
         } else if (matchType === 'factory') {
-            return isFactoryMatch;
+            return isFactoryMatch || isColorFacMatch;
         } else {
-            return isSystemMatch || isFactoryMatch;
+            return isSystemMatch || isFactoryMatch || isColorSysMatch || isColorFacMatch;
         }
     });
 }
+
+// إتاحة الدالة بشكل عام لحمايتها من أي تضارب إصدارات
+window.findModelByCode = findModelByCode;

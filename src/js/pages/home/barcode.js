@@ -1,4 +1,4 @@
-import { findModelByCode } from './gallery.js';
+import { findModelByCode } from './gallery.js?v=8.5';
 import { showToast } from '../../components/toast.js';
 import { supabase } from '../../config/supabase.js';
 
@@ -307,11 +307,14 @@ function onScanSuccess(decodedText) {
     playBeepSound();
 
     const code = decodedText.trim();
-    const model = findModelByCode(code, matchType);
+    const finder = window.findModelByCode || findModelByCode;
+    const model = finder(code, matchType) || finder(code, 'both');
 
     if (model) {
         showToast(`تم مسح الباركود بنجاح. الموديل: ${model.name}`, 'success');
-        window.openModelViewer(model.id);
+        if (typeof window.openModelViewer === 'function') {
+            window.openModelViewer(model.id);
+        }
     } else {
         showToast(`الباركود (${code}) غير مطابق لأي موديل نشط بالمعرض`, 'error');
         // Resume scanning after a 2.5 seconds delay so toast is readable
@@ -330,10 +333,13 @@ function handleManualCodeSubmit() {
         return showToast("يرجى إدخال كود الموديل للبحث", "warning");
     }
 
-    const model = findModelByCode(code, matchType);
+    const finder = window.findModelByCode || findModelByCode;
+    const model = finder(code, matchType) || finder(code, 'both');
     if (model) {
         showToast(`تم العثور على الموديل: ${model.name}`, 'success');
-        window.openModelViewer(model.id);
+        if (typeof window.openModelViewer === 'function') {
+            window.openModelViewer(model.id);
+        }
     } else {
         showToast(`كود الموديل (${code}) غير موجود بالمعرض`, 'error');
     }

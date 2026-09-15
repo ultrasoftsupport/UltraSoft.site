@@ -33,22 +33,68 @@ async function loadHeroSettings() {
         } catch (e) {}
     }
 
-    // 🔄 2. الجلب التحديثي من السيرفر المصفى بـ tenant_id الخاص بالمعرض والمصنع الحالي 🔄
-    let query = supabase.from('home_settings').select('*');
+    // 🔄 2. الجلب التحديثي من الجداول المنظمة أولاً 🔄
+    const map = {};
     if (currentTenantId) {
-        query = query.eq('tenant_id', currentTenantId);
+        try {
+            const [{ data: brandRow }, { data: socRow }, { data: posRow }] = await Promise.all([
+                supabase.from('tenant_branding_settings').select('*').eq('tenant_id', currentTenantId).maybeSingle(),
+                supabase.from('tenant_social_links').select('*').eq('tenant_id', currentTenantId).maybeSingle(),
+                supabase.from('tenant_pos_settings').select('*').eq('tenant_id', currentTenantId).maybeSingle()
+            ]);
+
+            if (brandRow && brandRow.hero_config) {
+                const hero = brandRow.hero_config;
+                map['hero_badge'] = hero.badge || '';
+                map['hero_title'] = hero.title || '';
+                map['hero_title_color'] = hero.title_color || '#ffffff';
+                map['hero_subtitle'] = hero.subtitle || '';
+                map['hero_subtitle_color'] = hero.subtitle_color || '#e0f2fe';
+                map['hero_bg_desktop'] = hero.desktop_url || '';
+                map['hero_bg_mobile'] = hero.mobile_url || '';
+                map['hero_bg_show'] = hero.show !== false ? 'true' : 'false';
+                map['hero_bg_blend'] = hero.blend || 'normal';
+                map['hero_bg_glass'] = hero.glass_mode || 'soft';
+                map['hero_bg_edge_feather'] = String(hero.edge_feather ?? 25);
+                map['hero_bg_opacity'] = String(hero.opacity ?? 100);
+                map['hero_bg_overlay_opacity'] = String(hero.overlay_opacity ?? 40);
+                map['hero_bg_blur'] = String(hero.blur ?? 0);
+                map['hero_glass_opacity'] = String(hero.glass_opacity ?? 30);
+                map['hero_glass_blur'] = String(hero.glass_blur ?? 12);
+            }
+            if (socRow) {
+                map['social_facebook'] = socRow.facebook_url || '';
+                map['social_whatsapp'] = socRow.whatsapp_number || '';
+                map['social_telegram'] = socRow.telegram_channel || '';
+                map['social_maps'] = socRow.google_maps_url || '';
+            }
+            if (posRow) {
+                map['bg_enable_gallery'] = posRow.enable_gallery ? 'true' : 'false';
+                map['bg_enable_barcode'] = posRow.enable_barcode ? 'true' : 'false';
+                map['bg_enable_cart'] = posRow.enable_cart ? 'true' : 'false';
+                map['bg_enable_orders'] = posRow.enable_orders ? 'true' : 'false';
+                map['barcode_scan_mode'] = posRow.barcode_scan_mode || 'both';
+                map['barcode_match_type'] = posRow.barcode_match_type || 'both';
+            }
+        } catch(e) {}
     }
 
-    const { data, error } = await query;
-    if (error || !data || data.length === 0) return;
+    // احتياطي من home_settings إذا لم تتوافر
+    if (!map['hero_title']) {
+        let query = supabase.from('home_settings').select('*');
+        if (currentTenantId) query = query.eq('tenant_id', currentTenantId);
+        const { data } = await query;
+        if (data && data.length > 0) {
+            data.forEach(item => map[item.setting_key] = item.setting_value);
+        }
+    }
 
-    const map = {};
-    data.forEach(item => map[item.setting_key] = item.setting_value);
-
-    applyHeroSettingsMap(map);
-    try {
-        localStorage.setItem(cacheKey, JSON.stringify(map));
-    } catch (e) {}
+    if (Object.keys(map).length > 0) {
+        applyHeroSettingsMap(map);
+        try {
+            localStorage.setItem(cacheKey, JSON.stringify(map));
+        } catch (e) {}
+    }
 }
 
 function sanitizeBrandColor(color, fallback) {

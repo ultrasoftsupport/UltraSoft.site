@@ -1,10 +1,11 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js?v=8.5';
 
 let currentUser = null;
 let allOrders = [];
+let assignedVisitorOrders = [];
 let currentTab = 'active'; 
 let orderToEdit = null;
 
@@ -19,7 +20,9 @@ export async function initOrdersView() {
     });
 
     await fetchMyOrders();
+    await fetchAssignedVisitorOrders();
     setupOrdersRealtime(); // 🌟 تفعيل الرادار اللحظي للموظف 🌟
+    setupAssignedVisitorOrdersRealtime();
 }
 
 export async function refreshWorkerOrders() {
@@ -137,16 +140,99 @@ function setupOrdersRealtime() {
 
 window.switchOrdersTab = (tab) => {
     currentTab = tab;
-    document.getElementById('tab-orders-active').className = tab === 'active' 
-        ? 'px-4 py-2 text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all' 
-        : 'px-4 py-2 text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all';
+    const tabActive = document.getElementById('tab-orders-active');
+    const tabArchived = document.getElementById('tab-orders-archived');
+    const tabAssigned = document.getElementById('tab-orders-assigned-visitors');
+
+    if (tabActive) tabActive.className = tab === 'active' 
+        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all cursor-pointer' 
+        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all cursor-pointer';
         
-    document.getElementById('tab-orders-archived').className = tab === 'archived' 
-        ? 'px-4 py-2 text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all' 
-        : 'px-4 py-2 text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all';
+    if (tabArchived) tabArchived.className = tab === 'archived' 
+        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all cursor-pointer' 
+        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all cursor-pointer';
         
+    if (tabAssigned) tabAssigned.className = tab === 'assigned_visitors' 
+        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all flex items-center gap-1.5 cursor-pointer' 
+        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 cursor-pointer';
+
     renderOrders();
 };
+
+// --- مساعدات الواتساب لطلبات الزوار المسندة ---
+function formatWhatsAppUrl(rawPhone, text) {
+    if (!rawPhone) return '#';
+    let clean = String(rawPhone).replace(/[^\d+]/g, '');
+    if (clean.startsWith('0') && clean.length === 11) {
+        clean = '2' + clean;
+    } else if (!clean.startsWith('2') && !clean.startsWith('+') && clean.length === 10) {
+        clean = '20' + clean;
+    }
+    clean = clean.replace(/^\+/, '');
+    return `https://wa.me/${clean}?text=${encodeURIComponent(text)}`;
+}
+
+function getWhatsAppVisitorOrderMsg(order) {
+    const code = order.order_code || '';
+    const name = order.customer_name || 'عميلنا العزيز';
+    const amount = Number(order.total_amount || 0).toLocaleString();
+    const series = order.total_series || 0;
+    return `مرحباً أ/ ${name}،
+معك مسؤول المبيعات بخصوص طلبك رقم (#${code}):
+📦 إجمالي السريات: ${series} سيريه
+💰 المبلغ الإجمالي: ${amount} ج.م
+
+نحن بصدد مراجعة وتجهيز طلبكم، هل تود تعديل أي بيانات أو تأكيد الاستلام؟`;
+}
+
+async function fetchAssignedVisitorOrders() {
+    if (!currentUser) return;
+    try {
+        const currentTenantId = getCurrentTenantId();
+        let query = supabase
+            .from('visitor_orders')
+            .select('*')
+            .eq('assigned_worker_id', currentUser.id)
+            .eq('is_deleted', false)
+            .order('created_at', { ascending: false });
+
+        if (currentTenantId) {
+            query = query.eq('tenant_id', currentTenantId);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) {
+            assignedVisitorOrders = data;
+            const badge = document.getElementById('worker-assigned-vo-badge');
+            if (badge) {
+                const pendingCount = assignedVisitorOrders.filter(o => o.status === 'pending').length;
+                badge.textContent = pendingCount;
+                badge.classList.toggle('hidden', pendingCount === 0);
+            }
+            if (currentTab === 'assigned_visitors') {
+                renderOrders();
+            }
+        }
+    } catch (e) {
+        console.error('Error fetching assigned visitor orders for worker:', e);
+    }
+}
+
+function setupAssignedVisitorOrdersRealtime() {
+    if (!currentUser) return;
+    const currentTenantId = getCurrentTenantId();
+    const filterConfig = currentTenantId ? { filter: `tenant_id=eq.${currentTenantId}` } : {};
+
+    supabase.channel('worker_assigned_vo_' + currentUser.id)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'visitor_orders', ...filterConfig }, async (payload) => {
+            if (!currentUser) return;
+            await fetchAssignedVisitorOrders();
+            if (payload.eventType === 'UPDATE' && payload.new.assigned_worker_id === currentUser.id && payload.old?.assigned_worker_id !== currentUser.id) {
+                showToast(`تم إسناد طلب زائر جديد (#${payload.new.order_code}) لك للمراجعة والتعديل!`, 'info');
+            }
+        })
+        .subscribe();
+}
 
 async function fetchMyOrders() {
     const tBody = document.getElementById('orders-table-body');
@@ -207,6 +293,109 @@ function renderOrders() {
     const dateFrom = document.getElementById('ord-date-from')?.value;
     const dateTo = document.getElementById('ord-date-to')?.value;
 
+    const tbody = document.getElementById('orders-table-body');
+    const cardsBody = document.getElementById('orders-cards-body');
+
+    // 🌟 رندر طلبات الزوار المسندة للعامل 🌟
+    if (currentTab === 'assigned_visitors') {
+        const filteredVO = assignedVisitorOrders.filter(o => {
+            const code = (o.order_code || '').toLowerCase();
+            const name = (o.customer_name || '').toLowerCase();
+            const phone = (o.customer_phone_1 || '');
+            if (term && !code.includes(term) && !name.includes(term) && !phone.includes(term)) return false;
+            return true;
+        });
+
+        if (filteredVO.length === 0) {
+            const emptyMsg = `<div class="p-10 text-center text-devo-muted">لا توجد طلبات زوار مسندة إليك حالياً.</div>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6">${emptyMsg}</td></tr>`;
+            if (cardsBody) cardsBody.innerHTML = emptyMsg;
+            return;
+        }
+
+        if (tbody) tbody.innerHTML = '';
+        if (cardsBody) cardsBody.innerHTML = '';
+
+        filteredVO.forEach(o => {
+            const dateStr = new Date(o.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const statusLabel = o.status === 'pending' ? 'في انتظار المراجعة' : (o.status === 'approved' ? 'معتمد' : (o.status === 'rejected' ? 'مرفوض' : o.status));
+            const statusColor = o.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : (o.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-rose-500/20 text-rose-400 border-rose-500/40');
+            const statusBadge = `<span class="${statusColor} border text-[11px] font-bold px-2.5 py-0.5 rounded-full font-sans">${statusLabel}</span>`;
+
+            if (tbody) {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-devo-gray/10 transition-colors border-b border-devo-gray/40">
+                        <td class="p-3">
+                            <span class="font-mono font-bold text-amber-400 text-xs">#${o.order_code}</span>
+                            <span class="text-[10px] bg-amber-500/15 text-amber-300 px-1.5 py-0.5 rounded mr-1 font-sans">طلب زائر</span>
+                        </td>
+                        <td class="p-3 text-xs text-devo-muted">${dateStr}</td>
+                        <td class="p-3">
+                            <div class="text-white font-bold text-xs">${o.customer_name}</div>
+                            <div class="text-[11px] font-mono text-devo-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                <span>${o.customer_phone_1 || '-'}</span>
+                                ${o.customer_phone_1 ? `
+                                    <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppVisitorOrderMsg(o))}" target="_blank" class="w-5 h-5 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 inline-flex items-center justify-center transition-all cursor-pointer" title="مراسلة العميل واتساب">
+                                        <i class="ph ph-whatsapp-logo text-xs"></i>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </td>
+                        <td class="p-3 text-center text-xs font-bold text-blue-400 font-mono">${o.total_series} سيريه (${o.total_models || (o.items?.length || 0)} أصناف)</td>
+                        <td class="p-3 text-center text-xs font-black text-devo-orange font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</td>
+                        <td class="p-3 text-center">${statusBadge}</td>
+                        <td class="p-3 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button type="button" onclick="window.viewAssignedVisitorOrder('${o.id}')" class="p-2 bg-devo-black border border-devo-gray hover:bg-devo-gray rounded-lg text-white transition-colors cursor-pointer" title="معاينة الأصناف"><i class="ph ph-eye"></i></button>
+                                ${o.status === 'pending' ? `
+                                    <button type="button" onclick="window.editVisitorOrder('${o.id}')" class="p-2 bg-devo-orange/10 text-devo-orange hover:bg-devo-orange hover:text-white rounded-lg transition-colors cursor-pointer" title="تعديل الطلب في السلة"><i class="ph ph-pencil-simple"></i></button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (cardsBody) {
+                cardsBody.innerHTML += `
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-4 space-y-2.5 relative shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-mono font-bold text-amber-400 text-xs">#${o.order_code}</span>
+                                <span class="text-[10px] bg-amber-500/15 text-amber-300 px-1.5 py-0.5 rounded mr-1">طلب زائر</span>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div class="text-white font-bold text-sm">${o.customer_name}</div>
+                        <div class="text-xs text-devo-muted font-mono flex items-center gap-2">
+                            <span>${o.customer_phone_1 || '-'}</span>
+                            ${o.customer_phone_1 ? `
+                                <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppVisitorOrderMsg(o))}" target="_blank" class="px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1 text-[10px] font-bold transition-all cursor-pointer" title="مراسلة العميل واتساب">
+                                    <i class="ph ph-whatsapp-logo text-xs"></i> واتساب
+                                </a>
+                            ` : ''}
+                        </div>
+                        <div class="flex justify-between items-center text-xs pt-2 border-t border-devo-gray/50">
+                            <span class="text-blue-400 font-mono font-bold">${o.total_series} سيريه</span>
+                            <span class="text-devo-orange font-black font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</span>
+                        </div>
+                        <div class="pt-2 border-t border-devo-gray/60 flex items-center justify-end gap-2">
+                            <button type="button" onclick="window.viewAssignedVisitorOrder('${o.id}')" class="px-3 py-1.5 bg-devo-black border border-devo-gray text-white text-xs rounded-xl flex items-center gap-1 cursor-pointer">
+                                <i class="ph ph-eye"></i> معاينة
+                            </button>
+                            ${o.status === 'pending' ? `
+                                <button type="button" onclick="window.editVisitorOrder('${o.id}')" class="px-3.5 py-1.5 bg-devo-orange text-white text-xs font-bold rounded-xl flex items-center gap-1 cursor-pointer shadow">
+                                    <i class="ph ph-pencil-simple"></i> تعديل بالسلة
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        return;
+    }
+
     const filtered = allOrders.filter(o => {
         const isArchived = o.is_archived || false;
         if (currentTab === 'active' && isArchived) return false;
@@ -224,9 +413,6 @@ function renderOrders() {
         return true;
     });
 
-    const tbody = document.getElementById('orders-table-body');
-    const cardsBody = document.getElementById('orders-cards-body');
-    
     if (filtered.length === 0) {
         const emptyMsg = `<div class="p-10 text-center text-devo-muted">لا توجد أوردرات تطابق بحثك في هذا القسم.</div>`;
         if (tbody) tbody.innerHTML = `<tr><td colspan="6">${emptyMsg}</td></tr>`;
@@ -587,6 +773,9 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
         deposit_receiver: targetOrder.deposit_receiver, notes: targetOrder.notes,
         original_items: targetOrder.order_items
     };
+    try {
+        localStorage.setItem(getTenantStorageKey('devo_edit_order_data'), JSON.stringify(orderData));
+    } catch(e) {}
     localStorage.setItem(`devo_edit_order_data_${tenantId}`, JSON.stringify(orderData));
     
     btn.innerHTML = originalText;
@@ -665,3 +854,104 @@ async function logOrderAction(orderId, actionType, notes) {
         console.error('Error logging order action:', err);
     }
 }
+
+// 🌟 معاينة تفاصيل طلب الزائر المسند للعامل 🌟
+window.viewAssignedVisitorOrder = (orderId) => {
+    const o = assignedVisitorOrders.find(x => x.id === orderId);
+    if (!o) return;
+
+    const items = Array.isArray(o.items) ? o.items : [];
+    let itemsHtml = items.map(item => `
+        <tr class="border-b border-devo-gray last:border-0">
+            <td class="py-3 text-white text-sm font-bold">${item.model_name || '-'} <span class="text-xs text-devo-muted font-mono">(${item.factory_code || '-'})</span></td>
+            <td class="py-3 text-devo-info text-xs leading-relaxed">${item.color_name || '-'}</td>
+            <td class="py-3 text-white font-black text-center">
+                <span class="text-base text-blue-400 font-mono">${item.qty || 0} سيريه</span>
+            </td>
+            <td class="py-3 text-devo-muted text-center font-mono">${Number(item.price || 0).toLocaleString()} ج.م</td>
+            <td class="py-3 text-devo-orange font-black text-left text-base font-mono">${(Number(item.qty || 0) * Number(item.price || 0)).toLocaleString()} ج.م</td>
+        </tr>
+    `).join('');
+
+    const modalContent = document.getElementById('order-details-content');
+    if (!modalContent) return;
+
+    modalContent.innerHTML = `
+        <div class="bg-devo-black p-4 rounded-xl border border-devo-gray mb-6 flex justify-between items-center">
+            <div>
+                <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold">طلب زائر معلق</span>
+                <h4 class="text-white font-bold text-lg mt-1">${o.customer_name || 'عميل بدون اسم'}</h4>
+                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                    <p class="text-sm text-devo-muted font-mono" dir="ltr">${o.customer_phone_1 || '-'}</p>
+                    ${o.customer_phone_1 ? `
+                        <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppVisitorOrderMsg(o))}" target="_blank" class="px-2 py-0.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 text-xs font-bold inline-flex items-center gap-1 transition-all cursor-pointer" title="مراسلة العميل واتساب">
+                            <i class="ph ph-whatsapp-logo text-sm"></i> محادثة واتساب
+                        </a>
+                    ` : ''}
+                </div>
+                ${o.customer_address ? `<p class="text-xs text-devo-muted mt-1"><i class="ph ph-map-pin"></i> ${o.customer_address}</p>` : ''}
+            </div>
+            <div class="text-left">
+                <p class="text-xs text-devo-muted">كود طلب الزائر</p>
+                <p class="text-amber-400 font-mono font-black text-xl tracking-wider">#${o.order_code}</p>
+            </div>
+        </div>
+
+        <h4 class="text-white font-bold mb-3 border-b border-devo-gray pb-2 flex items-center justify-between">
+            <span>المنتجات المطلوبة</span>
+            <span class="text-xs text-devo-muted">إجمالي السريات: ${o.total_series || 0}</span>
+        </h4>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right mb-6">
+                <thead class="text-xs text-devo-muted bg-devo-black">
+                    <tr>
+                        <th class="py-2 px-1">الموديل</th>
+                        <th class="py-2 px-1">اللون</th>
+                        <th class="py-2 px-1 text-center">السريات</th>
+                        <th class="py-2 px-1 text-center">سعر السيريه</th>
+                        <th class="py-2 px-1 text-left">الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+        </div>
+
+        <div class="bg-devo-black p-4 rounded-xl border border-devo-gray space-y-2 text-sm">
+            <div class="flex justify-between text-devo-muted"><span>عدد الموديلات:</span> <span class="text-white font-bold">${o.total_models || items.length}</span></div>
+            <div class="flex justify-between border-t border-devo-gray pt-2 mt-2">
+                <span class="text-white font-bold">الإجمالي المطلوب:</span> 
+                <span class="text-devo-orange font-black text-lg font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</span>
+            </div>
+        </div>
+
+        ${o.notes ? `
+            <div class="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200">
+                <b>ملاحظات العميل:</b> ${o.notes}
+            </div>
+        ` : ''}
+
+        <div class="mt-6 pt-4 border-t border-devo-gray flex justify-end gap-2">
+            <button type="button" onclick="window.closeOrderDetailsModal()" class="px-4 py-2 bg-devo-gray text-white text-xs rounded-xl font-bold cursor-pointer">إغلاق</button>
+            ${o.status === 'pending' ? `
+                <button type="button" onclick="window.closeOrderDetailsModal(); window.editVisitorOrder('${o.id}');" class="px-5 py-2 bg-devo-orange text-white text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg shadow-devo-orange/20">
+                    <i class="ph ph-pencil-simple text-sm"></i>
+                    <span>تعديل الطلب في السلة</span>
+                </button>
+            ` : ''}
+        </div>
+    `;
+
+    const modal = document.getElementById('order-details-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+};
+
+window.closeOrderDetailsModal = () => {
+    const modal = document.getElementById('order-details-modal');
+    if (modal) {
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+};

@@ -5,10 +5,22 @@ import { supabase } from '../config/supabase.js';
  * Handles Master PIN Verification, Lockout Guard, Audit Logs & Accounts Supervision
  */
 
+// Cached client IP to avoid repeated API calls
+let cachedClientIp = null;
+
 // Helper to get client IP and User Agent
-function getClientMeta() {
+async function getClientMeta() {
+    if (!cachedClientIp) {
+        try {
+            const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(3000) });
+            const data = await res.json();
+            cachedClientIp = data.ip || 'unknown';
+        } catch (e) {
+            cachedClientIp = 'unknown';
+        }
+    }
     return {
-        ip: '127.0.0.1', // Web client fallback
+        ip: cachedClientIp,
         userAgent: navigator?.userAgent || 'Unknown Browser'
     };
 }
@@ -18,7 +30,7 @@ function getClientMeta() {
  */
 export async function verifySuperAdminPin(userId, pinCode) {
     try {
-        const meta = getClientMeta();
+        const meta = await getClientMeta();
         const { data, error } = await supabase.rpc('verify_super_admin_security_pin', {
             p_user_id: userId,
             p_pin: pinCode,
@@ -84,7 +96,7 @@ export function revokeSuperAdminPinVerification(userId) {
  */
 export async function logSecurityEvent(userId, username, eventType, severity = 'LOW', details = {}) {
     try {
-        const meta = getClientMeta();
+        const meta = await getClientMeta();
         await supabase.rpc('log_super_admin_security_event', {
             p_user_id: userId,
             p_username: username,

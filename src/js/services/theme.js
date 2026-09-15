@@ -1356,15 +1356,31 @@ export async function syncActiveTheme() {
     let activeThemeId = null;
 
     if (currentTenantId) {
-      const { data: tenantSetting } = await supabase
-        .from('home_settings')
-        .select('setting_value')
-        .eq('tenant_id', currentTenantId)
-        .eq('setting_key', 'active_theme_id')
-        .maybeSingle();
+      // 1. محاولة القراءة من جدول tenant_branding_settings المنظم أولاً
+      try {
+        const { data: brandRow } = await supabase
+          .from('tenant_branding_settings')
+          .select('active_theme_id')
+          .eq('tenant_id', currentTenantId)
+          .maybeSingle();
 
-      if (tenantSetting && tenantSetting.setting_value) {
-        activeThemeId = tenantSetting.setting_value;
+        if (brandRow && brandRow.active_theme_id) {
+          activeThemeId = brandRow.active_theme_id;
+        }
+      } catch (err) {}
+
+      // 2. كاش احتياطي من home_settings
+      if (!activeThemeId) {
+        const { data: tenantSetting } = await supabase
+          .from('home_settings')
+          .select('setting_value')
+          .eq('tenant_id', currentTenantId)
+          .eq('setting_key', 'active_theme_id')
+          .maybeSingle();
+
+        if (tenantSetting && tenantSetting.setting_value) {
+          activeThemeId = tenantSetting.setting_value;
+        }
       }
     }
 
@@ -1601,8 +1617,20 @@ export async function activateTheme(themeId) {
   if (!themeId) return null;
   const currentTenantId = getCurrentTenantId();
 
-  // 1. Save active theme for this tenant in home_settings
+  // 1. Save active theme for this tenant in tenant_branding_settings and home_settings
   if (currentTenantId) {
+    try {
+      await supabase
+        .from('tenant_branding_settings')
+        .upsert({
+          tenant_id: currentTenantId,
+          active_theme_id: themeId,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'tenant_id' });
+    } catch (e) {
+      console.warn('Saving active_theme_id in tenant_branding_settings notice:', e.message);
+    }
+
     try {
       await supabase
         .from('home_settings')

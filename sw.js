@@ -1,16 +1,22 @@
-const STATIC_CACHE = 'ultrasoft-static-v1';
-const IMAGE_CACHE = 'ultrasoft-images-v1';
+const CACHE_VERSION = 'v2.0.1';
+const STATIC_CACHE = `ultrasoft-static-${CACHE_VERSION}`;
+const IMAGE_CACHE = `ultrasoft-images-${CACHE_VERSION}`;
 
 const staticAssets = [
   './',
   './index.html',
   './admin.html',
   './auth.html',
+  './landing.html',
+  './super_admin.html',
+  './super_auth.html',
+  './src/css/output.css',
   './src/css/ultrasoft-theme.css',
   './src/assets/icons/ultrasoft_transparent.png',
   './src/assets/icons/ultrasoft.png',
   './manifest-index.json',
-  './manifest-admin.json'
+  './manifest-admin.json',
+  './manifest.json'
 ];
 
 // تثبيت وتجهيز السيرفس وركر

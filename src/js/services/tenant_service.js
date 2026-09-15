@@ -4,13 +4,42 @@ import { supabase } from '../config/supabase.js';
 let cachedTenant = null;
 
 /**
+ * 🔗 تطبيع وضبط روابط الصور (Imgur, Dropbox, Google Drive) لضمان عرضها المباشر بدون حظر أو أخطاء
+ */
+export function normalizeImageUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    let clean = url.trim();
+    if (!clean) return '';
+
+    // 1. تحويل روابط Imgur المباشرة أو صفحات المعرض إلى رابط صورة مباشر (.png)
+    // يدعم https://imgur.com/3KBQ1cd و https://imgur.com/a/3KBQ1cd و https://i.imgur.com/3KBQ1cd
+    const imgurMatch = clean.match(/^https?:\/\/(?:i\.)?imgur\.com\/(?:a\/|gallery\/)?([a-zA-Z0-9]+)(?:\.[a-zA-Z0-9]+)?$/i);
+    if (imgurMatch && imgurMatch[1]) {
+        return `https://i.imgur.com/${imgurMatch[1]}.png`;
+    }
+
+    // 2. تحويل روابط Dropbox العادية لتكون تنزيل/عرض مباشر
+    if (clean.includes('dropbox.com')) {
+        return clean.replace(/[?&]dl=0/, '?raw=1');
+    }
+
+    // 3. تحويل روابط Google Drive
+    const gDriveMatch = clean.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i);
+    if (gDriveMatch && gDriveMatch[1]) {
+        return `https://drive.google.com/uc?export=view&id=${gDriveMatch[1]}`;
+    }
+
+    return clean;
+}
+
+/**
  * 🔍 1. استخراج الـ Slug الخاص بالمصنع الحالي من اسم النطاق أو الـ Query Parameters
  */
 export function getTenantSlugFromURL() {
     const hostname = window.location.hostname;
     const urlParams = new URLSearchParams(window.location.search);
 
-    // 1. التجاوز عبر معلمة ?tenant=slug
+    // 1. التجاوز المباشر عبر معلمة ?tenant=slug
     if (urlParams.has('tenant') && urlParams.get('tenant').trim() !== '') {
         const paramTenant = urlParams.get('tenant').trim().toLowerCase();
         if (paramTenant !== '127' && paramTenant !== '127.0.0.1' && paramTenant !== 'localhost') {
@@ -18,17 +47,12 @@ export function getTenantSlugFromURL() {
         }
     }
 
-    // 2. البيئة المحلية (IP/Localhost) أو نطاقات Vercel (مثال: ultrasoft-phi.vercel.app) بدون معلمة -> المصنع الرئيسي default فوراً
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.endsWith('.vercel.app')) {
-        return 'default';
-    }
-
-    // 3. التحقق مما إذا كان النطاق هو Super Admin
-    if (hostname.startsWith('admin.') || window.location.pathname.startsWith('/super-admin')) {
+    // 2. التحقق مما إذا كان النطاق هو Super Admin
+    if (hostname.startsWith('admin.') || window.location.pathname.startsWith('/super-admin') || window.location.pathname.includes('super_admin')) {
         return 'super_admin';
     }
 
-    // 4. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
+    // 3. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
     const parts = hostname.split('.');
     if (parts.length >= 3) {
         const subdomain = parts[0].toLowerCase();
@@ -36,6 +60,21 @@ export function getTenantSlugFromURL() {
             return subdomain;
         }
     }
+
+    // 4. استرجاع المصنع النشط المحفوظ بالجلسة إن وجد (لمنع فقدان هوية المصنع أثناء التنقل)
+    try {
+        const savedSlug = sessionStorage.getItem('current_active_tenant_slug');
+        if (savedSlug && savedSlug !== 'default' && savedSlug !== 'super_admin') {
+            return savedSlug;
+        }
+        const sessionStr = localStorage.getItem('devo_session');
+        if (sessionStr) {
+            const sess = JSON.parse(sessionStr);
+            if (sess && sess.tenant_slug && sess.tenant_slug !== 'default' && sess.role !== 'super_admin') {
+                return sess.tenant_slug;
+            }
+        }
+    } catch(e) {}
 
     // 5. النمط الافتراضي (المصنع الرئيسي)
     return 'default';
@@ -108,10 +147,8 @@ export async function initializeTenantContext() {
                 const isExpired = sub && sub.end_date && new Date(sub.end_date) < new Date() && data.slug !== 'default';
                 
                 if (isExpired) {
-                    console.warn(`[Subscription Expired] Tenant ${data.name} subscription ended on ${sub.end_date}. Auto-suspending.`);
+                    console.warn(`[Subscription Expired] Tenant ${data.name} subscription ended on ${sub.end_date}.`);
                     data.status = 'suspended';
-                    supabase.from('tenants').update({ status: 'suspended' }).eq('id', data.id).then();
-                    if (sub) supabase.from('subscriptions').update({ status: 'expired' }).eq('id', sub.id).then();
                     tenant = null; // معاملته كمصنع غير مفعل / منتهي
                 } else {
                     tenant = data;
@@ -122,6 +159,9 @@ export async function initializeTenantContext() {
         if (tenant) {
             cachedTenant = tenant;
             window.isDefaultOrInvalidTenant = false;
+            try {
+                sessionStorage.setItem('current_active_tenant_slug', tenant.slug);
+            } catch(e) {}
         } else {
             // التراجع للمصنع الافتراضي إن لم يتم العثور على intent صحيح ومفعل
             if (tenantParam) {
@@ -175,6 +215,25 @@ export function getCurrentTenantId() {
 }
 
 /**
+ * 🔒 مفتاح تخزين محلي معزول تماماً لكل مصنع لضمان عدم التداخل نهائياً
+ */
+export function getTenantStorageKey(baseKey) {
+    const slug = getTenantSlugFromURL();
+    const tenant = cachedTenant;
+    let identifier = 'default';
+    if (tenant && tenant.id && tenant.id !== '00000000-0000-0000-0000-000000000001') {
+        identifier = tenant.id;
+    } else if (tenant && tenant.slug && tenant.slug !== 'default') {
+        identifier = tenant.slug;
+    } else if (slug && slug !== 'default') {
+        identifier = slug;
+    } else if (tenant && tenant.id) {
+        identifier = tenant.id;
+    }
+    return `${baseKey}_${identifier}`;
+}
+
+/**
  * 🏢 4. الحصول على كائن المصنع الحالي بالكامل
  */
 export function getCurrentTenant() {
@@ -187,31 +246,77 @@ export function getCurrentTenant() {
 export function applyTenantBranding(tenant) {
     if (!tenant || tenant.is_super_admin) return;
 
-    // تحديث عنوان الصفحة
-    if (tenant.name) {
+    const tenantName = tenant.name || '';
+    const settings = tenant.settings || {};
+    const rawLogo = tenant.logo_url || settings.logo_url;
+    const logoUrl = normalizeImageUrl(rawLogo);
+
+    // 1. تحديث عنوان الصفحة
+    if (tenantName) {
         const currentTitle = document.title;
-        if (!currentTitle.includes(tenant.name)) {
-            document.title = `${tenant.name} | ألترا سوفت`;
+        if (!currentTitle.includes(tenantName) && !currentTitle.includes('Super Admin')) {
+            document.title = `${tenantName} | ألترا سوفت`;
         }
     }
 
-    const settings = tenant.settings || {};
+    // 2. تحديث أيقونة الموقع (Favicon)
+    if (logoUrl) {
+        let favicon = document.querySelector("link[rel*='icon']");
+        if (favicon) {
+            favicon.href = logoUrl;
+        }
+        let appleIcon = document.querySelector("link[rel*='apple-touch-icon']");
+        if (appleIcon) {
+            appleIcon.href = logoUrl;
+        }
+    }
 
-    // تحديث الشعار إذا وجد عنصر شعار بالموقع
-    if (settings.logo_url) {
-        const logoElements = document.querySelectorAll('.tenant-logo, #brandLogo, header img');
+    // 3. تحديث جميع عناصر الشعار في الصفحة بالكامل
+    if (logoUrl) {
+        const logoSelectors = [
+            '.tenant-logo',
+            '.brand-logo',
+            '#brandLogo',
+            '#sidebar-logo img',
+            '#sidebar-logo-mini img',
+            '#dash-factory-logo',
+            '#site-header-nav img',
+            '#login-container img',
+            'header img',
+            'footer img.brand-logo'
+        ].join(', ');
+
+        const logoElements = document.querySelectorAll(logoSelectors);
         logoElements.forEach(el => {
             if (el.tagName === 'IMG') {
-                el.src = settings.logo_url;
+                el.src = logoUrl;
+                if (tenantName) el.alt = tenantName;
+                el.setAttribute('referrerpolicy', 'no-referrer');
+                el.onerror = () => {
+                    el.onerror = null;
+                    el.src = './logo_transparnt.png';
+                };
             }
         });
     }
 
-    // تحديث اسم المصنع بالشريط العلوي أو الصفحة
-    if (tenant.name) {
-        const nameElements = document.querySelectorAll('.tenant-name, #brandName');
+    // 4. تحديث اسم المصنع في كل العناصر المخصصة
+    if (tenantName) {
+        const nameSelectors = [
+            '.tenant-name',
+            '#brandName',
+            '#dash-factory-name',
+            '#dash-factory-subname',
+            '#login-tenant-name',
+            '#sidebar-logo span',
+            '#sidebar-logo h1',
+            '#admin-footer-factory-name',
+            '#activeTenantName'
+        ].join(', ');
+
+        const nameElements = document.querySelectorAll(nameSelectors);
         nameElements.forEach(el => {
-            el.textContent = tenant.name;
+            el.textContent = tenantName;
         });
     }
 }

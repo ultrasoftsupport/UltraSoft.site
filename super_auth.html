@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UltraSoft | بوابة دخول الإدارة العليا Super Admin</title>
+    <meta name="description" content="بوابة دخول الإدارة العليا لمنظومة ألترا سوفت">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="./src/assets/icons/ultrasoft_transparent.png">
     
     <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
@@ -54,47 +56,13 @@
         })();
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./src/css/output.css">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <script>
-        const withOpacity = (variableName, fallback) => {
-            return ({ opacityValue }) => {
-                if (opacityValue !== undefined) {
-                    return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
-                }
-                return `var(${variableName}, ${fallback})`;
-            };
-        };
 
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        devo: {
-                            black: withOpacity('--devo-black', '#f7fbff'),
-                            dark: withOpacity('--devo-dark', '#ffffff'),
-                            gray: withOpacity('--devo-gray', '#e1effe'),
-                            grayHover: withOpacity('--devo-gray-hover', '#f0f9ff'),
-                            orange: withOpacity('--devo-orange', '#0284c7'),
-                            orangeHover: withOpacity('--devo-orange-hover', '#0369a1'),
-                            text: withOpacity('--devo-text', '#0f172a'),
-                            muted: withOpacity('--devo-muted', '#475569')
-                        },
-                        ultra: {
-                            400: '#38BDF8',
-                            500: '#0284C7',
-                            600: '#0369A1'
-                        }
-                    },
-                    fontFamily: { sans: ['Cairo', 'Tajawal', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
     
     <style> 
         body { font-family: 'Cairo', 'Tajawal', sans-serif; } 

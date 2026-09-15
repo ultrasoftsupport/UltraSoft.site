@@ -3,6 +3,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl, getTenantModelQuotaDetails, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
+import { getExcelProfiles, getActiveExcelProfile, parseModelsDataWithProfile } from '../../services/excel_templates_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -150,7 +151,7 @@ export async function fetchAllModelsChunked() {
             const currentTenantId = getCurrentTenantId();
             let query = supabase
                 .from('models')
-                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, colors(id, name, color_code)), model_images(image_url)`);
+                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name, color_code)), model_images(image_url)`);
 
             if (currentTenantId) {
                 query = query.eq('tenant_id', currentTenantId);
@@ -200,7 +201,7 @@ function processRealtimeModelsQueue() {
                 const chunk = idsToFetch.slice(i, i + chunkSize);
                 const { data, error } = await supabase
                     .from('models')
-                    .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, colors(id, name, color_code)), model_images(image_url)`)
+                    .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name, color_code)), model_images(image_url)`)
                     .in('id', chunk);
                 if (error) throw error;
                 if (data) {
@@ -280,10 +281,12 @@ function setupAdminRealtimeTracker() {
 
             const mIndex = allModels.findIndex(m => m.id === targetModelId);
             if (mIndex > -1) {
-                if (payload.new && payload.new.color_id && payload.new.available_series !== undefined) {
+                if (payload.new && payload.new.color_id) {
                     const invObj = allModels[mIndex].model_inventory?.find(i => i.color_id === payload.new.color_id);
                     if (invObj) {
-                        invObj.available_series = payload.new.available_series;
+                        if (payload.new.available_series !== undefined) invObj.available_series = payload.new.available_series;
+                        if (payload.new.color_system_code !== undefined) invObj.color_system_code = payload.new.color_system_code;
+                        if (payload.new.color_factory_code !== undefined) invObj.color_factory_code = payload.new.color_factory_code;
                     }
                 }
                 
@@ -296,7 +299,7 @@ function setupAdminRealtimeTracker() {
 
                 const { data: freshInv } = await supabase
                     .from('model_inventory')
-                    .select('color_id, available_series, colors(id, name, color_code)')
+                    .select('color_id, available_series, color_system_code, color_factory_code, colors(id, name, color_code)')
                     .eq('model_id', targetModelId);
 
                 if (freshInv && freshInv.length > 0) {
@@ -396,7 +399,13 @@ function applyFilters() {
             const matchesFactory = m.factory_code?.toLowerCase().includes(term) || m.factory_code?.toLowerCase().includes(cleanTerm) || ('f' + (m.factory_code || '')).toLowerCase().includes(term);
             const matchesSystem = m.system_code?.toLowerCase().includes(term) || m.system_code?.toLowerCase().includes(cleanTerm) || ('s' + (m.system_code || '')).toLowerCase().includes(term);
             const matchesName = m.name?.toLowerCase().includes(term);
-            if (!matchesFactory && !matchesSystem && !matchesName) isMatch = false;
+            const matchesColorCodes = m.model_inventory?.some(inv => 
+                inv.color_system_code?.toLowerCase().includes(term) || 
+                inv.color_system_code?.toLowerCase().includes(cleanTerm) ||
+                inv.color_factory_code?.toLowerCase().includes(term) || 
+                inv.color_factory_code?.toLowerCase().includes(cleanTerm)
+            );
+            if (!matchesFactory && !matchesSystem && !matchesName && !matchesColorCodes) isMatch = false;
         }
         if (catId && m.category_id !== catId) isMatch = false;
         if (classId && m.class_id !== classId) isMatch = false;
@@ -463,13 +472,20 @@ function generateModelCardHTML(m) {
         <div class="h-48 bg-devo-black relative flex items-center justify-center overflow-hidden p-3 border-b border-devo-gray/60">
             <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-30 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
             <div class="absolute inset-0 bg-devo-black/10 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-300 hover:scale-[1.03]" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">
+            <img src="${mainImg}" referrerpolicy="no-referrer" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-300 hover:scale-[1.03]" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">
             <div class="absolute top-3 right-3 z-20">${badgeHTML}</div>
             ${!m.is_active ? `<div class="absolute top-3 left-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm z-20">معطل</div>` : ''}
         </div>
         <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
             <div>
-                <p class="text-devo-muted text-[11px] font-bold tracking-wider mb-1">${m.factory_code || m.system_code}</p>
+                <p class="text-devo-muted text-[11px] font-bold tracking-wider mb-1">
+                    ${m.code_assignment_mode === 'color_system_codes'
+                        ? `<span title="كود المصنع (الموحد)">${m.factory_code || '-'}</span> <span class="text-[9px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded ml-1">🎨 كود اللون</span>`
+                        : m.code_assignment_mode === 'color_factory_codes'
+                            ? `<span title="كود السيستم (الموحد)">${m.system_code || '-'}</span> <span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded ml-1">🏭 كود اللون</span>`
+                            : (m.factory_code || m.system_code)
+                    }
+                </p>
                 <h4 class="text-devo-text font-black truncate text-base" title="${m.name}">${m.name}</h4>
                 <p class="text-devo-orange text-base font-black mt-1">${m.price} <span class="text-xs font-normal">ج.م</span></p>
             </div>
@@ -598,7 +614,7 @@ window.viewDetails = async (id) => {
     let imagesHtml = '';
     if (model.model_images && model.model_images.length > 0) {
         imagesHtml = `<div class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-            ${model.model_images.map(img => `<img src="${resolveImageUrl(img.image_url)}" class="h-40 w-40 flex-shrink-0 rounded-xl object-cover border border-devo-gray bg-devo-black shadow-sm" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">`).join('')}
+            ${model.model_images.map(img => `<img src="${resolveImageUrl(img.image_url)}" referrerpolicy="no-referrer" class="h-40 w-40 flex-shrink-0 rounded-xl object-cover border border-devo-gray bg-devo-black shadow-sm" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">`).join('')}
         </div>`;
     } else {
         imagesHtml = `<div class="h-40 w-40 rounded-xl bg-devo-black border border-devo-gray flex items-center justify-center overflow-hidden shadow-sm"><img src="./src/assets/icons/devo.png" class="w-full h-full object-cover" loading="lazy" decoding="async"></div>`;
@@ -687,15 +703,25 @@ function updateLiveModalInventory(model) {
     const classSizes = model.classes?.class_sizes || [];
     const sizesCount = classSizes.length > 0 ? classSizes.length : (model.model_sizes?.length || 1); 
 
-    container.innerHTML = model.model_inventory?.map(inv => `
+    container.innerHTML = model.model_inventory?.map(inv => {
+        const codeVal = inv.color_system_code || inv.color_factory_code || '';
+        const codeBadge = codeVal 
+            ? `<span class="bg-devo-gray/50 border border-devo-gray text-devo-orange text-[11px] font-mono px-2 py-0.5 rounded font-bold mr-1.5 shadow-sm">${inv.color_system_code ? 'كود' : 'مصنع'}: ${codeVal}</span>` 
+            : '';
+
+        return `
         <div class="flex justify-between p-3 bg-devo-black rounded-lg border border-devo-gray items-center transition-all duration-300">
-            <span class="text-white">${inv.colors?.name}</span>
-            <span class="font-bold ${inv.available_series === 0 ? 'text-devo-error' : 'text-devo-orange'}">
+            <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+                <span class="text-white font-bold text-xs sm:text-sm">${inv.colors?.name || 'بدون اسم'}</span>
+                ${codeBadge}
+            </div>
+            <span class="font-bold ${inv.available_series === 0 ? 'text-devo-error' : 'text-devo-orange'} text-xs sm:text-sm shrink-0">
                 ${inv.available_series} سيريه 
                 <span class="text-xs text-devo-muted font-normal">(${inv.available_series * sizesCount} قطعة)</span>
             </span>
         </div>
-    `).join('') || '<div class="text-devo-muted text-xs p-3">لا توجد ألوان.</div>';
+        `;
+    }).join('') || '<div class="text-devo-muted text-xs p-3">لا توجد ألوان.</div>';
 }
 
 // 🌟 تطبيق فلاتر الحركات (تشمل البحث باسم العميل) 🌟
@@ -837,8 +863,16 @@ window.openModelModal = async (id = null) => {
         modalTitle.innerHTML = `<i class="ph ph-pencil-simple text-devo-orange text-2xl"></i> تعديل الموديل`;
         submitBtn.innerHTML = `حفظ التعديلات`;
 
-        document.getElementById('m-system-code').value = model.system_code;
-        document.getElementById('m-factory-code').value = model.factory_code;
+        // تعيين وضع الكود وتحديث الواجهة
+        const codeMode = model.code_assignment_mode || 'standard';
+        const codeModeSelect = document.getElementById('m-code-mode');
+        if (codeModeSelect) {
+            codeModeSelect.value = codeMode;
+            window.onCodeModeChange(codeMode);
+        }
+
+        document.getElementById('m-system-code').value = model.system_code || '';
+        document.getElementById('m-factory-code').value = model.factory_code || '';
         document.getElementById('m-name').value = model.name;
         document.getElementById('m-price').value = model.price;
         document.getElementById('m-category').value = model.category_id;
@@ -857,10 +891,26 @@ window.openModelModal = async (id = null) => {
         const soldMap = {};
         outMovements?.forEach(m => { soldMap[m.color_id] = (soldMap[m.color_id] || 0) + m.quantity; });
 
+        // جلب بيانات مخزون الألوان مع الأكواد الجديدة
+        const { data: invWithCodes } = await supabase
+            .from('model_inventory')
+            .select('color_id, available_series, color_system_code, color_factory_code')
+            .eq('model_id', id);
+        const invMap = {};
+        (invWithCodes || []).forEach(inv => { invMap[inv.color_id] = inv; });
+
         invContainer.innerHTML = '';
-        model.model_inventory.forEach(inv => {
+        const invList = (invWithCodes && invWithCodes.length > 0) ? invWithCodes : (model.model_inventory || []);
+        invList.forEach(inv => {
             const sold = soldMap[inv.color_id] || 0;
-            addInventoryRow(inv.color_id, inv.available_series, sold);
+            const invDetail = invMap[inv.color_id] || inv;
+            addInventoryRow(
+                inv.color_id,
+                inv.available_series,
+                sold,
+                invDetail.color_system_code || inv.color_system_code || '',
+                invDetail.color_factory_code || inv.color_factory_code || ''
+            );
         });
 
         const imgs = model.model_images || [];
@@ -869,6 +919,12 @@ window.openModelModal = async (id = null) => {
         document.getElementById('m-img-3').value = imgs[2]?.image_url || '';
 
     } else {
+        // موديل جديد: تعيين الوضع standard افتراضياً
+        const codeModeSelect = document.getElementById('m-code-mode');
+        if (codeModeSelect) {
+            codeModeSelect.value = 'standard';
+            window.onCodeModeChange('standard');
+        }
         modalTitle.innerHTML = `<i class="ph ph-plus-circle text-devo-orange text-2xl"></i> إضافة موديل`;
         submitBtn.innerHTML = `حفظ الموديل`;
         document.getElementById('m-status').checked = true;
@@ -895,15 +951,73 @@ function renderAutoSizes(classId) {
     sizesContainer.innerHTML = selectedClass.class_sizes.map(cs => `<span class="bg-devo-black border border-devo-gray px-3 py-1.5 rounded text-white text-xs shadow-sm flex items-center gap-1 opacity-80"><i class="ph ph-lock-key text-devo-muted"></i> ${cs.sizes.name}</span>`).join('');
 }
 
-window.addInventoryRow = (colorId = '', totalQty = '', soldQty = 0) => {
+// 🔑 تغيير وضع تعيين الكود — يخفي/يظهر الحقول حسب الوضع المختار
+window.onCodeModeChange = (mode) => {
+    const sysWrap = document.getElementById('m-system-code-wrap');
+    const facWrap = document.getElementById('m-factory-code-wrap');
+    const sysLabel = document.getElementById('m-system-code-label');
+    const facLabel = document.getElementById('m-factory-code-label');
+    const sysInput = document.getElementById('m-system-code');
+    const facInput = document.getElementById('m-factory-code');
+    const hint = document.getElementById('m-code-mode-hint');
+
+    if (mode === 'color_system_codes') {
+        // كود السيستم على مستوى اللون — الموديل نفسه ليس له كود سيستم
+        sysWrap.classList.add('hidden');
+        sysInput.required = false;
+        facWrap.classList.remove('hidden');
+        facInput.required = true;
+        facLabel.innerHTML = 'كود المصنع (الكود الموحد) <span class="text-devo-error">*</span>';
+        hint.textContent = '⚠️ كود السيستم يختلف لكل لون — أدخله في خانة "كود سيستم اللون" بجانب كل لون. كود المصنع هو الكود الواحد الممثل للموديل ككل.';
+    } else if (mode === 'color_factory_codes') {
+        // كود المصنع على مستوى اللون — الموديل نفسه ليس له كود مصنع
+        facWrap.classList.add('hidden');
+        facInput.required = false;
+        sysWrap.classList.remove('hidden');
+        sysInput.required = true;
+        sysLabel.innerHTML = 'كود السيستم (الكود الموحد) <span class="text-devo-error">*</span>';
+        hint.textContent = '⚠️ كود المصنع يختلف لكل لون — أدخله في خانة "كود مصنع اللون" بجانب كل لون. كود السيستم هو الكود الواحد الممثل للموديل ككل.';
+    } else {
+        // standard: كلا الحقلين ظاهرين
+        sysWrap.classList.remove('hidden');
+        facWrap.classList.remove('hidden');
+        sysInput.required = true;
+        facInput.required = false;
+        sysLabel.innerHTML = 'كود السيستم <span class="text-devo-error">*</span>';
+        facLabel.innerHTML = 'كود المصنع <span class="text-devo-error">*</span>';
+        hint.textContent = '';
+    }
+    // تحديث خانات كود اللون في جدول المخزون
+    document.querySelectorAll('.inv-color-code-wrap').forEach(wrap => {
+        wrap.classList.toggle('hidden', mode === 'standard');
+        const label = wrap.querySelector('label');
+        if (label) {
+            label.textContent = mode === 'color_system_codes' ? 'كود سيستم اللون' : 'كود مصنع اللون';
+        }
+        const input = wrap.querySelector('input');
+        if (input) {
+            input.placeholder = mode === 'color_system_codes' ? 'كود السيستم...' : 'كود المصنع...';
+        }
+    });
+};
+
+window.addInventoryRow = (colorId = '', totalQty = '', soldQty = 0, colorSystemCode = '', colorFactoryCode = '') => {
     const container = document.getElementById('m-inventory-container');
     const row = document.createElement('div');
-    row.className = 'flex gap-2 items-center';
+    row.className = 'flex gap-2 items-center flex-wrap';
     const isExisting = colorId !== '';
+    const codeMode = document.getElementById('m-code-mode')?.value || 'standard';
     
     const qtyNum = parseFloat(totalQty) || 0;
     const initialPieces = qtyNum * currentModalClassSizesCount;
     
+    // خانة كود اللون الإضافي حسب الوضع - مع الاحتفاظ بالقيمة سواء كانت في كود السيستم أو كود المصنع
+    const colorCodeValue = (codeMode === 'color_system_codes' 
+        ? (colorSystemCode || colorFactoryCode || '') 
+        : (colorFactoryCode || colorSystemCode || ''));
+    const colorCodeLabel = codeMode === 'color_system_codes' ? 'كود سيستم اللون' : 'كود مصنع اللون';
+    const colorCodeHidden = codeMode === 'standard' ? 'hidden' : '';
+
     row.innerHTML = `
         <select name="inv-color" ${isExisting ? 'disabled' : ''} class="flex-[2] bg-devo-black border border-devo-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-devo-orange ${isExisting ? 'opacity-70 cursor-not-allowed' : ''}">
             <option value="" disabled ${!isExisting ? 'selected' : ''}>اختر اللون</option>
@@ -911,9 +1025,13 @@ window.addInventoryRow = (colorId = '', totalQty = '', soldQty = 0) => {
         </select>
         ${isExisting ? `<input type="hidden" name="inv-color-val" value="${colorId}">` : ''}
         <input type="number" name="inv-qty" placeholder="السريات المتاحة" min="0" value="${totalQty}" data-sold="${soldQty}" data-pieces="${initialPieces}" class="flex-1 bg-devo-black border border-devo-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-devo-orange">
+        <div class="inv-color-code-wrap flex flex-col gap-0.5 ${colorCodeHidden}" style="min-width:90px">
+            <label class="text-[9px] text-devo-muted font-bold">${colorCodeLabel}</label>
+            <input type="text" name="inv-color-code" data-role="color-code" value="${colorCodeValue}" placeholder="${codeMode === 'color_system_codes' ? 'كود السيستم...' : 'كود المصنع...'}" class="bg-devo-black border border-devo-gray/50 rounded px-2 py-1.5 text-white text-xs outline-none focus:border-devo-orange w-full font-mono">
+        </div>
         ${isExisting && soldQty > 0 
             ? `<button type="button" onclick="showToast('لا يمكن حذف لون تم السحب منه.', 'warning')" class="p-2 text-devo-grayHover cursor-not-allowed rounded"><i class="ph ph-trash"></i></button>` 
-            : `<button type="button" onclick="this.parentElement.remove()" class="p-2 text-devo-error hover:bg-devo-error/20 rounded transition-colors"><i class="ph ph-trash"></i></button>`
+            : `<button type="button" onclick="this.closest('.flex').remove()" class="p-2 text-devo-error hover:bg-devo-error/20 rounded transition-colors"><i class="ph ph-trash"></i></button>`
         }
     `;
     
@@ -944,9 +1062,12 @@ async function handleSaveModel(e) {
     const selectedClass = defCache.clss.find(c => c.id === classId);
     const hasSizes = selectedClass && selectedClass.class_sizes && selectedClass.class_sizes.length > 0;
 
+    const codeMode = document.getElementById('m-code-mode')?.value || 'standard';
+
     const modelData = {
-        system_code: document.getElementById('m-system-code').value,
-        factory_code: document.getElementById('m-factory-code').value,
+        code_assignment_mode: codeMode,
+        system_code: codeMode === 'color_system_codes' ? null : (document.getElementById('m-system-code').value || null),
+        factory_code: codeMode === 'color_factory_codes' ? null : (document.getElementById('m-factory-code').value || null),
         name: document.getElementById('m-name').value,
         price: document.getElementById('m-price').value,
         category_id: document.getElementById('m-category').value,
@@ -986,8 +1107,23 @@ async function handleSaveModel(e) {
         const totalQty = parseInt(row.querySelector('[name="inv-qty"]').value) || 0;
         const available_series = totalQty;
         
+        // التقاط كود اللون بمرونة فائقة حسب وضع الكود
+        const colorCodeInput = row.querySelector('[name="inv-color-code"]') 
+            || row.querySelector('[data-role="color-code"]') 
+            || row.querySelector('[name="inv-color-system-code"]') 
+            || row.querySelector('[name="inv-color-factory-code"]');
+        const rawColorCode = colorCodeInput ? colorCodeInput.value.trim() : '';
+
+        let colorSystemCode = null;
+        let colorFactoryCode = null;
+        if (codeMode === 'color_system_codes') {
+            colorSystemCode = rawColorCode || null;
+        } else if (codeMode === 'color_factory_codes') {
+            colorFactoryCode = rawColorCode || null;
+        }
+        
         if (available_series < 0) return showToast(`لا يمكن تقليل الكمية لأقل من الصفر.`, 'error');
-        inventoryData.push({ color_id: colorId, available_series });
+        inventoryData.push({ color_id: colorId, available_series, color_system_code: colorSystemCode, color_factory_code: colorFactoryCode });
     }
 
     const uniqueColors = new Set(inventoryData.map(i => i.color_id));
@@ -1030,6 +1166,9 @@ async function handleSaveModel(e) {
                         available_series: inv.available_series || 0
                     };
                     if (currentTenantId) entry.tenant_id = currentTenantId;
+                    // حفظ الأكواد على مستوى اللون إن وُجدت
+                    entry.color_system_code = inv.color_system_code || null;
+                    entry.color_factory_code = inv.color_factory_code || null;
                     invMap.set(String(inv.color_id), entry);
                 }
             });
@@ -1046,7 +1185,7 @@ async function handleSaveModel(e) {
         showToast((id ? 'تم الحفظ' : 'تمت الإضافة') + statusMessage, 'success');
         closeModelModal();
 
-        const catSelect = document.getElementById('m-category-id');
+        const catSelect = document.getElementById('m-category');
         const categoryName = catSelect?.options[catSelect?.selectedIndex]?.text || '';
 
         const actionText = id ? 'تعديل بيانات الموديل' : 'إضافة موديل جديد';
@@ -1073,7 +1212,7 @@ async function handleSaveModel(e) {
         try {
             const { data: freshModel } = await supabase
                 .from('models')
-                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, colors(id, name, color_code)), model_images(image_url)`)
+                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name, color_code)), model_images(image_url)`)
                 .eq('id', modelId)
                 .single();
 
@@ -1285,6 +1424,18 @@ window.openExcelImportModal = () => {
     filteredExcelModels = [];
     selectedExcelModelCodes.clear();
 
+    // تحميل قوالب المصانع في القائمة المنسدلة
+    getExcelProfiles().then(profiles => {
+        const sel = document.getElementById('models-excel-profile-select');
+        if (sel && profiles) {
+            sel.innerHTML = profiles.map(p => `
+                <option value="${p.id}" ${p.is_default ? 'selected' : ''}>
+                    ${p.name} ${p.is_default ? '★ (افتراضي)' : ''}
+                </option>
+            `).join('');
+        }
+    });
+
     const modal = document.getElementById('excel-import-modal');
     modal.classList.remove('hidden');
     setTimeout(() => modal.classList.remove('opacity-0'), 10);
@@ -1319,51 +1470,36 @@ window.processExcelPreview = async () => {
     btn.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> تحليل الملف...`;
 
     try {
-        const data = await readExcelFile(file);
-        const dbCodes = new Set(allModels.map(m => String(m.system_code)));
-        
         pendingExcelModels = [];
         pendingExcelCategories.clear();
         excelModelsData = [];
         selectedExcelModelCodes.clear();
 
-        const seenCodesInFile = new Set();
-        let dupCount = 0;
-        let newCount = 0;
+        // تطبيق قالب المصنع المختار
+        const profiles = await getExcelProfiles();
+        const selectedProfileId = document.getElementById('models-excel-profile-select')?.value;
+        const activeProfile = getActiveExcelProfile(profiles, selectedProfileId);
+        const importMode = activeProfile?.models_import?.code_assignment_mode || 'standard';
 
-        data.forEach(row => {
-            let sysCode = String(row['كود'] || row['الكود'] || '').trim().replace('.0', '');
-            if (!sysCode || sysCode === 'undefined') return;
+        const dbCodes = new Set(allModels.map(m => {
+            if (importMode === 'color_system_codes') {
+                return String(m.factory_code || '').trim();
+            }
+            return String(m.system_code || '').trim();
+        }).filter(Boolean));
 
-            if (seenCodesInFile.has(sysCode)) return; // skip duplicate rows within file
-            seenCodesInFile.add(sysCode);
+        const data = await readExcelFile(file);
+        const { excelModels, categories, dupCount: parsedDups, newCount: parsedNews } = parseModelsDataWithProfile(data, activeProfile, dbCodes);
 
-            const isDuplicate = dbCodes.has(sysCode);
-            const catName = row['النوع'] ? String(row['النوع']).trim() : null;
-            if (catName) pendingExcelCategories.add(catName);
+        excelModelsData = excelModels;
+        pendingExcelCategories = new Set(categories);
+        let dupCount = parsedDups;
+        let newCount = parsedNews;
 
-            const match = String(row['الصنف'] || '').trim().match(/(.+?)\s+(\d+)$/);
-            const cleanName = match ? match[1].trim() : String(row['الصنف'] || '').trim();
-            const factoryCode = match ? match[2] : (row['كود المصنع'] ? String(row['كود المصنع']).trim() : '');
-            const price = parseFloat(row['بيع 1'] || row['السعر'] || 0) || 0;
-
-            const modelItem = {
-                system_code: sysCode,
-                factory_code: factoryCode,
-                name: cleanName || 'صنف بدون اسم',
-                price: price,
-                category_name: catName,
-                is_active: false,
-                is_duplicate: isDuplicate
-            };
-
-            excelModelsData.push(modelItem);
-
-            if (isDuplicate) {
-                dupCount++;
-            } else {
-                newCount++;
-                selectedExcelModelCodes.add(sysCode); // Auto-select new non-duplicate items
+        excelModels.forEach(m => {
+            if (!m.is_duplicate) {
+                const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
+                if (primaryCode) selectedExcelModelCodes.add(primaryCode);
             }
         });
 
@@ -1415,9 +1551,9 @@ window.applyExcelItemFilters = () => {
     filteredExcelModels = excelModelsData.filter(m => {
         let isMatch = true;
 
-        if (nameTerm && !m.name.toLowerCase().includes(nameTerm)) isMatch = false;
-        if (factoryTerm && !m.factory_code.toLowerCase().includes(factoryTerm)) isMatch = false;
-        if (systemTerm && !m.system_code.toLowerCase().includes(systemTerm)) isMatch = false;
+        if (nameTerm && !String(m.name || '').toLowerCase().includes(nameTerm)) isMatch = false;
+        if (factoryTerm && !String(m.factory_code || '').toLowerCase().includes(factoryTerm)) isMatch = false;
+        if (systemTerm && !String(m.system_code || '').toLowerCase().includes(systemTerm)) isMatch = false;
 
         if (factoryFromVal || factoryToVal) {
             const codeNum = parseInt(m.factory_code, 10);
@@ -1435,9 +1571,10 @@ window.applyExcelItemFilters = () => {
 
         if (catTerm && m.category_name !== catTerm) isMatch = false;
 
+        const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
         if (statusTerm === 'new' && m.is_duplicate) isMatch = false;
         if (statusTerm === 'duplicate' && !m.is_duplicate) isMatch = false;
-        if (statusTerm === 'selected' && !selectedExcelModelCodes.has(m.system_code)) isMatch = false;
+        if (statusTerm === 'selected' && !selectedExcelModelCodes.has(primaryCode)) isMatch = false;
 
         return isMatch;
     });
@@ -1461,7 +1598,8 @@ function renderExcelPreviewTable() {
         tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-devo-muted">لا توجد نتائج مطابقة للفلترة</td></tr>`;
     } else {
         tbody.innerHTML = filteredExcelModels.map(m => {
-            const isChecked = selectedExcelModelCodes.has(m.system_code);
+            const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
+            const isChecked = selectedExcelModelCodes.has(primaryCode);
             const dupBadge = m.is_duplicate 
                 ? `<span class="bg-devo-error/20 border border-devo-error/40 text-devo-error px-2 py-0.5 rounded text-[10px] font-bold">مكرر بالسيستم</span>` 
                 : `<span class="bg-devo-success/20 border border-devo-success/40 text-devo-success px-2 py-0.5 rounded text-[10px] font-bold">جديد صالح للإضافة</span>`;
@@ -1469,11 +1607,19 @@ function renderExcelPreviewTable() {
             return `
                 <tr class="hover:bg-devo-black/60 transition-colors ${m.is_duplicate ? 'bg-devo-error/5' : ''}">
                     <td class="p-3 text-center border-l border-devo-gray/30">
-                        <input type="checkbox" data-syscode="${m.system_code}" ${isChecked ? 'checked' : ''} onchange="toggleExcelModelSelection('${m.system_code}', this.checked)" class="excel-row-checkbox accent-devo-orange w-4 h-4 cursor-pointer">
+                        <input type="checkbox" data-syscode="${primaryCode}" ${isChecked ? 'checked' : ''} onchange="toggleExcelModelSelection('${primaryCode}', this.checked)" class="excel-row-checkbox accent-devo-orange w-4 h-4 cursor-pointer">
                     </td>
-                    <td class="p-3 font-mono font-bold text-devo-orange border-l border-devo-gray/30">${m.system_code}</td>
+                    <td class="p-3 font-mono font-bold text-devo-orange border-l border-devo-gray/30">
+                        ${m.code_assignment_mode === 'color_system_codes' 
+                            ? `<span class="text-[11px] font-bold text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/30">🎨 كود لكل لون</span>` 
+                            : (m.system_code || '-')}
+                    </td>
                     <td class="p-3 font-bold text-white border-l border-devo-gray/30">${m.name}</td>
-                    <td class="p-3 font-mono text-devo-muted border-l border-devo-gray/30">${m.factory_code || '-'}</td>
+                    <td class="p-3 font-mono text-devo-muted border-l border-devo-gray/30">
+                        ${m.code_assignment_mode === 'color_system_codes' 
+                            ? `<span class="text-amber-400 font-bold">${m.factory_code || '-'}</span> <span class="text-[10px] text-devo-muted">(الموحد)</span>` 
+                            : (m.factory_code || '-')}
+                    </td>
                     <td class="p-3 text-devo-muted border-l border-devo-gray/30">${m.category_name || '-'}</td>
                     <td class="p-3 text-center font-mono text-devo-orange border-l border-devo-gray/30">${m.price} ج.م</td>
                     <td class="p-3 text-center">${dupBadge}</td>
@@ -1499,7 +1645,10 @@ function renderExcelPreviewTable() {
     // Master Select-All checkbox status
     const masterCb = document.getElementById('excel-preview-select-all');
     if (masterCb) {
-        masterCb.checked = filteredExcelModels.length > 0 && filteredExcelModels.every(m => selectedExcelModelCodes.has(m.system_code));
+        masterCb.checked = filteredExcelModels.length > 0 && filteredExcelModels.every(m => {
+            const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
+            return selectedExcelModelCodes.has(primaryCode);
+        });
     }
 }
 
@@ -1520,20 +1669,21 @@ async function updateExcelModelsBtnCreditBadge() {
 window.toggleExcelSelectAll = (masterCb) => {
     const isChecked = masterCb.checked;
     filteredExcelModels.forEach(m => {
+        const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
         if (isChecked) {
-            selectedExcelModelCodes.add(m.system_code);
+            if (primaryCode) selectedExcelModelCodes.add(primaryCode);
         } else {
-            selectedExcelModelCodes.delete(m.system_code);
+            if (primaryCode) selectedExcelModelCodes.delete(primaryCode);
         }
     });
     renderExcelPreviewTable();
 };
 
-window.toggleExcelModelSelection = (sysCode, checked) => {
+window.toggleExcelModelSelection = (codeKey, checked) => {
     if (checked) {
-        selectedExcelModelCodes.add(sysCode);
+        selectedExcelModelCodes.add(codeKey);
     } else {
-        selectedExcelModelCodes.delete(sysCode);
+        selectedExcelModelCodes.delete(codeKey);
     }
 
     document.getElementById('excel-selected-count').textContent = selectedExcelModelCodes.size;
@@ -1541,7 +1691,10 @@ window.toggleExcelModelSelection = (sysCode, checked) => {
 
     const masterCb = document.getElementById('excel-preview-select-all');
     if (masterCb) {
-        masterCb.checked = filteredExcelModels.length > 0 && filteredExcelModels.every(m => selectedExcelModelCodes.has(m.system_code));
+        masterCb.checked = filteredExcelModels.length > 0 && filteredExcelModels.every(m => {
+            const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
+            return selectedExcelModelCodes.has(primaryCode);
+        });
     }
 };
 
@@ -1569,7 +1722,12 @@ window.resetExcelModal = () => {
 };
 
 window.executeExcelImport = async () => {
-    const modelsToInsertRaw = excelModelsData.filter(m => selectedExcelModelCodes.has(m.system_code));
+    // 🔑 تحديد الكود المستخدم للتصفية: في color_system_codes يكون factory_code هو الكود الموحد
+    const importMode = excelModelsData[0]?.code_assignment_mode || 'standard';
+    const modelsToInsertRaw = excelModelsData.filter(m => {
+        const primaryCode = importMode === 'color_system_codes' ? m.factory_code : m.system_code;
+        return selectedExcelModelCodes.has(primaryCode);
+    });
 
     if (modelsToInsertRaw.length === 0) {
         return showToast('الرجاء اختيار أو اصطياد موديل واحد على الأقل للاستيراد', 'warning');
@@ -1628,26 +1786,44 @@ window.executeExcelImport = async () => {
             if (freshCats) defCache.cats = freshCats;
         }
 
-        const seenFactoryCodes = new Set();
+        const seenPrimaryCodes = new Set();
         const modelsToInsert = modelsToInsertRaw.map(m => {
-            const { category_name, is_duplicate, ...cleanModel } = m;
-            let fCode = cleanModel.factory_code ? String(cleanModel.factory_code).trim() : '';
-            if (!fCode) {
-                fCode = String(cleanModel.system_code).trim();
-            }
-            if (seenFactoryCodes.has(fCode)) {
-                fCode = `${fCode}_${cleanModel.system_code}`;
-            }
-            seenFactoryCodes.add(fCode);
+            const { category_name, is_duplicate, code_assignment_mode: mMode, ...cleanModel } = m;
+            const mode = mMode || importMode || 'standard';
 
-            const item = {
-                ...cleanModel,
-                factory_code: fCode,
-                category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
-            };
-            if (currentTenantId) item.tenant_id = currentTenantId;
-            return item;
-        });
+            // تحديد الكود الرئيسي حسب الوضع
+            if (mode === 'color_system_codes') {
+                // في هذا الوضع: factory_code هو الكود الموحد — system_code = null
+                let fCode = String(cleanModel.factory_code || '').trim();
+                if (!fCode) return null; // تجاهل الموديلات بدون كود مصنع
+                if (seenPrimaryCodes.has(fCode)) fCode = `${fCode}_dup${Date.now()}`;
+                seenPrimaryCodes.add(fCode);
+                const item = {
+                    ...cleanModel,
+                    system_code: null,
+                    factory_code: fCode,
+                    code_assignment_mode: mode,
+                    category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
+                };
+                if (currentTenantId) item.tenant_id = currentTenantId;
+                return item;
+            } else {
+                // standard أو color_factory_codes: system_code هو الكود الموحد
+                let fCode = cleanModel.factory_code ? String(cleanModel.factory_code).trim() : '';
+                if (!fCode) fCode = String(cleanModel.system_code).trim();
+                if (seenPrimaryCodes.has(fCode)) fCode = `${fCode}_${cleanModel.system_code}`;
+                seenPrimaryCodes.add(fCode);
+
+                const item = {
+                    ...cleanModel,
+                    factory_code: fCode,
+                    code_assignment_mode: mode,
+                    category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
+                };
+                if (currentTenantId) item.tenant_id = currentTenantId;
+                return item;
+            }
+        }).filter(Boolean);
 
         let effectiveModelsToInsert = modelsToInsert;
         let skippedDueToQuota = 0;
@@ -1700,8 +1876,13 @@ window.executeExcelImport = async () => {
                 progressText.textContent = `جاري رفع الأصناف المصطادة (${effectiveModelsToInsert.length} صنف - مجموعة ${batchNum} من ${totalBatches})...`;
             }
             
+            // 🔑 اختيار مفتاح التعارض حسب الوضع
+            const conflictKey = importMode === 'color_system_codes'
+                ? 'tenant_id,factory_code'
+                : 'tenant_id,system_code';
+
             const { error } = await supabase.from('models').upsert(currentBatch, { 
-                onConflict: 'tenant_id,system_code', 
+                onConflict: conflictKey, 
                 ignoreDuplicates: true 
             });
             

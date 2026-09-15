@@ -1,14 +1,14 @@
-import { initNavbar } from './navbar.js';
-import { initGallery } from './gallery.js';
-import { initHomeContent } from './home_content.js';
-import { initCart } from './cart.js?v=8.1';
-import { initOrdersView } from './orders.js?v=8.1';
-import { initBarcode } from './barcode.js';
-import { initFooter } from './footer_renderer.js';
-import { initLandingPage } from './ultrasoft_landing.js';
+import { initNavbar } from './navbar.js?v=8.5';
+import { initGallery } from './gallery.js?v=8.5';
+import { initHomeContent } from './home_content.js?v=8.5';
+import { initCart } from './cart.js?v=8.5';
+import { initOrdersView } from './orders.js?v=8.5';
+import { initBarcode } from './barcode.js?v=8.5';
+import { initFooter } from './footer_renderer.js?v=8.5';
+import { initLandingPage } from './ultrasoft_landing.js?v=8.5';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
-import { initializeTenantContext, getCurrentTenantId } from '../../services/tenant_service.js';
+import { initializeTenantContext, getCurrentTenantId, getCurrentTenant, applyTenantBranding } from '../../services/tenant_service.js?v=8.5';
 import { initHomeNotifications } from '../../services/notifications.js';
 import { getCurrentSession } from '../../services/auth.js';
 
@@ -49,25 +49,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initNavbar();
 
     // تهيئة الفوتر والمحتوى والمعرض بشكل توازي سريع
-    Promise.all([
+    await Promise.all([
         initFooter(),
         initHomeContent(),
         initGallery()
     ]);
+
+    // 🎨 تطبيق هوية وشعار المصنع فورياً على جميع مكونات الهيدر والفوتر بعد اكتمال بنائها في الـ DOM
+    applyTenantBranding(getCurrentTenant());
     
-    // تشغيل السلة والأوردرات والباركود فقط لفريق العمل والمديرين
+    // تشغيل السلة والباركود للجميع (بما فيهم الزوار)
+    initCart();
+    initBarcode();
+
+    // تشغيل الأوردرات والإشعارات فقط لفريق العمل والمديرين
     if (!window.isVisitor) {
-        initCart();
         await initOrdersView();
-        initBarcode();
 
         // 🔔 تفعيل نظام الإشعارات الفوري للمستخدمين المسجلين في الصفحة الرئيسية
         // يعمل بعد initNavbar حتى تكون عناصر الجرس موجودة في الـ DOM
         initHomeNotifications();
-
-        const tenantId = getCurrentTenantId() || 'default';
-        if (localStorage.getItem(`devo_edit_order_data_${tenantId}`)) {
-            if (window.switchSiteView) window.switchSiteView('view-cart');
-        }
     }
 });

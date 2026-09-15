@@ -2,6 +2,7 @@
  * Footer Layouts Library
  * كل Layout هو component مستقل ومصمم بعناية للتجاوب والجمالية.
  */
+import { getCurrentTenant, normalizeImageUrl } from '../../services/tenant_service.js';
 
 // ===================================================================
 // 1. LAYOUT REGISTRY — قائمة الـ Layouts المتاحة
@@ -110,7 +111,9 @@ function buildQuickLinks() {
 // ===================================================================
 
 function renderSimple(settings) {
-    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const currentTenant = getCurrentTenant();
+    const factoryName = currentTenant?.name || settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const logoSrc = normalizeImageUrl(currentTenant?.logo_url || currentTenant?.settings?.logo_url) || './logo_transparnt.png';
     const copyrightContent = settings.footer_copyright_text 
         ? settings.footer_copyright_text 
         : `&copy; <span id="footer-current-year">${new Date().getFullYear()}</span> جميع الحقوق محفوظة لدى مصنع ${factoryName}.`;
@@ -120,8 +123,8 @@ function renderSimple(settings) {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div class="cursor-pointer flex-shrink-0 flex items-center gap-2.5" onclick="switchSiteView('view-home')">
-                        <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-8 md:h-10 w-auto object-contain">
-                        <h2 class="text-2xl font-black tracking-wider text-devo-text">${factoryName}</h2>
+                        <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${factoryName}" class="tenant-logo brand-logo h-8 md:h-10 w-auto object-contain">
+                        <h2 class="text-2xl font-black tracking-wider text-devo-text tenant-name">${factoryName}</h2>
                     </div>
                     <p class="text-devo-muted text-xs font-medium text-center">
                         ${copyrightContent}
@@ -136,15 +139,17 @@ function renderSimple(settings) {
 }
 
 function renderMinimal(settings) {
-    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const currentTenant = getCurrentTenant();
+    const factoryName = currentTenant?.name || settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const logoSrc = normalizeImageUrl(currentTenant?.logo_url || currentTenant?.settings?.logo_url) || './logo_transparnt.png';
     const bioText = settings.footer_bio_text || 'الشركة الرائدة للأنظمة الذكية والحلول التقنية المتكاملة';
 
     return `
         <footer class="bg-devo-dark border-t border-devo-gray py-10 mt-auto text-center" data-layout="minimal">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4">
                 <div class="cursor-pointer flex flex-col items-center justify-center" onclick="switchSiteView('view-home')">
-                    <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-12 sm:h-16 w-auto object-contain mb-2 drop-shadow-md">
-                    <h2 class="text-3xl font-black tracking-wider text-devo-text">${factoryName}</h2>
+                    <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${factoryName}" class="tenant-logo brand-logo h-12 sm:h-16 w-auto object-contain mb-2 drop-shadow-md">
+                    <h2 class="text-3xl font-black tracking-wider text-devo-text tenant-name">${factoryName}</h2>
                 </div>
                 <p class="text-devo-muted text-xs max-w-xs leading-relaxed">${bioText}</p>
                 <div class="flex items-center gap-3 my-2">
@@ -157,7 +162,9 @@ function renderMinimal(settings) {
 }
 
 function renderColumns(settings) {
-    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const currentTenant = getCurrentTenant();
+    const factoryName = currentTenant?.name || settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const logoSrc = normalizeImageUrl(currentTenant?.logo_url || currentTenant?.settings?.logo_url) || './logo_transparnt.png';
     const bioText = settings.footer_bio_text || `مصنع ${factoryName} للملابس والأنظمة الذكية. نلتزم بتقديم أفضل الخدمات وأعلى معايير الجودة لعملائنا بكل احترافية.`;
 
     return `
@@ -165,8 +172,8 @@ function renderColumns(settings) {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-right relative z-10">
                 <div>
                     <div class="cursor-pointer mb-3 inline-flex items-center gap-2.5" onclick="switchSiteView('view-home')">
-                        <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-8 md:h-10 w-auto object-contain">
-                        <h2 class="text-2xl font-black tracking-wider text-devo-text">${factoryName}</h2>
+                        <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${factoryName}" class="tenant-logo brand-logo h-8 md:h-10 w-auto object-contain">
+                        <h2 class="text-2xl font-black tracking-wider text-devo-text tenant-name">${factoryName}</h2>
                     </div>
                     <p class="text-devo-muted text-xs leading-relaxed">
                         ${bioText}
@@ -194,7 +201,9 @@ function renderColumns(settings) {
 }
 
 function renderLuxury(settings) {
-    const factoryName = settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const currentTenant = getCurrentTenant();
+    const factoryName = currentTenant?.name || settings.invoice_factory_name || settings.hero_title || 'المصنع';
+    const logoSrc = normalizeImageUrl(currentTenant?.logo_url || currentTenant?.settings?.logo_url) || './logo_transparnt.png';
     const bioText = settings.footer_bio_text || `نلتزم بتقديم أرقى الموديلات والأنظمة بمستويات جودة عالية لعملائنا في كافة المحافظات.`;
 
     return `
@@ -214,8 +223,8 @@ function renderLuxury(settings) {
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-right">
                     <div>
-                        <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-12 w-auto object-contain mb-2 mx-auto md:mx-0">
-                        <h2 class="text-3xl font-black tracking-wider text-devo-text mb-1">${factoryName}</h2>
+                        <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${factoryName}" class="tenant-logo brand-logo h-12 w-auto object-contain mb-2 mx-auto md:mx-0">
+                        <h2 class="text-3xl font-black tracking-wider text-devo-text tenant-name mb-1">${factoryName}</h2>
                         <p class="text-devo-muted text-xs leading-relaxed max-w-xs mx-auto md:mx-0 mt-2">
                             ${bioText}
                         </p>

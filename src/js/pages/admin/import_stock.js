@@ -3,6 +3,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantModelQuotaDetails, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
+import { getExcelProfiles, getActiveExcelProfile, parseStockRawRowsWithProfile } from '../../services/excel_templates_service.js';
 
 let isInitialized = false;
 let allModels = [];
@@ -24,6 +25,18 @@ let activeView = 'step-1';
 
 export async function initImportStockView() {
     if (isInitialized) return;
+
+    // تحميل قوالب المصانع في القائمة المنسدلة
+    getExcelProfiles().then(profiles => {
+        const sel = document.getElementById('stock-excel-profile-select');
+        if (sel && profiles) {
+            sel.innerHTML = profiles.map(p => `
+                <option value="${p.id}" ${p.is_default ? 'selected' : ''}>
+                    ${p.name} ${p.is_default ? '★ (افتراضي)' : ''}
+                </option>
+            `).join('');
+        }
+    });
 
     // Attach Step 1 Listeners
     const fileInput = document.getElementById('import-file-input');
@@ -257,10 +270,11 @@ export async function loadInitialData() {
                 .from('models')
                 .select(`
                     id, system_code, factory_code, name, price, class_id, category_id, is_active, created_at,
+                    code_assignment_mode,
                     categories(id, name),
                     classes(id, name, class_sizes(size_id, sizes(id, name))),
                     model_sizes(size_id, sizes(id, name)),
-                    model_inventory(color_id, available_series, colors(id, name))
+                    model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name))
                 `);
 
             if (currentTenantId) {
@@ -376,157 +390,18 @@ async function handleAnalyze() {
                 throw new Error('الملف فارغ أو لا يحتوي على صفوف بيانات صالحة.');
             }
 
-            // 🔍 البحث الديناميكي الدقيق عن صف الهيدر الحقيقي ومواقع الأعمدة
-            let headerRowIdx = -1;
-            for (let r = 0; r < Math.min(5, rawRows.length); r++) {
-                const row = rawRows[r] || [];
-                const hasCode = row.some(cell => {
-                    const str = String(cell || '').trim();
-                    return str === 'الكود' || str === 'كود' || str === 'كود الصنف' || str === 'كود السيستم';
-                });
-                const hasName = row.some(cell => {
-                    const str = String(cell || '').trim();
-                    return str === 'اسم الصنف' || str === 'اسم الموديل' || str === 'اسم المنتج';
-                });
+            // تطبيق قالب المصنع المختار
+            const profiles = await getExcelProfiles();
+            const selectedProfileId = document.getElementById('stock-excel-profile-select')?.value;
+            const activeProfile = getActiveExcelProfile(profiles, selectedProfileId);
 
-                if (hasCode || (hasName && row.some(cell => String(cell || '').trim() === 'بيع 1' || String(cell || '').trim() === 'لون'))) {
-                    headerRowIdx = r;
-                    break;
-                }
-            }
+            updateProgress('جاري فحص الموديلات ومطابقتها مع السيستم وفقاً لقالب المصنع...', 50);
 
-            if (headerRowIdx === -1) headerRowIdx = 1; // Default fallback to row 1
-
-            const headerRow = rawRows[headerRowIdx] || [];
-            const upperHeaderRow = rawRows[headerRowIdx - 1] || [];
-
-            let codeIdx = -1;
-            let nameIdx = -1;
-            let colorIdx = -1;
-            let sizeIdx = -1;
-            let priceIdx = -1;
-            let costPriceIdx = -1;
-            let totalValueIdx = -1;
-            let qtyUnitIdx = -1;
-            let addedQtyIdx = -1;
-            let soldQtyIdx = -1;
-
-            headerRow.forEach((cell, idx) => {
-                const str = String(cell || '').trim().toLowerCase();
-                const upperStr = String(upperHeaderRow[idx] || '').trim().toLowerCase();
-
-                if (str === 'الكود' || str === 'كود' || str === 'كود الصنف' || str === 'كود السيستم') {
-                    codeIdx = idx;
-                } else if (str === 'اسم الصنف' || str === 'اسم الموديل' || str === 'اسم المنتج') {
-                    nameIdx = idx;
-                } else if (str === 'لون' || str === 'اللون') {
-                    colorIdx = idx;
-                } else if (str === 'مقاس' || str === 'المقاس') {
-                    sizeIdx = idx;
-                } else if (str === 'بيع 1' || str === 'سعر البيع' || str === 'بيع' || str === 'السعر') {
-                    priceIdx = idx;
-                } else if (str === 'س التكلفة' || str === 'التكلفة' || str === 'سعر التكلفة') {
-                    costPriceIdx = idx;
-                } else if (str === 'القيمة' || upperStr === 'رصيد' || str === 'رصيد') {
-                    if (totalValueIdx === -1) totalValueIdx = idx;
-                } else if (str === 'وحدة' && (upperStr === 'رصيد' || idx === 3)) {
-                    qtyUnitIdx = idx;
-                } else if (upperStr === 'مضاف' || str === 'مضاف') {
-                    addedQtyIdx = idx;
-                } else if (upperStr === 'مباع' || str === 'مباع') {
-                    soldQtyIdx = idx;
-                }
-            });
-
-            // Fallbacks for column indices
-            if (nameIdx === -1) {
-                headerRow.forEach((cell, idx) => {
-                    if (String(cell || '').trim() === 'الصنف') nameIdx = idx;
-                });
-            }
-
-            if (codeIdx === -1) codeIdx = 18;
-            if (nameIdx === -1) nameIdx = 17;
-            if (colorIdx === -1) colorIdx = 14;
-            if (priceIdx === -1) priceIdx = 2;
-
-            updateProgress('جاري فحص الموديلات ومطابقتها مع السيستم...', 50);
-
-            excelRawData = [];
-            const seenCodes = new Set();
-            unregisteredModels = [];
-            modelActions = {};
-            colorMappings = {};
-
-            const dataStartRow = headerRowIdx + 1;
-            for (let i = dataStartRow; i < rawRows.length; i++) {
-                const row = rawRows[i];
-                if (!row || row.length === 0) continue;
-
-                const systemCode = String(row[codeIdx] !== undefined ? row[codeIdx] : '').trim().replace('.0', '');
-                const rawName = String(row[nameIdx] !== undefined ? row[nameIdx] : '').trim();
-                const colorName = String(row[colorIdx] !== undefined ? row[colorIdx] : 'ساده').trim() || 'ساده';
-                const price = parseFloat(row[priceIdx]) || 0;
-
-                if (!systemCode && !rawName) continue;
-
-                const finalCode = systemCode || `MODEL_${i}`;
-
-                // Calculate balance units robustly
-                let balance = 0;
-                const directQty = parseFloat(row[qtyUnitIdx]);
-                const costPrice = parseFloat(row[costPriceIdx]) || 0;
-                const totalVal = parseFloat(row[totalValueIdx]) || 0;
-                const addedQty = parseFloat(row[addedQtyIdx]) || 0;
-                const soldQty = parseFloat(row[soldQtyIdx]) || 0;
-
-                if (!isNaN(directQty) && directQty > 0) {
-                    balance = directQty;
-                } else if (costPrice > 0 && totalVal > 0) {
-                    balance = Math.round(totalVal / costPrice);
-                } else if (addedQty > 0 || soldQty > 0) {
-                    balance = addedQty - soldQty;
-                } else if (totalValueIdx !== -1) {
-                    balance = parseFloat(row[totalValueIdx]) || 0;
-                }
-
-                excelRawData.push({
-                    systemCode: finalCode,
-                    rawName: rawName || finalCode,
-                    colorName,
-                    price,
-                    balance
-                });
-
-                // Set default create model action
-                modelActions[finalCode] = 'create';
-
-                // Detect unregistered models
-                const exists = allModels.some(m => String(m.system_code) === String(finalCode));
-                if (!exists && !seenCodes.has(finalCode)) {
-                    seenCodes.add(finalCode);
-                    const match = rawName.match(/(.+?)\s+(\d+)$/);
-                    const cleanName = match ? match[1].trim() : (rawName || finalCode);
-                    const factoryCode = match ? match[2] : '';
-
-                    unregisteredModels.push({
-                        systemCode: finalCode,
-                        rawName: rawName || finalCode,
-                        factoryCode,
-                        name: cleanName,
-                        price
-                    });
-                }
-
-                // Set default color mapping action
-                if (!colorMappings[finalCode]) colorMappings[finalCode] = {};
-                const matchedColor = existingColors.find(c => c.name.trim().toLowerCase() === colorName.toLowerCase());
-                if (matchedColor) {
-                    colorMappings[finalCode][colorName] = { action: 'map', targetColorId: matchedColor.id };
-                } else {
-                    colorMappings[finalCode][colorName] = { action: 'add', targetColorId: null };
-                }
-            }
+            const parsed = parseStockRawRowsWithProfile(rawRows, activeProfile, allModels, existingColors);
+            excelRawData = parsed.excelRawData;
+            unregisteredModels = parsed.unregisteredModels;
+            modelActions = parsed.modelActions;
+            colorMappings = parsed.colorMappings;
 
             if (excelRawData.length === 0) {
                 throw new Error('لم يتم العثور على أي صفوف بيانات صالحة للمطابقة في الملف.');
@@ -668,10 +543,16 @@ async function checkSelectedColorsAndProceed() {
 
     unknownColorsList = [];
 
+    // 🔑 تحديد وضع الكود من أول سجل في البيانات
+    const codeMode = (excelRawData[0]?.codeMode) || 'standard';
+
     // Build effective selected codes: registered models + new models user chose 'create' for
     const effectiveSelectedCodes = new Set(
         [...selectedImportStockModelCodes].filter(code => {
-            const isRegistered = allModels.some(m => String(m.system_code) === String(code));
+            // في color_system_codes: نحدد الموديل بـ factory_code بدل system_code
+            const isRegistered = codeMode === 'color_system_codes'
+                ? allModels.some(m => String(m.factory_code) === String(code))
+                : allModels.some(m => String(m.system_code) === String(code));
             if (isRegistered) return true;
             return modelActions[code] === 'create';
         })
@@ -694,10 +575,13 @@ async function checkSelectedColorsAndProceed() {
             let modelName = row.rawName;
             let factoryCode = '';
 
-            const dbModel = allModels.find(m => String(m.system_code) === String(systemCode));
+            // في color_system_codes: systemCode هو فعلياً factory_code — نبحث به في factory_code
+            const dbModel = codeMode === 'color_system_codes'
+                ? allModels.find(m => String(m.factory_code) === String(systemCode))
+                : allModels.find(m => String(m.system_code) === String(systemCode));
             if (dbModel) {
                 modelName = dbModel.name;
-                factoryCode = dbModel.factory_code || '';
+                factoryCode = codeMode === 'color_system_codes' ? dbModel.factory_code || '' : dbModel.factory_code || '';
             } else {
                 const unreg = unregisteredModels.find(m => String(m.systemCode) === String(systemCode));
                 if (unreg) {
@@ -796,6 +680,9 @@ async function processAndRenderPreview() {
     const qtyOption = document.querySelector('input[name="import-qty-option"]:checked')?.value || 'as_is';
     const isUpdatePriceEnabled = document.getElementById('import-update-price')?.checked || false;
 
+    // 🔑 تحديد وضع الكود من أول سجل في البيانات
+    const codeMode = (excelRawData[0]?.codeMode) || 'standard';
+
     // Group excel raw data by systemCode, then by colorName
     const grouped = {};
     excelRawData.forEach(row => {
@@ -836,7 +723,9 @@ async function processAndRenderPreview() {
     newColorsCount = uniqueColorsToAdd.size;
 
     for (const [code, item] of Object.entries(grouped)) {
-        let dbModel = allModels.find(m => String(m.system_code) === String(code));
+        let dbModel = codeMode === 'color_system_codes'
+            ? allModels.find(m => String(m.factory_code) === String(code) || m.model_inventory?.some(inv => String(inv.color_system_code) === String(code)))
+            : allModels.find(m => String(m.system_code) === String(code) || m.model_inventory?.some(inv => String(inv.color_factory_code) === String(code)));
         let modelId = dbModel?.id || null;
         let modelName = '';
         let factoryCode = '';
@@ -923,6 +812,11 @@ async function processAndRenderPreview() {
                 qtyUpdatesCount++;
                 movementsCount++;
             }
+
+            // البحث عن كود اللون المنفصل من السجلات الخام إن وجد
+            const rawRow = excelRawData.find(r => r.systemCode === code && r.colorName === colorName);
+            const colorSystemCode = rawRow?.colorSystemCode || null;
+            const colorFactoryCode = rawRow?.colorFactoryCode || null;
 
             colorEntries.push({
                 colorName,
@@ -1195,9 +1089,13 @@ function renderPreviewTable(data) {
             rowsHtml += `
                 <tr class="transition-colors border-b border-devo-gray/30">
                     ${isFirst ? `<td class="p-3 text-center border-l border-devo-gray/50" rowspan="${rowSpan}"><input type="checkbox" ${selectedImportStockModelCodes.has(item.systemCode) ? 'checked' : ''} onchange="toggleImportStockModelSelection('${item.systemCode}', this.checked)" class="accent-devo-orange w-4 h-4 cursor-pointer"></td>` : ''}
-                    ${isFirst ? `<td class="p-3 font-mono text-xs text-devo-muted border-l border-devo-gray/50" rowspan="${rowSpan}">${newBadge}${item.systemCode}</td>` : ''}
+                    ${isFirst ? `<td class="p-3 font-mono text-xs text-devo-muted border-l border-devo-gray/50" rowspan="${rowSpan}">${newBadge}${item.codeMode === 'color_system_codes' ? `<span class="text-purple-400 font-bold" title="كود المصنع الموحد للموديل">🎨 ${item.systemCode}</span>` : item.systemCode}</td>` : ''}
                     ${isFirst ? `<td class="p-3 font-bold text-white border-l border-devo-gray/50" rowspan="${rowSpan}">${nameDisplay}</td>` : ''}
-                    <td class="p-3 text-white text-xs border-l border-devo-gray/50">${color.displayColorName}</td>
+                    <td class="p-3 text-white text-xs border-l border-devo-gray/50">
+                        <span>${color.displayColorName}</span>
+                        ${color.colorSystemCode ? `<span class="block text-[10px] font-mono text-purple-400 font-bold mt-0.5">كود: ${color.colorSystemCode}</span>` : ''}
+                        ${color.colorFactoryCode ? `<span class="block text-[10px] font-mono text-amber-400 font-bold mt-0.5">مصنع: ${color.colorFactoryCode}</span>` : ''}
+                    </td>
                     ${isFirst ? `<td class="p-3 text-center text-xs border-l border-devo-gray/50" rowspan="${rowSpan}">${priceDiffHtml}</td>` : ''}
                     <td class="p-3 text-center text-xs font-mono text-devo-muted border-l border-devo-gray/50">${color.currentQty}</td>
                     <td class="p-3 text-center text-xs font-mono font-bold text-white border-l border-devo-gray/50">${displayCalculated}</td>
@@ -1259,9 +1157,12 @@ async function updateImportStockBtnCreditBadge() {
 // 🌟 9. Execute Import & Save to Supabase (Save button) 🌟
 async function handleConfirmSave() {
     // Build the effective set: only models that are either registered in the system OR user chose 'create'
+    const saveCodeMode = (excelRawData[0]?.codeMode) || 'standard';
     const effectiveSelectedCodes = new Set(
         [...selectedImportStockModelCodes].filter(code => {
-            const isRegistered = allModels.some(m => String(m.system_code) === String(code));
+            const isRegistered = saveCodeMode === 'color_system_codes'
+                ? allModels.some(m => String(m.factory_code) === String(code) || m.model_inventory?.some(inv => String(inv.color_system_code) === String(code)))
+                : allModels.some(m => String(m.system_code) === String(code) || m.model_inventory?.some(inv => String(inv.color_factory_code) === String(code)));
             if (isRegistered) return true;
             // For unregistered models, only include if user explicitly chose 'create'
             return modelActions[code] === 'create';
@@ -1293,28 +1194,56 @@ async function handleConfirmSave() {
     try {
         // Step A: Create new models in bulk batches (only 'create' action, truly unregistered)
         const seenNewCodes = new Set();
-        const seenFactoryCodes = new Set();
+        const seenFactoryCodes = new Set(allModels.map(m => String(m.factory_code || '').trim()).filter(Boolean));
+        const seenSystemCodes = new Set(allModels.map(m => String(m.system_code || '').trim()).filter(Boolean));
         let newModelsToInsert = [];
         for (const item of selectedPreviewData) {
             if (item.isNew && modelActions[item.systemCode] === 'create' && !seenNewCodes.has(item.systemCode)) {
                 const unreg = unregisteredModels.find(m => String(m.systemCode) === String(item.systemCode));
                 if (unreg) {
                     seenNewCodes.add(item.systemCode);
+                    const unregMode = unreg.codeMode || (excelRawData[0]?.codeMode) || 'standard';
+                    let sysCodeVal = unreg.systemCode ? String(unreg.systemCode).trim() : null;
                     let fCode = unreg.factoryCode ? String(unreg.factoryCode).trim() : '';
-                    if (!fCode) {
-                        fCode = String(unreg.systemCode).trim();
+
+                    if (unregMode === 'color_system_codes') {
+                        sysCodeVal = null;
+                        fCode = String(unreg.factoryCode || unreg.systemCode || '').trim();
+                    } else {
+                        if (!fCode) fCode = String(unreg.systemCode || '').trim();
                     }
-                    if (seenFactoryCodes.has(fCode)) {
-                        fCode = `${fCode}_${unreg.systemCode}`;
+
+                    // ضمان فرادة كود المصنع لمنع خطأ models_tenant_factory_code_key
+                    if (fCode) {
+                        let candidateFCode = fCode;
+                        let counter = 1;
+                        while (seenFactoryCodes.has(candidateFCode)) {
+                            candidateFCode = `${fCode}_${counter}`;
+                            counter++;
+                        }
+                        fCode = candidateFCode;
+                        seenFactoryCodes.add(fCode);
                     }
-                    seenFactoryCodes.add(fCode);
+
+                    // ضمان فرادة كود السيستم لمنع خطأ models_tenant_system_code_key
+                    if (sysCodeVal) {
+                        let candidateSys = sysCodeVal;
+                        let counter = 1;
+                        while (seenSystemCodes.has(candidateSys)) {
+                            candidateSys = `${sysCodeVal}_${counter}`;
+                            counter++;
+                        }
+                        sysCodeVal = candidateSys;
+                        seenSystemCodes.add(sysCodeVal);
+                    }
 
                     const newModelObj = {
-                        system_code: unreg.systemCode,
-                        factory_code: fCode,
-                        name: unreg.name,
-                        price: unreg.price,
-                        is_active: false
+                        system_code: sysCodeVal,
+                        factory_code: fCode || null,
+                        name: unreg.name || `موديل ${fCode || sysCodeVal}`,
+                        price: unreg.price || 0,
+                        is_active: false,
+                        code_assignment_mode: unregMode
                     };
                     const currentTenantId = getCurrentTenantId();
                     if (currentTenantId) newModelObj.tenant_id = currentTenantId;
@@ -1350,13 +1279,16 @@ async function handleConfirmSave() {
                 const { data: newModels, error: modelErr } = await supabase
                     .from('models')
                     .insert(chunk)
-                    .select('id, system_code, price');
+                    .select('id, system_code, factory_code, price');
 
                 if (modelErr) throw modelErr;
 
                 if (newModels) {
                     newModels.forEach(newM => {
-                        const item = selectedPreviewData.find(p => String(p.systemCode) === String(newM.system_code));
+                        const item = selectedPreviewData.find(p => {
+                            if (newM.system_code) return String(p.systemCode) === String(newM.system_code);
+                            return String(p.systemCode) === String(newM.factory_code);
+                        });
                         if (item) {
                             item.modelId = newM.id;
                             initialMovements.push({
@@ -1518,18 +1450,24 @@ async function handleConfirmSave() {
                     const existingInvId = existingInventoryMap.get(key);
 
                     if (existingInvId) {
-                        inventoryUpdates.push({
+                        const invUpdateObj = {
                             id: existingInvId,
                             tenant_id: item.tenantId || currentTenantId,
                             available_series: dbSeriesVal
-                        });
+                        };
+                        if (color.colorSystemCode) invUpdateObj.color_system_code = color.colorSystemCode;
+                        if (color.colorFactoryCode) invUpdateObj.color_factory_code = color.colorFactoryCode;
+                        inventoryUpdates.push(invUpdateObj);
                     } else {
-                        inventoryInserts.push({
+                        const invInsertObj = {
                             tenant_id: item.tenantId || currentTenantId,
                             model_id: item.modelId,
                             color_id: targetColorId,
                             available_series: dbSeriesVal
-                        });
+                        };
+                        if (color.colorSystemCode) invInsertObj.color_system_code = color.colorSystemCode;
+                        if (color.colorFactoryCode) invInsertObj.color_factory_code = color.colorFactoryCode;
+                        inventoryInserts.push(invInsertObj);
                     }
 
                     const movementType = color.diff > 0 ? 'in' : 'out';
@@ -1550,16 +1488,25 @@ async function handleConfirmSave() {
 
         // Step E: Execute Bulk Operations in Batches of 200 with Progress Feedback
         if (priceUpdates.length > 0) {
-            const totalBatches = Math.ceil(priceUpdates.length / 200);
-            for (let i = 0; i < priceUpdates.length; i += 200) {
-                const batchNum = Math.floor(i / 200) + 1;
+            const BATCH_SIZE = 30;
+            const totalBatches = Math.ceil(priceUpdates.length / BATCH_SIZE);
+            for (let i = 0; i < priceUpdates.length; i += BATCH_SIZE) {
+                const batchNum = Math.floor(i / BATCH_SIZE) + 1;
                 const percent = Math.round(55 + (i / priceUpdates.length) * 15);
                 updateProgress(`جاري تحديث أسعار الموديلات (الدفعة ${batchNum} من ${totalBatches} - ${priceUpdates.length} سعر)...`, percent);
                 await new Promise(r => setTimeout(r, 20));
 
-                const chunk = priceUpdates.slice(i, i + 200);
-                const { error } = await supabase.from('models').upsert(chunk, { onConflict: 'id' });
-                if (error) throw error;
+                const chunk = priceUpdates.slice(i, i + BATCH_SIZE);
+                const results = await Promise.all(chunk.map(p => {
+                    let q = supabase.from('models').update({
+                        price: p.price,
+                        updated_at: p.updated_at
+                    }).eq('id', p.id);
+                    if (p.tenant_id) q = q.eq('tenant_id', p.tenant_id);
+                    return q;
+                }));
+                const failed = results.find(r => r.error);
+                if (failed && failed.error) throw failed.error;
             }
         }
 

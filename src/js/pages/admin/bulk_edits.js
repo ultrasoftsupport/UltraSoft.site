@@ -211,7 +211,7 @@ export async function fetchBulkModels() {
                     categories(name), 
                     classes(name, class_sizes(size_id)),
                     model_sizes(size_id),
-                    model_inventory(id, color_id, available_series),
+                    model_inventory(id, color_id, available_series, color_system_code, color_factory_code),
                     model_images(image_url)
                 `);
 
@@ -280,8 +280,14 @@ window.applyBulkFilters = () => {
         
         // 1. Split search fields (AND logic)
         if (nameTerm && !m.name?.toLowerCase().includes(nameTerm)) isMatch = false;
-        if (factoryTerm && !m.factory_code?.toLowerCase().includes(factoryTerm)) isMatch = false;
-        if (systemTerm && !m.system_code?.toLowerCase().includes(systemTerm)) isMatch = false;
+        if (factoryTerm && !m.factory_code?.toLowerCase().includes(factoryTerm)) {
+            const matchesColorFac = m.model_inventory?.some(inv => inv.color_factory_code?.toLowerCase().includes(factoryTerm));
+            if (!matchesColorFac) isMatch = false;
+        }
+        if (systemTerm && !m.system_code?.toLowerCase().includes(systemTerm)) {
+            const matchesColorSys = m.model_inventory?.some(inv => inv.color_system_code?.toLowerCase().includes(systemTerm));
+            if (!matchesColorSys) isMatch = false;
+        }
         
         // 2. Factory Code Range Filter
         if (factoryFromVal || factoryToVal) {

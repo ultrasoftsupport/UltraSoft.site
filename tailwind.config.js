@@ -1,9 +1,16 @@
+const withOpacity = (variableName, fallback) => {
+  return ({ opacityValue }) => {
+    if (opacityValue !== undefined) {
+      return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
+    }
+    return `var(${variableName}, ${fallback})`;
+  };
+};
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./index.html",
-    "./admin.html",
-    "./auth.html",
+    "./*.html",
     "./src/js/**/*.js"
   ],
   theme: {
@@ -28,25 +35,19 @@ module.exports = {
           950: '#060B14'
         },
         devo: {
-          // Base Dark Theme Colors - UltraSoft Mapped
-          black: '#0B1329',       // Main application background (Deep Midnight)
-          dark: '#0F172A',        // Surface color (Cards, Modals - Slate 900)
-          gray: '#1E293B',        // Borders, dividers, and disabled states (Slate 800)
-          grayHover: '#334155',   // Hover states for dark elements
-          
-          // Brand Colors - UltraSoft Primary & Accent
-          orange: '#0284C7',      // Primary brand color (Ultra 600 Royal Blue)
-          orangeHover: '#0369A1', // Hover state (Ultra 700)
-          
-          // Typography Colors
-          text: '#F8FAFC',        // Primary text
-          muted: '#CBD5E1',       // Secondary text
-          
-          // Semantic Colors
-          success: '#10B981',     // Emerald 500
-          error: '#EF4444',       // Red 500
-          warning: '#F59E0B',     // Amber 500
-          info: '#38BDF8'         // Sky 400
+          // Dynamic Theme Colors mapped via CSS Variables
+          black: withOpacity('--devo-black', '#0B1329'),
+          dark: withOpacity('--devo-dark', '#0F172A'),
+          gray: withOpacity('--devo-gray', '#1E293B'),
+          grayHover: withOpacity('--devo-gray-hover', '#334155'),
+          orange: withOpacity('--devo-orange', '#0284C7'),
+          orangeHover: withOpacity('--devo-orange-hover', '#0369A1'),
+          text: withOpacity('--devo-text', '#F8FAFC'),
+          muted: withOpacity('--devo-muted', '#CBD5E1'),
+          success: withOpacity('--devo-success', '#10B981'),
+          error: withOpacity('--devo-error', '#EF4444'),
+          warning: withOpacity('--devo-warning', '#F59E0B'),
+          info: withOpacity('--devo-info', '#38BDF8')
         }
       },
       fontFamily: {

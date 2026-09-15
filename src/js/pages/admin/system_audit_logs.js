@@ -2,6 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { getCurrentTenantId, getCurrentTenant } from '../../services/tenant_service.js';
 import { showToast } from '../../components/toast.js';
 import { showAuditLogDetails, renderHumanReadableDetails } from '../../services/audit_service.js';
+import { escapeHtml } from '../../utils/sanitize.js';
 
 let auditLogsData = [];
 let filteredAuditLogs = [];
@@ -177,19 +178,19 @@ function renderAuditLogsTable() {
                 <td class="p-3.5">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-full bg-devo-orange/10 border border-devo-orange/20 flex items-center justify-center text-devo-orange font-bold text-xs">
-                            ${(log.user_name || 'م')[0]}
+                            ${escapeHtml((log.user_name || 'م')[0])}
                         </div>
                         <div>
-                            <span class="font-bold text-white text-xs block">${log.user_name || 'مستخدم النظام'}</span>
-                            <span class="text-[10px] text-devo-muted uppercase">${log.user_role || 'staff'}</span>
+                            <span class="font-bold text-white text-xs block">${escapeHtml(log.user_name || 'مستخدم النظام')}</span>
+                            <span class="text-[10px] text-devo-muted uppercase">${escapeHtml(log.user_role || 'staff')}</span>
                         </div>
                     </div>
                 </td>
                 <td class="p-3.5">${moduleBadge}</td>
                 <td class="p-3.5">${actionBadge}</td>
-                <td class="p-3.5 text-xs text-devo-muted max-w-xs truncate font-mono">${detailsText}</td>
+                <td class="p-3.5 text-xs text-devo-muted max-w-xs truncate font-mono">${escapeHtml(detailsText)}</td>
                 <td class="p-3.5 text-center">
-                    <button onclick="window.showAuditLogDetails('${log.id}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs border border-devo-gray/50 transition-colors flex items-center gap-1 mx-auto">
+                    <button onclick="window.showAuditLogDetails('${escapeHtml(log.id)}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs border border-devo-gray/50 transition-colors flex items-center gap-1 mx-auto">
                         <i class="ph ph-eye"></i> التفاصيل
                     </button>
                 </td>

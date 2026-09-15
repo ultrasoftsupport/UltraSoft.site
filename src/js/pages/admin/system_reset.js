@@ -1,15 +1,15 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { requireAuth } from '../../services/auth.js';
+import { requireAuth, getCurrentSession } from '../../services/auth.js';
 
 // ============================================================
-// 🔐 كلمة المرور الخاصة بعملية إعادة التهيئة
+// 🔐 إعدادات عملية إعادة التهيئة
 // ============================================================
-const RESET_SECRET_PASSWORD = 'DEVO@RESET#2025';
 const CONFIRM_PHRASE = 'أوافق على مسح كل البيانات';
 
 let isInitialized = false;
 let currentStage = 0;
+let verifiedOwnerPassword = '';
 
 // ============================================================
 // 🎯 تهيئة الواجهة
@@ -392,20 +392,62 @@ function goToStage(stageNum) {
 }
 
 // ============================================================
-// 🔑 التحقق من كلمة المرور
+// 🔑 التحقق من كلمة المرور الخاصة بحساب المالك
 // ============================================================
-function verifyPassword() {
+async function verifyPassword() {
     const inputEl = document.getElementById('reset-password-input');
     const errorEl = document.getElementById('password-error');
     if (!inputEl || !errorEl) return;
 
-    if (inputEl.value.trim() === RESET_SECRET_PASSWORD) {
-        errorEl.classList.add('hidden');
-        goToStage(3);
-    } else {
+    const enteredPassword = inputEl.value.trim();
+    if (!enteredPassword) {
+        errorEl.textContent = 'يرجى إدخال كلمة المرور';
         errorEl.classList.remove('hidden');
-        inputEl.value = '';
-        inputEl.focus();
+        return;
+    }
+
+    const { session } = getCurrentSession();
+    const currentUser = session?.user;
+
+    if (!currentUser || !currentUser.id) {
+        showToast('جلسة العمل غير صالحة، يرجى إعادة تسجيل الدخول', 'error');
+        return;
+    }
+
+    const btnConfirm = document.getElementById('btn-stage2-confirm');
+    const originalBtnHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = `<i class="ph ph-spinner animate-spin"></i> جاري التحقق...`;
+    }
+
+    try {
+        const { data: isValid, error } = await supabase.rpc('verify_system_user_password', {
+            p_user_id: currentUser.id,
+            p_password: enteredPassword
+        });
+
+        if (error) throw error;
+
+        if (isValid === true) {
+            verifiedOwnerPassword = enteredPassword;
+            errorEl.classList.add('hidden');
+            goToStage(3);
+        } else {
+            errorEl.textContent = 'كلمة المرور غير صحيحة، يرجى التأكد والمحاولة مجدداً';
+            errorEl.classList.remove('hidden');
+            inputEl.value = '';
+            inputEl.focus();
+        }
+    } catch (err) {
+        console.error('Password verification error during system reset:', err);
+        errorEl.textContent = 'حدث خطأ أثناء التحقق: ' + (err.message || 'فشل الاتصال');
+        errorEl.classList.remove('hidden');
+    } finally {
+        if (btnConfirm) {
+            btnConfirm.disabled = false;
+            btnConfirm.innerHTML = originalBtnHtml;
+        }
     }
 }
 

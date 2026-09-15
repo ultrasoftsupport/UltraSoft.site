@@ -1,7 +1,30 @@
+# Dependencies
 node_modules/
-.DS_Store
-*.log
+
+# Environment variables
 .env
 .env.local
+.env.production
+
+# IDE & OS
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build output
 dist/
+
+# Logs
+*.log
+
+# Backup & data files (sensitive/large)
+ultrasoft_*.json
+*backup*.json
+*.backup.json
+*.xls
+*.xlsx
+.temp/
+
+# Agents
+.agents/

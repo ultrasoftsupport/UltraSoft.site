@@ -4,10 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UltraSoft | المنظومة الرقمية للحلول والاشتراكات</title>
+    <meta name="description" content="ألترا سوفت - النظام السحابي المتكامل لإدارة المصانع والمخازن والمعارض وتتبع الطلبيات وفواتير الوارد والباركود بدقة وسرعة فائقة.">
+    <meta name="keywords" content="برنامج مصانع, إدارة المخزون, تتبع الطلبات, باركود, سحابي, UltraSoft">
+    <meta name="author" content="UltraSoft">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="UltraSoft | المنظومة الرقمية للحلول والاشتراكات">
+    <meta property="og:description" content="النظام السحابي المتكامل لإدارة المصانع والمخازن والمعارض وتتبع الطلبيات بدقة واحترافية.">
+    <meta property="og:image" content="./src/assets/icons/ultrasoft.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UltraSoft | المنظومة الرقمية للحلول والاشتراكات">
+    <meta name="twitter:description" content="النظام السحابي المتكامل لإدارة المصانع والمخازن والمعارض وتتبع الطلبيات.">
+    <meta name="twitter:image" content="./src/assets/icons/ultrasoft.png">
+
     <link rel="icon" type="image/png" href="./src/assets/icons/ultrasoft_transparent.png">
     
     <link rel="stylesheet" href="./src/css/ultrasoft-theme.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./src/css/output.css">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
@@ -68,53 +85,7 @@
             } catch(e) { console.error('Theme early load error:', e); }
         })();
     </script>
-    <script>
-        const withOpacity = (variableName, fallback) => {
-            return ({ opacityValue }) => {
-                if (opacityValue !== undefined) {
-                    return `color-mix(in srgb, var(${variableName}, ${fallback}) calc(100% * ${opacityValue}), transparent)`;
-                }
-                return `var(${variableName}, ${fallback})`;
-            };
-        };
 
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        ultra: {
-                            50: '#F0F9FF',
-                            100: '#E0F2FE',
-                            200: '#BAE6FD',
-                            300: '#7DD3FC',
-                            400: '#38BDF8',
-                            500: '#0EB5D4',
-                            600: '#0284C7',
-                            700: '#0369A1',
-                            800: '#075985',
-                            900: '#0C4A6E',
-                            950: '#082F49'
-                        },
-                        devo: {
-                            black: withOpacity('--devo-black', '#0b1329'),
-                            dark: withOpacity('--devo-dark', '#0f172a'),
-                            gray: withOpacity('--devo-gray', '#1e293b'),
-                            grayHover: withOpacity('--devo-gray-hover', '#334155'),
-                            orange: withOpacity('--devo-orange', '#0284c7'),
-                            orangeHover: withOpacity('--devo-orange-hover', '#0369a1'),
-                            text: withOpacity('--devo-text', '#f8fafc'),
-                            muted: withOpacity('--devo-muted', '#cbd5e1'),
-                            success: withOpacity('--devo-success', '#10b981'),
-                            error: withOpacity('--devo-error', '#ef4444'),
-                            warning: withOpacity('--devo-warning', '#f59e0b'),
-                            info: withOpacity('--devo-info', '#38bdf8')
-                        }
-                    },
-                    fontFamily: { sans: ['Alexandria', 'Cairo', 'Tajawal', 'Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
     <style>
         body { font-family: 'Alexandria', 'Cairo', 'Tajawal', sans-serif; letter-spacing: -0.01em; }
         ::-webkit-scrollbar { width: 6px; }

@@ -1,14 +1,17 @@
 import { supabase } from '../config/supabase.js';
 import { showToast } from '../components/toast.js';
 import { getCurrentTenantId } from './tenant_service.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 let unreadOrders = [];
 let soundEnabled = localStorage.getItem('devo_notifications_sound') !== 'false';
 let desktopEnabled = Notification.permission === 'granted';
-let originalTitle = document.title || 'DEVO | لوحة تحكم الإدارة';
+let originalTitle = document.title || 'UltraSoft | لوحة تحكم الإدارة';
 let realtimeChannel = null;
 let currentUser = null;
 let webNotificationsEnabled = true;
+let isAuthStateListenerSet = false;
+let realtimeRetryTimeout = null;
 
 // جلب إعدادات البث في الموقع
 async function loadNotificationSettings() {
@@ -263,9 +266,6 @@ export async function fetchUnreadNotifications() {
     }
 }
 
-let realtimeRetryTimeout = null;
-let isAuthStateListenerSet = false;
-
 // الاتصال اللحظي بـ Supabase لمراقبة جدول الإشعارات
 function setupRealtimeSubscription() {
     if (realtimeChannel) {
@@ -305,7 +305,7 @@ function setupRealtimeSubscription() {
             if (newNotif.type === 'out_of_stock') toastType = 'error';
             else if (newNotif.type === 'order_created') toastType = 'success';
             
-            showToast(`🚨 ${newNotif.title}\n${newNotif.body}`, toastType);
+            showToast(`🚨 ${escapeHtml(newNotif.title)}\n${escapeHtml(newNotif.body)}`, toastType);
 
             // إرسال إشعار سطح المكتب للمتصفح
             sendDesktopNotification(newNotif.title, {
@@ -397,16 +397,16 @@ function updateNotificationsListUI() {
         else if (o.type === 'order_assigned') colorClass = 'bg-blue-500';
 
         return `
-            <div class="p-3 hover:bg-devo-gray/30 border-b border-devo-gray/20 transition-all cursor-pointer flex flex-col gap-1 text-right" data-order-id="${o.id}">
+            <div class="p-3 hover:bg-devo-gray/30 border-b border-devo-gray/20 transition-all cursor-pointer flex flex-col gap-1 text-right" data-order-id="${escapeHtml(o.id)}">
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-white flex items-center gap-1">
                         <span class="w-1.5 h-1.5 ${colorClass} rounded-full animate-ping"></span>
-                        ${o.title}
+                        ${escapeHtml(o.title)}
                     </span>
                     <span class="text-[10px] text-devo-muted font-medium">${timeStr}</span>
                 </div>
                 <div class="text-[11px] text-devo-muted mt-1 leading-relaxed truncate max-w-[280px]">
-                    ${o.body}
+                    ${escapeHtml(o.body)}
                 </div>
             </div>
         `;

@@ -18,7 +18,11 @@ const TABLES_WITH_TENANT_ID = [
     'system_users', 'home_settings', 'invoices', 'inbound_invoices',
     'orders', 'returns', 'inventory_audits', 'promo_cards',
     'system_notifications', 'stock_movements', 'order_logs', 'model_inventory',
-    'model_colors_inventory', 'system_backups_log'
+    'model_colors_inventory', 'system_backups_log', 'class_sizes', 'order_items',
+    'inbound_invoice_items', 'tenant_domains', 'excel_credits_log', 'system_audit_logs',
+    'tenant_pos_settings', 'tenant_social_links', 'tenant_invoice_settings',
+    'tenant_report_schedules', 'tenant_branding_settings', 'tenant_telegram_settings',
+    'subscriptions', 'profiles'
 ];
 
 // خريطة المفاتيح الرئيسية لكل جدول لمنع التعارضات في الدفعات الكبيرة
@@ -26,6 +30,12 @@ const PRIMARY_KEY_CONFIG = {
     class_sizes: 'class_id, size_id',
     model_sizes: 'model_id, size_id',
     home_settings: 'setting_key',
+    tenant_branding_settings: 'tenant_id',
+    tenant_social_links: 'tenant_id',
+    tenant_invoice_settings: 'tenant_id',
+    tenant_pos_settings: 'tenant_id',
+    tenant_telegram_settings: 'tenant_id',
+    tenant_report_schedules: 'tenant_id',
     default: 'id'
 };
 
@@ -68,37 +78,53 @@ const EXPORT_PRESETS = {
     },
     full_system: {
         id: 'full_system',
-        label: 'نسخة احتياطية كاملة للنظام',
+        label: 'نسخة احتياطية شاملة للمصنع (كافة الجداول ديناميكياً)',
         icon: 'ph-hard-drives',
-        desc: 'نسخة شاملة لكل جداول وبيانات النظام، الإعدادات، المستخدمين، والمظاهر',
+        desc: 'نسخة شاملة لكل جداول وبيانات المصنع، الموديلات، الإعدادات، الفواتير، والأرصدة ديناميكياً',
         tables: [
             'categories', 'classes', 'sizes', 'colors', 'class_sizes',
-            'system_users', 'themes', 'home_settings',
+            'system_users', 'themes', 'home_settings', 'tenant_branding_settings',
+            'tenant_social_links', 'tenant_invoice_settings', 'tenant_pos_settings',
+            'tenant_telegram_settings', 'tenant_report_schedules', 'tenant_domains',
+            'subscriptions', 'profiles',
             'models', 'model_sizes', 'model_images', 'model_colors_inventory', 'model_inventory',
             'promo_cards', 'inbound_invoices', 'inbound_invoice_items',
             'orders', 'order_items', 'order_item_preparation', 'preparation_status_log', 'order_logs',
             'invoices', 'invoice_items', 'returns', 'return_items', 'inventory_audits', 'inventory_audit_items',
-            'stock_movements', 'system_notifications'
+            'stock_movements', 'excel_credits_log', 'system_notifications', 'inventory_notification_queue',
+            'system_audit_logs', 'system_backups_log'
         ]
     }
 };
 
 // الترتيب الهندسي لإدراج البيانات عند الاستعادة لحماية العلاقات المفتاحية (FK Order)
 const RESTORE_TABLE_ORDER = [
+    // 1. الأساسيات والتصنيفات والمظاهر والإعدادات
     'categories',
     'classes',
     'sizes',
     'colors',
     'class_sizes',
-    'system_users',
     'themes',
     'home_settings',
+    'tenant_branding_settings',
+    'tenant_social_links',
+    'tenant_invoice_settings',
+    'tenant_pos_settings',
+    'tenant_telegram_settings',
+    'tenant_report_schedules',
+    'tenant_domains',
+    'subscriptions',
+    'system_users',
+    'profiles',
+    // 2. الموديلات والمنتجات وتفاصيلها
     'models',
     'model_sizes',
     'model_images',
     'model_colors_inventory',
     'model_inventory',
     'promo_cards',
+    // 3. الفواتير والأوردرات والتجهيز
     'inbound_invoices',
     'inbound_invoice_items',
     'orders',
@@ -110,10 +136,15 @@ const RESTORE_TABLE_ORDER = [
     'invoice_items',
     'returns',
     'return_items',
+    // 4. الجرد والمخزون والإشعارات
     'inventory_audits',
     'inventory_audit_items',
     'stock_movements',
-    'system_notifications'
+    'excel_credits_log',
+    'system_audit_logs',
+    'system_notifications',
+    'inventory_notification_queue',
+    'system_backups_log'
 ];
 
 // أسماء الجداول بالعربية للعرض في الواجهة
@@ -125,7 +156,17 @@ const TABLE_ARABIC_NAMES = {
     class_sizes: 'مقاسات الفئات العمرية',
     system_users: 'حسابات المستخدمين',
     themes: 'مظاهر النظام',
-    home_settings: 'إعدادات الموقع',
+    home_settings: 'إعدادات الموقع والمظهر',
+    tenant_branding_settings: 'هوية ومظهر المتجر',
+    tenant_social_links: 'روابط التواصل الاجتماعي',
+    tenant_invoice_settings: 'إعدادات الفواتير والطباعة',
+    tenant_pos_settings: 'نقاط البيع وقارئ الباركود',
+    tenant_telegram_settings: 'إشعارات وبوت تليجرام المصنع',
+    tenant_report_schedules: 'جدولة التقارير التلقائية',
+    tenant_domains: 'نطاقات ودومينات المصنع',
+    excel_credits_log: 'سجل رصيد واستخراج إكسل',
+    system_audit_logs: 'سجل المراقبة والعمليات',
+    system_backups_log: 'سجل النسخ الاحتياطية',
     models: 'الموديلات والمنتجات',
     model_sizes: 'مقاسات الموديلات',
     model_images: 'صور الموديلات',
@@ -146,7 +187,10 @@ const TABLE_ARABIC_NAMES = {
     inventory_audits: 'جرد المخزون',
     inventory_audit_items: 'عناصر جرد المخزون',
     stock_movements: 'حركات وسجلات المخزون',
-    system_notifications: 'إشعارات النظام'
+    system_notifications: 'إشعارات النظام',
+    inventory_notification_queue: 'طابور تنبيهات المخزون',
+    profiles: 'الملفات الشخصية',
+    subscriptions: 'اشتراكات وباقات المصنع'
 };
 
 let isInitialized = false;
@@ -969,7 +1013,7 @@ async function handleExportProcess() {
 
     // 2. إرسال ملف النسخة الاحتياطية المباشر فورياً إلى جروب/بوت التليجرام الخاص بالمصنع لحفظه هناك مجاناً وبدون استهلاك مساحة Supabase
     try {
-        const jsonContent = JSON.stringify(backupPayload, null, 2);
+        const jsonContent = JSON.stringify(backupPayload);
         const fileBlob = new Blob([jsonContent], { type: 'application/json' });
         const fileSize = fileBlob.size;
 
@@ -1152,14 +1196,13 @@ async function generateBackupPayload(preset) {
             tenant_id: currentTenantId,
             tenant_name: tenantName,
             total_records: 0,
-            tables_count: preset.tables.length
+            tables_count: 0
         },
         tables: {}
     };
 
     let overallTotalRecords = 0;
     const errorsList = [];
-    const totalTables = preset.tables.length;
 
     let startTime = Date.now();
     const timerInterval = setInterval(() => {
@@ -1171,28 +1214,86 @@ async function generateBackupPayload(preset) {
     }, 1000);
 
     try {
-        for (let i = 0; i < totalTables; i++) {
-            const tableName = preset.tables[i];
-            const arabicName = TABLE_ARABIC_NAMES[tableName] || tableName;
-            const stepPercent = Math.round(((i) / totalTables) * 100);
+        let rpcExtracted = false;
 
-            updateProgressUI(stepPercent, `${arabicName} (${tableName})`, 'جاري الجلب الحجمي...');
-            addOrUpdateStepItem(tableName, arabicName, 'loading', 'جاري جلب البيانات على دفعات...');
+        // 1. محاولة استدعاء الدالة الديناميكية الفورية في قاعدة البيانات execute_tenant_dynamic_backup
+        try {
+            updateProgressUI(15, 'جاري الاستخراج الديناميكي السريع من السيرفر...', 'استخراج فوري لكافة الجداول...');
+            const { data: rpcData, error: rpcErr } = await supabase.rpc('execute_tenant_dynamic_backup', {
+                p_tenant_id: currentTenantId,
+                p_preset: preset.id
+            });
 
-            try {
-                const rows = await fetchAllTableRecords(tableName, (fetchedSoFar) => {
-                    updateProgressUI(stepPercent, `${arabicName} (${tableName})`, `${fetchedSoFar.toLocaleString('ar-EG')} سجل`);
-                });
+            if (!rpcErr && rpcData && rpcData.success && rpcData.tables) {
+                backupPayload.tables = rpcData.tables;
+                const tblKeys = Object.keys(rpcData.tables);
+                backupPayload.meta.tables_count = tblKeys.length;
                 
-                backupPayload.tables[tableName] = rows;
-                overallTotalRecords += rows.length;
+                tblKeys.forEach(tableName => {
+                    const rows = rpcData.tables[tableName] || [];
+                    const rowCount = Array.isArray(rows) ? rows.length : 0;
+                    overallTotalRecords += rowCount;
+                    const arabicName = TABLE_ARABIC_NAMES[tableName] || tableName;
+                    addOrUpdateStepItem(tableName, arabicName, 'success', `تم تصدير ${rowCount.toLocaleString('ar-EG')} سجل بنجاح`);
+                });
 
-                addOrUpdateStepItem(tableName, arabicName, 'success', `تم تصدير ${rows.length.toLocaleString('ar-EG')} سجل بنجاح`);
-            } catch (err) {
-                console.error(`Error exporting table ${tableName}:`, err);
-                backupPayload.tables[tableName] = [];
-                errorsList.push(`جدول ${arabicName}: ${err.message}`);
-                addOrUpdateStepItem(tableName, arabicName, 'error', `فشل الجلب: ${err.message}`);
+                rpcExtracted = true;
+                console.log('✅ تم استخراج النسخة الاحتياطية بنجاح عبر execute_tenant_dynamic_backup:', tblKeys.length, 'جدولاً');
+            } else if (rpcErr) {
+                console.warn('execute_tenant_dynamic_backup RPC notice, falling back to client fetch:', rpcErr.message);
+            }
+        } catch (rpcCallErr) {
+            console.warn('RPC execute_tenant_dynamic_backup call note, using client extraction:', rpcCallErr);
+        }
+
+        // 2. إذا لم تتوفر الدالة بالسيرفر، استخدام آلية الجلب المتتابعة عبر المتصفح لكافة الجداول
+        if (!rpcExtracted) {
+            let targetTables = [...preset.tables];
+
+            // محاولة اكتشاف أي جداول إضافية ديناميكياً من السيرفر
+            if (preset.id === 'full_system') {
+                try {
+                    const { data: dynTables } = await supabase.rpc('get_tenant_dynamic_tables_info', {
+                        p_tenant_id: currentTenantId
+                    });
+                    if (Array.isArray(dynTables) && dynTables.length > 0) {
+                        dynTables.forEach(t => {
+                            if (t.table_name && !targetTables.includes(t.table_name)) {
+                                targetTables.push(t.table_name);
+                            }
+                        });
+                    }
+                } catch (dynErr) {
+                    console.warn('get_tenant_dynamic_tables_info note:', dynErr);
+                }
+            }
+
+            const totalTables = targetTables.length;
+            backupPayload.meta.tables_count = totalTables;
+
+            for (let i = 0; i < totalTables; i++) {
+                const tableName = targetTables[i];
+                const arabicName = TABLE_ARABIC_NAMES[tableName] || tableName;
+                const stepPercent = Math.round(((i) / totalTables) * 100);
+
+                updateProgressUI(stepPercent, `${arabicName} (${tableName})`, 'جاري الجلب الحجمي...');
+                addOrUpdateStepItem(tableName, arabicName, 'loading', 'جاري جلب البيانات على دفعات...');
+
+                try {
+                    const rows = await fetchAllTableRecords(tableName, (fetchedSoFar) => {
+                        updateProgressUI(stepPercent, `${arabicName} (${tableName})`, `${fetchedSoFar.toLocaleString('ar-EG')} سجل`);
+                    });
+                    
+                    backupPayload.tables[tableName] = rows;
+                    overallTotalRecords += rows.length;
+
+                    addOrUpdateStepItem(tableName, arabicName, 'success', `تم تصدير ${rows.length.toLocaleString('ar-EG')} سجل بنجاح`);
+                } catch (err) {
+                    console.error(`Error exporting table ${tableName}:`, err);
+                    backupPayload.tables[tableName] = [];
+                    errorsList.push(`جدول ${arabicName}: ${err.message}`);
+                    addOrUpdateStepItem(tableName, arabicName, 'error', `فشل الجلب: ${err.message}`);
+                }
             }
         }
 
@@ -1208,15 +1309,15 @@ async function generateBackupPayload(preset) {
 
         showProgressCompletion(
             '✅ تم التصدير بنجاح!',
-            `تم تصدير ${overallTotalRecords.toLocaleString('ar-EG')} سجل عبر ${totalTables} جداول بنجاح بتقنيات الأمان الحجمية.`
+            `تم تصدير ${overallTotalRecords.toLocaleString('ar-EG')} سجل عبر ${backupPayload.meta.tables_count || Object.keys(backupPayload.tables).length} جداول بنجاح بتقنيات الأمان الحجمية.`
         );
 
         if (errorsList.length > 0) {
             showProgressErrors(errorsList);
         }
 
-        // 🔒 تشفير محتوى النسخة بالكامل مفتاح المصنع AES-256-GCM قبل إرجاعها
-        updateProgressUI(100, 'جاري التشفير والأمان...', 'جاري تشفير البيانات بـ AES-256...');
+        // 🔒 تشفير محتوى النسخة بالكامل بمفتاح المصنع المخصص AES-256-GCM قبل إرجاعها
+        updateProgressUI(100, 'جاري التشفير والأمان...', 'جاري تشفير البيانات بـ AES-256-GCM...');
         const finalEncryptedPayload = await encryptBackupPayload(backupPayload);
         return finalEncryptedPayload;
 
@@ -1307,7 +1408,7 @@ async function executeCloudAutoBackup(isManualClick = false) {
     try {
         const dateStr = getFormattedDateStr();
         const filename = `backup_${safeTenantName}_cloud_${dateStr}.json`;
-        const jsonContent = JSON.stringify(backupPayload, null, 2);
+        const jsonContent = JSON.stringify(backupPayload);
         const fileBlob = new Blob([jsonContent], { type: 'application/json' });
         const fileSize = fileBlob.size;
 
@@ -2063,6 +2164,8 @@ function sanitizeRowForTable(tableName, row, validUserIds = null) {
                                 }
                             } else if (tableName === 'model_inventory') {
                                 const updatePayload = { available_series: row.available_series };
+                                if (row.color_system_code !== undefined) updatePayload.color_system_code = row.color_system_code;
+                                if (row.color_factory_code !== undefined) updatePayload.color_factory_code = row.color_factory_code;
                                 let updateQuery = supabase.from('model_inventory').update(updatePayload);
                                 if (row.id) {
                                     updateQuery = updateQuery.eq('id', row.id);
@@ -2258,7 +2361,7 @@ function closeProgressModal() {
 // 🛠️ أدوات تنزيل وصياغة التاريخ
 // ============================================================
 function downloadJsonFile(dataObject, filename) {
-    const jsonString = JSON.stringify(dataObject, null, 2);
+    const jsonString = JSON.stringify(dataObject);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

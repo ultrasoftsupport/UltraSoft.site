@@ -4,6 +4,7 @@ import { confirmDialog } from '../../components/modal.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { getCurrentTenantId } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
+import { getExcelProfiles, getActiveExcelProfile, buildInboundExportRows } from '../../services/excel_templates_service.js';
 
 let isInitialized = false;
 let inboundInvoices = [];
@@ -98,10 +99,10 @@ export async function loadInboundData() {
         let modelsQuery = supabase
             .from('models')
             .select(`
-                id, system_code, factory_code, name, is_active, price, class_id,
+                id, system_code, factory_code, code_assignment_mode, name, is_active, price, class_id,
                 classes(id, name, class_sizes(size_id, sizes(id, name))),
                 model_sizes(size_id, sizes(id, name)),
-                model_inventory(color_id, available_series, colors(id, name))
+                model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name))
             `);
 
         if (currentTenantId) {
@@ -286,9 +287,10 @@ function populateModelSelectDropdown() {
     });
 
     select.innerHTML = '<option value="">-- اختر الموديل --</option>' + 
-        filteredModels.map(m => `
-            <option value="${m.id}">[${m.factory_code}] ${m.name}${m.is_active ? '' : ' (غير نشط)'}</option>
-        `).join('');
+        filteredModels.map(m => {
+            const displayCode = m.factory_code || m.system_code || 'بدون كود';
+            return `<option value="${m.id}">[${displayCode}] ${m.name}${m.is_active ? '' : ' (غير نشط)'}</option>`;
+        }).join('');
 }
 
 
@@ -347,13 +349,16 @@ function handleAddModelToInvoice() {
     }
 
     // Add all model color combinations to local draft items
+    const modelUnifiedCode = model.factory_code || model.system_code || '';
     model.model_inventory.forEach(inv => {
         draftInvoice.items.push({
             model_id: model.id,
-            model_code: model.factory_code,
+            model_code: modelUnifiedCode,
             model_name: model.name,
             color_id: inv.color_id,
             color_name: inv.colors?.name || 'بدون اسم',
+            color_system_code: inv.color_system_code || '',
+            color_factory_code: inv.color_factory_code || '',
             qty: 0,
             current_stock: inv.available_series || 0
         });
@@ -364,7 +369,7 @@ function handleAddModelToInvoice() {
     populateModelSelectDropdown();
     
     renderDraftItems();
-    showToast(`تمت إضافة الموديل [${model.factory_code}] للمسودة`, 'success');
+    showToast(`تمت إضافة الموديل [${modelUnifiedCode || model.name}] للمسودة`, 'success');
 }
 
 // 🌟 Remove model card from local draft invoice 🌟
@@ -467,7 +472,13 @@ function renderDraftItems() {
                                 const expectedStock = currentStock + addedQty;
                                 return `
                                     <tr class="align-middle">
-                                        <td class="py-2 text-white font-bold">${c.color_name}</td>
+                                        <td class="py-2 text-white font-bold">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span>${c.color_name}</span>
+                                                ${c.color_system_code ? `<span class="text-[9px] font-mono text-purple-400 bg-purple-500/10 border border-purple-500/30 px-1 py-0.2 rounded">كود: ${c.color_system_code}</span>` : ''}
+                                                ${c.color_factory_code ? `<span class="text-[9px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-1 py-0.2 rounded">مصنع: ${c.color_factory_code}</span>` : ''}
+                                            </div>
+                                        </td>
                                         <td class="py-2 text-devo-muted">${currentStock} سري</td>
                                         <td class="py-2">
                                             <input type="number" min="0" value="${addedQty || ''}" placeholder="0"
@@ -599,7 +610,7 @@ async function editInboundInvoice(invoiceId) {
             .from('inbound_invoice_items')
             .select(`
                 id, model_id, color_id, quantity,
-                models(id, name, factory_code),
+                models(id, name, factory_code, system_code, code_assignment_mode),
                 colors(id, name)
             `)
             .eq('inbound_invoice_id', invoiceId);
@@ -623,10 +634,12 @@ async function editInboundInvoice(invoiceId) {
 
             return {
                 model_id: item.model_id,
-                model_code: item.models?.factory_code || 'غير معروف',
+                model_code: item.models?.factory_code || item.models?.system_code || 'غير معروف',
                 model_name: item.models?.name || 'غير معروف',
                 color_id: item.color_id,
                 color_name: item.colors?.name || 'بدون اسم',
+                color_system_code: invRecord?.color_system_code || '',
+                color_factory_code: invRecord?.color_factory_code || '',
                 qty: item.quantity,
                 current_stock: baseStock
             };
@@ -733,9 +746,10 @@ async function exportInboundInvoiceToExcel(invoiceId) {
             .from('inbound_invoice_items')
             .select(`
                 id, model_id, color_id, quantity,
-                models(id, name, factory_code, system_code, price, class_id, 
+                models(id, name, factory_code, system_code, code_assignment_mode, price, class_id, 
                     classes(id, name, class_sizes(size_id, sizes(id, name))),
-                    model_sizes(size_id, sizes(id, name))
+                    model_sizes(size_id, sizes(id, name)),
+                    model_inventory(color_id, color_system_code, color_factory_code)
                 ),
                 colors(id, name)
             `)
@@ -743,44 +757,21 @@ async function exportInboundInvoiceToExcel(invoiceId) {
 
         if (itemsError) throw itemsError;
 
+        const profiles = await getExcelProfiles();
+        const activeProfile = getActiveExcelProfile(profiles);
+        const { rows, colWidths, direction, sheetName } = buildInboundExportRows(inv, itemsData, activeProfile);
+
         const dateStr = new Date(inv.created_at).toISOString().split('T')[0];
-        const fileName = `INB${inv.invoice_number}_${dateStr}.xlsx`;
-        
-        const invoiceNotes = `فاتورة دخل رقم: ${inv.invoice_number} | حررت بواسطة: ${inv.system_users?.full_name || 'غير معروف'}`;
+        const filePrefix = activeProfile.inbound_export?.file_prefix || 'INB';
+        const fileName = `${filePrefix}${inv.invoice_number}_${dateStr}.xlsx`;
 
-        const excelData = (itemsData || []).map((i, idx) => {
-            const classSizes = i.models?.classes?.class_sizes || [];
-            const sizesCount = classSizes.length > 0 ? classSizes.length : (i.models?.model_sizes?.length || 1); 
-            const piecesQty = i.quantity * sizesCount;
-            const modelPrice = i.models?.price || 0;
-            const unitPrice = sizesCount > 0 ? (modelPrice / sizesCount) : modelPrice;
-
-            return {
-                'الملاحظات': idx === 0 ? invoiceNotes : '',
-                'كود المخزن': 1,
-                'كودالصنف': i.models?.system_code || '',
-                'عدد': piecesQty,
-                'الفئة': unitPrice,
-                'هدية': '',
-                'سيريال': '-',
-                'باتش': 1,
-                'ت صلاحية': '',
-                'اسم اللون': i.colors?.name || '',
-                'كود المقاس': 1
-            };
-        });
-
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const worksheet = XLSX.utils.json_to_sheet(rows);
         if (!worksheet['!views']) worksheet['!views'] = [];
-        worksheet['!views'].push({ rightToLeft: true });
-        worksheet['!cols'] = [
-            { wch: 30 }, { wch: 12 }, { wch: 15 }, { wch: 10 }, { wch: 12 }, 
-            { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, 
-            { wch: 12 }
-        ];
+        worksheet['!views'].push({ rightToLeft: direction !== 'ltr' });
+        worksheet['!cols'] = colWidths;
 
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Inbound_Items");
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName || "Inbound_Items");
         XLSX.writeFile(workbook, fileName);
 
         showToast('تم تحميل ملف فاتورة الدخل بنجاح', 'success');
@@ -807,7 +798,7 @@ async function viewInboundInvoiceDetails(invoiceId) {
             .from('inbound_invoice_items')
             .select(`
                 id, model_id, color_id, quantity,
-                models(id, name, factory_code),
+                models(id, name, factory_code, system_code, code_assignment_mode, model_inventory(color_id, color_system_code, color_factory_code)),
                 colors(id, name)
             `)
             .eq('inbound_invoice_id', invoiceId);
@@ -822,11 +813,15 @@ async function viewInboundInvoiceDetails(invoiceId) {
         const groupedItems = {};
         itemsList.forEach(item => {
             const modelId = item.model_id;
-            const code = item.models?.factory_code || 'غير معروف';
+            const code = item.models?.factory_code || item.models?.system_code || 'غير معروف';
             const colorName = item.colors?.name || 'بدون اسم';
+            const colorInv = item.models?.model_inventory?.find(inv => inv.color_id === item.color_id);
+            const specificCode = colorInv?.color_system_code || colorInv?.color_factory_code || '';
             const qty = item.quantity;
             
-            const colorWithQty = `${colorName} (${qty} سري)`;
+            const colorWithQty = specificCode 
+                ? `${colorName} [${specificCode}] (${qty} سري)` 
+                : `${colorName} (${qty} سري)`;
 
             if (!groupedItems[modelId]) {
                 groupedItems[modelId] = {
@@ -943,18 +938,21 @@ function printInboundInvoice(inv, items) {
     const grouped = {};
     items.forEach(item => {
         const modelId = item.model_id;
-        const code = item.models?.factory_code || '';
+        const code = item.models?.factory_code || item.models?.system_code || '';
         const colorName = item.colors?.name || '-';
+        const colorInv = item.models?.model_inventory?.find(inv => inv.color_id === item.color_id);
+        const specificCode = colorInv?.color_system_code || colorInv?.color_factory_code || '';
         const qty = item.quantity;
+        const colorDisplay = specificCode ? `${colorName} [${specificCode}] (${qty})` : `${colorName} (${qty})`;
         if (!grouped[modelId]) {
             grouped[modelId] = {
                 modelName: item.models?.name,
                 code: code,
-                colors: [`${colorName} (${qty})`],
+                colors: [colorDisplay],
                 totalQty: qty
             };
         } else {
-            grouped[modelId].colors.push(`${colorName} (${qty})`);
+            grouped[modelId].colors.push(colorDisplay);
             grouped[modelId].totalQty += qty;
         }
     });
@@ -976,38 +974,42 @@ function printInboundInvoice(inv, items) {
             <title>${pdfFileName}</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
-                @page { size: A4 portrait; margin: 0.5cm; }
-                body { font-family: 'Tajawal', sans-serif; font-size: 12px; color: black; background: white; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .header { border-bottom: 2px solid black; padding-bottom: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end; }
-                .header h1 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: 1px; line-height: 1; }
-                .header p { margin: 2px 0 0 0; font-size: 10px; font-weight: bold; }
+                * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                @page { size: A4 portrait; margin: 8mm 8mm 6mm 8mm; }
+                body { font-family: 'Tajawal', sans-serif; font-size: 12px; color: black; background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .inv-wrapper { width: 100%; max-width: 100%; margin: 0 auto; padding: 0 2px; box-sizing: border-box; }
+                .header { border-bottom: 2.5px solid black; padding-bottom: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end; }
+                .header h1 { margin: 0; font-size: 19px; font-weight: 900; letter-spacing: 1px; line-height: 1; color: #000; }
+                .header p { margin: 2px 0 0 0; font-size: 10.5px; font-weight: bold; color: #000; }
                 .header .title-box { text-align: left; }
-                .header .title-box h2 { margin: 0; font-size: 14px; font-weight: bold; background: #eee; padding: 2px 6px; border: 1px solid #000; border-radius: 3px; }
-                .info { display: flex; justify-content: space-between; border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 6px; font-size: 11px; line-height: 1.4; }
+                .header .title-box h2 { margin: 0; font-size: 13.5px; font-weight: 900; background: #e2e8f0; padding: 3px 8px; border: 2px solid #000; border-radius: 4px; color: #000; }
+                .info { display: flex; justify-content: space-between; border: 1.5px solid black; background: #f8fafc; border-radius: 4px; padding: 6px 10px; margin-bottom: 8px; font-size: 11.5px; line-height: 1.5; color: #000; }
                 .info div { width: 48%; }
                 .info .left-col { text-align: left; }
-                .table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 8px; }
-                .table thead { display: table-header-group; background-color: #e5e5e5; }
-                .table th { border: 1px solid #666; padding: 3px 4px; font-size: 11px; color: black; }
-                .table td { border: 1px solid #aaa; padding: 2px 4px; line-height: 1.1; vertical-align: middle; }
-                .table tbody tr { page-break-inside: avoid; height: 22px; }
-                .footer { text-align: center; margin-top: 10px; padding-top: 4px; border-top: 1px dashed #999; font-size: 9px; color: #555; position: fixed; bottom: 0; width: 100%; }
+                .table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 8px; box-sizing: border-box; }
+                .table thead { display: table-header-group; background-color: #e2e8f0; }
+                .table th { border: 1.5px solid #000; padding: 5px 6px; font-size: 11.5px; color: black; font-weight: 900; -webkit-print-color-adjust: exact; }
+                .table td { border: 1.5px solid #000; padding: 5px 6px; line-height: 1.2; vertical-align: middle; color: #000; }
+                .table tbody tr { page-break-inside: avoid; }
+                .footer { text-align: center; margin-top: 10px; padding-top: 5px; border-top: 1.5px dashed #000; font-size: 10px; font-weight: bold; color: #000; }
             </style>
         </head>
         <body>
-            <div class="header">
-                <div><h1>Ultra<span style="color:#0284c7;">Soft</span> <span style="font-size:11px; font-weight:bold;">Collection</span></h1><p>شركة UltraSoft للأنظمة المتقدمة</p></div>
-                <div class="title-box"><h2>فاتورة إضافة رصيد (شحن)</h2><p style="margin-top: 4px;">رقم الفاتورة: <span style="font-family: monospace; font-size: 12px; color: red;">${inv.invoice_number}</span></p></div>
+            <div class="inv-wrapper">
+                <div class="header">
+                    <div><h1>Ultra<span style="color:#0284c7;">Soft</span> <span style="font-size:11px; font-weight:bold;">Collection</span></h1><p>شركة UltraSoft للأنظمة المتقدمة</p></div>
+                    <div class="title-box"><h2>فاتورة إضافة رصيد (شحن)</h2><p style="margin-top: 4px; font-weight: 900;">رقم الفاتورة: <span style="font-family: monospace; font-size: 12.5px; color: #b91c1c;">${inv.invoice_number}</span></p></div>
+                </div>
+                <div class="info">
+                    <div><div><b>المورد:</b> ${inv.supplier_name || 'مستودع ألترا سوفت / تصنيع'}</div><div><b>الملاحظات:</b> ${inv.notes || '-'}</div></div>
+                    <div class="left-col"><div><b>التاريخ:</b> ${dateStr} &nbsp;|&nbsp; <b>الوقت:</b> ${timeStr}</div><div><b>المسؤول:</b> ${inv.system_users?.full_name || 'غير معروف'}</div><div><b>إجمالي الكمية:</b> <b style="font-size: 13px;">${inv.total_series} سري</b></div></div>
+                </div>
+                <table class="table">
+                    <thead><tr><th style="width: 35px; text-align: center;">#</th><th>الموديل</th><th>تفصيل الألوان</th><th style="width: 100px; text-align: center;">الكمية</th></tr></thead>
+                    <tbody>${itemsHtml}</tbody>
+                </table>
+                <div class="footer">Developed by UltraSoft - +201140409832</div>
             </div>
-            <div class="info">
-                <div><div><b>المورد:</b> ${inv.supplier_name || 'مستودع ألترا سوفت / تصنيع'}</div><div><b>الملاحظات:</b> ${inv.notes || '-'}</div></div>
-                <div class="left-col"><div><b>التاريخ:</b> ${dateStr} &nbsp;|&nbsp; <b>الوقت:</b> ${timeStr}</div><div><b>المسؤول:</b> ${inv.system_users?.full_name || 'غير معروف'}</div><div><b>إجمالي الكمية:</b> ${inv.total_series} سري</div></div>
-            </div>
-            <table class="table">
-                <thead><tr><th style="width: 30px;">#</th><th>الموديل</th><th>تفصيل الألوان</th><th style="width: 100px;">الكمية</th></tr></thead>
-                <tbody>${itemsHtml}</tbody>
-            </table>
-            <div class="footer">Developed by UltraSoft - +201140409832</div>
         </body>
         </html>
     `;

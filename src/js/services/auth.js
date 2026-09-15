@@ -24,42 +24,37 @@ export async function loginUser(usernameInput, password) {
             throw new Error('يرجى إدخال اسم المستخدم وكلمة المرور');
         }
 
-        // أ) البحث الحصري بحقل اسم المستخدم (username) فقط داخل مصنع التينانت الحالي
-        let query = supabase
-            .from('system_users')
-            .select('*')
-            .eq('username', cleanInput);
-
-        if (activeTenant && activeTenant.slug !== 'super_admin' && activeTenant.slug !== 'default' && currentTenantId) {
-            query = query.eq('tenant_id', currentTenantId);
+        // أ) البحث الحصري بحقل اسم المستخدم (username) عبر RPC الآمن أو الاستعلام المباشر
+        let targetUser = null;
+        try {
+            const tenantParam = (activeTenant && activeTenant.slug !== 'super_admin' && activeTenant.slug !== 'default' && currentTenantId) ? currentTenantId : null;
+            const { data: rpcUser, error: rpcErr } = await supabase.rpc('get_system_user_login_info', {
+                p_username: cleanInput,
+                p_tenant_id: tenantParam
+            });
+            if (!rpcErr && rpcUser) {
+                targetUser = rpcUser;
+            }
+        } catch (rpcEx) {
+            console.warn('RPC user lookup skipped:', rpcEx);
         }
 
-        let { data: matchedUsers } = await query;
-        let targetUser = (matchedUsers && matchedUsers.length > 0) ? matchedUsers[0] : null;
+        if (!targetUser) {
+            let query = supabase
+                .from('system_users')
+                .select('*')
+                .eq('username', cleanInput);
+
+            if (activeTenant && activeTenant.slug !== 'super_admin' && activeTenant.slug !== 'default' && currentTenantId) {
+                query = query.eq('tenant_id', currentTenantId);
+            }
+
+            let { data: matchedUsers } = await query;
+            targetUser = (matchedUsers && matchedUsers.length > 0) ? matchedUsers[0] : null;
+        }
 
         if (!targetUser) {
-            // 👑 توليد وحقن حساب super_admin تلقائياً إذا لم يكن موجوداً بقاعدة البيانات
-            if (cleanInput === 'super_admin') {
-                try {
-                    await supabase.rpc('create_super_admin_account', {
-                        p_username: 'super_admin',
-                        p_full_name: 'Super Admin UltraSoft',
-                        p_email: 'admin@ultrasoft.com',
-                        p_password: password,
-                        p_security_pin: '123456'
-                    });
-                    const { data: retryUsers } = await supabase.from('system_users').select('*').eq('username', 'super_admin');
-                    if (retryUsers && retryUsers.length > 0) {
-                        targetUser = retryUsers[0];
-                    }
-                } catch (e) {
-                    console.warn('Super admin auto-provision fallback info:', e);
-                }
-            }
-
-            if (!targetUser) {
-                throw new Error('هذا الحساب غير موجود بالنظام');
-            }
+            throw new Error('هذا الحساب غير موجود بالنظام');
         }
 
         if (!targetUser.is_active) {
@@ -78,21 +73,8 @@ export async function loginUser(usernameInput, password) {
         
         let isAuthSuccess = false;
 
+        // ب) التحقق من صحة كلمة المرور مباشرة عبر RPC الآمن أولاً لتجنب استثناء 500 من GoTrue
         try {
-            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                email: targetEmail,
-                password: password
-            });
-
-            if (!authError && authData?.user) {
-                isAuthSuccess = true;
-            }
-        } catch (authErr) {
-            console.warn('GoTrue Auth endpoint returned exception, attempting direct password verification fallback...');
-        }
-
-        if (!isAuthSuccess) {
-            // التحقق المباشر من صحة كلمة السر عبر RPC التابع للـ Postgres
             const { data: isValidPassword, error: rpcErr } = await supabase.rpc('verify_system_user_password', {
                 p_user_id: targetUser.id,
                 p_password: password
@@ -100,6 +82,24 @@ export async function loginUser(usernameInput, password) {
 
             if (isValidPassword === true && !rpcErr) {
                 isAuthSuccess = true;
+            }
+        } catch (rpcEx) {
+            console.warn('Direct RPC verification check skipped:', rpcEx);
+        }
+
+        // في حال لم ينجح RPC، نحاول تسجيل الدخول عبر GoTrue Auth
+        if (!isAuthSuccess) {
+            try {
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: targetEmail,
+                    password: password
+                });
+
+                if (!authError && authData?.user) {
+                    isAuthSuccess = true;
+                }
+            } catch (authErr) {
+                console.warn('GoTrue Auth fallback exception:', authErr);
             }
         }
 

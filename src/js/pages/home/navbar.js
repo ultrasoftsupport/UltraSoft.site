@@ -2,7 +2,7 @@ import { getCurrentSession, logoutUser } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { renderHeader, attachMobileMenuToggle } from './header_layouts.js';
 import { supabase } from '../../config/supabase.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js';
 
 export async function initNavbar() {
     const { session } = getCurrentSession();
@@ -115,6 +115,16 @@ export async function initNavbar() {
         if (typeof window.onViewChanged === 'function') {
             window.onViewChanged(targetId);
         }
+
+        // 💾 حفظ موقع الوقوف الحالي للمصنع النشط منعاً للتداخل بين المصانع
+        if (targetId && targetId !== 'exit-trap') {
+            try {
+                const storageKey = getTenantStorageKey('ultrasoft_site_view');
+                localStorage.setItem(storageKey, targetId);
+                const tenantId = getCurrentTenantId() || 'default';
+                localStorage.setItem(`ultrasoft_site_view_${tenantId}`, targetId);
+            } catch (e) {}
+        }
     };
 
     let isConfirmingExit = false;
@@ -187,11 +197,26 @@ export async function initNavbar() {
         }
     });
 
-    // التنشيط الأولي للشاشة الافتراضية مع إعداد حماية الرجوع للخلف (exit-trap)
+    // التنشيط الأولي للشاشة مع استعادة موقع الوقوف المحفوظ لكل مصنع وحماية الرجوع للخلف (exit-trap)
+    const viewStorageKey = getTenantStorageKey('ultrasoft_site_view');
     const tenantId = getCurrentTenantId() || 'default';
-    const hasEditOrder = localStorage.getItem(`devo_edit_order_data_${tenantId}`);
+    const editOrderKey = getTenantStorageKey('devo_edit_order_data');
+    const hasEditOrder = localStorage.getItem(editOrderKey) || localStorage.getItem(`devo_edit_order_data_${tenantId}`);
+    const savedSiteView = localStorage.getItem(viewStorageKey) 
+        || localStorage.getItem(`ultrasoft_site_view_${tenantId}`)
+        || localStorage.getItem('ultrasoft_site_view_default');
+    
     let initialView = 'view-home';
-    if (hasEditOrder) {
+
+    if (savedSiteView) {
+        const actualSectionId = (savedSiteView === 'view-landing-overview' || savedSiteView === 'view-landing-pricing') ? 'view-landing' : savedSiteView;
+        // حماية الزائر من استعادة صفحات مخصصة للعمال فقط
+        if (window.isVisitor && savedSiteView === 'view-orders') {
+            initialView = 'view-home';
+        } else if (document.getElementById(actualSectionId)) {
+            initialView = savedSiteView;
+        }
+    } else if (hasEditOrder) {
         initialView = 'view-cart';
     } else if (window.isDefaultOrInvalidTenant) {
         initialView = 'view-landing-overview';

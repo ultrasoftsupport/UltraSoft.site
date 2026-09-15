@@ -4,6 +4,7 @@ import { confirmDialog } from '../../components/modal.js';
 import { HEADER_LAYOUTS } from '../home/header_layouts.js';
 import { FOOTER_LAYOUTS } from '../home/footer_layouts.js';
 import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { getTenantModularSettings, saveTenantModularSettings } from '../../services/modular_settings.js';
 
 let isInitialized = false;
 let promoCards = [];
@@ -51,13 +52,23 @@ window.saveBarcodeSettings = async () => {
 
     try {
         const currentTenantId = getCurrentTenantId();
-        const updates = [
-            { tenant_id: currentTenantId, setting_key: 'barcode_scan_mode', setting_value: document.getElementById('hs-barcode-scan-mode')?.value || 'both' },
-            { tenant_id: currentTenantId, setting_key: 'barcode_match_type', setting_value: document.getElementById('hs-barcode-match-type')?.value || 'both' }
-        ];
+        const scanMode = document.getElementById('hs-barcode-scan-mode')?.value || 'both';
+        const matchType = document.getElementById('hs-barcode-match-type')?.value || 'both';
 
-        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
-        if (error) throw error;
+        // 1. حفظ في الجدول المنظم الجديد tenant_pos_settings
+        await saveTenantModularSettings(currentTenantId, 'pos', {
+            barcode_scan_mode: scanMode,
+            barcode_match_type: matchType
+        });
+
+        // 2. مزامنة احتياطية مع home_settings
+        const updates = [
+            { tenant_id: currentTenantId, setting_key: 'barcode_scan_mode', setting_value: scanMode },
+            { tenant_id: currentTenantId, setting_key: 'barcode_match_type', setting_value: matchType }
+        ];
+        try {
+            await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
+        } catch(e) {}
 
         showToast('تم حفظ إعدادات الباركود والـ QR بنجاح ✓', 'success');
     } catch (err) {
@@ -74,64 +85,75 @@ window.saveBarcodeSettings = async () => {
 
 export async function loadHeroSettings() {
     const currentTenantId = getCurrentTenantId();
-    let query = supabase.from('home_settings').select('*');
-    if (currentTenantId) {
-        query = query.eq('tenant_id', currentTenantId);
-    }
-    const { data, error } = await query;
-    if (error || !data) return;
 
-    const map = {};
-    data.forEach(item => map[item.setting_key] = item.setting_value);
-    currentSettings = map; // كاش للاستخدام لاحقاً
+    // 1. جلب البيانات من الجداول المنظمة أولاً
+    const modular = await getTenantModularSettings(currentTenantId);
+    const branding = modular?.branding || {};
+    const hero = branding.hero_config || {};
+    const header = branding.header_config || {};
+    const footer = branding.footer_config || {};
+    const social = modular?.social || {};
+    const invoice = modular?.invoice || {};
+    const pos = modular?.pos || {};
+
+    // 2. كاش ومواءمة مع home_settings
+    let map = {};
+    try {
+        let query = supabase.from('home_settings').select('*');
+        if (currentTenantId) query = query.eq('tenant_id', currentTenantId);
+        const { data } = await query;
+        (data || []).forEach(item => map[item.setting_key] = item.setting_value);
+    } catch(e) {}
+
+    currentSettings = map;
 
     if (document.getElementById('hs-hero-title')) {
-        if (document.getElementById('hs-hero-badge')) document.getElementById('hs-hero-badge').value = map['hero_badge'] || 'ULTRASOFT COLLECTION';
-        document.getElementById('hs-hero-title').value = map['hero_title'] || '';
-        document.getElementById('hs-hero-subtitle').value = map['hero_subtitle'] || '';
-        document.getElementById('hs-bg-desktop').value = map['hero_bg_desktop'] || '';
-        document.getElementById('hs-bg-mobile').value = map['hero_bg_mobile'] || '';
-        document.getElementById('hs-social-fb').value = map['social_facebook'] || '';
-        document.getElementById('hs-social-wa').value = map['social_whatsapp'] || '';
-        if (document.getElementById('hs-social-tg')) document.getElementById('hs-social-tg').value = map['social_telegram'] || '';
-        document.getElementById('hs-social-maps').value = map['social_maps'] || '';
+        if (document.getElementById('hs-hero-badge')) document.getElementById('hs-hero-badge').value = hero.badge || map['hero_badge'] || 'ULTRASOFT COLLECTION';
+        document.getElementById('hs-hero-title').value = hero.title ?? map['hero_title'] ?? '';
+        document.getElementById('hs-hero-subtitle').value = hero.subtitle ?? map['hero_subtitle'] ?? '';
+        document.getElementById('hs-bg-desktop').value = hero.desktop_url ?? map['hero_bg_desktop'] ?? '';
+        document.getElementById('hs-bg-mobile').value = hero.mobile_url ?? map['hero_bg_mobile'] ?? '';
+        document.getElementById('hs-social-fb').value = social.facebook_url ?? map['social_facebook'] ?? '';
+        document.getElementById('hs-social-wa').value = social.whatsapp_number ?? map['social_whatsapp'] ?? '';
+        if (document.getElementById('hs-social-tg')) document.getElementById('hs-social-tg').value = social.telegram_channel ?? map['social_telegram'] ?? '';
+        document.getElementById('hs-social-maps').value = social.google_maps_url ?? map['social_maps'] ?? '';
 
         // الخيارات المتقدمة لخلفية الهيرو
-        if (document.getElementById('hs-bg-show')) document.getElementById('hs-bg-show').value = map['hero_bg_show'] || 'true';
-        if (document.getElementById('hs-bg-blend')) document.getElementById('hs-bg-blend').value = map['hero_bg_blend'] || 'normal';
-        if (document.getElementById('hs-bg-glass')) document.getElementById('hs-bg-glass').value = map['hero_bg_glass'] || 'soft';
-        if (document.getElementById('hs-title-color')) document.getElementById('hs-title-color').value = map['hero_title_color'] || '#ffffff';
-        if (document.getElementById('hs-subtitle-color')) document.getElementById('hs-subtitle-color').value = map['hero_subtitle_color'] || '#a3a3a3';
-        if (document.getElementById('hs-bg-edge-feather')) document.getElementById('hs-bg-edge-feather').value = map['hero_bg_edge_feather'] || '25';
-        if (document.getElementById('hs-bg-opacity')) document.getElementById('hs-bg-opacity').value = map['hero_bg_opacity'] || '100';
-        if (document.getElementById('hs-bg-overlay')) document.getElementById('hs-bg-overlay').value = map['hero_bg_overlay_opacity'] || '40';
-        if (document.getElementById('hs-bg-blur')) document.getElementById('hs-bg-blur').value = map['hero_bg_blur'] || '0';
-        if (document.getElementById('hs-glass-opacity')) document.getElementById('hs-glass-opacity').value = map['hero_glass_opacity'] || '30';
-        if (document.getElementById('hs-glass-blur')) document.getElementById('hs-glass-blur').value = map['hero_glass_blur'] || '12';
+        if (document.getElementById('hs-bg-show')) document.getElementById('hs-bg-show').value = (hero.show !== undefined ? String(hero.show) : (map['hero_bg_show'] || 'true'));
+        if (document.getElementById('hs-bg-blend')) document.getElementById('hs-bg-blend').value = hero.blend || map['hero_bg_blend'] || 'normal';
+        if (document.getElementById('hs-bg-glass')) document.getElementById('hs-bg-glass').value = hero.glass_mode || map['hero_bg_glass'] || 'soft';
+        if (document.getElementById('hs-title-color')) document.getElementById('hs-title-color').value = hero.title_color || map['hero_title_color'] || '#ffffff';
+        if (document.getElementById('hs-subtitle-color')) document.getElementById('hs-subtitle-color').value = hero.subtitle_color || map['hero_subtitle_color'] || '#a3a3a3';
+        if (document.getElementById('hs-bg-edge-feather')) document.getElementById('hs-bg-edge-feather').value = hero.edge_feather ?? map['hero_bg_edge_feather'] ?? '25';
+        if (document.getElementById('hs-bg-opacity')) document.getElementById('hs-bg-opacity').value = hero.opacity ?? map['hero_bg_opacity'] ?? '100';
+        if (document.getElementById('hs-bg-overlay')) document.getElementById('hs-bg-overlay').value = hero.overlay_opacity ?? map['hero_bg_overlay_opacity'] ?? '40';
+        if (document.getElementById('hs-bg-blur')) document.getElementById('hs-bg-blur').value = hero.blur ?? map['hero_bg_blur'] ?? '0';
+        if (document.getElementById('hs-glass-opacity')) document.getElementById('hs-glass-opacity').value = hero.glass_opacity ?? map['hero_glass_opacity'] ?? '30';
+        if (document.getElementById('hs-glass-blur')) document.getElementById('hs-glass-blur').value = hero.glass_blur ?? map['hero_glass_blur'] ?? '12';
 
         // خيارات تفعيل الخلفية في صفحات الموقع المختلفة
-        if (document.getElementById('hs-bg-enable-gallery')) document.getElementById('hs-bg-enable-gallery').value = map['bg_enable_gallery'] || 'false';
-        if (document.getElementById('hs-bg-enable-barcode')) document.getElementById('hs-bg-enable-barcode').value = map['bg_enable_barcode'] || 'false';
-        if (document.getElementById('hs-bg-enable-cart')) document.getElementById('hs-bg-enable-cart').value = map['bg_enable_cart'] || 'false';
-        if (document.getElementById('hs-bg-enable-orders')) document.getElementById('hs-bg-enable-orders').value = map['bg_enable_orders'] || 'false';
-        if (document.getElementById('hs-barcode-scan-mode')) document.getElementById('hs-barcode-scan-mode').value = map['barcode_scan_mode'] || 'both';
-        if (document.getElementById('hs-barcode-match-type')) document.getElementById('hs-barcode-match-type').value = map['barcode_match_type'] || 'both';
+        if (document.getElementById('hs-bg-enable-gallery')) document.getElementById('hs-bg-enable-gallery').value = (pos.enable_gallery !== undefined ? String(pos.enable_gallery) : (map['bg_enable_gallery'] || 'false'));
+        if (document.getElementById('hs-bg-enable-barcode')) document.getElementById('hs-bg-enable-barcode').value = (pos.enable_barcode !== undefined ? String(pos.enable_barcode) : (map['bg_enable_barcode'] || 'false'));
+        if (document.getElementById('hs-bg-enable-cart')) document.getElementById('hs-bg-enable-cart').value = (pos.enable_cart !== undefined ? String(pos.enable_cart) : (map['bg_enable_cart'] || 'false'));
+        if (document.getElementById('hs-bg-enable-orders')) document.getElementById('hs-bg-enable-orders').value = (pos.enable_orders !== undefined ? String(pos.enable_orders) : (map['bg_enable_orders'] || 'false'));
+        if (document.getElementById('hs-barcode-scan-mode')) document.getElementById('hs-barcode-scan-mode').value = pos.barcode_scan_mode || map['barcode_scan_mode'] || 'both';
+        if (document.getElementById('hs-barcode-match-type')) document.getElementById('hs-barcode-match-type').value = pos.barcode_match_type || map['barcode_match_type'] || 'both';
 
         // تعبئة حقول إعدادات الفاتورة
-        if (document.getElementById('hs-inv-factory-name')) document.getElementById('hs-inv-factory-name').value = map['invoice_factory_name'] || 'UltraSoft Collection';
-        if (document.getElementById('hs-inv-subtitle')) document.getElementById('hs-inv-subtitle').value = map['invoice_subtitle'] || 'Phone: +20 12 12751111';
-        if (document.getElementById('hs-inv-customer-title')) document.getElementById('hs-inv-customer-title').value = map['invoice_customer_title'] || 'فاتورة تفصيلية للعميل';
-        if (document.getElementById('hs-inv-admin-title')) document.getElementById('hs-inv-admin-title').value = map['invoice_admin_title'] || 'فاتورة تفصيلية للإدارة';
-        if (document.getElementById('hs-inv-notes')) document.getElementById('hs-inv-notes').value = map['invoice_notes'] || 'البضاعة المباعة لا تُرد بعد 14 يوماً من تاريخ الفاتورة.';
+        if (document.getElementById('hs-inv-factory-name')) document.getElementById('hs-inv-factory-name').value = invoice.factory_name || map['invoice_factory_name'] || 'UltraSoft Collection';
+        if (document.getElementById('hs-inv-subtitle')) document.getElementById('hs-inv-subtitle').value = invoice.subtitle || map['invoice_subtitle'] || 'Phone: +20 12 12751111';
+        if (document.getElementById('hs-inv-customer-title')) document.getElementById('hs-inv-customer-title').value = invoice.customer_title || map['invoice_customer_title'] || 'فاتورة تفصيلية للعميل';
+        if (document.getElementById('hs-inv-admin-title')) document.getElementById('hs-inv-admin-title').value = invoice.admin_title || map['invoice_admin_title'] || 'فاتورة تفصيلية للإدارة';
+        if (document.getElementById('hs-inv-notes')) document.getElementById('hs-inv-notes').value = invoice.notes || map['invoice_notes'] || 'البضاعة المباعة لا تُرد بعد 14 يوماً من تاريخ الفاتورة.';
         
-        if (document.getElementById('hs-footer-bio')) document.getElementById('hs-footer-bio').value = map['footer_bio_text'] || '';
-        if (document.getElementById('hs-footer-copyright')) document.getElementById('hs-footer-copyright').value = map['footer_copyright_text'] || '';
+        if (document.getElementById('hs-footer-bio')) document.getElementById('hs-footer-bio').value = footer.bio_text || map['footer_bio_text'] || '';
+        if (document.getElementById('hs-footer-copyright')) document.getElementById('hs-footer-copyright').value = footer.copyright_text || map['footer_copyright_text'] || '';
 
         updateInvoicePreview();
     }
 
     // تعبئة قوائم خيارات الهيدر والفوتر
-    populateHeaderFooterSelectors(map['header_layout'] || 'classic', map['footer_layout'] || 'simple');
+    populateHeaderFooterSelectors(header.layout || map['header_layout'] || 'classic', footer.layout || map['footer_layout'] || 'simple');
 
     // ربط وتفعيل المعاينة الحية في لوحة الإدارة
     setupHeroPreviewListeners();
@@ -172,16 +194,28 @@ window.saveInvoiceSettings = async function() {
 
     try {
         const currentTenantId = getCurrentTenantId();
-        const updates = [
-            { tenant_id: currentTenantId, setting_key: 'invoice_factory_name', setting_value: (document.getElementById('hs-inv-factory-name')?.value || '').trim() },
-            { tenant_id: currentTenantId, setting_key: 'invoice_subtitle', setting_value: (document.getElementById('hs-inv-subtitle')?.value || '').trim() },
-            { tenant_id: currentTenantId, setting_key: 'invoice_customer_title', setting_value: (document.getElementById('hs-inv-customer-title')?.value || '').trim() },
-            { tenant_id: currentTenantId, setting_key: 'invoice_admin_title', setting_value: (document.getElementById('hs-inv-admin-title')?.value || '').trim() },
-            { tenant_id: currentTenantId, setting_key: 'invoice_notes', setting_value: (document.getElementById('hs-inv-notes')?.value || '').trim() }
-        ];
+        const invoicePayload = {
+            factory_name: (document.getElementById('hs-inv-factory-name')?.value || '').trim(),
+            subtitle: (document.getElementById('hs-inv-subtitle')?.value || '').trim(),
+            customer_title: (document.getElementById('hs-inv-customer-title')?.value || '').trim(),
+            admin_title: (document.getElementById('hs-inv-admin-title')?.value || '').trim(),
+            notes: (document.getElementById('hs-inv-notes')?.value || '').trim()
+        };
 
-        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
-        if (error) throw error;
+        // 1. حفظ في الجدول المنظم الجديد tenant_invoice_settings
+        await saveTenantModularSettings(currentTenantId, 'invoice', invoicePayload);
+
+        // 2. مزامنة مع home_settings احتياطياً
+        const updates = [
+            { tenant_id: currentTenantId, setting_key: 'invoice_factory_name', setting_value: invoicePayload.factory_name },
+            { tenant_id: currentTenantId, setting_key: 'invoice_subtitle', setting_value: invoicePayload.subtitle },
+            { tenant_id: currentTenantId, setting_key: 'invoice_customer_title', setting_value: invoicePayload.customer_title },
+            { tenant_id: currentTenantId, setting_key: 'invoice_admin_title', setting_value: invoicePayload.admin_title },
+            { tenant_id: currentTenantId, setting_key: 'invoice_notes', setting_value: invoicePayload.notes }
+        ];
+        try {
+            await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
+        } catch(e) {}
 
         // مسح كاش الإعدادات المحلي
         const cacheKey = `devo_cached_hero_settings_${currentTenantId}`;
@@ -355,15 +389,22 @@ window.saveHeaderFooterLayouts = async () => {
         const footerBioVal = (document.getElementById('hs-footer-bio')?.value || '').trim();
         const footerCopyrightVal = (document.getElementById('hs-footer-copyright')?.value || '').trim();
 
+        // 1. حفظ في الجدول المنظم tenant_branding_settings
+        await saveTenantModularSettings(currentTenantId, 'branding', {
+            header_config: { layout: headerVal },
+            footer_config: { layout: footerVal, bio_text: footerBioVal, copyright_text: footerCopyrightVal }
+        });
+
+        // 2. مزامنة مع home_settings
         const updates = [
             { tenant_id: currentTenantId, setting_key: 'header_layout', setting_value: headerVal },
             { tenant_id: currentTenantId, setting_key: 'footer_layout', setting_value: footerVal },
             { tenant_id: currentTenantId, setting_key: 'footer_bio_text', setting_value: footerBioVal },
             { tenant_id: currentTenantId, setting_key: 'footer_copyright_text', setting_value: footerCopyrightVal }
         ];
-
-        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
-        if (error) throw error;
+        try {
+            await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
+        } catch(e) {}
 
         currentSettings.header_layout = headerVal;
         currentSettings.footer_layout = footerVal;
@@ -390,6 +431,51 @@ window.saveHeroSettings = async () => {
 
     try {
         const currentTenantId = getCurrentTenantId();
+
+        // 1. حفظ إعدادات الهيرو والمظهر في tenant_branding_settings
+        const heroPayload = {
+            hero_config: {
+                badge: (document.getElementById('hs-hero-badge')?.value || '').trim(),
+                title: document.getElementById('hs-hero-title').value.trim(),
+                subtitle: document.getElementById('hs-hero-subtitle').value.trim(),
+                desktop_url: document.getElementById('hs-bg-desktop').value.trim(),
+                mobile_url: document.getElementById('hs-bg-mobile').value.trim(),
+                show: document.getElementById('hs-bg-show')?.value === 'true',
+                blend: document.getElementById('hs-bg-blend')?.value || 'normal',
+                glass_mode: document.getElementById('hs-bg-glass')?.value || 'soft',
+                title_color: document.getElementById('hs-title-color')?.value || '#ffffff',
+                subtitle_color: document.getElementById('hs-subtitle-color')?.value || '#a3a3a3',
+                edge_feather: Number(document.getElementById('hs-bg-edge-feather')?.value) || 25,
+                opacity: Number(document.getElementById('hs-bg-opacity')?.value) || 100,
+                overlay_opacity: Number(document.getElementById('hs-bg-overlay')?.value) || 40,
+                blur: Number(document.getElementById('hs-bg-blur')?.value) || 0,
+                glass_opacity: Number(document.getElementById('hs-glass-opacity')?.value) || 30,
+                glass_blur: Number(document.getElementById('hs-glass-blur')?.value) || 12
+            }
+        };
+        await saveTenantModularSettings(currentTenantId, 'branding', heroPayload);
+
+        // 2. حفظ الروابط الاجتماعية في tenant_social_links
+        const socialPayload = {
+            facebook_url: document.getElementById('hs-social-fb').value.trim(),
+            whatsapp_number: document.getElementById('hs-social-wa').value.trim(),
+            telegram_channel: (document.getElementById('hs-social-tg')?.value || '').trim(),
+            google_maps_url: document.getElementById('hs-social-maps').value.trim()
+        };
+        await saveTenantModularSettings(currentTenantId, 'social', socialPayload);
+
+        // 3. حفظ إعدادات الصفحات ونقاط البيع في tenant_pos_settings
+        const posPayload = {
+            enable_gallery: document.getElementById('hs-bg-enable-gallery')?.value === 'true',
+            enable_barcode: document.getElementById('hs-bg-enable-barcode')?.value === 'true',
+            enable_cart: document.getElementById('hs-bg-enable-cart')?.value === 'true',
+            enable_orders: document.getElementById('hs-bg-enable-orders')?.value === 'true',
+            barcode_scan_mode: document.getElementById('hs-barcode-scan-mode')?.value || 'both',
+            barcode_match_type: document.getElementById('hs-barcode-match-type')?.value || 'both'
+        };
+        await saveTenantModularSettings(currentTenantId, 'pos', posPayload);
+
+        // 4. مزامنة مع home_settings احتياطياً
         const updates = [
             { tenant_id: currentTenantId, setting_key: 'hero_badge', setting_value: (document.getElementById('hs-hero-badge')?.value || '').trim() },
             { tenant_id: currentTenantId, setting_key: 'hero_title', setting_value: document.getElementById('hs-hero-title').value.trim() },
@@ -400,8 +486,6 @@ window.saveHeroSettings = async () => {
             { tenant_id: currentTenantId, setting_key: 'social_whatsapp', setting_value: document.getElementById('hs-social-wa').value.trim() },
             { tenant_id: currentTenantId, setting_key: 'social_telegram', setting_value: (document.getElementById('hs-social-tg')?.value || '').trim() },
             { tenant_id: currentTenantId, setting_key: 'social_maps', setting_value: document.getElementById('hs-social-maps').value.trim() },
-            
-            // خصائص التحكم المتقدمة في الخلفية والنصوص
             { tenant_id: currentTenantId, setting_key: 'hero_bg_show', setting_value: document.getElementById('hs-bg-show')?.value || 'true' },
             { tenant_id: currentTenantId, setting_key: 'hero_bg_blend', setting_value: document.getElementById('hs-bg-blend')?.value || 'normal' },
             { tenant_id: currentTenantId, setting_key: 'hero_bg_glass', setting_value: document.getElementById('hs-bg-glass')?.value || 'soft' },
@@ -413,8 +497,6 @@ window.saveHeroSettings = async () => {
             { tenant_id: currentTenantId, setting_key: 'hero_bg_blur', setting_value: document.getElementById('hs-bg-blur')?.value || '0' },
             { tenant_id: currentTenantId, setting_key: 'hero_glass_opacity', setting_value: document.getElementById('hs-glass-opacity')?.value || '30' },
             { tenant_id: currentTenantId, setting_key: 'hero_glass_blur', setting_value: document.getElementById('hs-glass-blur')?.value || '12' },
-            
-            // خيارات تفعيل الخلفية في بقية الصفحات
             { tenant_id: currentTenantId, setting_key: 'bg_enable_gallery', setting_value: document.getElementById('hs-bg-enable-gallery')?.value || 'false' },
             { tenant_id: currentTenantId, setting_key: 'bg_enable_barcode', setting_value: document.getElementById('hs-bg-enable-barcode')?.value || 'false' },
             { tenant_id: currentTenantId, setting_key: 'bg_enable_cart', setting_value: document.getElementById('hs-bg-enable-cart')?.value || 'false' },
@@ -423,8 +505,9 @@ window.saveHeroSettings = async () => {
             { tenant_id: currentTenantId, setting_key: 'barcode_match_type', setting_value: document.getElementById('hs-barcode-match-type')?.value || 'both' }
         ];
 
-        const { error } = await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
-        if (error) throw error;
+        try {
+            await supabase.from('home_settings').upsert(updates, { onConflict: 'tenant_id,setting_key' });
+        } catch(e) {}
 
         // مسح الكاش المحلي فورياً للتاكيد
         const cacheKey = `devo_cached_hero_settings_${currentTenantId}`;
@@ -435,7 +518,7 @@ window.saveHeroSettings = async () => {
             await window.loadHeroSettings(true);
         }
 
-        showToast('تم تحديث إعدادات الموقع بنجاح ✓', 'success');
+        showToast('تم تحديث وحفظ كافة الإعدادات بالجداول المنظمة بنجاح ✓', 'success');
     } catch (error) {
         showToast('حدث خطأ أثناء الحفظ: ' + error.message, 'error');
     } finally {

@@ -6,10 +6,30 @@ import { initUsersView } from './users.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNotifications } from '../../services/notifications.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
-import { initializeTenantContext, getCurrentTenant } from '../../services/tenant_service.js';
+import { initializeTenantContext, getCurrentTenant, applyTenantBranding, getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js?v=8.5';
 
 // --- Security Check (Protect the Admin Route) ---
 let currentUserContext = null;
+let currentSettingsSubtab = 'view-home-settings';
+
+function saveAdminStandingPosition(targetId, extra = {}) {
+    if (!targetId) return;
+    try {
+        const tenantId = getCurrentTenantId() || 'default';
+        const state = {
+            targetId: targetId,
+            settingsSubtab: extra.settingsSubtab || currentSettingsSubtab || 'view-home-settings',
+            subtab: extra.subtab !== undefined ? extra.subtab : null,
+            timestamp: Date.now()
+        };
+        const stateStr = JSON.stringify(state);
+        localStorage.setItem(`ultrasoft_admin_view_${tenantId}`, stateStr);
+        try {
+            const isolatedKey = getTenantStorageKey('ultrasoft_admin_view');
+            localStorage.setItem(isolatedKey, stateStr);
+        } catch(e) {}
+    } catch(e) {}
+}
 
 async function authenticateAdmin() {
     // 1. Initialize Active Tenant Context FIRST
@@ -28,15 +48,18 @@ async function authenticateAdmin() {
     updateUserProfileUI(user);
 
     const tenant = getCurrentTenant();
-    if (tenant && tenant.name) {
-        const activeBadge = document.getElementById('activeTenantBadge');
-        const activeName = document.getElementById('activeTenantName');
-        if (activeName) activeName.textContent = tenant.name;
-        if (activeBadge) activeBadge.classList.remove('hidden');
-        document.title = `لوحة تحكم ${tenant.name} | ألترا سوفت`;
+    if (tenant) {
+        applyTenantBranding(tenant);
+        if (tenant.name) {
+            const activeBadge = document.getElementById('activeTenantBadge');
+            const activeName = document.getElementById('activeTenantName');
+            if (activeName) activeName.textContent = tenant.name;
+            if (activeBadge) activeBadge.classList.remove('hidden');
+            document.title = `لوحة تحكم ${tenant.name} | ألترا سوفت`;
 
-        const adminFooterEl = document.getElementById('admin-footer-factory-name');
-        if (adminFooterEl) adminFooterEl.textContent = tenant.name;
+            const adminFooterEl = document.getElementById('admin-footer-factory-name');
+            if (adminFooterEl) adminFooterEl.textContent = tenant.name;
+        }
     }
 
     return true;
@@ -57,12 +80,15 @@ function updateUserProfileUI(profile) {
 
     // إخفاء/إظهار تاب إدارة الحسابات والإعدادات للمالك فقط
     const usersLink = document.querySelector('[data-target="view-users"]');
+    const settingsGroup = document.getElementById('sidebar-settings-group');
     const settingsLink = document.querySelector('[data-target="view-settings"]');
     const isOwner = profile.role === 'owner';
     if (usersLink) {
         usersLink.classList.toggle('hidden', !isOwner);
     }
-    if (settingsLink) {
+    if (settingsGroup) {
+        settingsGroup.classList.toggle('hidden', !isOwner);
+    } else if (settingsLink) {
         settingsLink.classList.toggle('hidden', !isOwner);
     }
 }
@@ -79,10 +105,66 @@ function switchView(targetId, titleElement) {
     });
 
     // 2. Remove active state from all links
-    navLinks.forEach(link => {
+    document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('bg-devo-orange/10', 'text-devo-orange');
         link.classList.add('text-devo-muted');
     });
+
+    // 2.1 التعامل مع القائمة الجانبية للتقارير (تمدد أو طي تلقائي عند الخروج)
+    const reportsSubmenu = document.getElementById('sidebar-reports-submenu');
+    const reportsChevron = document.getElementById('reports-chevron');
+    const reportsToggle = document.getElementById('sidebar-reports-toggle');
+
+    if (targetId === 'view-reports') {
+        if (reportsSubmenu) reportsSubmenu.classList.remove('hidden');
+        if (reportsChevron) reportsChevron.classList.add('rotate-180');
+        if (reportsToggle) {
+            reportsToggle.classList.remove('text-devo-muted');
+            reportsToggle.classList.add('text-white');
+        }
+    } else {
+        // الخروج خارج التقارير: طي القائمة الفرعية تلقائياً
+        if (reportsSubmenu) reportsSubmenu.classList.add('hidden');
+        if (reportsChevron) reportsChevron.classList.remove('rotate-180');
+        if (reportsToggle) {
+            reportsToggle.classList.remove('text-white', 'bg-devo-orange/10', 'text-devo-orange');
+            reportsToggle.classList.add('text-devo-muted');
+        }
+    }
+
+    // 2.2 التعامل مع القائمة الجانبية للإعدادات (تمدد أو طي تلقائي عند الخروج)
+    const settingsSubmenu = document.getElementById('sidebar-settings-submenu');
+    const settingsChevron = document.getElementById('settings-chevron');
+    const settingsToggle = document.getElementById('sidebar-settings-toggle');
+
+    if (targetId === 'view-settings') {
+        if (settingsSubmenu) settingsSubmenu.classList.remove('hidden');
+        if (settingsChevron) settingsChevron.classList.add('rotate-180');
+        if (settingsToggle) {
+            settingsToggle.classList.remove('text-devo-muted');
+            settingsToggle.classList.add('text-white');
+        }
+    } else {
+        // الخروج خارج الإعدادات: طي القائمة الفرعية تلقائياً
+        if (settingsSubmenu) settingsSubmenu.classList.add('hidden');
+        if (settingsChevron) settingsChevron.classList.remove('rotate-180');
+        if (settingsToggle) {
+            settingsToggle.classList.remove('text-white', 'bg-devo-orange/10', 'text-devo-orange');
+            settingsToggle.classList.add('text-devo-muted');
+        }
+    }
+
+    // إظهار أو إخفاء أزرار إجراءات التقارير بالهيدر العلوي (طباعة وإرسال لتليجرام)
+    const repHeaderActions = document.getElementById('reports-header-actions');
+    if (repHeaderActions) {
+        if (targetId === 'view-reports') {
+            repHeaderActions.classList.remove('hidden');
+            repHeaderActions.classList.add('flex');
+        } else {
+            repHeaderActions.classList.add('hidden');
+            repHeaderActions.classList.remove('flex');
+        }
+    }
 
     // 3. Show the target view
     const targetView = document.getElementById(targetId);
@@ -102,11 +184,16 @@ function switchView(targetId, titleElement) {
     }
 
     // 5. Initialize View Logic (Lazy Loading)
-    loadViewLogic(targetId);
+    loadViewLogic(targetId, titleElement);
+
+    // 6. Save Standing Position per tenant
+    saveAdminStandingPosition(targetId, {
+        subtab: titleElement?.getAttribute('data-subtab') || null
+    });
 }
 
 // Map views to their specific JS initialization functions
-async function loadViewLogic(targetId) {
+async function loadViewLogic(targetId, titleElement) {
     
     if (targetId === 'view-users' && currentUserContext?.role !== 'owner') {
         showToast('عفواً، هذه الصفحة مخصصة لمالك النظام فقط 🛑', 'error');
@@ -167,11 +254,32 @@ async function loadViewLogic(targetId) {
         return;
     }
 
+    if (targetId === 'view-import-images' && !['owner', 'admin'].includes(currentUserContext?.role)) {
+        showToast('عفواً، هذه الصفحة مخصصة للمدراء والمالكين فقط 🛑', 'error');
+        const defaultLink = document.querySelector('[data-target="view-dashboard"]');
+        if (defaultLink) switchView('view-dashboard', defaultLink);
+        return;
+    }
+
     switch (targetId) {
-            case 'view-dashboard':
+        case 'view-dashboard':
             const { initDashboard } = await import('./dashboard.js');
             await initDashboard();
             break;
+        case 'view-stock-alerts':
+            const { initStockAlertsView } = await import('./stock_alerts.js');
+            await initStockAlertsView();
+            break;
+        case 'view-reports': {
+            let targetSubTab = titleElement?.getAttribute('data-report-tab') || 'sales';
+            if (targetSubTab === 'workers') targetSubTab = 'staff';
+            const { initReportsView, switchReportTab } = await import('./reports.js');
+            await initReportsView(targetSubTab);
+            if (targetSubTab) {
+                switchReportTab(targetSubTab);
+            }
+            break;
+        }
         case 'view-users':
             await initUsersView();
             break;
@@ -183,9 +291,11 @@ async function loadViewLogic(targetId) {
             const { initModelsView } = await import('./models.js?v=8.1'); 
             await initModelsView(); 
             break;
-        case 'view-settings':
-            await switchSettingsSubtab(currentSettingsSubtab || 'view-home-settings');
+        case 'view-settings': {
+            const requestedSubtab = titleElement?.getAttribute('data-settings-subtab') || currentSettingsSubtab || 'view-home-settings';
+            await switchSettingsSubtab(requestedSubtab);
             break;
+        }
         case 'view-home-settings':
             await initHomeSettingsView();
             break;
@@ -197,10 +307,15 @@ async function loadViewLogic(targetId) {
             const { initPrintBarcodesView } = await import('./print_barcodes.js');
             await initPrintBarcodesView();
             break;
-        case 'view-admin-orders':
-            const { initAdminOrdersView } = await import('./admin_orders.js?v=8.1');
+        case 'view-admin-orders': {
+            const { initAdminOrdersView } = await import('./admin_orders.js?v=8.3');
             await initAdminOrdersView();
+            const subtab = titleElement?.getAttribute('data-subtab');
+            if (subtab === 'visitor' && window.switchAdminOrdersTab) {
+                window.switchAdminOrdersTab('visitor');
+            }
             break;
+        }
         case 'view-deposit-reports':
             const { initDepositReportsView } = await import('./deposit_reports.js');
             await initDepositReportsView();
@@ -208,6 +323,10 @@ async function loadViewLogic(targetId) {
         case 'view-import-stock':
             const { initImportStockView } = await import('./import_stock.js');
             await initImportStockView();
+            break;
+        case 'view-import-images':
+            const { initImportImagesView } = await import('./import_images.js');
+            await initImportImagesView();
             break;
         case 'view-add-batch':
             const { initInboundInvoicesView } = await import('./inbound_invoices.js');
@@ -236,16 +355,23 @@ async function loadViewLogic(targetId) {
             const { initBackupRestoreView } = await import('./backup_restore.js');
             initBackupRestoreView();
             break;
+        case 'view-google-drive-settings':
+            await switchView('view-settings');
+            await switchSettingsSubtab('view-google-drive-settings');
+            break;
+        case 'view-excel-settings':
+            await switchView('view-settings');
+            await switchSettingsSubtab('view-excel-settings');
+            break;
     }
 }
-
-let currentSettingsSubtab = 'view-home-settings';
 
 export async function switchSettingsSubtab(subtabId) {
     const subviews = document.querySelectorAll('.settings-subview');
     const subtabBtns = document.querySelectorAll('.settings-subtab-btn');
 
     currentSettingsSubtab = subtabId;
+    saveAdminStandingPosition('view-settings', { settingsSubtab: subtabId });
 
     subviews.forEach(sv => sv.classList.add('hidden'));
 
@@ -257,6 +383,34 @@ export async function switchSettingsSubtab(subtabId) {
             btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer';
         }
     });
+
+    // تحديث تمييز الرابط النشط في القائمة الجانبية للإعدادات
+    const settingsSublinks = document.querySelectorAll('.settings-sublink');
+    settingsSublinks.forEach(link => {
+        if (link.getAttribute('data-settings-subtab') === subtabId) {
+            link.classList.remove('text-devo-muted');
+            link.classList.add('text-devo-orange', 'bg-devo-orange/15', 'font-bold');
+        } else {
+            link.classList.remove('text-devo-orange', 'bg-devo-orange/15', 'font-bold');
+            link.classList.add('text-devo-muted');
+        }
+    });
+
+    // تحديث عنوان الصفحة بالهيدر العلوي
+    const settingsTitles = {
+        'view-home-settings': 'واجهة الموقع',
+        'view-invoice-settings': 'التحكم في الفواتير',
+        'view-theme-manager': 'إدارة المظهر (Themes)',
+        'view-barcode-settings': 'إعدادات الباركود والـ QR',
+        'view-telegram-settings': 'بوت التليجرام والإشعارات',
+        'view-backup-restore': 'النسخ الاحتياطي والاستعادة',
+        'view-google-drive-settings': 'إعدادات Google API',
+        'view-excel-settings': 'قوالب وإعدادات استيراد/تصدير Excel'
+    };
+    const pt = document.getElementById('page-title');
+    if (pt && settingsTitles[subtabId]) {
+        pt.textContent = settingsTitles[subtabId];
+    }
 
     const targetSub = document.getElementById(subtabId);
     if (targetSub) {
@@ -284,6 +438,20 @@ export async function switchSettingsSubtab(subtabId) {
             const { initBackupRestoreView } = await import('./backup_restore.js');
             initBackupRestoreView();
             break;
+        case 'view-google-drive-settings': {
+            const { initGoogleApiSettingsView } = await import('./import_images.js');
+            if (typeof initGoogleApiSettingsView === 'function') {
+                initGoogleApiSettingsView();
+            }
+            break;
+        }
+        case 'view-excel-settings': {
+            const { initExcelSettingsView } = await import('./excel_settings.js');
+            if (typeof initExcelSettingsView === 'function') {
+                await initExcelSettingsView();
+            }
+            break;
+        }
     }
 }
 
@@ -302,14 +470,64 @@ async function initRouter() {
     // تهيئة نظام الإشعارات اللحظية للأدمن
     initNotifications();
 
-    // Attach click events to Sidebar Links
-    navLinks.forEach(link => {
+    // Attach click events to Sidebar Links (including reports sublinks)
+    document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('data-target');
             switchView(targetId, link);
         });
     });
+
+    // Attach click events to Reports Sidebar Accordion Toggle
+    const reportsToggleBtn = document.getElementById('sidebar-reports-toggle');
+    if (reportsToggleBtn) {
+        reportsToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const submenu = document.getElementById('sidebar-reports-submenu');
+            const chevron = document.getElementById('reports-chevron');
+            if (submenu) {
+                const isHidden = submenu.classList.contains('hidden');
+                if (isHidden) {
+                    submenu.classList.remove('hidden');
+                    if (chevron) chevron.classList.add('rotate-180');
+                    const currentVisible = document.querySelector('.view-section:not(.hidden)');
+                    if (currentVisible?.id !== 'view-reports') {
+                        const firstSublink = submenu.querySelector('.report-sublink');
+                        if (firstSublink) firstSublink.click();
+                    }
+                } else {
+                    submenu.classList.add('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                }
+            }
+        });
+    }
+
+    // Attach click events to Settings Sidebar Accordion Toggle
+    const settingsToggleBtn = document.getElementById('sidebar-settings-toggle');
+    if (settingsToggleBtn) {
+        settingsToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const submenu = document.getElementById('sidebar-settings-submenu');
+            const chevron = document.getElementById('settings-chevron');
+            if (submenu) {
+                const isHidden = submenu.classList.contains('hidden');
+                if (isHidden) {
+                    submenu.classList.remove('hidden');
+                    if (chevron) chevron.classList.add('rotate-180');
+                    const currentVisible = document.querySelector('.view-section:not(.hidden)');
+                    if (currentVisible?.id !== 'view-settings') {
+                        const firstSublink = submenu.querySelector('.settings-sublink');
+                        if (firstSublink) firstSublink.click();
+                    }
+                } else {
+                    submenu.classList.add('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                }
+            }
+        });
+    }
 
     // Attach click events to Settings Subtabs
     document.querySelectorAll('.settings-subtab-btn').forEach(btn => {
@@ -324,16 +542,53 @@ async function initRouter() {
         logoutUser(); 
     });
 
-    // 🌟 الإصلاح: فحص الرابط العميق قبل فتح الداشبورد 🌟
+    // 🌟 فحص الرابط العميق أو استعادة موقع الوقوف المحفوظ لكل مصنع بدقة 🌟
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('admin_model')) {
         // إذا كان هناك رابط موديل، افتح صفحة الموديلات
         const modelsLink = document.querySelector('[data-target="view-models"]');
         if (modelsLink) switchView('view-models', modelsLink);
     } else {
-        // غير ذلك، افتح الداشبورد كالمعتاد
-        const defaultLink = document.querySelector('[data-target="view-dashboard"]');
-        if (defaultLink) switchView('view-dashboard', defaultLink);
+        const tenantId = getCurrentTenantId() || 'default';
+        let restored = false;
+        try {
+            const isolatedKey = getTenantStorageKey('ultrasoft_admin_view');
+            const rawState = localStorage.getItem(isolatedKey) || localStorage.getItem(`ultrasoft_admin_view_${tenantId}`) || localStorage.getItem('ultrasoft_admin_view_default');
+            if (rawState) {
+                const state = JSON.parse(rawState);
+                if (state && state.targetId && document.getElementById(state.targetId)) {
+                    // التحقق من الصلاحيات للمالك والمديرين للموقع المحفوظ
+                    const isOwner = currentUserContext?.role === 'owner';
+                    const isAdmin = ['owner', 'admin'].includes(currentUserContext?.role);
+                    const restrictedOwnerViews = ['view-users', 'view-settings', 'view-theme-manager', 'view-home-settings', 'view-system-reset'];
+                    const restrictedAdminViews = ['view-notifications', 'view-add-batch', 'view-backup-restore'];
+
+                    let allowed = true;
+                    if (restrictedOwnerViews.includes(state.targetId) && !isOwner) allowed = false;
+                    if (restrictedAdminViews.includes(state.targetId) && !isAdmin) allowed = false;
+
+                    if (allowed) {
+                        if (state.settingsSubtab) currentSettingsSubtab = state.settingsSubtab;
+                        const targetLink = document.querySelector(`[data-target="${state.targetId}"]`);
+                        switchView(state.targetId, targetLink);
+                        if (state.targetId === 'view-settings' && state.settingsSubtab) {
+                            switchSettingsSubtab(state.settingsSubtab);
+                        }
+                        if (state.targetId === 'view-admin-orders' && state.subtab && window.switchAdminOrdersTab) {
+                            window.switchAdminOrdersTab(state.subtab);
+                        }
+                        restored = true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Error restoring admin standing view:', e);
+        }
+
+        if (!restored) {
+            const defaultLink = document.querySelector('[data-target="view-dashboard"]');
+            if (defaultLink) switchView('view-dashboard', defaultLink);
+        }
     }
 }
 
@@ -427,6 +682,13 @@ export async function refreshAllSystemData(options = {}) {
                 case 'view-print-barcodes': {
                     if (barcodeMod && typeof barcodeMod.fetchBarcodeModels === 'function') {
                         await barcodeMod.fetchBarcodeModels();
+                    }
+                    break;
+                }
+                case 'view-import-images': {
+                    const imgMod = await import('./import_images.js').catch(() => null);
+                    if (imgMod && typeof imgMod.initImportImagesView === 'function') {
+                        await imgMod.initImportImagesView();
                     }
                     break;
                 }

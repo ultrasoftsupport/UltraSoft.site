@@ -3,6 +3,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
+import { getExcelProfiles, getActiveExcelProfile, parseColorsDataWithProfile } from '../../services/excel_templates_service.js';
 
 let currentTab = 'categories'; 
 let allData = []; 
@@ -348,6 +349,18 @@ window.openColorExcelModal = () => {
     document.getElementById('color-excel-file-name').textContent = 'اسحب الملف هنا أو اضغط للاختيار';
     pendingExcelColors = [];
     
+    // تحميل قوالب المصانع في القائمة المنسدلة
+    getExcelProfiles().then(profiles => {
+        const sel = document.getElementById('color-excel-profile-select');
+        if (sel && profiles) {
+            sel.innerHTML = profiles.map(p => `
+                <option value="${p.id}" ${p.is_default ? 'selected' : ''}>
+                    ${p.name} ${p.is_default ? '★ (افتراضي)' : ''}
+                </option>
+            `).join('');
+        }
+    });
+
     const modal = document.getElementById('color-excel-modal');
     modal.classList.remove('hidden');
     setTimeout(() => modal.classList.remove('opacity-0'), 10);
@@ -386,28 +399,19 @@ window.processColorExcelPreview = async () => {
         const { data: existingColors } = await colorsQuery;
         const existingCodes = new Set((existingColors || []).map(c => String(c.color_code)));
 
-        const newColors = [];
-        const duplicates = [];
+        // جلب وتطبيق قالب المصنع المختار
+        const profiles = await getExcelProfiles();
+        const selectedProfileId = document.getElementById('color-excel-profile-select')?.value;
+        const activeProfile = getActiveExcelProfile(profiles, selectedProfileId);
 
-        data.forEach(row => {
-            // 🌟 1. تنظيف الكود ليدعم (كود) وإزالة الـ .0 الزائدة من الإكسيل 🌟
-            let rawCode = String(row['كود اللون'] || row['كود'] || row['Code'] || '').trim();
-            if (rawCode.endsWith('.0')) rawCode = rawCode.replace('.0', '');
-            const code = rawCode;
+        const { newColors: parsedColors, duplicates: parsedDups } = parseColorsDataWithProfile(data, activeProfile, existingCodes);
 
-            // 🌟 2. دعم كلمة (لون) بدون ألف ولام كما هي في ملفك 🌟
-            const name = String(row['اسم اللون'] || row['اللون'] || row['لون'] || row['Name'] || '').trim();
-
-            // تجاهل الصفوف الفارغة حقاً
-            if (!code || code === 'undefined' || !name) return;
-
-            if (existingCodes.has(code)) {
-                duplicates.push({ code, name });
-            } else {
-                newColors.push({ tenant_id: currentTenantId, color_code: code, name: name });
-                existingCodes.add(code); // لمنع التكرار داخل نفس الملف
-            }
-        });
+        const newColors = parsedColors.map(c => ({
+            tenant_id: currentTenantId,
+            color_code: c.color_code,
+            name: c.name
+        }));
+        const duplicates = parsedDups;
 
         pendingExcelColors = newColors;
 

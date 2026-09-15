@@ -2,6 +2,7 @@
  * Header Layouts Library
  * كل Layout هو component مستقل ومصمم بعناية فائقة للاستجابة والشكل.
  */
+import { getCurrentTenant, normalizeImageUrl } from '../../services/tenant_service.js';
 
 // ===================================================================
 // 1. LAYOUT REGISTRY — قائمة الـ Layouts المتاحة
@@ -84,7 +85,9 @@ function buildNavLinks(user) {
         );
     } else {
         links.push(
-            { id: 'view-gallery', label: 'المعرض التجريبي', action: `switchSiteView('view-gallery')`, icon: 'ph-images' }
+            { id: 'view-gallery', label: 'المعرض', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
+            { id: 'view-barcode', label: 'الباركود', action: `switchSiteView('view-barcode')`, icon: 'ph-qr-code' },
+            { id: 'view-cart', label: 'طلبي', action: `switchSiteView('view-cart'); window.refreshCartView?.()`, icon: 'ph-shopping-cart' }
         );
     }
 
@@ -187,7 +190,9 @@ function buildMobileMenu(user) {
         links = `
             ${landingMobileBtns}
             <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
-            <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
+            <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
+            <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+            <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي</button>
             <a href="${authUrl}" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
         `;
     }
@@ -217,11 +222,20 @@ export function attachMobileMenuToggle() {
 }
 
 function buildBrandLogo(badgeText = 'Collection') {
+    const tenant = getCurrentTenant();
+    const isCustomTenant = tenant && tenant.slug !== 'default' && !tenant.is_super_admin;
+    const logoSrc = normalizeImageUrl(tenant?.logo_url || tenant?.settings?.logo_url) || './logo_transparnt.png';
+    const brandTitle = isCustomTenant ? (tenant.name || 'UltraSoft') : 'UltraSoft';
+
+    const brandNameHtml = isCustomTenant
+        ? `<span class="text-base sm:text-lg xl:text-xl font-black tracking-tight text-devo-text whitespace-nowrap tenant-name">${brandTitle}</span>`
+        : `<span class="text-lg xl:text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>`;
+
     return `
         <div class="cursor-pointer flex items-center gap-3 select-none shrink-0" dir="ltr" onclick="switchSiteView('view-home')">
-            <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-8 sm:h-9 xl:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
+            <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${brandTitle}" class="tenant-logo brand-logo h-8 sm:h-9 xl:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
             <div class="flex items-center gap-2 shrink-0">
-                <span class="text-lg xl:text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
+                ${brandNameHtml}
                 ${badgeText ? `<span class="text-[9px] xl:text-[10px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2 py-0.5 rounded-full uppercase shadow-sm whitespace-nowrap hidden sm:inline-block">${badgeText}</span>` : ''}
             </div>
         </div>
@@ -277,11 +291,7 @@ function renderCentered(user, settings) {
                         ${buildNavBtns(rightLinks)}
                     </div>
                     <div class="flex flex-col items-center justify-center cursor-pointer select-none shrink-0" dir="ltr" onclick="switchSiteView('view-home')">
-                        <img src="./logo_transparnt.png" onerror="this.onerror=null; this.src='./logo.png';" alt="UltraSoft Logo" class="h-9 sm:h-10 w-auto object-contain mb-0.5 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)]">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>
-                            <span class="text-[9px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2 py-0.5 rounded-full uppercase shadow-sm">Collection</span>
-                        </div>
+                        ${buildBrandLogo('Collection')}
                     </div>
                     <div class="flex items-center justify-end gap-2 shrink-0">
                         ${buildNavBtns(leftLinks)}

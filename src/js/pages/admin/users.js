@@ -2,6 +2,7 @@ import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
 import { getCurrentTenantId, getTenantUserQuotaDetails } from '../../services/tenant_service.js';
+import { getCurrentSession } from '../../services/auth.js';
 
 let isInitialized = false;
 let allUsers = [];
@@ -30,7 +31,8 @@ export async function loadUsers() {
 
     let query = supabase
         .from('system_users')
-        .select('*');
+        .select('*')
+        .neq('role', 'super_admin');
 
     if (currentTenantId) {
         query = query.eq('tenant_id', currentTenantId);
@@ -404,22 +406,31 @@ window.handleDeleteUser = async (id) => {
         return showToast('غير مسموح بحذف حساب المالك', 'error');
     }
 
+    if (user.role === 'super_admin') {
+        return showToast('لا يمكن حذف حساب السوبر أدمن من لوحة تحكم المصنع', 'error');
+    }
+
     const confirmed = await confirmDialog({ 
         title: 'حذف مستخدم', 
         message: `هل أنت متأكد من حذف المستخدم (${user.full_name}) نهائياً؟`, 
         isDestructive: true 
-        });
+    });
 
     if (confirmed) {
         try {
-            // استدعاء دالة الحذف الآمنة من قاعدة البيانات
+            const { session } = getCurrentSession();
+            const callerId = session?.user?.id || null;
+
+            // استدعاء دالة الحذف الآمنة من قاعدة البيانات مع تمرير معرف المنفذ
             const { error } = await supabase.rpc('admin_delete_worker', {
-                p_user_id: id
+                p_user_id: id,
+                p_caller_id: callerId
             });
             if (error) throw error;
-            showToast('تم حذف المستخدم بنجاح');
+            showToast('تم حذف المستخدم بنجاح', 'success');
             loadUsers();
         } catch(err) {
+            console.error('Error deleting user:', err);
             showToast(err.message || 'حدث خطأ أثناء الحذف', 'error');
         }
     }
