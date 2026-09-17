@@ -9,6 +9,9 @@ export function initLandingPage() {
     const landingContainer = document.getElementById('view-landing');
     if (!landingContainer) return;
 
+    // إخفاء زر السلة العائم داخل صفحة عن النظام والاشتراكات
+    document.getElementById('floating-cart-btn')?.classList.add('hidden');
+
     landingContainer.innerHTML = renderLandingHTML();
 
     // Attach event listeners for tab switching & scrolling
@@ -20,6 +23,9 @@ export function initLandingPage() {
 
 function setupModuleTabListeners() {
     window.switchLandingModule = function(moduleId) {
+        // ضمان إخفاء زر السلة العائم في كلا التابين
+        document.getElementById('floating-cart-btn')?.classList.add('hidden');
+
         const overviewMod = document.getElementById('module-overview');
         const pricingMod = document.getElementById('module-pricing');
         const linkOverview = document.getElementById('nav-link-overview');
@@ -27,7 +33,11 @@ function setupModuleTabListeners() {
 
         if (!overviewMod || !pricingMod) return;
 
-        if (moduleId === 'pricing') {
+        const isPricing = moduleId === 'pricing';
+        const activeNavView = isPricing ? 'view-landing-pricing' : 'view-landing-overview';
+        const inactiveNavView = isPricing ? 'view-landing-overview' : 'view-landing-pricing';
+
+        if (isPricing) {
             overviewMod.classList.add('hidden');
             pricingMod.classList.remove('hidden');
 
@@ -50,6 +60,18 @@ function setupModuleTabListeners() {
                 linkPricing.className = 'px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all';
             }
         }
+
+        // Sync main navigation bar items
+        document.querySelectorAll('[data-nav-view]').forEach(btn => {
+            const v = btn.getAttribute('data-nav-view');
+            if (v === activeNavView) {
+                btn.classList.add('text-devo-orange', 'font-black', 'bg-devo-orange/15', 'border-devo-orange/40', 'shadow-sm');
+                btn.classList.remove('text-devo-muted', 'border-transparent');
+            } else if (v === inactiveNavView) {
+                btn.classList.remove('text-devo-orange', 'font-black', 'bg-devo-orange/15', 'border-devo-orange/40', 'shadow-sm');
+                btn.classList.add('text-devo-muted', 'border-transparent');
+            }
+        });
 
         // Scroll smoothly to top of main container
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -83,69 +105,115 @@ function renderLandingHTML() {
                  ========================================== -->
             <div id="module-overview" class="transition-all duration-300">
                 
-                <!-- HERO CENTERED SECTION -->
-                <section class="relative pt-8 pb-10 sm:pb-14 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center flex flex-col items-center">
+                <!-- HERO MODERN SPLIT SECTION (Clean, uncluttered, tall portrait visual with solid typography) -->
+                <section class="relative pt-6 pb-10 sm:pt-10 sm:pb-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                     
-                    <!-- SaaS Top Glow Badge Pill (Centered) -->
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-ultra-500/15 via-sky-500/10 to-blue-500/15 border border-ultra-500/35 text-ultra-400 text-xs font-bold mb-5 shadow-[0_0_20px_rgba(2,132,199,0.2)]">
-                        <span class="flex h-2 w-2 rounded-full bg-sky-400 animate-ping"></span>
-                        <span>المنظومة السحابية المتكاملة ⚡</span>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                        
+                        <!-- Text Column (RTL: on the right) -->
+                        <div class="lg:col-span-6 xl:col-span-6 text-right space-y-6 sm:space-y-7">
+                            
+                            <!-- Overline Badge (Clean, elegant tag) -->
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs sm:text-sm font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+                                <span>منظومة سحابية متطورة للمصانع والشركات</span>
+                            </div>
+
+                            <!-- Main Title (Generous line-height, perfectly balanced 3 lines, no orphaned words) -->
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-[38px] xl:text-[44px] font-bold text-white leading-[1.42] sm:leading-[1.46] lg:leading-[1.48] tracking-normal">
+                                وفّر وقتك، قلّل عمالتك،<br>
+                                وأنجز أوردراتك في ثوانٍ<br>
+                                <span class="text-sky-400 font-bold block mt-1 sm:mt-1.5">بدون دفاتر أو أخطاء بشرية</span>
+                            </h1>
+
+                            <!-- Value Proposition Paragraph (Spacious, comfortable line-height) -->
+                            <p class="text-devo-muted text-sm sm:text-base lg:text-[17px] leading-[1.75] font-normal max-w-xl">
+                                نظام UltraSoft يوفر حلولاً سحابية ذكية ومرنة لإدارة مصانع وشركات ومعارض الملابس. نظام واحد متكامل، يدير كافة عملياتك، مخازنك، وفواتيرك بدقة لحظية.
+                            </p>
+
+                            <!-- CTAs Row (Clean side-by-side on tablet/desktop, stacked on mobile) -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-1">
+                                <button onclick="switchSiteView('view-landing-pricing')" class="px-6 sm:px-7 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-sm sm:text-base shadow-[0_10px_25px_rgba(2,132,199,0.35)] transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 group whitespace-nowrap">
+                                    <span>ابدأ الآن واستكشف الاشتراكات</span>
+                                    <i class="ph-bold ph-arrow-left text-lg group-hover:-translate-x-1 transition-transform"></i>
+                                </button>
+
+                                <button onclick="switchSiteView('view-gallery')" class="px-5 sm:px-6 py-3.5 rounded-2xl bg-slate-900/60 hover:bg-white/5 border border-white/15 text-white font-semibold text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 shadow-sm group whitespace-nowrap">
+                                    <div class="w-7 h-7 rounded-full border-2 border-sky-400 text-sky-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                        <i class="ph-fill ph-play text-xs"></i>
+                                    </div>
+                                    <span>المعرض التجريبي (Live Demo)</span>
+                                </button>
+                            </div>
+
+                            <!-- Trust Signal Divider (Matching Reference: Line + Text) -->
+                            <div class="flex items-center gap-3 pt-2 text-xs text-devo-muted font-medium">
+                                <span class="w-8 h-[1.5px] bg-slate-700"></span>
+                                <span>مصمم خصيصاً لمصانع وشركات ومعارض الملابس</span>
+                            </div>
+
+                        </div>
+
+                        <!-- Image Column (RTL: on the left, matching the reference shape and floating card) -->
+                        <div class="lg:col-span-6 xl:col-span-6 relative flex items-center justify-center">
+                            
+                            <!-- Ambient Backdrop Glow -->
+                            <div class="absolute -inset-4 bg-sky-500/15 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+                            <div class="absolute top-10 right-10 w-72 h-72 bg-blue-600/10 rounded-full blur-[90px] pointer-events-none -z-10"></div>
+
+                            <!-- Asymmetrical Modern Image Frame (Matching Reference Mockup Curves) -->
+                            <div class="relative w-full rounded-3xl lg:rounded-tl-[90px] lg:rounded-br-[40px] overflow-hidden shadow-2xl border border-white/10 group">
+                                <img src="./src/assets/ultrasoft_factory_hero_modern.jpg" 
+                                     alt="منظومة UltraSoft الذكية لإدارة المصانع" 
+                                     class="w-full h-auto object-cover aspect-[4/3] lg:aspect-[16/12] select-none transform transition-transform duration-700 group-hover:scale-105">
+                                
+                                <!-- Subtle gradient overlay for cinematic contrast -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none"></div>
+
+                                <!-- Floating Glassmorphism Metric Card (Matching Reference Mockup) -->
+                                <div class="absolute bottom-5 right-5 sm:bottom-7 sm:right-7 bg-slate-950/75 backdrop-blur-xl border border-white/20 p-3.5 sm:p-4 rounded-2xl shadow-2xl flex flex-col gap-1 max-w-[200px] text-right z-10">
+                                    <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-0.5">
+                                        <i class="ph-fill ph-chart-bar text-lg"></i>
+                                    </div>
+                                    <div class="text-white font-bold text-xs sm:text-sm leading-tight">كفاءة تشغيلية قصوى</div>
+                                    <p class="text-[10px] sm:text-[11px] text-slate-300 leading-tight">رصيد لحظي فوري واستغناء تام عن الدفاتر</p>
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <!-- Main Title (Centered) -->
-                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-devo-text leading-tight mb-4 tracking-tight">
-                        منظومة <span class="bg-gradient-to-r from-sky-400 via-ultra-400 to-blue-500 bg-clip-text text-transparent" dir="ltr">UltraSoft ERP & POS</span><br>
-                        إدارة سحابية ذكية ومحترفة لتجارتك
-                    </h1>
-
-                    <!-- Short One-Liner Tagline (Centered) -->
-                    <p class="text-devo-muted text-xs sm:text-base leading-relaxed font-semibold mb-6 max-w-2xl mx-auto">
-                        تحكم كامل وفوري في الموديلات، الباركود، رصيد المخزن، الأوردرات، والتقارير المالية بدقة فائقة ومن أي جهاز.
-                    </p>
-
-                    <!-- Target Business Types & Core Pillars (Symmetrical 4-Column Grid Desktop / 2x2 Mobile) -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mb-8 max-w-4xl w-full mx-auto">
-                        <div class="px-3 py-2.5 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all">
-                            <div class="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
-                                <i class="ph-fill ph-factory text-sm"></i>
+                    <!-- Target Business Types (4-Column Grid) -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mt-10 max-w-5xl mx-auto">
+                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                            <div class="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+                                <i class="ph-fill ph-factory text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">المصانع والمعارض</span>
                         </div>
-                        <div class="px-3 py-2.5 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all">
-                            <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                                <i class="ph-fill ph-t-shirt text-sm"></i>
+                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                            <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                                <i class="ph-fill ph-t-shirt text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">محلات الملابس</span>
                         </div>
-                        <div class="px-3 py-2.5 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all">
-                            <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
-                                <i class="ph-fill ph-package text-sm"></i>
+                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                                <i class="ph-fill ph-package text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">إدارة الموديلات والمخزن</span>
                         </div>
-                        <div class="px-3 py-2.5 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all">
-                            <div class="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
-                                <i class="ph-fill ph-chart-line-up text-sm"></i>
+                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                            <div class="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
+                                <i class="ph-fill ph-chart-line-up text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">تقارير مالية دقيقة</span>
                         </div>
                     </div>
 
-                    <!-- CTA Action Buttons (Centered) -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5 w-full sm:w-auto mb-10">
-                        <a href="index.html" class="px-7 py-4 rounded-2xl bg-gradient-to-r from-ultra-600 to-blue-600 hover:from-ultra-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm md:text-base shadow-[0_10px_25px_rgba(2,132,199,0.4)] transition-all flex items-center justify-center gap-2.5">
-                            <i class="ph-fill ph-play-circle text-lg sm:text-xl"></i>
-                            <span>تصفح المعرض التجريبي (Live Demo)</span>
-                        </a>
-
-                        <button onclick="switchLandingModule('pricing')" class="px-6 py-4 rounded-2xl bg-devo-dark hover:bg-devo-gray/50 border border-ultra-500/30 text-ultra-400 font-bold text-xs sm:text-sm md:text-base transition-all flex items-center justify-center gap-2">
-                            <i class="ph ph-tag text-lg"></i>
-                            <span>خطط الأسعار والاشتراكات</span>
-                        </button>
-                    </div>
-
-                    <!-- Capabilities Cards Grid (Centered 4-card bar below CTAs) -->
-                    <div class="w-full grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-2">
+                    <!-- Capabilities Cards Grid (4-card metric strip below) -->
+                    <div class="w-full grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 max-w-5xl mx-auto">
                         <!-- Card 1 -->
                         <div class="bg-devo-dark/90 border border-ultra-500/30 hover:border-ultra-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-ultra-500/10 border border-ultra-500/30 text-ultra-400 flex items-center justify-center text-sm sm:text-base font-black shrink-0 group-hover:bg-ultra-600 group-hover:text-white transition-all">
@@ -193,105 +261,184 @@ function renderLandingHTML() {
 
                 </section>
 
-                <!-- SYSTEM FEATURES GRID -->
-                <section class="py-10 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-devo-gray/40">
-                    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-                        <h2 class="text-2xl sm:text-4xl font-black text-devo-text mb-3">
+                <!-- SYSTEM FEATURES & CAPABILITIES SECTION -->
+                <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-devo-gray/40">
+                    
+                    <!-- Section Heading -->
+                    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs sm:text-sm font-semibold mb-3">
+                            <i class="ph-fill ph-lightning text-sm"></i>
+                            <span>كفاءة تشغيلية وسرعة فائقة</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-4xl lg:text-[40px] font-black text-white mb-4 leading-tight">
                             كافة الإمكانيات والقدرات في منظومة واحدة
                         </h2>
-                        <p class="text-devo-muted text-xs sm:text-base leading-relaxed font-medium">
-                            صُمم نظام UltraSoft بعناية فائقة لتغطية كل خطوة في دورة العمل من أول إدخال الموديل وحتى الفاتورة والأرباح.
+                        <p class="text-devo-muted text-sm sm:text-base leading-relaxed font-medium">
+                            صُممت UltraSoft لتقضي على الهدر الزمني وتلغي الدورة الورقية نهائياً؛ لتسجيل الفاتورة مرة واحدة، وتحديث المخزون فورياً بدون أخطاء بشرية.
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10 sm:mb-12">
+                    <!-- Workflow Problem & Solution Highlight Banner -->
+                    <div class="mb-12 bg-gradient-to-r from-slate-900/90 via-devo-dark to-slate-900/90 border border-sky-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                        <div class="absolute top-0 right-1/4 w-72 h-72 bg-sky-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                            
+                            <div class="lg:col-span-8 text-right space-y-3">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-bold">
+                                    <i class="ph-fill ph-check-circle text-sm"></i>
+                                    <span>القضاء الجذري على الأخطاء البشرية وهدر الوقت</span>
+                                </div>
+                                <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-snug">
+                                    تسجيل الفاتورة مرة واحدة مباشرة... وداعاً لتفريغ الدفاتر وضغط التأخير
+                                </h3>
+                                <p class="text-devo-muted text-sm sm:text-base leading-relaxed font-medium">
+                                    في النظام التقليدي: كتابة الفاتورة ورقياً في الدفتر ثم الانتظار لتفريغها وإعادة تسجيلها يدوياً على الجهاز يؤخر تجهيز الأوردرات، يهدر ساعات طويلة، ويزيد العمالة، مع مخزون غامض يولد أخطاء بشرية وتضارباً تحت ضغط الوقت. مع <span class="text-sky-400 font-bold">UltraSoft</span>، الفاتورة تُسجل مرة واحدة في ثوانٍ، وتُخصم الأرصدة لحظياً في نفس الثانية بدقة 100%.
+                                </p>
+                            </div>
+
+                            <div class="lg:col-span-4 flex flex-col gap-3">
+                                <div class="bg-red-500/10 border border-red-500/20 p-3.5 rounded-2xl flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                                        <i class="ph-bold ph-x text-lg"></i>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-red-300 font-bold text-xs">الدورة الورقية التقليدية</div>
+                                        <div class="text-devo-muted text-[11px] leading-tight mt-0.5">تسجيل مكرر، تأخير أوردرات، وأخطاء رصيد</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-emerald-500/10 border border-emerald-500/25 p-3.5 rounded-2xl flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                        <i class="ph-bold ph-check text-lg"></i>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-emerald-300 font-bold text-xs">منظومة UltraSoft اللحظية</div>
+                                        <div class="text-devo-muted text-[11px] leading-tight mt-0.5">تسجيل مرة واحدة، خصم فوري، وصفر أخطاء</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 9 BALANCED CORE CAPABILITIES (3x3 Grid) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-12">
                         
-                        <!-- Feature 1 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-ultra-500/10 border border-ultra-500/20 text-ultra-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-ultra-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-arrows-clockwise"></i>
+                        <!-- Capability 1: Single-Entry Instant Dispatch -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-sky-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-sky-500 group-hover:text-slate-950 transition-all">
+                                    <i class="ph-fill ph-receipt"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">تسجيل الفاتورة مرة واحدة ولحظياً</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    إنهاء الدورة الورقية تماماً؛ تُسجل الفاتورة مرة واحدة فقط فتخصم من رصيد المخزن فوراً بدون تكرار يدوي أو تأخير يسبب ضغطاً وأخطاء بشرية.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">المزامنة والمشاركة اللحظية</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                تحديث فوري وتزامن لحظي للأوردرات، الفواتير، والمخزون عبر كافه هواتف وأجهزة فريق العمل في نفس الثانية بدون ريفريش.
-                            </p>
                         </div>
 
-                        <!-- Feature 2: Telegram & Browser Notifications -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-sky-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-telegram-logo"></i>
+                        <!-- Capability 2: Google Drive Auto Photo Sync (Requested Feature) -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-emerald-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                                    <i class="ph-bold ph-google-logo"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">سحب وإدارة الصور تلقائياً من Google Drive</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    ربط مباشر وتزامن ذكي مع مجلدات Google Drive لسحب وتحديث صور الموديلات والألوان تلقائياً بمجرد تسمية الصورة بكود الصنف دون رفع يدوي لكل صورة.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">إشعارات المتصفح والتليجرام</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                إرسال وتلقي إشعارات الأوردرات الجديدة، المبيعات، ونواقص الأصناف فورياً على أجهزة المتصفح وعلى تطبيق Telegram.
-                            </p>
                         </div>
 
-                        <!-- Feature 3 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-pencil-line"></i>
+                        <!-- Capability 3: Realtime Stock Sync -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-ultra-500/10 border border-ultra-500/20 text-ultra-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-ultra-500 group-hover:text-white transition-all">
+                                    <i class="ph-fill ph-arrows-clockwise"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">المزامنة والتحديث اللحظي للأرصدة</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    تحديث فوري وتزامن حي للأوردرات، الفواتير، والمخزون عبر كافة هواتف وأجهزة فريق العمل في نفس الثانية وبدون الحاجة لعمل ريفريش.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">تعديل الأوردرات وإعادة تحميلها</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                إمكانية فتح وتعديل أي أوردر سابق بسهولة، إعادة تحميل محتوياته للسلة للعمل عليها من جديد وإصدار الفاتورة المحدثة.
-                            </p>
                         </div>
 
-                        <!-- Feature 4 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-user-switch"></i>
+                        <!-- Capability 4: Excel Batch Operations (Fixed Icon) -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-amber-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
+                                    <i class="ph-bold ph-file-xls"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">الرفع والتعديل المجمع عبر Excel</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    استيراد وتحديث آلاف الأصناف، الأسعار، والمقاسات بالجملة من خلال ملفات Excel مع تتبع رصيد الكريديت الذكي وسهولة استعادة البيانات.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">إسناد الأوردرات وتحويل العاملين</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                إسناد الطلبات لعامل مبيعات أو موظف تجهيز آخر، وتحديد مستلم العربون والمسئول المالي عن كل معاملة بشكل ملحوظ.
-                            </p>
                         </div>
 
-                        <!-- Feature 5 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-palette"></i>
+                        <!-- Capability 5: Telegram & Browser Notifications -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-blue-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                    <i class="ph-fill ph-telegram-logo"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">إشعارات فورية عبر Telegram والمتصفح</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    إرسال وتلقي إشعارات الأوردرات الجديدة، المبيعات، ونواقص الأصناف لحظياً على أجهزة المتصفح وعلى تطبيق Telegram لإدارة أسرع.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">تخصيص المظهر وألوان الواجهة</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                إمكانية تخصيص ألوان الواجهة والهيدر والفوتر بنقرة زر (Themes Manager) ليتطابق النظام بالكامل مع هوية محلك.
-                            </p>
                         </div>
 
-                        <!-- Feature 6 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-qr-code"></i>
+                        <!-- Capability 6: Smart Barcode Scanner -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-teal-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-teal-500 group-hover:text-slate-950 transition-all">
+                                    <i class="ph-fill ph-qr-code"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">قارئ واستيكر الباركود الضوئي</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    ماسح ضوئي فوري يعمل بكاميرا الهاتف والكمبيوتر دون شراء أجهزة خارجية، مع طباعة ملصقات الباركود للموديلات والمقاسات بسهولة.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">قارئ واستيكر الباركود الضوئي</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                ماسح ضوئي ذكي يعمل فورياً بكاميرا الموبايل والكمبيوتر دون شراء أجهزة خارجية، مع طباعة ملصقات الباركود للموديلات.
-                            </p>
                         </div>
 
-                        <!-- Feature 7 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-teal-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-file-spreadsheet"></i>
+                        <!-- Capability 7: Flexible Order Editing & Reloading -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-purple-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                                    <i class="ph-fill ph-pencil-line"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">تعديل الأوردرات وإعادة تحميلها</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    إمكانية فتح وتعديل أي أوردر سابق بسهولة، وإعادة تحميل محتوياته للسلة للعمل عليها من جديد وإصدار الفاتورة المحدثة دون أي لبس.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">الرفع والتعديل المجمع عبر Excel</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                استيراد وتحديث أعداد وأسعار الموديلات والمقاسات بالجملة من خلال ملفات Excel مع تتبع رصيد الكريديت بكل سهولة.
-                            </p>
                         </div>
 
-                        <!-- Feature 8 -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                                <i class="ph-fill ph-hand-coins"></i>
+                        <!-- Capability 8: Order Delegation & Staff Tracking -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-rose-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-white transition-all">
+                                    <i class="ph-fill ph-user-switch"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">إسناد الأوردرات وتحويل العاملين</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    إسناد الطلبات لموظف مبيعات أو عامل تجهيز محدد، وتحديد مستلم العربون والمسئول المالي عن كل معاملة لمنع التضارب وحفظ الحقوق.
+                                </p>
                             </div>
-                            <h3 class="text-base sm:text-lg font-bold text-devo-text mb-2">حساب العربون وتقارير الإيداعات</h3>
-                            <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
-                                حساب العربون والمتبقي تلقائياً، تعيين مستلم العربون، واستخراج تقارير المقبوضات والإيداعات اليومية والشهرية.
-                            </p>
+                        </div>
+
+                        <!-- Capability 9: Deposit Calculation & Cash Drawer -->
+                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-cyan-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                            <div>
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all">
+                                    <i class="ph-fill ph-hand-coins"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white mb-2">حساب العربون وتقارير الإيداعات</h3>
+                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                    حساب العربون والمتبقي تلقائياً، تعيين مستلم العربون، واستخراج تقارير المقبوضات والإيداعات اليومية والشهرية للخزينة بدقة تامة.
+                                </p>
+                            </div>
                         </div>
 
                     </div>

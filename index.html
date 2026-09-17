@@ -39,7 +39,19 @@
         // Prevent FOUC: load and apply theme variables from LocalStorage immediately
         (function() {
             try {
-                const savedTheme = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                let savedTheme = null;
+                try {
+                    const sessionStr = localStorage.getItem('devo_session');
+                    if (sessionStr) {
+                        const sess = JSON.parse(sessionStr);
+                        if (sess && sess.tenant_id) {
+                            savedTheme = localStorage.getItem(`ultrasoft_active_theme_${sess.tenant_id}`);
+                        }
+                    }
+                } catch(e) {}
+                if (!savedTheme) {
+                    savedTheme = localStorage.getItem('devo_active_theme') || localStorage.getItem('ultrasoft_active_theme');
+                }
                 if (savedTheme) {
                     const theme = JSON.parse(savedTheme);
                     const colors = theme.colors;
@@ -48,6 +60,7 @@
                         styleEl.id = 'devo-theme-styles-early';
                         const bgHex = colors.page?.bg || '#0b1329';
                         const isLight = bgHex !== '#0b1329' && bgHex !== '#0f172a' && bgHex !== '#0a0a0a' && bgHex !== '#171717';
+                        document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
                         const defaultGray = isLight ? (colors.brand?.secondary || '#e1effe') : '#1e293b';
                         const defaultGrayHover = isLight ? (colors.brand?.secondary_hover || '#bae6fd') : '#334155';
                         const devoGray = colors.borders?.color || defaultGray;
@@ -177,8 +190,25 @@
     <!-- Header Container — يُملأ ديناميكياً من header_layouts.js -->
     <div id="site-header"></div>
 
+    <!-- 🚀 بنر وضع المعاينة الحية للمتجر التجريبي (Live Demo Banner) -->
+    <div id="demo-mode-banner" class="hidden fixed top-20 md:top-24 left-0 right-0 z-[4000000] bg-gradient-to-r from-ultra-600 via-sky-600 to-indigo-600 text-white px-4 py-2.5 shadow-2xl items-center justify-between gap-3 text-xs sm:text-sm font-bold border-b border-white/20 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>🚀 أنت الآن في <strong>وضع المعاينة الحية للمتجر التجريبي (Live Demo)</strong> — تصفح طريقة عرض الموديلات وتجربة العميل</span>
+            </div>
+            <button onclick="window.exitDemoStoreMode?.()" class="px-4 py-1.5 rounded-xl bg-white/20 hover:bg-white text-white hover:text-black font-black text-xs transition-all flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer">
+                <i class="ph ph-arrow-u-up-left text-base"></i>
+                <span>العودة للمنصة / المول</span>
+            </button>
+        </div>
+    </div>
+
     <main class="flex-1 pt-20 md:pt-24">
         
+        <!-- UltraSoft Digital Mall View -->
+        <div id="view-mall" class="site-view-section animate-fade-in hidden"></div>
+
         <!-- UltraSoft Marketing Presentation & Subscription View -->
         <div id="view-landing" class="site-view-section animate-fade-in hidden"></div>
 
@@ -223,35 +253,108 @@
         </div>
 
 <div id="view-gallery" class="site-view-section hidden animate-fade-in pb-20">
-    <div class="bg-devo-black border-b border-devo-gray sticky top-20 md:top-20 py-2 md:py-4 mb-3 shadow-md z-[100000]">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row gap-2 md:items-center">
+    <div class="bg-devo-black border-b border-devo-gray sticky top-20 md:top-20 py-1.5 sm:py-2.5 mb-2 sm:mb-3 shadow-lg z-[100000]">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-2">
+            
+            <!-- السطر الأول: نطاق البحث، حقل البحث الذكي، أزرار التحكم السريعة في سطر واحد مدمج وأنيق -->
+            <div class="flex flex-nowrap items-center gap-1 sm:gap-2 w-full">
                 
-                <div class="flex w-full md:flex-[2] gap-2 items-center">
-                    <div class="relative flex-1">
-                        <i class="ph ph-magnifying-glass absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-devo-muted text-sm md:text-xl"></i>
-                        <input type="number" id="gal-search" placeholder="بحث بالكود..." 
-                            class="w-full bg-devo-dark border border-devo-gray rounded-lg md:rounded-xl pr-8 md:pr-12 pl-2 md:pl-4 py-2 md:py-3 text-white focus:outline-none focus:border-devo-orange transition-all text-xs md:text-sm h-[38px] md:h-auto">
-                    </div>
-                    <button onclick="toggleGalleryFilters()" class="md:hidden bg-devo-dark border border-devo-gray text-devo-muted hover:text-white px-3 py-2 rounded-lg transition-all h-[38px] flex items-center justify-center shrink-0">
-                        <i class="ph ph-faders text-lg"></i>
+                <!-- 🌐 نطاق البحث (شامل / كود / اسم) -->
+                <div id="wrap-filter-scope" class="shrink-0 filter-item-wrapper" data-filter-id="filter-scope">
+                    <select id="gal-search-scope" class="bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-1.5 sm:px-3 py-1 text-white text-[11px] sm:text-xs md:text-sm outline-none focus:border-devo-orange cursor-pointer h-[34px] sm:h-[38px] transition-all">
+                        <option value="all">🔍 شامل</option>
+                        <option value="code">🏷️ كود</option>
+                        <option value="name">📝 اسم</option>
+                    </select>
+                </div>
+
+                <!-- 🔎 حقل البحث النصي الذكي والمتناسق -->
+                <div class="relative flex-1 min-w-0">
+                    <i class="ph ph-magnifying-glass absolute right-2.5 top-1/2 -translate-y-1/2 text-devo-muted text-xs sm:text-sm md:text-base pointer-events-none"></i>
+                    <input type="text" id="gal-search" placeholder="ابحث بالاسم، الكود..." autocomplete="off"
+                        class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl pr-7 pl-7 sm:pr-9 sm:pl-9 py-1 text-white focus:outline-none focus:border-devo-orange transition-all text-[11px] sm:text-xs md:text-sm h-[34px] sm:h-[38px] placeholder:text-devo-muted/50 truncate">
+                    <button type="button" id="gal-search-clear" onclick="window.clearSearchInput()" class="absolute left-2 top-1/2 -translate-y-1/2 text-devo-muted hover:text-white transition-colors p-0.5 hidden" title="مسح نص البحث">
+                        <i class="ph ph-x-circle text-sm sm:text-base"></i>
                     </button>
                 </div>
-                
-                <div id="gallery-advanced-filters" class="hidden md:flex w-full md:flex-1 gap-2 flex-col md:flex-row mt-1 md:mt-0 transition-all">
-                    <div class="flex gap-2 w-full">
-                        <select id="gal-category" class="flex-1 bg-devo-dark border border-devo-gray rounded-lg md:rounded-xl px-1 md:px-3 py-1.5 md:py-3 text-white outline-none focus:border-devo-orange cursor-pointer text-[11px] md:text-sm h-[34px] md:h-auto">
-                            <option value="">جميع التصنيفات</option>
-                        </select>
-                        <select id="gal-sort" class="flex-1 bg-devo-dark border border-devo-gray rounded-lg md:rounded-xl px-1 md:px-3 py-1.5 md:py-3 text-white outline-none focus:border-devo-orange cursor-pointer text-[11px] md:text-sm h-[34px] md:h-auto">
-                            <option value="newest">الأحدث أولاً</option>
-                            <option value="price_asc">السعر (أقل)</option>
-                            <option value="price_desc">السعر (أعلى)</option>
-                        </select>
-                    </div>
-                    <button onclick="clearGalleryFilters()" class="bg-devo-dark border border-devo-gray text-devo-error hover:bg-devo-error hover:text-white py-1.5 md:py-3 px-3 md:px-4 rounded-lg md:rounded-xl transition-all text-xs md:text-sm flex items-center justify-center shrink-0 h-[34px] md:h-auto w-full md:w-auto" title="مسح الفلاتر">
-                        <i class="ph ph-eraser text-sm md:text-xl ml-1 md:ml-0"></i> <span class="md:hidden">مسح الفلاتر</span>
+
+                <!-- زر الفلاتر للموبايل -->
+                <button onclick="toggleGalleryFilters()" class="md:hidden bg-devo-dark border border-devo-gray text-devo-muted hover:text-white px-2 rounded-lg sm:rounded-xl transition-all h-[34px] sm:h-[38px] flex items-center justify-center shrink-0 relative" title="الفلاتر">
+                    <i class="ph ph-faders text-sm sm:text-base" id="gal-mobile-faders-icon"></i>
+                    <span id="gal-mobile-active-badge" class="hidden absolute -top-1 -right-1 bg-devo-orange text-white text-[9px] font-black w-3.5 h-3.5 rounded-full items-center justify-center leading-none">0</span>
+                </button>
+
+                <!-- 🔥 زر عروض الخصومات فقط -->
+                <div id="wrap-filter-discount" class="filter-item-wrapper shrink-0" data-filter-id="filter-discount">
+                    <button type="button" id="gal-discount-toggle" onclick="window.toggleDiscountOnlyFilter()" title="عروض الخصم"
+                        class="bg-devo-dark border border-devo-gray text-devo-muted hover:border-rose-500/50 hover:text-rose-400 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 h-[34px] sm:h-[38px] select-none">
+                        <i class="ph-bold ph-tag text-rose-500 text-sm md:text-base"></i>
+                        <span class="whitespace-nowrap hidden sm:inline">عروض الخصم</span>
                     </button>
+                </div>
+
+                <!-- 🧹 زر إعادة ضبط ومسح الفلاتر -->
+                <button type="button" id="btn-clear-all-filters" onclick="clearGalleryFilters()" 
+                    class="bg-devo-dark border border-devo-gray text-devo-muted hover:bg-rose-500/10 hover:border-rose-500 hover:text-rose-400 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm flex items-center justify-center shrink-0 h-[34px] sm:h-[38px]" title="إعادة ضبط الفلاتر">
+                    <i class="ph ph-arrow-counter-clockwise text-sm sm:text-base"></i>
+                    <span class="hidden sm:inline mr-1 text-xs">إعادة ضبط</span>
+                    <span id="gal-active-filters-count" class="hidden mr-1 bg-devo-orange text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+                </button>
+
+            </div>
+
+            <!-- السطر الثاني: خيارات الفلترة المتقدمة (قابلة للإظهار والإخفاء بشكل فردي) -->
+            <div id="gallery-advanced-filters" class="hidden md:flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 transition-all">
+                
+                <!-- 1. التصنيف الرئيسي -->
+                <div id="wrap-filter-category" class="flex-1 min-w-[120px] sm:min-w-[130px] filter-item-wrapper" data-filter-id="filter-category">
+                    <select id="gal-category" class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-devo-orange cursor-pointer text-xs md:text-sm h-[34px] sm:h-[38px] transition-all">
+                        <option value="">جميع التصنيفات</option>
+                    </select>
+                </div>
+
+                <!-- 2. الفئة العمرية -->
+                <div id="wrap-filter-class" class="flex-1 min-w-[120px] sm:min-w-[130px] filter-item-wrapper" data-filter-id="filter-class">
+                    <select id="gal-class" class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-devo-orange cursor-pointer text-xs md:text-sm h-[34px] sm:h-[38px] transition-all">
+                        <option value="">جميع الفئات العمرية</option>
+                    </select>
+                </div>
+
+                <!-- 3. تصنيف 1 -->
+                <div id="wrap-filter-c1" class="flex-1 min-w-[120px] sm:min-w-[130px] filter-item-wrapper" data-filter-id="filter-c1">
+                    <select id="gal-c1" class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-devo-orange cursor-pointer text-xs md:text-sm h-[34px] sm:h-[38px] transition-all">
+                        <option value="">جميع تصنيف 1</option>
+                    </select>
+                </div>
+
+                <!-- 4. تصنيف 2 -->
+                <div id="wrap-filter-c2" class="flex-1 min-w-[120px] sm:min-w-[130px] filter-item-wrapper" data-filter-id="filter-c2">
+                    <select id="gal-c2" class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-devo-orange cursor-pointer text-xs md:text-sm h-[34px] sm:h-[38px] transition-all">
+                        <option value="">جميع تصنيف 2</option>
+                    </select>
+                </div>
+
+                <!-- 5. فلتر السعر (من - إلى) -->
+                <div id="wrap-filter-price" class="flex items-center gap-1.5 filter-item-wrapper min-w-[160px] sm:min-w-[180px]" data-filter-id="filter-price">
+                    <div class="relative flex-1">
+                        <input type="number" id="gal-price-min" placeholder="سعر من" min="0" step="any"
+                            class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2 py-1 text-white outline-none focus:border-devo-orange text-xs h-[34px] sm:h-[38px] placeholder:text-devo-muted/40">
+                    </div>
+                    <span class="text-devo-muted text-xs font-bold">-</span>
+                    <div class="relative flex-1">
+                        <input type="number" id="gal-price-max" placeholder="إلى" min="0" step="any"
+                            class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2 py-1 text-white outline-none focus:border-devo-orange text-xs h-[34px] sm:h-[38px] placeholder:text-devo-muted/40">
+                    </div>
+                </div>
+
+                <!-- 6. خيارات الترتيب -->
+                <div id="wrap-filter-sort" class="flex-1 min-w-[130px] sm:min-w-[140px] filter-item-wrapper" data-filter-id="filter-sort">
+                    <select id="gal-sort" class="w-full bg-devo-dark border border-devo-gray rounded-lg sm:rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-devo-orange cursor-pointer text-xs md:text-sm h-[34px] sm:h-[38px] transition-all">
+                        <option value="newest">🕒 الأحدث أولاً</option>
+                        <option value="price_asc">💵 السعر (من الأقل للأعلى)</option>
+                        <option value="price_desc">💰 السعر (من الأعلى للأقل)</option>
+                        <option value="discount_desc">🔥 أعلى نسبة خصم</option>
+                    </select>
                 </div>
 
             </div>
@@ -288,6 +391,7 @@
                 </div>
         </div>
     </div>
+
 <div id="view-barcode" class="site-view-section hidden animate-fade-in pb-20">
     <div class="max-w-md mx-auto w-full px-4 py-4 text-center">
         <div class="bg-devo-dark border border-devo-gray rounded-2xl p-4 shadow-lg mb-6 relative overflow-hidden">
@@ -873,6 +977,6 @@
     <div id="toast-container" class="fixed bottom-6 left-6 z-[500] flex flex-col gap-3 pointer-events-none"></div>
     <script type="module" src="./src/js/components/searchable_select.js"></script>
     <script type="module" src="./src/js/components/table_sorter.js"></script>
-    <script type="module" src="./src/js/pages/home/index.js?v=8.5"></script>
+    <script type="module" src="./src/js/pages/home/index.js?v=8.7"></script>
 </body>
 </html>

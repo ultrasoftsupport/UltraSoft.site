@@ -158,6 +158,9 @@ export async function loadHeroSettings() {
     // ربط وتفعيل المعاينة الحية في لوحة الإدارة
     setupHeroPreviewListeners();
     updateAdminHeroPreview();
+
+    // تعبئة إعدادات فلاتر المعرض
+    loadGalleryFilterSettingsAdmin(map);
 }
 
 window.updateInvoicePreview = function() {
@@ -733,4 +736,109 @@ window.deletePromoCard = async (id) => {
         showToast('تم الحذف بنجاح', 'success');
         loadPromoCards();
     }
+};
+
+// ==========================================
+// 🌟 إعدادات وتخصيص فلاتر المعرض بواسطة الأدمن 🌟
+// ==========================================
+const DEFAULT_GALLERY_FILTER_PREFERENCES = {
+    'filter-scope': true,
+    'filter-category': true,
+    'filter-class': true,
+    'filter-c1': true,
+    'filter-c2': true,
+    'filter-price': true,
+    'filter-discount': true,
+    'filter-sort': true
+};
+
+function loadGalleryFilterSettingsAdmin(map) {
+    let prefs = { ...DEFAULT_GALLERY_FILTER_PREFERENCES };
+    const raw = map['gallery_filter_settings'];
+    if (raw) {
+        try {
+            prefs = { ...prefs, ...JSON.parse(raw) };
+        } catch (e) {}
+    } else {
+        const local = localStorage.getItem(`devo_gallery_filter_prefs_${getCurrentTenantId() || 'default'}`);
+        if (local) {
+            try {
+                prefs = { ...prefs, ...JSON.parse(local) };
+            } catch(e) {}
+        }
+    }
+
+    const setCb = (id, key) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = prefs[key] !== false;
+    };
+
+    setCb('adm-filter-scope', 'filter-scope');
+    setCb('adm-filter-category', 'filter-category');
+    setCb('adm-filter-class', 'filter-class');
+    setCb('adm-filter-c1', 'filter-c1');
+    setCb('adm-filter-c2', 'filter-c2');
+    setCb('adm-filter-price', 'filter-price');
+    setCb('adm-filter-discount', 'filter-discount');
+    setCb('adm-filter-sort', 'filter-sort');
+}
+
+window.saveGalleryFilterSettingsAdmin = async function() {
+    const btn = document.getElementById('btn-save-gallery-filters');
+    const originalHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> <span>جاري الحفظ...</span>`;
+    }
+
+    try {
+        const currentTenantId = getCurrentTenantId();
+        const prefs = {
+            'filter-scope': document.getElementById('adm-filter-scope')?.checked ?? true,
+            'filter-category': document.getElementById('adm-filter-category')?.checked ?? true,
+            'filter-class': document.getElementById('adm-filter-class')?.checked ?? true,
+            'filter-c1': document.getElementById('adm-filter-c1')?.checked ?? true,
+            'filter-c2': document.getElementById('adm-filter-c2')?.checked ?? true,
+            'filter-price': document.getElementById('adm-filter-price')?.checked ?? true,
+            'filter-discount': document.getElementById('adm-filter-discount')?.checked ?? true,
+            'filter-sort': document.getElementById('adm-filter-sort')?.checked ?? true
+        };
+
+        const jsonStr = JSON.stringify(prefs);
+        const { error } = await supabase
+            .from('home_settings')
+            .upsert({
+                tenant_id: currentTenantId,
+                setting_key: 'gallery_filter_settings',
+                setting_value: jsonStr,
+                description: 'تخصيص وإظهار/إخفاء فلاتر المعرض'
+            }, { onConflict: 'tenant_id,setting_key' });
+
+        if (error) throw error;
+
+        localStorage.setItem(`devo_gallery_filter_prefs_${currentTenantId || 'default'}`, jsonStr);
+
+        showToast('تم حفظ وتطبيق إعدادات فلاتر المعرض بنجاح ✓', 'success');
+    } catch (err) {
+        console.error('Error saving gallery filter settings:', err);
+        showToast('حدث خطأ أثناء حفظ إعدادات الفلاتر: ' + (err.message || err), 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+};
+
+window.resetGalleryFilterSettingsAdmin = function() {
+    const defaultIds = [
+        'adm-filter-scope', 'adm-filter-category', 'adm-filter-class',
+        'adm-filter-c1', 'adm-filter-c2', 'adm-filter-price',
+        'adm-filter-discount', 'adm-filter-sort'
+    ];
+    defaultIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = true;
+    });
+    showToast('تمت استعادة التحديد لجميع الفلاتر، اضغط "حفظ إعدادات الفلاتر" للتأكيد', 'info');
 };

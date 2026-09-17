@@ -682,7 +682,9 @@ window.toggleArchive = async (id, archiveStatus) => {
 
 // 🌟 دالة مساعدة لفك روابط الصور لكي تظهر في السلة بعد التعديل 🌟
 function resolveImageUrl(url) {
-    if (!url || url.trim() === "" || url === "null" || url === "undefined") return './src/assets/icons/devo.png';
+    if (!url || url.trim() === "" || url === "null" || url === "undefined") {
+        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+    }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
             const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -739,22 +741,23 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
     await logOrderAction(targetOrder.id, 'cart_edit_start', `بدأ الموظف ${userName} تعديل الأوردر بالسلة (المعرض)`);
 
     // 🌟 الإصلاح الجذري لمعادلة الأسعار والصور عند إرسالها للسلة 🌟
-    const newCart = targetOrder.order_items.map(item => {
+    const newCart = (targetOrder.order_items || []).map(item => {
         let imgUrl = './src/assets/icons/devo.png';
         if (item.models?.model_images && item.models.model_images.length > 0) {
             imgUrl = resolveImageUrl(item.models.model_images[0].image_url);
         }
         
         const classSizes = item.models?.classes?.class_sizes || [];
-        const sizesCount = classSizes.length > 0 ? classSizes.length : (item.models?.model_sizes?.length || 1);
+        const sizesCount = item.sizes_count || (classSizes.length > 0 ? classSizes.length : (item.models?.model_sizes?.length || 1));
+        const piecePrice = item.piece_price || (item.price_per_series ? (item.price_per_series / sizesCount) : (item.models?.price || 0));
 
         return {
             modelId: item.model_id, 
             factoryCode: item.models?.factory_code || item.models?.system_code || '',
             colorId: item.color_id,
-            modelName: item.models?.name, 
-            colorName: item.colors?.name,
-            price: item.price_per_series / sizesCount, // 🌟 Fix: إرسال سعر القطعة للسلة
+            modelName: item.models?.name || 'موديل', 
+            colorName: item.colors?.name || 'لون',
+            price: piecePrice,
             image: imgUrl, 
             qty: item.quantity,
             sizesCount: sizesCount
@@ -762,7 +765,14 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
     });
 
     const tenantId = targetOrder.tenant_id || getCurrentTenantId() || 'default';
-    localStorage.setItem(`devo_cart_${tenantId}`, JSON.stringify(newCart));
+    const cartJson = JSON.stringify(newCart);
+    try {
+        localStorage.setItem(getTenantStorageKey('devo_cart'), cartJson);
+    } catch(e) {}
+    localStorage.setItem(`devo_cart_${tenantId}`, cartJson);
+    localStorage.setItem('devo_cart_default', cartJson);
+    localStorage.setItem('devo_cart_00000000-0000-0000-0000-000000000001', cartJson);
+    localStorage.setItem('devo_cart', cartJson);
     
     const orderData = {
         id: targetOrder.id,
@@ -773,10 +783,14 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
         deposit_receiver: targetOrder.deposit_receiver, notes: targetOrder.notes,
         original_items: targetOrder.order_items
     };
+    const orderDataJson = JSON.stringify(orderData);
     try {
-        localStorage.setItem(getTenantStorageKey('devo_edit_order_data'), JSON.stringify(orderData));
+        localStorage.setItem(getTenantStorageKey('devo_edit_order_data'), orderDataJson);
     } catch(e) {}
-    localStorage.setItem(`devo_edit_order_data_${tenantId}`, JSON.stringify(orderData));
+    localStorage.setItem(`devo_edit_order_data_${tenantId}`, orderDataJson);
+    localStorage.setItem('devo_edit_order_data_default', orderDataJson);
+    localStorage.setItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001', orderDataJson);
+    localStorage.setItem('devo_edit_order_data', orderDataJson);
     
     btn.innerHTML = originalText;
     btn.disabled = false;
@@ -838,17 +852,31 @@ async function logOrderAction(orderId, actionType, notes) {
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
         const currentTenantId = getCurrentTenantId();
         
-        const { error } = await supabase.from('order_logs').insert([{
+        let logUserId = null;
+        if (currentUser?.id) {
+            try {
+                const { data: uCheck } = await supabase.from('system_users').select('id').eq('id', currentUser.id).maybeSingle();
+                if (uCheck?.id) logUserId = uCheck.id;
+            } catch (e) {}
+        }
+        
+        const logPayload = {
             tenant_id: currentTenantId,
             order_id: orderId,
-            user_id: userId,
+            user_id: logUserId,
             user_name: userName,
             action_type: actionType,
             notes: notes,
             details: notes
-        }]);
+        };
+
+        const { error } = await supabase.from('order_logs').insert([logPayload]);
         if (error) {
-            console.error('Database error inserting order log:', error);
+            if (error.code === '23503' && logUserId) {
+                await supabase.from('order_logs').insert([{ ...logPayload, user_id: null }]);
+            } else {
+                console.error('Database error inserting order log:', error);
+            }
         }
     } catch (err) {
         console.error('Error logging order action:', err);

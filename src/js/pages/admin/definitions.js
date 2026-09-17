@@ -149,25 +149,28 @@ window.openDefinitionModal = async (table, id = null, name = '', code = '') => {
             sizesQuery = sizesQuery.eq('tenant_id', currentTenantId);
         }
         const { data: allSizes } = await sizesQuery;
-        let selectedSizeIds = [];
+        currentClassAllSizes = allSizes || [];
+        currentClassOrderedSizes = [];
 
-        // إذا كنا نعدل فئة موجودة، نجلب مقاساتها المرتبطة
+        // إذا كنا نعدل فئة موجودة، نجلب مقاساتها المرتبطة مع مراعاة sort_order
         if (id) {
-            const { data: classSizes } = await supabase.from('class_sizes').select('size_id').eq('class_id', id);
-            selectedSizeIds = classSizes?.map(cs => cs.size_id) || [];
+            const { data: classSizes } = await supabase
+                .from('class_sizes')
+                .select('size_id, sort_order')
+                .eq('class_id', id)
+                .order('sort_order', { ascending: true });
+                
+            if (classSizes && classSizes.length > 0) {
+                currentClassOrderedSizes = classSizes.map(cs => cs.size_id);
+            }
         }
 
-        // رسم المقاسات كـ Checkboxes
-        sizesContainer.innerHTML = (allSizes || []).map(s => `
-            <label class="flex items-center gap-2 bg-devo-dark border border-devo-gray px-3 py-1.5 rounded cursor-pointer hover:border-devo-orange has-[:checked]:border-devo-orange text-xs transition-colors">
-                <input type="checkbox" name="class-size-cb" value="${s.id}" class="accent-devo-orange" ${selectedSizeIds.includes(s.id) ? 'checked' : ''}> 
-                <span class="text-white">${s.name}</span>
-            </label>
-        `).join('');
-
+        renderClassSizesUI();
     } else {
         sizesWrapper.classList.add('hidden');
         sizesContainer.innerHTML = '';
+        currentClassAllSizes = [];
+        currentClassOrderedSizes = [];
     }
     
     titleEl.textContent = id ? `تعديل البيانات` : `إضافة جديد إلى ${getTabNameAr(table)}`;
@@ -179,6 +182,91 @@ window.openDefinitionModal = async (table, id = null, name = '', code = '') => {
         inputName.focus();
     });
 };
+
+// إدارة تحديد وترتيب المقاسات داخل الفئة العمرية
+let currentClassAllSizes = [];
+let currentClassOrderedSizes = [];
+
+window.toggleClassSize = (sizeId) => {
+    const idx = currentClassOrderedSizes.indexOf(sizeId);
+    if (idx > -1) {
+        currentClassOrderedSizes.splice(idx, 1);
+    } else {
+        currentClassOrderedSizes.push(sizeId);
+    }
+    renderClassSizesUI();
+};
+
+window.moveClassSizeOrder = (fromIdx, toIdx) => {
+    if (toIdx < 0 || toIdx >= currentClassOrderedSizes.length) return;
+    const item = currentClassOrderedSizes.splice(fromIdx, 1)[0];
+    currentClassOrderedSizes.splice(toIdx, 0, item);
+    renderClassSizesUI();
+};
+
+function renderClassSizesUI() {
+    const container = document.getElementById('def-sizes-container');
+    if (!container) return;
+
+    const sizesMap = {};
+    currentClassAllSizes.forEach(s => { sizesMap[s.id] = s.name; });
+
+    let checkboxesHtml = currentClassAllSizes.map(s => {
+        const isChecked = currentClassOrderedSizes.includes(s.id);
+        const orderIdx = isChecked ? (currentClassOrderedSizes.indexOf(s.id) + 1) : null;
+        return `
+            <label class="flex items-center gap-1.5 bg-devo-dark border ${isChecked ? 'border-devo-orange bg-devo-orange/10' : 'border-devo-gray'} px-2.5 py-1.5 rounded-lg cursor-pointer text-xs transition-all hover:border-devo-orange select-none">
+                <input type="checkbox" onchange="window.toggleClassSize('${s.id}')" ${isChecked ? 'checked' : ''} class="accent-devo-orange"> 
+                <span class="text-white font-medium">${s.name}</span>
+                ${orderIdx ? `<span class="bg-devo-orange text-white text-[10px] font-mono px-1 rounded font-bold">#${orderIdx}</span>` : ''}
+            </label>
+        `;
+    }).join('');
+
+    let orderListHtml = '';
+    if (currentClassOrderedSizes.length > 0) {
+        orderListHtml = `
+            <div class="mt-3 pt-3 border-t border-devo-gray/60 w-full">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[11px] font-bold text-devo-orange flex items-center gap-1">
+                        <i class="ph ph-sort-ascending"></i> ترتيب المقاسات (${currentClassOrderedSizes.length} محدد):
+                    </span>
+                    <span class="text-[10px] text-devo-muted">استخدم الأسهم لتحديد الترتيب المنطقي</span>
+                </div>
+                <div class="flex flex-col gap-1.5 max-h-44 overflow-y-auto pr-1 custom-scrollbar">
+                    ${currentClassOrderedSizes.map((sizeId, idx) => `
+                        <div class="flex items-center justify-between bg-devo-black/70 border border-devo-gray/60 px-3 py-1.5 rounded-lg text-xs group hover:border-devo-orange/50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <span class="w-5 h-5 rounded bg-devo-orange/20 text-devo-orange font-bold text-[10px] flex items-center justify-center font-mono">#${idx + 1}</span>
+                                <span class="font-bold text-white">${sizesMap[sizeId] || sizeId}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="window.moveClassSizeOrder(${idx}, ${idx - 1})" ${idx === 0 ? 'disabled' : ''} class="w-6 h-6 rounded bg-devo-dark hover:bg-devo-orange disabled:opacity-20 disabled:hover:bg-devo-dark text-white flex items-center justify-center text-xs transition-colors" title="تقديم">
+                                    <i class="ph ph-caret-up"></i>
+                                </button>
+                                <button type="button" onclick="window.moveClassSizeOrder(${idx}, ${idx + 1})" ${idx === currentClassOrderedSizes.length - 1 ? 'disabled' : ''} class="w-6 h-6 rounded bg-devo-dark hover:bg-devo-orange disabled:opacity-20 disabled:hover:bg-devo-dark text-white flex items-center justify-center text-xs transition-colors" title="تأخير">
+                                    <i class="ph ph-caret-down"></i>
+                                </button>
+                                <button type="button" onclick="window.toggleClassSize('${sizeId}')" class="w-6 h-6 rounded bg-devo-dark hover:bg-devo-error text-devo-muted hover:text-white flex items-center justify-center text-xs transition-colors mr-1" title="إلغاء التحديد">
+                                    <i class="ph ph-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = `
+        <div class="w-full">
+            <div class="flex flex-wrap gap-1.5 p-2 bg-devo-black/40 border border-devo-gray/40 rounded-xl max-h-32 overflow-y-auto custom-scrollbar">
+                ${checkboxesHtml}
+            </div>
+            ${orderListHtml}
+        </div>
+    `;
+}
 
 async function handleSaveDefinition(e) {
     e.preventDefault();
@@ -213,21 +301,23 @@ async function handleSaveDefinition(e) {
             savedId = data.id;
         }
 
-        // 🌟 2. حفظ المقاسات في الجدول الوسيط إذا كنا في تاب الفئات العمرية 🌟
+        // 🌟 2. حفظ المقاسات مرتبة في الجدول الوسيط إذا كنا في تاب الفئات العمرية 🌟
         if (table === 'classes') {
-            // نقرأ المقاسات من مربعات الاختيار (Checkboxes) الموجودة في الشاشة مباشرة
-            const selectedSizes = Array.from(document.querySelectorAll('input[name="class-size-cb"]:checked')).map(cb => cb.value);
-            
             // حذف القديم أولاً لمنع التكرار (في حالة التعديل)
             await supabase.from('class_sizes').delete().eq('class_id', savedId);
             
-            // إدخال المقاسات الجديدة
-            if (selectedSizes.length > 0) {
-                const classSizesPayload = selectedSizes.map(sizeId => ({ tenant_id: currentTenantId, class_id: savedId, size_id: sizeId }));
+            // إدخال المقاسات الجديدة بترتيبها المحدد
+            if (currentClassOrderedSizes.length > 0) {
+                const classSizesPayload = currentClassOrderedSizes.map((sizeId, idx) => ({ 
+                    tenant_id: currentTenantId, 
+                    class_id: savedId, 
+                    size_id: sizeId,
+                    sort_order: idx + 1
+                }));
                 const { error: csErr } = await supabase.from('class_sizes').insert(classSizesPayload);
                 if (csErr) {
-                    // Fallback without tenant_id if column does not exist yet in DB
-                    const simplePayload = selectedSizes.map(sizeId => ({ class_id: savedId, size_id: sizeId }));
+                    // Fallback without sort_order if column does not exist yet in DB
+                    const simplePayload = currentClassOrderedSizes.map(sizeId => ({ class_id: savedId, size_id: sizeId }));
                     await supabase.from('class_sizes').insert(simplePayload);
                 }
             }
@@ -239,6 +329,8 @@ async function handleSaveDefinition(e) {
         const tableLabels = {
             colors: 'لون',
             categories: 'تصنيف رئيسي',
+            classifications_1: 'تصنيف 1',
+            classifications_2: 'تصنيف 2',
             classes: 'فئة فرعية',
             sizes: 'مقاس'
         };
@@ -331,7 +423,14 @@ window.handleDeleteDefinition = async (table, id) => {
 };
 
 function getTabNameAr(tab) {
-    const names = { categories: 'التصنيفات', classes: 'الفئات العمرية', sizes: 'المقاسات', colors: 'الألوان' };
+    const names = { 
+        categories: 'التصنيفات الرئيسية', 
+        classifications_1: 'تصنيف 1', 
+        classifications_2: 'تصنيف 2', 
+        classes: 'الفئات العمرية', 
+        sizes: 'المقاسات', 
+        colors: 'الألوان' 
+    };
     return names[tab] || '';
 }
 
@@ -349,8 +448,12 @@ window.openColorExcelModal = () => {
     document.getElementById('color-excel-file-name').textContent = 'اسحب الملف هنا أو اضغط للاختيار';
     pendingExcelColors = [];
     
-    // تحميل قوالب المصانع في القائمة المنسدلة
+    // تحميل القالب المفعل من الإعدادات وتحديث البطاقة
     getExcelProfiles().then(profiles => {
+        const def = getActiveExcelProfile(profiles);
+        const nameEl = document.getElementById('color-active-profile-name');
+        if (nameEl && def) nameEl.textContent = def.name;
+
         const sel = document.getElementById('color-excel-profile-select');
         if (sel && profiles) {
             sel.innerHTML = profiles.map(p => `
@@ -358,6 +461,7 @@ window.openColorExcelModal = () => {
                     ${p.name} ${p.is_default ? '★ (افتراضي)' : ''}
                 </option>
             `).join('');
+            if (def) sel.value = def.id;
         }
     });
 

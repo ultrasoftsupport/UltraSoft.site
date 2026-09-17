@@ -29,6 +29,7 @@ const STORAGE_LAST_FOLDER_KEY = 'ultrasoft_last_drive_folder';
 export async function initImportImagesView() {
     renderLastSyncCard();
     checkApiKeyStatus();
+    loadDefaultModelImageConfig();
 
     // Restore last folder if saved
     const savedFolder = localStorage.getItem(STORAGE_LAST_FOLDER_KEY);
@@ -1763,3 +1764,229 @@ function closeLightbox() {
         modal.classList.remove('flex');
     }
 }
+
+// ==========================================
+// 🖼️ 11. إعدادات الصورة الافتراضية للموديلات (Default Model Image)
+// ==========================================
+const DEFAULT_FALLBACK_IMG = './src/assets/icons/devo.png';
+
+function getDefaultModelImgCacheKey(tenantId) {
+    return `devo_default_model_img_${tenantId || 'default'}`;
+}
+
+export async function loadDefaultModelImageConfig() {
+    const tenantId = getCurrentTenantId();
+    const previewEl = document.getElementById('default-model-img-preview');
+    const inputEl = document.getElementById('default-model-img-url');
+    
+    // 1. القراءة الفورية من الكاش المحلي لمنع الوميض
+    const cached = localStorage.getItem(getDefaultModelImgCacheKey(tenantId));
+    if (cached) {
+        if (previewEl) previewEl.src = cached;
+        if (inputEl && !inputEl.value && !cached.startsWith('data:image')) inputEl.value = cached;
+        window.tenantDefaultModelImage = cached;
+    }
+
+    // 2. التحميل من قاعدة البيانات (home_settings)
+    try {
+        let query = supabase
+            .from('home_settings')
+            .select('setting_value')
+            .eq('setting_key', 'default_model_image');
+        
+        if (tenantId) {
+            query = query.eq('tenant_id', tenantId);
+        }
+
+        const { data, error } = await query.maybeSingle();
+        if (!error && data && data.setting_value) {
+            const val = data.setting_value.trim();
+            if (previewEl) previewEl.src = val;
+            if (inputEl && !inputEl.value && !val.startsWith('data:image')) inputEl.value = val;
+            localStorage.setItem(getDefaultModelImgCacheKey(tenantId), val);
+            window.tenantDefaultModelImage = val;
+        } else if (!error && !data) {
+            if (!cached) {
+                if (previewEl) previewEl.src = DEFAULT_FALLBACK_IMG;
+            }
+        }
+    } catch (err) {
+        console.warn('Could not load default_model_image from home_settings:', err);
+    }
+}
+
+// ضغط وتصغير الصورة قبل الحفظ لتكون خفيفة وسريعة في الحفظ والعرض
+function compressImage(file, maxDimension = 800, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                let dataUrl = canvas.toDataURL('image/webp', quality);
+                if (!dataUrl.startsWith('data:image/webp')) {
+                    dataUrl = canvas.toDataURL('image/jpeg', quality);
+                }
+                resolve(dataUrl);
+            };
+            img.onerror = () => reject(new Error('فشل قراءة ملف الصورة'));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('فشل قراءة الملف'));
+        reader.readAsDataURL(file);
+    });
+}
+
+function showDefaultImgStatusBadge(msg = 'تم تحديث الصورة الافتراضية بنجاح') {
+    const badge = document.getElementById('default-img-status-badge');
+    if (!badge) return;
+    badge.innerHTML = `<i class="ph-bold ph-check-circle"></i> ${escapeHtml(msg)}`;
+    badge.classList.remove('hidden');
+    badge.classList.add('flex');
+    setTimeout(() => {
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+    }, 4000);
+}
+
+// دالة حفظ الصورة من الرابط المكتوب
+window.saveDefaultModelImageFromInput = async function() {
+    const inputEl = document.getElementById('default-model-img-url');
+    const previewEl = document.getElementById('default-model-img-preview');
+    const rawUrl = inputEl ? inputEl.value.trim() : '';
+
+    if (!rawUrl) {
+        showToast('يرجى إدخال رابط الصورة أولاً', 'warning');
+        return;
+    }
+
+    // تطبيع روابط Google Drive إذا كانت مدخلة
+    let finalUrl = rawUrl;
+    if (finalUrl.includes('drive.google.com') || finalUrl.includes('drive.usercontent.google.com')) {
+        const idMatch = finalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (idMatch && idMatch[1]) {
+            finalUrl = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+        }
+    }
+
+    try {
+        const tenantId = getCurrentTenantId();
+        const payload = {
+            tenant_id: tenantId,
+            setting_key: 'default_model_image',
+            setting_value: finalUrl,
+            description: 'الصورة الافتراضية للموديلات عند عدم وجود صورة'
+        };
+
+        const { error } = await supabase
+            .from('home_settings')
+            .upsert(payload, { onConflict: 'tenant_id,setting_key' });
+
+        if (error) throw error;
+
+        localStorage.setItem(getDefaultModelImgCacheKey(tenantId), finalUrl);
+        window.tenantDefaultModelImage = finalUrl;
+        if (previewEl) previewEl.src = finalUrl;
+
+        showDefaultImgStatusBadge('تم حفظ وتطبيق الرابط بنجاح');
+        showToast('تم حفظ الصورة الافتراضية بنجاح ✓', 'success');
+    } catch (err) {
+        console.error('Error saving default model image:', err);
+        showToast('فشل حفظ الصورة الافتراضية: ' + (err.message || err), 'error');
+    }
+};
+
+// دالة رفع صورة من الجهاز
+window.handleUploadDefaultModelImage = async function(input) {
+    if (!input || !input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+        showToast('يرجى اختيار ملف صورة صالح', 'error');
+        return;
+    }
+
+    const previewEl = document.getElementById('default-model-img-preview');
+    const inputEl = document.getElementById('default-model-img-url');
+
+    try {
+        showToast('جاري معالجة وضغط الصورة...', 'info');
+        const compressedDataUrl = await compressImage(file, 800, 0.85);
+
+        const tenantId = getCurrentTenantId();
+        const payload = {
+            tenant_id: tenantId,
+            setting_key: 'default_model_image',
+            setting_value: compressedDataUrl,
+            description: 'الصورة الافتراضية للموديلات عند عدم وجود صورة'
+        };
+
+        const { error } = await supabase
+            .from('home_settings')
+            .upsert(payload, { onConflict: 'tenant_id,setting_key' });
+
+        if (error) throw error;
+
+        localStorage.setItem(getDefaultModelImgCacheKey(tenantId), compressedDataUrl);
+        window.tenantDefaultModelImage = compressedDataUrl;
+        if (previewEl) previewEl.src = compressedDataUrl;
+        if (inputEl) inputEl.value = ''; // تم الرفع كملف
+
+        showDefaultImgStatusBadge('تم رفع وحفظ الصورة بنجاح');
+        showToast('تم حفظ وتعيين الصورة الافتراضية للمصنع بنجاح ✓', 'success');
+    } catch (err) {
+        console.error('Error uploading default model image:', err);
+        showToast('حدث خطأ أثناء رفع الصورة: ' + (err.message || err), 'error');
+    } finally {
+        input.value = ''; // reset file input
+    }
+};
+
+// دالة استعادة الشعار الافتراضي
+window.resetDefaultModelImage = async function() {
+    const isConfirmed = await confirmDialog({
+        title: 'استعادة الصورة الافتراضية',
+        message: 'هل تريد حذف الصورة المخصصة والعودة لشعار UltraSoft الافتراضي لجميع الموديلات التي ليس لها صور؟',
+        confirmText: 'نعم، استعادة',
+        cancelText: 'إلغاء'
+    });
+    if (!isConfirmed) return;
+
+    try {
+        const tenantId = getCurrentTenantId();
+        let query = supabase
+            .from('home_settings')
+            .delete()
+            .eq('setting_key', 'default_model_image');
+        if (tenantId) query = query.eq('tenant_id', tenantId);
+        
+        await query;
+
+        localStorage.removeItem(getDefaultModelImgCacheKey(tenantId));
+        window.tenantDefaultModelImage = null;
+
+        const previewEl = document.getElementById('default-model-img-preview');
+        const inputEl = document.getElementById('default-model-img-url');
+        if (previewEl) previewEl.src = DEFAULT_FALLBACK_IMG;
+        if (inputEl) inputEl.value = '';
+
+        showToast('تمت استعادة شعار UltraSoft الافتراضي بنجاح', 'success');
+    } catch (err) {
+        console.error('Error resetting default model image:', err);
+        showToast('فشل استعادة الشعار: ' + (err.message || err), 'error');
+    }
+};

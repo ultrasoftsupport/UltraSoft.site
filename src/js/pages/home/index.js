@@ -1,11 +1,12 @@
 import { initNavbar } from './navbar.js?v=8.5';
 import { initGallery } from './gallery.js?v=8.5';
 import { initHomeContent } from './home_content.js?v=8.5';
-import { initCart } from './cart.js?v=8.5';
-import { initOrdersView } from './orders.js?v=8.5';
+import { initCart } from './cart.js?v=8.7';
+import { initOrdersView } from './orders.js?v=8.7';
 import { initBarcode } from './barcode.js?v=8.5';
 import { initFooter } from './footer_renderer.js?v=8.5';
 import { initLandingPage } from './ultrasoft_landing.js?v=8.5';
+import { initUltraSoftMall } from './ultrasoft_mall.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
 import { initializeTenantContext, getCurrentTenantId, getCurrentTenant, applyTenantBranding } from '../../services/tenant_service.js?v=8.5';
@@ -20,10 +21,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     initNetworkStatusMonitor();
 
     // تزامن المظهر النشط من قاعدة البيانات
-    syncActiveTheme();
+    await syncActiveTheme();
 
-    // تهيئة واجهة ألتراسوفت التسويقية والاشتراكات
+    // الاستماع لأي تغيير حي في المظهر
+    window.addEventListener('ultrasoft:themeChanged', (e) => {
+        if (e.detail) {
+            import('../../services/theme.js').then(m => m.applyTheme(e.detail));
+        }
+    });
+
+    // تهيئة واجهة ألتراسوفت التسويقية ومول ألترا سوفت الرقمي
     initLandingPage();
+    initUltraSoftMall();
     
     // التحقق من الجلسة وصلاحية البائع/المبيعات المنعزلة لهذا المصنع
     const { session } = getCurrentSession();

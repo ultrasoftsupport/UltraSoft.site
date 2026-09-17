@@ -807,6 +807,13 @@ export function applyTheme(theme) {
   const grayColor = colors.borders?.color || defaultGray;
   const grayHoverColor = colors.brand?.secondary_hover || defaultGrayHover;
 
+  // Set data-theme on root & body for instant token alignment
+  document.documentElement.setAttribute('data-theme', isLightPageBg ? 'light' : 'dark');
+  if (document.body) {
+    document.body.classList.toggle('light-theme', isLightPageBg);
+    document.body.classList.toggle('dark-theme', !isLightPageBg);
+  }
+
   // 2. Build CSS Variables block
   let cssText = `
     :root {
@@ -921,6 +928,38 @@ export function applyTheme(theme) {
   cssText += `
     .shadow-devo-float, .shadow-2xl {
       box-shadow: var(--shadow-devo-float) !important;
+    }
+
+    /* Universal Modal and Dialog Theme Consistency Across Platform */
+    .modal, [id$="-modal"], [id$="-dialog"], div[role="dialog"] {
+      color: var(--devo-text) !important;
+    }
+    .modal > div:not(#barcode-preview-card), 
+    [id$="-modal"] > div:not(#barcode-preview-card), 
+    [id$="-dialog"] > div, 
+    .dialog-content, 
+    div[role="dialog"] > div, 
+    .swal2-popup {
+      background-color: var(--devo-dark) !important;
+      border-color: var(--devo-gray) !important;
+      color: var(--devo-text) !important;
+    }
+
+    /* Form Controls inside Modals */
+    .modal input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([data-keep-style]),
+    .modal select:not([data-keep-style]),
+    .modal textarea:not([data-keep-style]),
+    [id$="-modal"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([data-keep-style]),
+    [id$="-modal"] select:not([data-keep-style]),
+    [id$="-modal"] textarea:not([data-keep-style]) {
+      background-color: var(--devo-dark) !important;
+      border-color: var(--devo-gray) !important;
+      color: var(--devo-text) !important;
+    }
+
+    /* Modal Labels */
+    .modal label, [id$="-modal"] label {
+      color: var(--devo-text);
     }
   `;
 
@@ -1356,21 +1395,8 @@ export async function syncActiveTheme() {
     let activeThemeId = null;
 
     if (currentTenantId) {
-      // 1. محاولة القراءة من جدول tenant_branding_settings المنظم أولاً
+      // 1. قراءة المظهر المفعل للمصنع من جدول إعدادات الموقع home_settings
       try {
-        const { data: brandRow } = await supabase
-          .from('tenant_branding_settings')
-          .select('active_theme_id')
-          .eq('tenant_id', currentTenantId)
-          .maybeSingle();
-
-        if (brandRow && brandRow.active_theme_id) {
-          activeThemeId = brandRow.active_theme_id;
-        }
-      } catch (err) {}
-
-      // 2. كاش احتياطي من home_settings
-      if (!activeThemeId) {
         const { data: tenantSetting } = await supabase
           .from('home_settings')
           .select('setting_value')
@@ -1381,6 +1407,21 @@ export async function syncActiveTheme() {
         if (tenantSetting && tenantSetting.setting_value) {
           activeThemeId = tenantSetting.setting_value;
         }
+      } catch (err) {}
+
+      // 2. كاش احتياطي من جدول tenant_branding_settings
+      if (!activeThemeId) {
+        try {
+          const { data: brandRow } = await supabase
+            .from('tenant_branding_settings')
+            .select('active_theme_id')
+            .eq('tenant_id', currentTenantId)
+            .maybeSingle();
+
+          if (brandRow && brandRow.active_theme_id) {
+            activeThemeId = brandRow.active_theme_id;
+          }
+        } catch (err) {}
       }
     }
 
@@ -1443,8 +1484,10 @@ function updateCacheAndApply(dbTheme, tenantId = '') {
     animations: themeData.animations || {},
     visuals: themeData.visuals || {}
   };
-  const key = tenantId ? `ultrasoft_active_theme_${tenantId}` : 'ultrasoft_active_theme';
-  localStorage.setItem(key, JSON.stringify(themeObj));
+  if (tenantId) {
+    localStorage.setItem(`ultrasoft_active_theme_${tenantId}`, JSON.stringify(themeObj));
+  }
+  localStorage.setItem('ultrasoft_active_theme', JSON.stringify(themeObj));
   localStorage.setItem('devo_active_theme', JSON.stringify(themeObj));
   applyTheme(themeObj);
 }
@@ -1489,6 +1532,19 @@ export async function loadAllThemes() {
           activeThemeIdFromSettings = setRes.setting_value;
         }
       } catch (e) {}
+
+      if (!activeThemeIdFromSettings) {
+        try {
+          const { data: brandRow } = await supabase
+            .from('tenant_branding_settings')
+            .select('active_theme_id')
+            .eq('tenant_id', currentTenantId)
+            .maybeSingle();
+          if (brandRow && brandRow.active_theme_id) {
+            activeThemeIdFromSettings = brandRow.active_theme_id;
+          }
+        } catch (e) {}
+      }
     }
 
     if (data && data.length > 0) {
@@ -1617,7 +1673,7 @@ export async function activateTheme(themeId) {
   if (!themeId) return null;
   const currentTenantId = getCurrentTenantId();
 
-  // 1. Save active theme for this tenant in tenant_branding_settings and home_settings
+  // 1. Save active theme for this tenant in tenant_branding_settings and home_settings simultaneously
   if (currentTenantId) {
     try {
       await supabase
@@ -1645,10 +1701,15 @@ export async function activateTheme(themeId) {
     }
   }
 
-  // 2. Update is_active flag in database gracefully
+  // 2. Update is_active flag in database
   try {
-    await supabase.from('themes').update({ is_active: false }).neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('themes').update({ is_active: true }).eq('id', themeId);
+    if (currentTenantId) {
+      await supabase.from('themes').update({ is_active: false }).eq('tenant_id', currentTenantId);
+      await supabase.from('themes').update({ is_active: true }).eq('id', themeId);
+    } else {
+      await supabase.from('themes').update({ is_active: false }).neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('themes').update({ is_active: true }).eq('id', themeId);
+    }
   } catch (e) {
     console.warn('Theme is_active update notice:', e.message);
   }
@@ -1663,6 +1724,9 @@ export async function activateTheme(themeId) {
 
     if (targetTheme) {
       updateCacheAndApply(targetTheme, currentTenantId);
+      try {
+        window.dispatchEvent(new CustomEvent('ultrasoft:themeChanged', { detail: targetTheme }));
+      } catch (evErr) {}
       return targetTheme;
     }
   } catch (err) {
@@ -1681,6 +1745,9 @@ export async function activateTheme(themeId) {
     variables: targetTheme
   };
   updateCacheAndApply(fullObj, currentTenantId);
+  try {
+    window.dispatchEvent(new CustomEvent('ultrasoft:themeChanged', { detail: fullObj }));
+  } catch (evErr) {}
   return fullObj;
 }
 

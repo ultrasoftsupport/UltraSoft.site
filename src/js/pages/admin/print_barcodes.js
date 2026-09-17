@@ -192,7 +192,7 @@ export async function fetchBarcodeModels() {
                 .select(`
                     *, 
                     categories(name), 
-                    classes(name, class_sizes(size_id)),
+                    classes(name, class_sizes(size_id, sort_order)),
                     model_sizes(size_id),
                     model_inventory(color_id, available_series, colors(name)),
                     model_images(image_url)
@@ -500,7 +500,8 @@ function updateBarcodeActionBar() {
 function getModelSizesString(m) {
     let sizeNames = [];
     if (m.classes?.class_sizes && m.classes.class_sizes.length > 0) {
-        sizeNames = m.classes.class_sizes.map(cs => sizesMap[cs.size_id] || cs.size_id);
+        const sortedClassSizes = [...m.classes.class_sizes].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        sizeNames = sortedClassSizes.map(cs => sizesMap[cs.size_id] || cs.size_id);
     } else if (m.model_sizes && m.model_sizes.length > 0) {
         sizeNames = m.model_sizes.map(ms => sizesMap[ms.size_id] || ms.size_id);
     }
@@ -547,7 +548,7 @@ function loadScript(url) {
 
 // دالة إخفاء/تفعيل مدخلات عدد النسخ الثابت
 window.toggleBarcodeQtyInput = () => {
-    const qtyMode = document.getElementById('bulk-barcode-qty-mode').value;
+    const qtyMode = document.getElementById('bulk-barcode-qty-mode')?.value;
     const container = document.getElementById('bulk-barcode-fixed-qty-container');
     if (container) {
         const input = container.querySelector('input');
@@ -563,24 +564,66 @@ window.toggleBarcodeQtyInput = () => {
 
 // دالة تحديث المعاينة الحية للملصق بداخل المودال
 window.updateBarcodePreview = () => {
-    const codeType = document.getElementById('bulk-barcode-type').value;
-    const valueSource = document.getElementById('bulk-barcode-value-source').value;
+    const codeType = document.getElementById('bulk-barcode-type')?.value || 'barcode';
+    const valueSource = document.getElementById('bulk-barcode-value-source')?.value || 'factory';
     
-    const paperW = parseFloat(document.getElementById('bulk-barcode-paper-w').value) || 4;
-    const paperH = parseFloat(document.getElementById('bulk-barcode-paper-h').value) || 5;
+    const paperW = parseFloat(document.getElementById('bulk-barcode-paper-w')?.value) || 4;
+    const paperH = parseFloat(document.getElementById('bulk-barcode-paper-h')?.value) || 5;
     
-    const fontName = parseInt(document.getElementById('bulk-barcode-font-size-name').value, 10) || 11;
-    const fontDetails = parseInt(document.getElementById('bulk-barcode-font-size-details').value, 10) || 9;
-    const fontPrice = parseInt(document.getElementById('bulk-barcode-font-size-price').value, 10) || 12;
+    const fontName = parseInt(document.getElementById('bulk-barcode-font-size-name')?.value, 10) || 11;
+    const fontCode = parseInt(document.getElementById('bulk-barcode-font-size-code')?.value, 10) || 10;
+    const fontDetails = parseInt(document.getElementById('bulk-barcode-font-size-details')?.value, 10) || 9;
+    const fontPrice = parseInt(document.getElementById('bulk-barcode-font-size-price')?.value, 10) || 12;
     
-    const showName = document.getElementById('bulk-barcode-show-name').checked;
-    const showCode = document.getElementById('bulk-barcode-show-code').checked;
-    const showSizes = document.getElementById('bulk-barcode-show-sizes').checked;
-    const showPrice = document.getElementById('bulk-barcode-show-price').checked;
-    const showColors = document.getElementById('bulk-barcode-show-colors').checked;
-    const colorDist = document.getElementById('bulk-barcode-color-dist').value;
+    const boldCode = document.getElementById('bulk-barcode-bold-code')?.checked !== false;
+    const colorInline = document.getElementById('bulk-barcode-color-inline')?.checked !== false;
 
-    // ضبط أبعاد كرت المعاينة
+    const showName = document.getElementById('bulk-barcode-show-name')?.checked !== false;
+    const showCode = document.getElementById('bulk-barcode-show-code')?.checked !== false;
+    const showSizes = document.getElementById('bulk-barcode-show-sizes')?.checked !== false;
+    const showPrice = document.getElementById('bulk-barcode-show-price')?.checked !== false;
+    const showColors = document.getElementById('bulk-barcode-show-colors')?.checked !== false;
+    const skipZeroStock = document.getElementById('bulk-barcode-skip-zero-stock-colors')?.checked !== false;
+
+    const qtyMode = document.getElementById('bulk-barcode-qty-mode')?.value || 'fixed';
+    const fixedQty = parseInt(document.getElementById('bulk-barcode-fixed-qty')?.value, 10) || 1;
+
+    // 1. تحديث شارة الأبعاد
+    const dimBadge = document.getElementById('barcode-prev-dimensions-badge');
+    if (dimBadge) {
+        dimBadge.textContent = `${paperW} × ${paperH} سم`;
+    }
+
+    // 2. تحديث لافتة وعداد إجمالي الملصقات التفاعلي
+    const totalCountEl = document.getElementById('barcode-preview-total-count');
+    const copiesDescEl = document.getElementById('barcode-preview-copies-desc');
+    const selectedModels = barcodeAllModels.filter(m => selectedBarcodeModelIds.has(m.id));
+
+    if (totalCountEl && copiesDescEl) {
+        if (qtyMode === 'by_color') {
+            let totalCopies = 0;
+            selectedModels.forEach(m => {
+                let count = 0;
+                if (m.model_inventory && m.model_inventory.length > 0) {
+                    let invs = m.model_inventory;
+                    if (skipZeroStock) {
+                        invs = invs.filter(inv => (inv.available_series || 0) > 0);
+                    }
+                    const clrs = [...new Set(invs.map(inv => inv.color_id).filter(Boolean))];
+                    count = clrs.length;
+                }
+                totalCopies += Math.max(1, count);
+            });
+            totalCountEl.textContent = totalCopies;
+            copiesDescEl.textContent = 'حسب ألوان الموديل';
+        } else {
+            const total = selectedBarcodeModelIds.size * fixedQty;
+            totalCountEl.textContent = total;
+            copiesDescEl.textContent = `${fixedQty} لكل موديل`;
+        }
+    }
+
+    // 3. ضبط أبعاد كرت المعاينة
     const previewCard = document.getElementById('barcode-preview-card');
     if (previewCard) {
         previewCard.style.width = `${paperW}cm`;
@@ -588,7 +631,7 @@ window.updateBarcodePreview = () => {
         previewCard.style.padding = `${Math.min(paperW, paperH) * 0.08}cm`;
     }
 
-    // إظهار/إخفاء الحقول وضبط الخط بشكل منفصل
+    // 4. إظهار/إخفاء الحقول وضبط الخط والوزن بشكل منفصل
     const prevName = document.getElementById('prev-name');
     const prevCode = document.getElementById('prev-code');
     const prevSizes = document.getElementById('prev-sizes');
@@ -601,20 +644,26 @@ window.updateBarcodePreview = () => {
     }
     if (prevCode) {
         prevCode.style.display = showCode ? 'block' : 'none';
-        prevCode.style.fontSize = `${fontDetails}px`;
+        prevCode.style.fontSize = `${fontCode}px`;
+        prevCode.style.fontWeight = boldCode ? 'bold' : 'normal';
+        if (colorInline) {
+            prevCode.textContent = showColors ? 'CODE12345 - أحمر' : 'CODE12345';
+            if (prevColors) prevColors.style.display = 'none';
+        } else {
+            prevCode.textContent = 'CODE12345';
+            if (prevColors) {
+                prevColors.style.display = showColors ? 'block' : 'none';
+                prevColors.textContent = 'أحمر، أسود، أزرق';
+            }
+        }
     }
     if (prevSizes) {
         prevSizes.style.display = showSizes ? 'block' : 'none';
         prevSizes.style.fontSize = `${fontDetails}px`;
     }
-    if (prevColors) {
+    if (prevColors && !colorInline) {
         prevColors.style.display = showColors ? 'block' : 'none';
         prevColors.style.fontSize = `${fontDetails}px`;
-        if (colorDist === 'separate') {
-            prevColors.textContent = 'أحمر (مثال لون منفرد)';
-        } else {
-            prevColors.textContent = 'أحمر، أسود، أزرق';
-        }
     }
     if (prevPrice) {
         prevPrice.style.display = showPrice ? 'block' : 'none';
@@ -622,16 +671,16 @@ window.updateBarcodePreview = () => {
         prevPrice.style.paddingTop = `${fontPrice * 0.2}px`;
     }
 
-    // رسم الكود التجريبي
+    // 5. رسم الكود التجريبي
     const barcodeSvg = document.getElementById('prev-barcode-svg');
     const qrcodeImg = document.getElementById('prev-qrcode-img');
-    const sampleValue = 'DEVO-12345';
+    const sampleValue = 'CODE12345';
 
     if (codeType === 'barcode') {
-        barcodeSvg.classList.remove('hidden');
-        qrcodeImg.classList.add('hidden');
+        if (barcodeSvg) barcodeSvg.classList.remove('hidden');
+        if (qrcodeImg) qrcodeImg.classList.add('hidden');
         try {
-            if (typeof JsBarcode !== 'undefined') {
+            if (typeof JsBarcode !== 'undefined' && barcodeSvg) {
                 JsBarcode(barcodeSvg, sampleValue, {
                     format: "CODE128",
                     width: 1.8,
@@ -644,23 +693,23 @@ window.updateBarcodePreview = () => {
             console.error("Preview JsBarcode error:", e);
         }
     } else {
-        barcodeSvg.classList.add('hidden');
-        qrcodeImg.classList.remove('hidden');
+        if (barcodeSvg) barcodeSvg.classList.add('hidden');
+        if (qrcodeImg) qrcodeImg.classList.remove('hidden');
         if (typeof QRCode !== 'undefined') {
             QRCode.toDataURL(sampleValue, { width: 250, margin: 1 })
-                .then(url => { qrcodeImg.src = url; })
+                .then(url => { if (qrcodeImg) qrcodeImg.src = url; })
                 .catch(err => {
                     console.error("Local QRCode error:", err);
-                    qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(sampleValue)}`;
+                    if (qrcodeImg) qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(sampleValue)}`;
                 });
-        } else {
+        } else if (qrcodeImg) {
             qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(sampleValue)}`;
         }
     }
 };
 
 window.openBulkBarcodeModal = async () => {
-    if (selectedBarcodeModelIds.size === 0) {
+    if (!selectedBarcodeModelIds || selectedBarcodeModelIds.size === 0) {
         return showToast('الرجاء تحديد موديل واحد على الأقل أولاً', 'warning');
     }
 
@@ -672,23 +721,31 @@ window.openBulkBarcodeModal = async () => {
     }
 
     // تهيئة واستدعاء القوالب المحفوظة
-    window.initBarcodeTemplates();
+    if (typeof window.initBarcodeTemplates === 'function') {
+        window.initBarcodeTemplates();
+    }
 
     const countEl = document.getElementById('bulk-barcode-count');
     if (countEl) countEl.textContent = selectedBarcodeModelIds.size;
 
     const modal = document.getElementById('bulk-barcode-modal');
+    if (!modal) {
+        console.error("bulk-barcode-modal element not found in DOM");
+        return;
+    }
+
     modal.classList.remove('hidden');
-    setTimeout(() => {
+    modal.classList.add('flex');
+    requestAnimationFrame(() => {
         modal.classList.remove('opacity-0');
-        modal.classList.add('flex');
-        window.toggleBarcodeQtyInput();
-        window.updateBarcodePreview();
-    }, 10);
+        if (typeof window.toggleBarcodeQtyInput === 'function') window.toggleBarcodeQtyInput();
+        if (typeof window.updateBarcodePreview === 'function') window.updateBarcodePreview();
+    });
 };
 
 window.closeBulkBarcodeModal = () => {
     const modal = document.getElementById('bulk-barcode-modal');
+    if (!modal) return;
     modal.classList.add('opacity-0');
     setTimeout(() => {
         modal.classList.add('hidden');
@@ -699,31 +756,45 @@ window.closeBulkBarcodeModal = () => {
 window.generateAndPrintBulkBarcodes = () => {
     if (selectedBarcodeModelIds.size === 0) return showToast('الرجاء تحديد موديل واحد على الأقل أولاً', 'warning');
 
-    const codeType = document.getElementById('bulk-barcode-type').value;
-    const valueSource = document.getElementById('bulk-barcode-value-source').value;
+    const codeType = document.getElementById('bulk-barcode-type')?.value || 'barcode';
+    const valueSource = document.getElementById('bulk-barcode-value-source')?.value || 'factory';
+    const sortOrder = document.getElementById('bulk-barcode-sort-order')?.value || 'table';
     
-    const paperW = parseFloat(document.getElementById('bulk-barcode-paper-w').value) || 4;
-    const paperH = parseFloat(document.getElementById('bulk-barcode-paper-h').value) || 5;
+    const paperW = parseFloat(document.getElementById('bulk-barcode-paper-w')?.value) || 4;
+    const paperH = parseFloat(document.getElementById('bulk-barcode-paper-h')?.value) || 5;
     
-    const fontName = parseInt(document.getElementById('bulk-barcode-font-size-name').value, 10) || 11;
-    const fontDetails = parseInt(document.getElementById('bulk-barcode-font-size-details').value, 10) || 9;
-    const fontPrice = parseInt(document.getElementById('bulk-barcode-font-size-price').value, 10) || 12;
+    const fontName = parseInt(document.getElementById('bulk-barcode-font-size-name')?.value, 10) || 11;
+    const fontCode = parseInt(document.getElementById('bulk-barcode-font-size-code')?.value, 10) || 10;
+    const fontDetails = parseInt(document.getElementById('bulk-barcode-font-size-details')?.value, 10) || 9;
+    const fontPrice = parseInt(document.getElementById('bulk-barcode-font-size-price')?.value, 10) || 12;
     
-    const showName = document.getElementById('bulk-barcode-show-name').checked;
-    const showCode = document.getElementById('bulk-barcode-show-code').checked;
-    const showSizes = document.getElementById('bulk-barcode-show-sizes').checked;
-    const showPrice = document.getElementById('bulk-barcode-show-price').checked;
-    const showColors = document.getElementById('bulk-barcode-show-colors').checked;
-    const skipZeroStock = document.getElementById('bulk-barcode-skip-zero-stock-colors').checked;
+    const boldCode = document.getElementById('bulk-barcode-bold-code')?.checked !== false;
+    const colorInline = document.getElementById('bulk-barcode-color-inline')?.checked !== false;
 
-    const qtyMode = document.getElementById('bulk-barcode-qty-mode').value;
-    const fixedQty = parseInt(document.getElementById('bulk-barcode-fixed-qty').value, 10) || 1;
-    const colorDist = document.getElementById('bulk-barcode-color-dist').value;
+    const showName = document.getElementById('bulk-barcode-show-name')?.checked !== false;
+    const showCode = document.getElementById('bulk-barcode-show-code')?.checked !== false;
+    const showSizes = document.getElementById('bulk-barcode-show-sizes')?.checked !== false;
+    const showPrice = document.getElementById('bulk-barcode-show-price')?.checked !== false;
+    const showColors = document.getElementById('bulk-barcode-show-colors')?.checked !== false;
+    const skipZeroStock = document.getElementById('bulk-barcode-skip-zero-stock-colors')?.checked !== false;
+
+    const qtyMode = document.getElementById('bulk-barcode-qty-mode')?.value || 'fixed';
+    const fixedQty = parseInt(document.getElementById('bulk-barcode-fixed-qty')?.value, 10) || 1;
+    const colorDist = document.getElementById('bulk-barcode-color-dist')?.value || 'separate';
 
     // Get selected models data
-    const selectedModels = barcodeAllModels.filter(m => selectedBarcodeModelIds.has(m.id));
+    let selectedModels = barcodeAllModels.filter(m => selectedBarcodeModelIds.has(m.id));
 
     if (selectedModels.length === 0) return showToast('الموديلات المحددة غير متوفرة', 'error');
+
+    // ترتيب الموديلات حسب الخيار المحدد
+    if (sortOrder === 'factory_asc') {
+        selectedModels.sort((a, b) => String(a.factory_code || '').localeCompare(String(b.factory_code || ''), undefined, { numeric: true, sensitivity: 'base' }));
+    } else if (sortOrder === 'factory_desc') {
+        selectedModels.sort((a, b) => String(b.factory_code || '').localeCompare(String(a.factory_code || ''), undefined, { numeric: true, sensitivity: 'base' }));
+    } else if (sortOrder === 'name_asc') {
+        selectedModels.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ar'));
+    }
 
     showToast('جاري تحضير الباركود للطباعة...', 'info');
 
@@ -775,9 +846,14 @@ window.generateAndPrintBulkBarcodes = () => {
             const copiesCount = colorsList.length;
             if (colorDist === 'separate') {
                 colorsList.forEach(color => {
+                    const hasCol = showColors && color;
+                    const codeDisplay = colorInline && hasCol 
+                        ? `${formattedValue} - ${color}` 
+                        : formattedValue;
                     labelsToPrint.push({
                         ...baseLabel,
-                        colorStr: showColors ? color : ''
+                        codeStr: codeDisplay,
+                        colorStr: colorInline ? '' : (showColors ? color : '')
                     });
                 });
             } else {
@@ -785,6 +861,7 @@ window.generateAndPrintBulkBarcodes = () => {
                 for (let i = 0; i < copiesCount; i++) {
                     labelsToPrint.push({
                         ...baseLabel,
+                        codeStr: formattedValue,
                         colorStr: allColorsJoined
                     });
                 }
@@ -793,10 +870,15 @@ window.generateAndPrintBulkBarcodes = () => {
             const copiesCount = Math.max(1, fixedQty);
             if (colorDist === 'separate') {
                 colorsList.forEach(color => {
+                    const hasCol = showColors && color;
+                    const codeDisplay = colorInline && hasCol 
+                        ? `${formattedValue} - ${color}` 
+                        : formattedValue;
                     for (let i = 0; i < copiesCount; i++) {
                         labelsToPrint.push({
                             ...baseLabel,
-                            colorStr: showColors ? color : ''
+                            codeStr: codeDisplay,
+                            colorStr: colorInline ? '' : (showColors ? color : '')
                         });
                     }
                 });
@@ -805,6 +887,7 @@ window.generateAndPrintBulkBarcodes = () => {
                 for (let i = 0; i < copiesCount; i++) {
                     labelsToPrint.push({
                         ...baseLabel,
+                        codeStr: formattedValue,
                         colorStr: allColorsJoined
                     });
                 }
@@ -863,8 +946,8 @@ window.generateAndPrintBulkBarcodes = () => {
             word-break: break-word;
         }
         .model-code {
-            font-size: ${fontDetails}px;
-            font-weight: 700;
+            font-size: ${fontCode}px;
+            font-weight: ${boldCode ? '700' : '400'};
             color: #000;
             margin-top: 1px;
             font-family: monospace;
@@ -935,7 +1018,7 @@ window.generateAndPrintBulkBarcodes = () => {
             
             labelDiv.innerHTML = '<div>' +
                 '<div class="model-name">' + lbl.name + '</div>' +
-                '<div class="model-code">' + (lbl.factory_code || lbl.system_code || '') + '</div>' +
+                '<div class="model-code">' + (lbl.codeStr || lbl.factory_code || lbl.system_code || '') + '</div>' +
                 (lbl.sizesStr ? '<div class="model-sizes">' + lbl.sizesStr + '</div>' : '') +
                 (lbl.colorStr ? '<div class="model-colors">' + lbl.colorStr + '</div>' : '') +
             '</div>' +
@@ -1028,8 +1111,12 @@ const DEFAULT_BARCODE_TEMPLATES = {
         paperW: 4,
         paperH: 5,
         fontName: 11,
+        fontCode: 10,
         fontDetails: 9,
         fontPrice: 12,
+        boldCode: true,
+        colorInline: true,
+        sortOrder: "table",
         showName: true,
         showCode: true,
         showSizes: true,
@@ -1038,7 +1125,7 @@ const DEFAULT_BARCODE_TEMPLATES = {
         valueSource: "factory",
         qtyMode: "fixed",
         fixedQty: 1,
-        colorDist: "all_together",
+        colorDist: "separate",
         showColors: true,
         skipZeroStockColors: true
     },
@@ -1047,8 +1134,12 @@ const DEFAULT_BARCODE_TEMPLATES = {
         paperW: 3,
         paperH: 4,
         fontName: 9,
+        fontCode: 8,
         fontDetails: 7,
         fontPrice: 10,
+        boldCode: true,
+        colorInline: true,
+        sortOrder: "table",
         showName: true,
         showCode: true,
         showSizes: false,
@@ -1057,7 +1148,7 @@ const DEFAULT_BARCODE_TEMPLATES = {
         valueSource: "factory",
         qtyMode: "fixed",
         fixedQty: 1,
-        colorDist: "all_together",
+        colorDist: "separate",
         showColors: true,
         skipZeroStockColors: true
     },
@@ -1066,8 +1157,12 @@ const DEFAULT_BARCODE_TEMPLATES = {
         paperW: 5,
         paperH: 5,
         fontName: 12,
+        fontCode: 11,
         fontDetails: 9,
         fontPrice: 13,
+        boldCode: true,
+        colorInline: true,
+        sortOrder: "table",
         showName: true,
         showCode: true,
         showSizes: true,
@@ -1076,7 +1171,7 @@ const DEFAULT_BARCODE_TEMPLATES = {
         valueSource: "system",
         qtyMode: "fixed",
         fixedQty: 1,
-        colorDist: "all_together",
+        colorDist: "separate",
         showColors: true,
         skipZeroStockColors: true
     }
@@ -1142,22 +1237,30 @@ window.loadBarcodeTemplate = () => {
     if (!template) return;
 
     // Set values to inputs
-    document.getElementById('bulk-barcode-type').value = template.codeType || 'barcode';
-    document.getElementById('bulk-barcode-value-source').value = template.valueSource || 'factory';
-    document.getElementById('bulk-barcode-paper-w').value = template.paperW || 4;
-    document.getElementById('bulk-barcode-paper-h').value = template.paperH || 5;
-    document.getElementById('bulk-barcode-font-size-name').value = template.fontName || 11;
-    document.getElementById('bulk-barcode-font-size-details').value = template.fontDetails || 9;
-    document.getElementById('bulk-barcode-font-size-price').value = template.fontPrice || 12;
-    document.getElementById('bulk-barcode-show-name').checked = template.showName !== false;
-    document.getElementById('bulk-barcode-show-code').checked = template.showCode !== false;
-    document.getElementById('bulk-barcode-show-sizes').checked = template.showSizes !== false;
-    document.getElementById('bulk-barcode-show-price').checked = template.showPrice !== false;
-    document.getElementById('bulk-barcode-qty-mode').value = template.qtyMode || 'fixed';
-    document.getElementById('bulk-barcode-fixed-qty').value = template.fixedQty || 1;
-    document.getElementById('bulk-barcode-color-dist').value = template.colorDist || 'all_together';
-    document.getElementById('bulk-barcode-show-colors').checked = template.showColors !== false;
-    document.getElementById('bulk-barcode-skip-zero-stock-colors').checked = template.skipZeroStockColors !== false;
+    if (document.getElementById('bulk-barcode-type')) document.getElementById('bulk-barcode-type').value = template.codeType || 'barcode';
+    if (document.getElementById('bulk-barcode-value-source')) document.getElementById('bulk-barcode-value-source').value = template.valueSource || 'factory';
+    if (document.getElementById('bulk-barcode-sort-order')) document.getElementById('bulk-barcode-sort-order').value = template.sortOrder || 'table';
+    if (document.getElementById('bulk-barcode-paper-w')) document.getElementById('bulk-barcode-paper-w').value = template.paperW || 4;
+    if (document.getElementById('bulk-barcode-paper-h')) document.getElementById('bulk-barcode-paper-h').value = template.paperH || 5;
+    
+    if (document.getElementById('bulk-barcode-font-size-name')) document.getElementById('bulk-barcode-font-size-name').value = template.fontName || 11;
+    if (document.getElementById('bulk-barcode-font-size-code')) document.getElementById('bulk-barcode-font-size-code').value = template.fontCode || 10;
+    if (document.getElementById('bulk-barcode-font-size-details')) document.getElementById('bulk-barcode-font-size-details').value = template.fontDetails || 9;
+    if (document.getElementById('bulk-barcode-font-size-price')) document.getElementById('bulk-barcode-font-size-price').value = template.fontPrice || 12;
+    
+    if (document.getElementById('bulk-barcode-bold-code')) document.getElementById('bulk-barcode-bold-code').checked = template.boldCode !== false;
+    if (document.getElementById('bulk-barcode-color-inline')) document.getElementById('bulk-barcode-color-inline').checked = template.colorInline !== false;
+
+    if (document.getElementById('bulk-barcode-show-name')) document.getElementById('bulk-barcode-show-name').checked = template.showName !== false;
+    if (document.getElementById('bulk-barcode-show-code')) document.getElementById('bulk-barcode-show-code').checked = template.showCode !== false;
+    if (document.getElementById('bulk-barcode-show-sizes')) document.getElementById('bulk-barcode-show-sizes').checked = template.showSizes !== false;
+    if (document.getElementById('bulk-barcode-show-price')) document.getElementById('bulk-barcode-show-price').checked = template.showPrice !== false;
+    
+    if (document.getElementById('bulk-barcode-qty-mode')) document.getElementById('bulk-barcode-qty-mode').value = template.qtyMode || 'fixed';
+    if (document.getElementById('bulk-barcode-fixed-qty')) document.getElementById('bulk-barcode-fixed-qty').value = template.fixedQty || 1;
+    if (document.getElementById('bulk-barcode-color-dist')) document.getElementById('bulk-barcode-color-dist').value = template.colorDist || 'separate';
+    if (document.getElementById('bulk-barcode-show-colors')) document.getElementById('bulk-barcode-show-colors').checked = template.showColors !== false;
+    if (document.getElementById('bulk-barcode-skip-zero-stock-colors')) document.getElementById('bulk-barcode-skip-zero-stock-colors').checked = template.skipZeroStockColors !== false;
 
     // Toggle qty input state
     window.toggleBarcodeQtyInput();
@@ -1186,22 +1289,26 @@ window.saveBarcodeTemplate = () => {
 
     saved[key] = {
         name: templateName,
-        codeType: document.getElementById('bulk-barcode-type').value,
-        valueSource: document.getElementById('bulk-barcode-value-source').value,
-        paperW: parseFloat(document.getElementById('bulk-barcode-paper-w').value) || 4,
-        paperH: parseFloat(document.getElementById('bulk-barcode-paper-h').value) || 5,
-        fontName: parseInt(document.getElementById('bulk-barcode-font-size-name').value, 10) || 11,
-        fontDetails: parseInt(document.getElementById('bulk-barcode-font-size-details').value, 10) || 9,
-        fontPrice: parseInt(document.getElementById('bulk-barcode-font-size-price').value, 10) || 12,
-        showName: document.getElementById('bulk-barcode-show-name').checked,
-        showCode: document.getElementById('bulk-barcode-show-code').checked,
-        showSizes: document.getElementById('bulk-barcode-show-sizes').checked,
-        showPrice: document.getElementById('bulk-barcode-show-price').checked,
-        qtyMode: document.getElementById('bulk-barcode-qty-mode').value,
-        fixedQty: parseInt(document.getElementById('bulk-barcode-fixed-qty').value, 10) || 1,
-        colorDist: document.getElementById('bulk-barcode-color-dist').value,
-        showColors: document.getElementById('bulk-barcode-show-colors').checked,
-        skipZeroStockColors: document.getElementById('bulk-barcode-skip-zero-stock-colors').checked
+        codeType: document.getElementById('bulk-barcode-type')?.value || 'barcode',
+        valueSource: document.getElementById('bulk-barcode-value-source')?.value || 'factory',
+        sortOrder: document.getElementById('bulk-barcode-sort-order')?.value || 'table',
+        paperW: parseFloat(document.getElementById('bulk-barcode-paper-w')?.value) || 4,
+        paperH: parseFloat(document.getElementById('bulk-barcode-paper-h')?.value) || 5,
+        fontName: parseInt(document.getElementById('bulk-barcode-font-size-name')?.value, 10) || 11,
+        fontCode: parseInt(document.getElementById('bulk-barcode-font-size-code')?.value, 10) || 10,
+        fontDetails: parseInt(document.getElementById('bulk-barcode-font-size-details')?.value, 10) || 9,
+        fontPrice: parseInt(document.getElementById('bulk-barcode-font-size-price')?.value, 10) || 12,
+        boldCode: document.getElementById('bulk-barcode-bold-code')?.checked !== false,
+        colorInline: document.getElementById('bulk-barcode-color-inline')?.checked !== false,
+        showName: document.getElementById('bulk-barcode-show-name')?.checked !== false,
+        showCode: document.getElementById('bulk-barcode-show-code')?.checked !== false,
+        showSizes: document.getElementById('bulk-barcode-show-sizes')?.checked !== false,
+        showPrice: document.getElementById('bulk-barcode-show-price')?.checked !== false,
+        qtyMode: document.getElementById('bulk-barcode-qty-mode')?.value || 'fixed',
+        fixedQty: parseInt(document.getElementById('bulk-barcode-fixed-qty')?.value, 10) || 1,
+        colorDist: document.getElementById('bulk-barcode-color-dist')?.value || 'separate',
+        showColors: document.getElementById('bulk-barcode-show-colors')?.checked !== false,
+        skipZeroStockColors: document.getElementById('bulk-barcode-skip-zero-stock-colors')?.checked !== false
     };
 
     localStorage.setItem('devo_barcode_templates', JSON.stringify(saved));

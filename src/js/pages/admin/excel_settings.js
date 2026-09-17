@@ -76,9 +76,17 @@ function renderProfilesSelector() {
 
     // تحديث أزرار الإجراءات
     const setDefaultBtn = document.getElementById('btn-set-default-profile');
+    const setDefaultText = document.getElementById('btn-set-default-text');
     if (setDefaultBtn) {
-        setDefaultBtn.disabled = !!activeProfile.is_default;
-        setDefaultBtn.classList.toggle('opacity-50', !!activeProfile.is_default);
+        if (activeProfile.is_default) {
+            setDefaultBtn.disabled = true;
+            setDefaultBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 cursor-default opacity-90 shadow-sm';
+            if (setDefaultText) setDefaultText.textContent = '✓ القالب مفعل ومعتمد للنظام حالياً';
+        } else {
+            setDefaultBtn.disabled = false;
+            setDefaultBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 hover:text-white border border-amber-500/50 cursor-pointer shadow-sm';
+            if (setDefaultText) setDefaultText.textContent = '★ تفعيل واعتماد هذا القالب للنظام';
+        }
     }
     const deleteBtn = document.getElementById('btn-delete-profile');
     if (deleteBtn) {
@@ -86,7 +94,52 @@ function renderProfilesSelector() {
         deleteBtn.disabled = !canDelete;
         deleteBtn.classList.toggle('opacity-50', !canDelete);
     }
+
+    updateActiveProfileDisplayAcrossApp();
 }
+
+/**
+ * 🌐 تحديث بطاقات القالب المفعل والمعتمد في كافة شاشات النظام تلقائياً
+ */
+export function updateActiveProfileDisplayAcrossApp(defaultProfile = null) {
+    const prof = defaultProfile || currentProfiles.find(p => p.is_default) || currentProfiles[0] || DEFAULT_EXCEL_PROFILE;
+    if (!prof) return;
+
+    const pName = prof.name || 'القالب الافتراضي القياسي (UltraSoft Standard)';
+
+    // 1. شاشة استيراد الأرصدة
+    const stockNameEl = document.getElementById('stock-active-profile-name');
+    if (stockNameEl) stockNameEl.textContent = pName;
+    const stockDescEl = document.getElementById('stock-active-profile-desc');
+    if (stockDescEl && prof.description) stockDescEl.textContent = prof.description;
+    const stockSel = document.getElementById('stock-excel-profile-select');
+    if (stockSel) {
+        stockSel.innerHTML = `<option value="${prof.id}" selected>${escapeHtml(pName)}</option>`;
+    }
+
+    // 2. نافذة استيراد الموديلات
+    const modelsNameEl = document.getElementById('models-active-profile-name');
+    if (modelsNameEl) modelsNameEl.textContent = pName;
+    const modelsSel = document.getElementById('models-excel-profile-select');
+    if (modelsSel) {
+        modelsSel.innerHTML = `<option value="${prof.id}" selected>${escapeHtml(pName)}</option>`;
+    }
+
+    // 3. نافذة استيراد الألوان
+    const colorNameEl = document.getElementById('color-active-profile-name');
+    if (colorNameEl) colorNameEl.textContent = pName;
+    const colorSel = document.getElementById('color-excel-profile-select');
+    if (colorSel) {
+        colorSel.innerHTML = `<option value="${prof.id}" selected>${escapeHtml(pName)}</option>`;
+    }
+
+    // 4. بادج وضع تعيين الكود في نافذة الموديل
+    const modelBadgeEl = document.getElementById('m-code-mode-profile-badge');
+    if (modelBadgeEl) {
+        modelBadgeEl.textContent = `القالب المفعل: ${pName}`;
+    }
+}
+window.updateActiveProfileDisplayAcrossApp = updateActiveProfileDisplayAcrossApp;
 
 /**
  * 📝 ملء جميع الحقول من بيانات القالب النشط
@@ -116,9 +169,12 @@ function populateFormFromActiveProfile() {
     setInputValue('mi-factory-strategy', m.factory_code_strategy || 'extract_from_name');
     setInputValue('mi-factory-code-cols', m.factory_code_columns || '');
     setInputValue('mi-price-cols', m.price_columns || '');
+    setInputValue('mi-discount-price-cols', m.discount_price_columns || DEFAULT_EXCEL_PROFILE.models_import.discount_price_columns || '');
     setInputValue('mi-wholesale-price-cols', m.wholesale_price_columns || '');
     setInputValue('mi-cost-price-cols', m.cost_price_columns || '');
     setInputValue('mi-cat-cols', m.category_columns || '');
+    setInputValue('mi-classification-1-cols', m.classification_1_columns || DEFAULT_EXCEL_PROFILE.models_import.classification_1_columns || '');
+    setInputValue('mi-classification-2-cols', m.classification_2_columns || DEFAULT_EXCEL_PROFILE.models_import.classification_2_columns || '');
     setCheckboxValue('mi-strip-zero', m.strip_dot_zero !== false);
 
     // 🔑 وضع تعيين الكود وحقول أكواد الألوان
@@ -142,6 +198,8 @@ function populateFormFromActiveProfile() {
     setInputValue('si-color-cols', s.color_columns || '');
     setInputValue('si-default-color', s.default_color_name || 'ساده');
     setInputValue('si-size-cols', s.size_columns || '');
+    setInputValue('si-classification-1-cols', s.classification_1_columns || DEFAULT_EXCEL_PROFILE.stock_import.classification_1_columns || '');
+    setInputValue('si-classification-2-cols', s.classification_2_columns || DEFAULT_EXCEL_PROFILE.stock_import.classification_2_columns || '');
     setInputValue('si-price-cols', s.price_columns || '');
     setInputValue('si-cost-cols', s.cost_price_columns || '');
     setInputValue('si-qty-strategy', s.qty_strategy || 'smart');
@@ -200,9 +258,12 @@ function collectFormIntoActiveProfile() {
         color_system_code_columns: document.getElementById('mi-color-system-code-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.color_system_code_columns,
         color_factory_code_columns: document.getElementById('mi-color-factory-code-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.color_factory_code_columns,
         price_columns: document.getElementById('mi-price-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.price_columns,
+        discount_price_columns: document.getElementById('mi-discount-price-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.discount_price_columns,
         wholesale_price_columns: document.getElementById('mi-wholesale-price-cols')?.value.trim() || '',
         cost_price_columns: document.getElementById('mi-cost-price-cols')?.value.trim() || '',
         category_columns: document.getElementById('mi-cat-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.category_columns,
+        classification_1_columns: document.getElementById('mi-classification-1-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.classification_1_columns,
+        classification_2_columns: document.getElementById('mi-classification-2-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.models_import.classification_2_columns,
         strip_dot_zero: document.getElementById('mi-strip-zero')?.checked ?? true,
         trim_spaces: true
     };
@@ -218,6 +279,8 @@ function collectFormIntoActiveProfile() {
         color_columns: document.getElementById('si-color-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.stock_import.color_columns,
         default_color_name: document.getElementById('si-default-color')?.value.trim() || 'ساده',
         size_columns: document.getElementById('si-size-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.stock_import.size_columns,
+        classification_1_columns: document.getElementById('si-classification-1-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.stock_import.classification_1_columns,
+        classification_2_columns: document.getElementById('si-classification-2-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.stock_import.classification_2_columns,
         price_columns: document.getElementById('si-price-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.stock_import.price_columns,
         cost_price_columns: document.getElementById('si-cost-cols')?.value.trim() || DEFAULT_EXCEL_PROFILE.stock_import.cost_price_columns,
         qty_strategy: document.getElementById('si-qty-strategy')?.value || 'smart',
@@ -428,7 +491,8 @@ export async function setAsDefaultProfile() {
     currentProfiles.forEach(p => p.is_default = (p.id === active.id));
     await saveExcelProfiles(currentProfiles);
     renderProfilesSelector();
-    showToast(`تم تعيين "${active.name}" كقالب افتراضي للنظام وحفظه ⭐`, 'info');
+    updateActiveProfileDisplayAcrossApp(active);
+    showToast(`تم تفعيل واعتماد "${active.name}" كالقالب المعتمد للنظام في جميع شاشات الاستيراد والتصدير والموديلات ⭐`, 'success');
 }
 
 /**

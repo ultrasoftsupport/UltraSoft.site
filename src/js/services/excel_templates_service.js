@@ -36,6 +36,9 @@ export const DEFAULT_EXCEL_PROFILE = {
         color_system_code_columns: 'كود سيستم اللون, كود السيستم, كود, Color System Code, Sys Code',
         color_factory_code_columns: 'كود مصنع اللون, كود المصنع, Color Factory Code, Fac Code',
         price_columns: 'بيع 1, السعر, سعر البيع, بيع, Price',
+        discount_price_columns: 'سعر الخصم, الخصم, تخفيض, سعر بعد الخصم, Discount Price, Discount',
+        classification_1_columns: 'تصنيف 1, تصنيف1, المجموعة 1, Classification 1, Class 1',
+        classification_2_columns: 'تصنيف 2, تصنيف2, المجموعة 2, Classification 2, Class 2',
         wholesale_price_columns: 'بيع 2, جملة, سعر الجملة',
         cost_price_columns: 'التكلفة, س التكلفة, سعر التكلفة, Cost',
         category_columns: 'النوع, التصنيف, القسم, المجموعة, Category',
@@ -59,6 +62,8 @@ export const DEFAULT_EXCEL_PROFILE = {
         color_columns: 'لون, اللون, اسم اللون, Color',
         default_color_name: 'ساده',
         size_columns: 'مقاس, المقاس, Size',
+        classification_1_columns: 'تصنيف 1, تصنيف1, Classification 1',
+        classification_2_columns: 'تصنيف 2, تصنيف2, Classification 2',
         price_columns: 'بيع 1, سعر البيع, بيع, السعر, Price',
         cost_price_columns: 'س التكلفة, التكلفة, سعر التكلفة, Cost',
         
@@ -431,6 +436,8 @@ export function parseModelsDataWithProfile(rawData, profile = DEFAULT_EXCEL_PROF
 
     const excelModels = [];
     const categoriesSet = new Set();
+    const classifications1Set = new Set();
+    const classifications2Set = new Set();
     const seenCodesInFile = new Set();
     let dupCount = 0;
     let newCount = 0;
@@ -482,6 +489,12 @@ export function parseModelsDataWithProfile(rawData, profile = DEFAULT_EXCEL_PROF
         const catName = getRowValueByAliases(row, p.category_columns);
         if (catName) categoriesSet.add(catName);
 
+        const c1Name = getRowValueByAliases(row, p.classification_1_columns || DEFAULT_EXCEL_PROFILE.models_import.classification_1_columns);
+        if (c1Name) classifications1Set.add(c1Name);
+
+        const c2Name = getRowValueByAliases(row, p.classification_2_columns || DEFAULT_EXCEL_PROFILE.models_import.classification_2_columns);
+        if (c2Name) classifications2Set.add(c2Name);
+
         const rawName = getRowValueByAliases(row, p.name_columns);
         let cleanName = rawName;
         if (mode === 'standard' && p.factory_code_strategy === 'extract_from_name') {
@@ -492,12 +505,19 @@ export function parseModelsDataWithProfile(rawData, profile = DEFAULT_EXCEL_PROF
         const priceStr = getRowValueByAliases(row, p.price_columns);
         const price = parseFloat(priceStr) || 0;
 
+        const discountStr = getRowValueByAliases(row, p.discount_price_columns || DEFAULT_EXCEL_PROFILE.models_import.discount_price_columns);
+        const parsedDiscount = (discountStr && !isNaN(parseFloat(discountStr))) ? parseFloat(discountStr) : null;
+        const discountPrice = (parsedDiscount !== null && parsedDiscount > 0 && parsedDiscount < price) ? parsedDiscount : null;
+
         const modelItem = {
             system_code: sysCode,
             factory_code: factoryCode || '',
             name: cleanName || 'صنف بدون اسم',
             price: price,
+            discount_price: discountPrice,
             category_name: catName || null,
+            classification_1_name: c1Name || null,
+            classification_2_name: c2Name || null,
             is_active: false,
             is_duplicate: isDuplicate,
             code_assignment_mode: mode  // نحفظ الوضع لاستخدامه عند الـ upsert
@@ -508,7 +528,15 @@ export function parseModelsDataWithProfile(rawData, profile = DEFAULT_EXCEL_PROF
         else newCount++;
     });
 
-    return { excelModels, categories: Array.from(categoriesSet), dupCount, newCount, code_assignment_mode: mode };
+    return { 
+        excelModels, 
+        categories: Array.from(categoriesSet), 
+        classifications_1: Array.from(classifications1Set),
+        classifications_2: Array.from(classifications2Set),
+        dupCount, 
+        newCount, 
+        code_assignment_mode: mode 
+    };
 }
 
 /**

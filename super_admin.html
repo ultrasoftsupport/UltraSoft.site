@@ -290,6 +290,12 @@
                 <span class="sidebar-label">إدارة المصانع والشركات</span>
             </button>
 
+            <button data-tab="mall"
+                class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
+                <i class="ph ph-storefront text-xl shrink-0 text-sky-400"></i>
+                <span class="sidebar-label">إدارة UltraSoft Mall</span>
+            </button>
+
             <button data-tab="subscriptions"
                 class="sidebar-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all">
                 <i class="ph ph-crown text-xl shrink-0"></i>
@@ -500,6 +506,130 @@
                 <!-- Grid Cards Container View (Cards Only) -->
                 <div id="tenantsGridContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     <!-- Rendered dynamically -->
+                </div>
+            </section>
+
+            <!-- TAB: ULTRASOFT MALL MANAGEMENT -->
+            <section id="view-mall" class="super-tab-view space-y-6 hidden">
+                <!-- Mall Header Banner -->
+                <div class="bg-gradient-to-r from-devo-dark via-slate-900 to-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-3xl shadow-inner shrink-0">
+                            <i class="ph ph-storefront"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-white flex items-center gap-2">
+                                <span>إدارة منصة مول ألترا سوفت (UltraSoft Mall)</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/15 text-sky-400 border border-sky-500/30">Official Directory</span>
+                            </h3>
+                            <p class="text-xs text-devo-muted mt-1">التحكم في عرض المصانع والشركات الشريكة وتنظيمها في المول الرقمي بالصفحة الرئيسية للمنصة</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <a href="index.html" target="_blank" class="px-4 py-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500 text-sky-400 hover:text-white border border-sky-500/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                            <i class="ph ph-arrow-square-out text-base"></i>
+                            <span>معاينة المول في الموقع ↗️</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mall Global Configuration Card -->
+                <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl space-y-5">
+                    <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="ph ph-sliders text-sky-400 text-lg"></i>
+                            الإعدادات العامة لمول ألترا سوفت
+                        </h4>
+                        <span class="text-xs text-devo-muted">تُطبّق على واجهة المول في الصفحة الرئيسية</span>
+                    </div>
+
+                    <form id="saMallGlobalSettingsForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1.5">عنوان المول الرئيسي</label>
+                                <input type="text" id="saMallGlobalTitleInput" placeholder="UltraSoft Mall"
+                                    class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1.5">شارة الهيرو (Hero Badge)</label>
+                                <input type="text" id="saMallGlobalBadgeInput" placeholder="ULTRASOFT DIGITAL MALL"
+                                    class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1.5">حالة تفعيل المول</label>
+                                <div class="h-[42px] flex items-center justify-between px-4 bg-devo-black border border-devo-gray rounded-xl">
+                                    <span class="text-xs font-semibold text-white">تفعيل منصة المول</span>
+                                    <label class="ultra-switch">
+                                        <input type="checkbox" id="saMallGlobalEnabledToggle" checked class="ultra-switch-input">
+                                        <span class="ultra-switch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-devo-muted mb-1.5">الوصف التسويقي والرسالة التعريفية</label>
+                            <textarea id="saMallGlobalSubtitleInput" rows="2" placeholder="الملتقى الرقمي الأول لكبرى مصانع وشركات الملابس الجاهزة..."
+                                class="w-full bg-devo-black border border-devo-gray rounded-xl p-3 text-xs text-white focus:outline-none focus:border-ultra-500"></textarea>
+                        </div>
+
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" id="saveSaMallGlobalConfigBtn"
+                                class="px-5 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-1.5 transition cursor-pointer">
+                                <i class="ph ph-floppy-disk text-base"></i>
+                                <span>حفظ إعدادات المول العامة</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Factories Mall Management & Reordering Table Card -->
+                <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl space-y-5">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-devo-gray pb-4">
+                        <div>
+                            <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                                <i class="ph ph-buildings text-amber-400 text-lg"></i>
+                                جدول تنظيم وترتيب مصانع وشركات المول
+                            </h4>
+                            <p class="text-xs text-devo-muted mt-0.5">تحكم مباشر وسريع في المصانع المعروضة في المول وترتيب أولويتها وميزاتها</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="saMallActiveCountBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                -- مصنع بالمول
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Search within mall factories -->
+                    <div class="relative w-full max-w-sm">
+                        <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted text-sm pointer-events-none"></i>
+                        <input type="text" id="saMallFilterInput" placeholder="بحث سريع في مصانع المول..."
+                            class="w-full bg-devo-black border border-devo-gray rounded-xl pr-9 pl-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto rounded-xl border border-devo-gray">
+                        <table class="w-full text-right border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-devo-black border-b border-devo-gray text-devo-muted font-bold">
+                                    <th class="py-3.5 px-4">المصنع / الشركة</th>
+                                    <th class="py-3.5 px-4 text-center">الظهور في المول</th>
+                                    <th class="py-3.5 px-4 text-center">مصنع مميز 🔥</th>
+                                    <th class="py-3.5 px-4 text-center">ترتيب الأولوية</th>
+                                    <th class="py-3.5 px-4">الشارة والتصنيفات</th>
+                                    <th class="py-3.5 px-4 text-center">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saMallTenantsTableBody" class="divide-y divide-devo-gray/50">
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-devo-muted">
+                                        <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
+                                        جاري تحميل مصانع المول...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
@@ -1994,6 +2124,12 @@
                     <span>بيانات ومعلومات المصنع</span>
                 </button>
 
+                <button data-inner-tab="mall"
+                    class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
+                    <i class="ph ph-storefront text-lg shrink-0 text-sky-400"></i>
+                    <span>إعدادات UltraSoft Mall</span>
+                </button>
+
                 <button data-inner-tab="sub-settings"
                     class="inner-tenant-tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-devo-muted hover:bg-devo-gray/50 hover:text-white transition-all cursor-pointer">
                     <i class="ph ph-gear text-lg shrink-0"></i>
@@ -2141,6 +2277,98 @@
                                     class="px-5 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-1.5 transition cursor-pointer">
                                     <i class="ph ph-floppy-disk text-base"></i>
                                     حفظ تعديلات بيانات الشركة
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB: FACTORY ULTRASOFT MALL SETTINGS -->
+                <div id="inner-tab-mall" class="inner-tenant-view space-y-6 hidden">
+                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-6 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                            <h4 class="font-black text-white text-base flex items-center gap-2">
+                                <i class="ph ph-storefront text-sky-400 text-xl"></i>
+                                إعدادات المصنع في UltraSoft Mall
+                            </h4>
+                            <span class="text-xs text-devo-muted">تخصيص هوية وعرض المصنع داخل المول الرقمي</span>
+                        </div>
+
+                        <form id="tenantMallSettingsForm" class="space-y-5 text-right">
+                            <!-- Switch: إظهار في المول -->
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-xs font-bold text-white mb-0.5">إظهار هذا المصنع في UltraSoft Mall</h5>
+                                    <p class="text-[11px] text-devo-muted">عند التفعيل، سيظهر المصنع بكافة تفاصيله داخل المول الرقمي في الصفحة الرئيسية للمنصة</p>
+                                </div>
+                                <label class="ultra-switch">
+                                    <input type="checkbox" id="modalTenantIsInMallInput" class="ultra-switch-input">
+                                    <span class="ultra-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Switch: مصنع مميز في واجهة المول -->
+                            <div class="p-4 rounded-xl bg-devo-black border border-devo-gray flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-xs font-bold text-white mb-0.5">تمييز المصنع (Featured Factory 🔥)</h5>
+                                    <p class="text-[11px] text-devo-muted">تثبيت المصنع في مقدمة المول مع شارة تميز ذهبية تجذب الزوار</p>
+                                </div>
+                                <label class="ultra-switch ultra-switch-amber">
+                                    <input type="checkbox" id="modalTenantMallFeaturedInput" class="ultra-switch-input">
+                                    <span class="ultra-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">اسم العرض المخصص بالمول (Display Name)</label>
+                                    <input type="text" id="modalTenantMallDisplayNameInput" placeholder="اتركه فارغاً لاستخدام اسم المصنع الأصلي"
+                                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">ترتيب الأولوية والظهور (Sort Order)</label>
+                                    <input type="number" id="modalTenantMallOrderInput" value="1" min="1"
+                                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رابط لوجو العرض بالمول (Logo URL)</label>
+                                    <input type="text" id="modalTenantMallLogoUrlInput" placeholder="اتركه فارغاً لاستخدام لوجو المصنع"
+                                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">رابط صورة الغلاف / البانر (Cover / Banner URL)</label>
+                                    <input type="text" id="modalTenantMallCoverUrlInput" placeholder="https://example.com/banner.jpg"
+                                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">النبذة التسويقية التعريفية (Short Bio / Tagline)</label>
+                                <textarea id="modalTenantMallDescInput" rows="3" placeholder="اكتب نبذة تسويقية جذابة عن المصنع وجودة وتنوع منتجاته..."
+                                    class="w-full bg-devo-black border border-devo-gray rounded-xl p-3 text-xs text-white focus:outline-none focus:border-ultra-500"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">شارة التميز (Badge)</label>
+                                    <input type="text" id="modalTenantMallBadgeInput" placeholder="مثال: براند حصري 🔥، مصنع معتمد 💎، جملة وقطاعي 🏷️"
+                                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-devo-muted mb-1">تصنيفات المنتجات (Tags مفصولة بفواصل)</label>
+                                    <input type="text" id="modalTenantMallTagsInput" placeholder="مثال: كاجوال، رجالي، شتوي، قطن فاخر"
+                                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" id="saveTenantMallSettingsBtn"
+                                    class="px-5 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-1.5 transition cursor-pointer">
+                                    <i class="ph ph-floppy-disk text-base"></i>
+                                    <span>حفظ إعدادات UltraSoft Mall للمصنع</span>
                                 </button>
                             </div>
                         </form>
@@ -3932,6 +4160,11 @@
             disableSuperAdminTotp,
             logSecurityEvent
         } from './src/js/services/super_admin_security.js';
+        import {
+            fetchMallConfig,
+            saveMallConfig,
+            updateTenantMallSettings
+        } from './src/js/services/mall_service.js';
 
         // 🎨 Sync active theme immediately
         await syncActiveTheme();
@@ -4069,6 +4302,7 @@
         const titleMap = {
             'overview': 'الإحصائيات الرئيسية للمنصة',
             'tenants': 'إدارة المصانع والشركات',
+            'mall': 'إدارة منصة مول ألترا سوفت (UltraSoft Mall)',
             'subscriptions': 'إدارة الاشتراكات والحدود',
             'domains': 'إدارة النطاقات والـ Subdomains',
             'themes': 'إدارة السمات والمظاهر الديناميكية',
@@ -4115,6 +4349,7 @@
 
             updateTopbarActions(tabId);
 
+            if (tabId === 'mall') loadSuperAdminMallManager();
             if (tabId === 'themes') renderFullThemesGrid();
             if (tabId === 'domains') loadDomainsTable();
             if (tabId === 'users') loadSuperAdminUsersAndSecurityLogs();
@@ -4351,7 +4586,7 @@
         }
 
         // 👁️ Open Full Screen Company Management Page Function
-        async function openTenantDetailsModal(tenantId) {
+        async function openTenantDetailsModal(tenantId, defaultTab = 'profile') {
             const tenant = globalTenantsList.find(t => t.id === tenantId);
             if (!tenant) return;
 
@@ -4575,8 +4810,40 @@
                 deleteBtn.onclick = () => deleteTenantCascade(tenant.id);
             }
 
-            // Default to profile tab on open
-            switchInnerTenantTab('profile');
+            // 🏬 Populate UltraSoft Mall Settings
+            const mallSettings = tenant.mall_settings || (tenant.settings && tenant.settings.mall) || {};
+            const isInMallInput = document.getElementById('modalTenantIsInMallInput');
+            if (isInMallInput) isInMallInput.checked = (tenant.is_in_mall === true || mallSettings.is_in_mall === true);
+
+            const isFeaturedInput = document.getElementById('modalTenantMallFeaturedInput');
+            if (isFeaturedInput) isFeaturedInput.checked = (tenant.mall_featured === true || mallSettings.is_featured === true);
+
+            const mallDisplayNameInput = document.getElementById('modalTenantMallDisplayNameInput');
+            if (mallDisplayNameInput) mallDisplayNameInput.value = mallSettings.display_name || tenant.name || '';
+
+            const mallOrderInput = document.getElementById('modalTenantMallOrderInput');
+            if (mallOrderInput) mallOrderInput.value = tenant.mall_order ?? (mallSettings.sort_order ?? 1);
+
+            const mallLogoUrlInput = document.getElementById('modalTenantMallLogoUrlInput');
+            if (mallLogoUrlInput) mallLogoUrlInput.value = mallSettings.logo_url || tenant.logo_url || '';
+
+            const mallCoverUrlInput = document.getElementById('modalTenantMallCoverUrlInput');
+            if (mallCoverUrlInput) mallCoverUrlInput.value = mallSettings.cover_url || '';
+
+            const mallDescInput = document.getElementById('modalTenantMallDescInput');
+            if (mallDescInput) mallDescInput.value = mallSettings.description || '';
+
+            const mallBadgeInput = document.getElementById('modalTenantMallBadgeInput');
+            if (mallBadgeInput) mallBadgeInput.value = mallSettings.badge || '';
+
+            const mallTagsInput = document.getElementById('modalTenantMallTagsInput');
+            if (mallTagsInput) {
+                const tags = Array.isArray(mallSettings.tags) ? mallSettings.tags.join('، ') : (mallSettings.tags || '');
+                mallTagsInput.value = tags;
+            }
+
+            // Default to specified tab on open
+            switchInnerTenantTab(defaultTab || 'profile');
 
             // Display Full Screen Management Overlay immediately (0ms UI latency)
             detailsModal.classList.remove('hidden');
@@ -5858,6 +6125,410 @@
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = origHtml;
+                    }
+                }
+            });
+        }
+
+        // 🏬 Handle Tenant UltraSoft Mall Settings Form Submission
+        const tenantMallSettingsForm = document.getElementById('tenantMallSettingsForm');
+        if (tenantMallSettingsForm) {
+            tenantMallSettingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const tenantId = (typeof activeSelectedTenant !== 'undefined' && activeSelectedTenant?.id)
+                    ? activeSelectedTenant.id
+                    : (window.activeSelectedTenant?.id || window.currentActiveTenantObject?.id || window.activeViewTenantId);
+
+                if (!tenantId) {
+                    showToast('يرجى اختيار مصنع أولاً لحفظ إعدادات المول.', 'error');
+                    return;
+                }
+
+                const submitBtn = tenantMallSettingsForm.querySelector('button[type="submit"]');
+                const origHtml = submitBtn ? submitBtn.innerHTML : '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري الحفظ...`;
+                }
+
+                try {
+                    const isInMall = document.getElementById('modalTenantIsInMallInput')?.checked || false;
+                    const isFeatured = document.getElementById('modalTenantMallFeaturedInput')?.checked || false;
+                    const displayName = document.getElementById('modalTenantMallDisplayNameInput')?.value.trim() || '';
+                    const sortOrder = parseInt(document.getElementById('modalTenantMallOrderInput')?.value || '1', 10);
+                    const logoUrl = document.getElementById('modalTenantMallLogoUrlInput')?.value.trim() || '';
+                    const coverUrl = document.getElementById('modalTenantMallCoverUrlInput')?.value.trim() || '';
+                    const description = document.getElementById('modalTenantMallDescInput')?.value.trim() || '';
+                    const badge = document.getElementById('modalTenantMallBadgeInput')?.value.trim() || '';
+                    const tagsRaw = document.getElementById('modalTenantMallTagsInput')?.value.trim() || '';
+                    const tags = tagsRaw.split(/[,،]+/).map(t => t.trim()).filter(Boolean);
+
+                    const mallSettings = {
+                        is_in_mall: isInMall,
+                        is_featured: isFeatured,
+                        display_name: displayName,
+                        sort_order: sortOrder,
+                        logo_url: logoUrl,
+                        cover_url: coverUrl,
+                        description: description,
+                        badge: badge,
+                        tags: tags
+                    };
+
+                    const res = await updateTenantMallSettings(tenantId, {
+                        isInMall,
+                        mallOrder: sortOrder,
+                        mallFeatured: isFeatured,
+                        mallSettings
+                    });
+
+                    if (!res.success) {
+                        throw new Error(res.error || 'فشل حفظ إعدادات المول');
+                    }
+
+                    // Update in-memory objects
+                    if (activeSelectedTenant) {
+                        activeSelectedTenant.is_in_mall = isInMall;
+                        activeSelectedTenant.mall_order = sortOrder;
+                        activeSelectedTenant.mall_featured = isFeatured;
+                        activeSelectedTenant.mall_settings = mallSettings;
+                        if (!activeSelectedTenant.settings) activeSelectedTenant.settings = {};
+                        activeSelectedTenant.settings.mall = mallSettings;
+                    }
+
+                    if (Array.isArray(globalTenantsList)) {
+                        const target = globalTenantsList.find(t => t.id === tenantId);
+                        if (target) {
+                            target.is_in_mall = isInMall;
+                            target.mall_order = sortOrder;
+                            target.mall_featured = isFeatured;
+                            target.mall_settings = mallSettings;
+                            if (!target.settings) target.settings = {};
+                            target.settings.mall = mallSettings;
+                        }
+                    }
+
+                    // Also sync with mall cache if open
+                    if (Array.isArray(saMallTenantsCache)) {
+                        const mTarget = saMallTenantsCache.find(t => t.id === tenantId);
+                        if (mTarget) {
+                            mTarget.is_in_mall = isInMall;
+                            mTarget.mall_order = sortOrder;
+                            mTarget.mall_featured = isFeatured;
+                            mTarget.mall_settings = mallSettings;
+                            renderSaMallTable(saMallTenantsCache);
+                        }
+                    }
+
+                    showToast('تم حفظ إعدادات المصنع في UltraSoft Mall بنجاح! 🏬', 'success');
+                } catch (err) {
+                    console.error('Error saving tenant mall settings:', err);
+                    showToast('فشل حفظ إعدادات المول: ' + (err.message || 'خطأ غير معروف'), 'error');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = origHtml;
+                    }
+                }
+            });
+        }
+
+        // ============================================================
+        // 🏬 UltraSoft Mall Management (Super Admin)
+        // ============================================================
+        let saMallTenantsCache = [];
+
+        async function loadSuperAdminMallManager() {
+            const tableBody = document.getElementById('saMallTenantsTableBody');
+            const activeCountBadge = document.getElementById('saMallActiveCountBadge');
+            const globalTitleInput = document.getElementById('saMallGlobalTitleInput');
+            const globalBadgeInput = document.getElementById('saMallGlobalBadgeInput');
+            const globalSubtitleInput = document.getElementById('saMallGlobalSubtitleInput');
+            const globalEnabledToggle = document.getElementById('saMallGlobalEnabledToggle');
+            const filterInput = document.getElementById('saMallFilterInput');
+
+            // 1. Load Global Mall Config
+            try {
+                const config = await fetchMallConfig();
+                if (globalTitleInput) globalTitleInput.value = config.title || 'UltraSoft Mall';
+                if (globalBadgeInput) globalBadgeInput.value = config.badge || 'ULTRASOFT DIGITAL MALL';
+                if (globalSubtitleInput) globalSubtitleInput.value = config.subtitle || '';
+                if (globalEnabledToggle) globalEnabledToggle.checked = (config.enabled !== false);
+            } catch (err) {
+                console.warn('Error fetching mall config:', err);
+            }
+
+            // 2. Fetch or reuse tenants list
+            if (!globalTenantsList || globalTenantsList.length === 0) {
+                try {
+                    const { data } = await supabase.from('tenants').select('*').order('created_at', { ascending: false });
+                    if (data) globalTenantsList = data;
+                } catch (e) {
+                    console.error('Error fetching tenants for mall:', e);
+                }
+            }
+
+            saMallTenantsCache = [...globalTenantsList];
+            renderSaMallTable(saMallTenantsCache);
+
+            // Filter input listener
+            if (filterInput && !filterInput.dataset.listenerAttached) {
+                filterInput.dataset.listenerAttached = 'true';
+                filterInput.addEventListener('input', (e) => {
+                    const q = e.target.value.trim().toLowerCase();
+                    if (!q) {
+                        renderSaMallTable(saMallTenantsCache);
+                        return;
+                    }
+                    const filtered = saMallTenantsCache.filter(t => {
+                        const mallSettings = t.mall_settings || (t.settings && t.settings.mall) || {};
+                        const name = (t.name || '').toLowerCase();
+                        const slug = (t.slug || '').toLowerCase();
+                        const dispName = (mallSettings.display_name || '').toLowerCase();
+                        const badge = (mallSettings.badge || '').toLowerCase();
+                        const tags = Array.isArray(mallSettings.tags) ? mallSettings.tags.join(' ').toLowerCase() : '';
+                        return name.includes(q) || slug.includes(q) || dispName.includes(q) || badge.includes(q) || tags.includes(q);
+                    });
+                    renderSaMallTable(filtered);
+                });
+            }
+        }
+        window.loadSuperAdminMallManager = loadSuperAdminMallManager;
+
+        function renderSaMallTable(tenants) {
+            const tableBody = document.getElementById('saMallTenantsTableBody');
+            const activeCountBadge = document.getElementById('saMallActiveCountBadge');
+            if (!tableBody) return;
+
+            // Sort: in_mall first, then by mall_order ascending
+            const sorted = [...tenants].sort((a, b) => {
+                const aIn = (a.is_in_mall === true || (a.settings?.mall?.is_in_mall === true));
+                const bIn = (b.is_in_mall === true || (b.settings?.mall?.is_in_mall === true));
+                if (aIn && !bIn) return -1;
+                if (!aIn && bIn) return 1;
+                const aOrder = a.mall_order ?? (a.settings?.mall?.sort_order ?? 999);
+                const bOrder = b.mall_order ?? (b.settings?.mall?.sort_order ?? 999);
+                return aOrder - bOrder;
+            });
+
+            const activeMallCount = sorted.filter(t => (t.is_in_mall === true || t.settings?.mall?.is_in_mall === true)).length;
+            if (activeCountBadge) {
+                activeCountBadge.textContent = `${activeMallCount} مصنع بالمول من إجمالي ${sorted.length}`;
+            }
+
+            if (sorted.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-10 text-center text-devo-muted">
+                            <i class="ph ph-buildings text-3xl mb-2 block mx-auto opacity-40"></i>
+                            لا توجد مصانع مطابقة لخيارات البحث
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = sorted.map(t => {
+                const mallSettings = t.mall_settings || (t.settings && t.settings.mall) || {};
+                const isInMall = (t.is_in_mall === true || mallSettings.is_in_mall === true);
+                const isFeatured = (t.mall_featured === true || mallSettings.is_featured === true);
+                const sortOrder = t.mall_order ?? (mallSettings.sort_order ?? 1);
+                const logo = mallSettings.logo_url || t.logo_url || t.settings?.logo_url || 'src/assets/icons/ultrasoft_transparent.png';
+                const displayName = mallSettings.display_name || t.name;
+                const badge = mallSettings.badge || '';
+                const tags = Array.isArray(mallSettings.tags) ? mallSettings.tags : [];
+
+                return `
+                    <tr class="hover:bg-devo-black/40 transition-colors">
+                        <!-- Factory Info -->
+                        <td class="py-3.5 px-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-devo-black border border-devo-gray p-1 flex items-center justify-center shrink-0">
+                                    <img src="${logo}" alt="${displayName}" class="w-full h-full object-contain" onerror="this.src='src/assets/icons/ultrasoft_transparent.png'">
+                                </div>
+                                <div>
+                                    <div class="font-bold text-white text-xs flex items-center gap-1.5">
+                                        <span>${displayName}</span>
+                                        ${isFeatured ? '<span class="text-amber-400 text-xs" title="مميز في واجهة المول">🔥</span>' : ''}
+                                    </div>
+                                    <div class="text-[11px] text-devo-muted font-mono flex items-center gap-2 mt-0.5">
+                                        <span>${t.slug}</span>
+                                        ${t.slug === 'default' ? '<span class="px-1.5 py-0.2 rounded text-[9px] bg-blue-500/10 text-blue-400 border border-blue-500/20 font-sans">المصنع الرئيسي</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Show in Mall Toggle -->
+                        <td class="py-3.5 px-4 text-center">
+                            <label class="ultra-switch inline-flex">
+                                <input type="checkbox" class="ultra-switch-input sa-mall-toggle-in-mall" data-tenant-id="${t.id}" ${isInMall ? 'checked' : ''}>
+                                <span class="ultra-switch-slider"></span>
+                            </label>
+                        </td>
+
+                        <!-- Featured Toggle -->
+                        <td class="py-3.5 px-4 text-center">
+                            <label class="ultra-switch ultra-switch-amber inline-flex">
+                                <input type="checkbox" class="ultra-switch-input sa-mall-toggle-featured" data-tenant-id="${t.id}" ${isFeatured ? 'checked' : ''}>
+                                <span class="ultra-switch-slider"></span>
+                            </label>
+                        </td>
+
+                        <!-- Sort Order -->
+                        <td class="py-3.5 px-4 text-center">
+                            <input type="number" min="1" value="${sortOrder}" data-tenant-id="${t.id}"
+                                class="sa-mall-sort-order-input w-16 text-center bg-devo-black border border-devo-gray rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                        </td>
+
+                        <!-- Badge & Tags -->
+                        <td class="py-3.5 px-4">
+                            <div class="space-y-1">
+                                ${badge ? `<span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">${badge}</span>` : '<span class="text-devo-muted text-[10px]">--</span>'}
+                                ${tags.length > 0 ? `
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${tags.slice(0, 3).map(tg => `<span class="px-1.5 py-0.2 rounded text-[9px] bg-sky-500/10 text-sky-400 border border-sky-500/20">${tg}</span>`).join('')}
+                                        ${tags.length > 3 ? `<span class="text-[9px] text-devo-muted">+${tags.length - 3}</span>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="py-3.5 px-4 text-center">
+                            <button type="button" class="sa-mall-edit-tenant-btn px-3 py-1.5 rounded-lg bg-devo-black hover:bg-sky-500/20 text-sky-400 border border-devo-gray hover:border-sky-500/40 text-xs font-bold transition flex items-center gap-1 mx-auto cursor-pointer"
+                                data-tenant-id="${t.id}">
+                                <i class="ph ph-sliders"></i>
+                                <span>تخصيص بالمول</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Attach action listeners
+            tableBody.querySelectorAll('.sa-mall-toggle-in-mall').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const tenantId = e.target.dataset.tenantId;
+                    const checked = e.target.checked;
+                    await handleQuickMallUpdate(tenantId, { isInMall: checked });
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-toggle-featured').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const tenantId = e.target.dataset.tenantId;
+                    const checked = e.target.checked;
+                    await handleQuickMallUpdate(tenantId, { mallFeatured: checked });
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-sort-order-input').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const tenantId = e.target.dataset.tenantId;
+                    const val = parseInt(e.target.value, 10) || 1;
+                    await handleQuickMallUpdate(tenantId, { mallOrder: val });
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-edit-tenant-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const tenantId = e.currentTarget.dataset.tenantId;
+                    if (tenantId && typeof openTenantDetailsModal === 'function') {
+                        openTenantDetailsModal(tenantId, 'mall');
+                    }
+                });
+            });
+        }
+
+        async function handleQuickMallUpdate(tenantId, partialUpdate) {
+            try {
+                const tenant = globalTenantsList.find(t => t.id === tenantId);
+                if (!tenant) return;
+
+                const currentSettings = tenant.mall_settings || (tenant.settings && tenant.settings.mall) || {};
+                const newSettings = { ...currentSettings };
+
+                if (partialUpdate.isInMall !== undefined) newSettings.is_in_mall = partialUpdate.isInMall;
+                if (partialUpdate.mallFeatured !== undefined) newSettings.is_featured = partialUpdate.mallFeatured;
+                if (partialUpdate.mallOrder !== undefined) newSettings.sort_order = partialUpdate.mallOrder;
+
+                const res = await updateTenantMallSettings(tenantId, {
+                    isInMall: partialUpdate.isInMall !== undefined ? partialUpdate.isInMall : (tenant.is_in_mall === true),
+                    mallOrder: partialUpdate.mallOrder !== undefined ? partialUpdate.mallOrder : (tenant.mall_order ?? 1),
+                    mallFeatured: partialUpdate.mallFeatured !== undefined ? partialUpdate.mallFeatured : (tenant.mall_featured === true),
+                    mallSettings: newSettings
+                });
+
+                if (res.success) {
+                    // Update in-memory
+                    if (partialUpdate.isInMall !== undefined) tenant.is_in_mall = partialUpdate.isInMall;
+                    if (partialUpdate.mallFeatured !== undefined) tenant.mall_featured = partialUpdate.mallFeatured;
+                    if (partialUpdate.mallOrder !== undefined) tenant.mall_order = partialUpdate.mallOrder;
+                    tenant.mall_settings = newSettings;
+                    if (!tenant.settings) tenant.settings = {};
+                    tenant.settings.mall = newSettings;
+
+                    // Re-render mall table to reflect sorting and badge count
+                    if (Array.isArray(saMallTenantsCache)) {
+                        const mTarget = saMallTenantsCache.find(t => t.id === tenantId);
+                        if (mTarget) {
+                            if (partialUpdate.isInMall !== undefined) mTarget.is_in_mall = partialUpdate.isInMall;
+                            if (partialUpdate.mallFeatured !== undefined) mTarget.mall_featured = partialUpdate.mallFeatured;
+                            if (partialUpdate.mallOrder !== undefined) mTarget.mall_order = partialUpdate.mallOrder;
+                            mTarget.mall_settings = newSettings;
+                        }
+                        renderSaMallTable(saMallTenantsCache);
+                    }
+
+                    showToast('تم تحديث إعدادات المصنع بالمول بنجاح! ⚡', 'success');
+                } else {
+                    showToast('فشل التحديث: ' + res.error, 'error');
+                }
+            } catch (err) {
+                console.error('Quick mall update error:', err);
+                showToast('خطأ أثناء التحديث: ' + err.message, 'error');
+            }
+        }
+
+        // Global Mall Settings Form Submit Handler
+        const saMallGlobalSettingsForm = document.getElementById('saMallGlobalSettingsForm');
+        if (saMallGlobalSettingsForm) {
+            saMallGlobalSettingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveSaMallGlobalConfigBtn');
+                const origHtml = saveBtn ? saveBtn.innerHTML : '';
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري الحفظ...`;
+                }
+
+                try {
+                    const title = document.getElementById('saMallGlobalTitleInput')?.value.trim() || 'UltraSoft Mall';
+                    const badge = document.getElementById('saMallGlobalBadgeInput')?.value.trim() || 'ULTRASOFT DIGITAL MALL';
+                    const subtitle = document.getElementById('saMallGlobalSubtitleInput')?.value.trim() || '';
+                    const enabled = document.getElementById('saMallGlobalEnabledToggle')?.checked !== false;
+
+                    const res = await saveMallConfig({
+                        enabled,
+                        title,
+                        badge,
+                        subtitle
+                    });
+
+                    if (res.success) {
+                        showToast('تم حفظ الإعدادات العامة لمول ألترا سوفت بنجاح! 🏬', 'success');
+                    } else {
+                        showToast('فشل حفظ إعدادات المول: ' + res.error, 'error');
+                    }
+                } catch (err) {
+                    console.error('Error saving global mall config:', err);
+                    showToast('حدث خطأ: ' + err.message, 'error');
+                } finally {
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = origHtml;
                     }
                 }
             });

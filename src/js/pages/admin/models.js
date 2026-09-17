@@ -37,7 +37,7 @@ export async function initModelsView() {
         if (searchEl) searchEl.addEventListener('input', () => debouncedApplyFilters(200));
 
         // الـ selects: change فقط (مرة واحدة بدون تكرار) + debounce خفيف
-        ['filter-status', 'filter-category', 'filter-class', 'filter-stock'].forEach(id => {
+        ['filter-status', 'filter-category', 'filter-class', 'filter-stock', 'filter-classification-1', 'filter-classification-2'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', () => debouncedApplyFilters(80));
         });
@@ -95,17 +95,36 @@ window.refreshModelsData = async () => {
 export async function loadDefinitionsCache() {
     const currentTenantId = getCurrentTenantId();
     let catQ = supabase.from('categories').select('id, name');
-    let clsQ = supabase.from('classes').select('id, name, class_sizes(size_id, sizes(id, name))');
+    let clsQ = supabase.from('classes').select('id, name, class_sizes(size_id, sort_order, sizes(id, name))');
     let szQ = supabase.from('sizes').select('id, name');
     let clrQ = supabase.from('colors').select('id, name, color_code');
+    let c1Q = supabase.from('classifications_1').select('id, name');
+    let c2Q = supabase.from('classifications_2').select('id, name');
+
     if (currentTenantId) {
         catQ = catQ.eq('tenant_id', currentTenantId);
         clsQ = clsQ.eq('tenant_id', currentTenantId);
         szQ = szQ.eq('tenant_id', currentTenantId);
         clrQ = clrQ.eq('tenant_id', currentTenantId);
+        c1Q = c1Q.eq('tenant_id', currentTenantId);
+        c2Q = c2Q.eq('tenant_id', currentTenantId);
     }
-    const [cats, clss, szs, clrs] = await Promise.all([catQ, clsQ, szQ, clrQ]);
-    defCache = { cats: cats.data || [], clss: clss.data || [], szs: szs.data || [], clrs: clrs.data || [] };
+    const [cats, clss, szs, clrs, c1s, c2s] = await Promise.all([catQ, clsQ, szQ, clrQ, c1Q, c2Q]);
+    if (clss.data) {
+        clss.data.forEach(c => {
+            if (c.class_sizes && Array.isArray(c.class_sizes)) {
+                c.class_sizes.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+            }
+        });
+    }
+    defCache = { 
+        cats: cats.data || [], 
+        clss: clss.data || [], 
+        szs: szs.data || [], 
+        clrs: clrs.data || [],
+        c1s: c1s.data || [],
+        c2s: c2s.data || []
+    };
     
     const catSelect = document.getElementById('filter-category');
     if (catSelect) {
@@ -120,6 +139,19 @@ export async function loadDefinitionsCache() {
         classSelect.value = cur;
     }
 
+    const fC1Select = document.getElementById('filter-classification-1');
+    if (fC1Select) {
+        const cur = fC1Select.value;
+        fC1Select.innerHTML = `<option value="">كل تصنيف 1</option>` + defCache.c1s.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        fC1Select.value = cur;
+    }
+    const fC2Select = document.getElementById('filter-classification-2');
+    if (fC2Select) {
+        const cur = fC2Select.value;
+        fC2Select.innerHTML = `<option value="">كل تصنيف 2</option>` + defCache.c2s.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        fC2Select.value = cur;
+    }
+
     const mCatSelect = document.getElementById('m-category');
     if (mCatSelect) {
         const cur = mCatSelect.value;
@@ -132,6 +164,19 @@ export async function loadDefinitionsCache() {
         const cur = mClassSelect.value;
         mClassSelect.innerHTML = defCache.clss.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         if (cur) mClassSelect.value = cur;
+    }
+
+    const mC1Select = document.getElementById('m-classification-1');
+    if (mC1Select) {
+        const cur = mC1Select.value;
+        mC1Select.innerHTML = `<option value="">-- بدون تصنيف 1 --</option>` + defCache.c1s.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        if (cur) mC1Select.value = cur;
+    }
+    const mC2Select = document.getElementById('m-classification-2');
+    if (mC2Select) {
+        const cur = mC2Select.value;
+        mC2Select.innerHTML = `<option value="">-- بدون تصنيف 2 --</option>` + defCache.c2s.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        if (cur) mC2Select.value = cur;
     }
 
     window.allAvailableColors = defCache.clrs;
@@ -151,7 +196,7 @@ export async function fetchAllModelsChunked() {
             const currentTenantId = getCurrentTenantId();
             let query = supabase
                 .from('models')
-                .select(`*, categories(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name, color_code)), model_images(image_url)`);
+                .select(`*, categories(id, name), classifications_1(id, name), classifications_2(id, name), classes(id, name, class_sizes(sizes(id, name))), model_sizes(sizes(id, name)), model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(id, name, color_code)), model_images(image_url)`);
 
             if (currentTenantId) {
                 query = query.eq('tenant_id', currentTenantId);
@@ -323,7 +368,9 @@ function setupAdminRealtimeTracker() {
 }
 
 function resolveImageUrl(url) {
-    if (!url || url.trim() === "" || url === "null" || url === "undefined") return './src/assets/icons/devo.png';
+    if (!url || url.trim() === "" || url === "null" || url === "undefined") {
+        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+    }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
             const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -353,7 +400,7 @@ function updateAdminStats() {
 }
 
 window.clearModelFilters = () => {
-    ['model-search', 'filter-category', 'filter-class', 'filter-stock', 'filter-stock-op', 'filter-stock-qty', 'filter-date-from', 'filter-date-to'].forEach(id => {
+    ['model-search', 'filter-category', 'filter-class', 'filter-classification-1', 'filter-classification-2', 'filter-stock', 'filter-stock-op', 'filter-stock-qty', 'filter-date-from', 'filter-date-to'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.value = '';
     });
@@ -369,6 +416,8 @@ function applyFilters() {
     const modelStatus = document.getElementById('filter-status')?.value || 'all';
     const catId = document.getElementById('filter-category')?.value || '';
     const classId = document.getElementById('filter-class')?.value || '';
+    const c1Id = document.getElementById('filter-classification-1')?.value || '';
+    const c2Id = document.getElementById('filter-classification-2')?.value || '';
     const stockStatus = document.getElementById('filter-stock')?.value || '';
     const stockOp = document.getElementById('filter-stock-op')?.value || '';
     const stockQtyVal = parseInt(document.getElementById('filter-stock-qty')?.value, 10);
@@ -409,6 +458,8 @@ function applyFilters() {
         }
         if (catId && m.category_id !== catId) isMatch = false;
         if (classId && m.class_id !== classId) isMatch = false;
+        if (c1Id && m.classification_1_id !== c1Id) isMatch = false;
+        if (c2Id && m.classification_2_id !== c2Id) isMatch = false;
         if (stockStatus === 'in_stock' && totalQty === 0) isMatch = false;
         if (stockStatus === 'out_stock' && totalQty > 0) isMatch = false;
 
@@ -472,8 +523,15 @@ function generateModelCardHTML(m) {
         <div class="h-48 bg-devo-black relative flex items-center justify-center overflow-hidden p-3 border-b border-devo-gray/60">
             <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-30 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
             <div class="absolute inset-0 bg-devo-black/10 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" referrerpolicy="no-referrer" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-300 hover:scale-[1.03]" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">
-            <div class="absolute top-3 right-3 z-20">${badgeHTML}</div>
+            <img src="${mainImg}" referrerpolicy="no-referrer" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-300 hover:scale-[1.03]" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">
+            <div class="absolute top-3 right-3 z-20 flex flex-col gap-1 items-end">
+                ${badgeHTML}
+                ${(m.discount_price && m.discount_price < m.price) ? `
+                    <span class="bg-gradient-to-r from-rose-600 to-amber-600 text-white text-[10px] px-2 py-0.5 rounded-md font-extrabold shadow-md flex items-center gap-1">
+                        <i class="ph ph-fire"></i> -${Math.round(((m.price - m.discount_price) / m.price) * 100)}%
+                    </span>
+                ` : ''}
+            </div>
             ${!m.is_active ? `<div class="absolute top-3 left-3 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm z-20">معطل</div>` : ''}
         </div>
         <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
@@ -487,10 +545,22 @@ function generateModelCardHTML(m) {
                     }
                 </p>
                 <h4 class="text-devo-text font-black truncate text-base" title="${m.name}">${m.name}</h4>
-                <p class="text-devo-orange text-base font-black mt-1">${m.price} <span class="text-xs font-normal">ج.م</span></p>
+                ${(m.discount_price && m.discount_price < m.price) ? `
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <span class="text-emerald-400 text-base font-black">${m.discount_price} <span class="text-xs font-normal">ج.م</span></span>
+                        <span class="text-devo-muted line-through text-xs">${m.price} ج.م</span>
+                        <span class="text-[10px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold">وفر ${m.price - m.discount_price} ج.م</span>
+                    </div>
+                ` : `
+                    <p class="text-devo-orange text-base font-black mt-1">${m.price} <span class="text-xs font-normal">ج.م</span></p>
+                `}
             </div>
             <div class="text-xs text-devo-muted border-t border-devo-gray/80 pt-2.5 space-y-1">
                 <span class="block text-devo-text font-medium"><i class="ph ph-tag text-devo-orange"></i> ${m.categories?.name || '-'}</span>
+                <div class="flex flex-wrap gap-1 pt-0.5">
+                    ${m.classifications_1?.name ? `<span class="inline-block text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded">${m.classifications_1.name}</span>` : ''}
+                    ${m.classifications_2?.name ? `<span class="inline-block text-[10px] bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded">${m.classifications_2.name}</span>` : ''}
+                </div>
                 <span class="block ${isOut ? 'text-rose-600 font-bold' : 'text-sky-600 dark:text-sky-400 font-bold'}">
                     المتاح: ${totalSeries} سيريه <span class="font-normal text-devo-muted">(${totalPieces} قطعة)</span>
                 </span>
@@ -614,10 +684,10 @@ window.viewDetails = async (id) => {
     let imagesHtml = '';
     if (model.model_images && model.model_images.length > 0) {
         imagesHtml = `<div class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-            ${model.model_images.map(img => `<img src="${resolveImageUrl(img.image_url)}" referrerpolicy="no-referrer" class="h-40 w-40 flex-shrink-0 rounded-xl object-cover border border-devo-gray bg-devo-black shadow-sm" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">`).join('')}
+            ${model.model_images.map(img => `<img src="${resolveImageUrl(img.image_url)}" referrerpolicy="no-referrer" class="h-40 w-40 flex-shrink-0 rounded-xl object-cover border border-devo-gray bg-devo-black shadow-sm" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">`).join('')}
         </div>`;
     } else {
-        imagesHtml = `<div class="h-40 w-40 rounded-xl bg-devo-black border border-devo-gray flex items-center justify-center overflow-hidden shadow-sm"><img src="./src/assets/icons/devo.png" class="w-full h-full object-cover" loading="lazy" decoding="async"></div>`;
+        imagesHtml = `<div class="h-40 w-40 rounded-xl bg-devo-black border border-devo-gray flex items-center justify-center overflow-hidden shadow-sm"><img src="${resolveImageUrl('')}" class="w-full h-full object-cover" loading="lazy" decoding="async"></div>`;
     }
 
     const renderSizesTags = classSizes.length > 0 
@@ -853,6 +923,42 @@ window.openModelModal = async (id = null) => {
     const classSelect = document.getElementById('m-class');
     classSelect.onchange = (e) => handleClassChange(e.target.value);
 
+    const mC1 = document.getElementById('m-classification-1');
+    if (mC1) {
+        mC1.innerHTML = `<option value="">-- بدون تصنيف 1 --</option>` + (defCache.c1s || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        mC1.value = '';
+    }
+    const mC2 = document.getElementById('m-classification-2');
+    if (mC2) {
+        mC2.innerHTML = `<option value="">-- بدون تصنيف 2 --</option>` + (defCache.c2s || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        mC2.value = '';
+    }
+    const discInput = document.getElementById('m-discount-price');
+    if (discInput) discInput.value = '';
+
+    const updateDiscountHint = () => {
+        const origPrice = parseFloat(document.getElementById('m-price')?.value) || 0;
+        const discPrice = parseFloat(document.getElementById('m-discount-price')?.value) || 0;
+        const hintEl = document.getElementById('m-discount-hint');
+        if (!hintEl) return;
+        if (discPrice > 0 && origPrice > 0) {
+            if (discPrice >= origPrice) {
+                hintEl.innerHTML = `<span class="text-rose-400 font-bold">⚠️ سعر الخصم (${discPrice}) يجب أن يكون أقل من السعر الأساسي (${origPrice} ج.م)</span>`;
+            } else {
+                const savings = origPrice - discPrice;
+                const percent = Math.round((savings / origPrice) * 100);
+                hintEl.innerHTML = `<span class="text-emerald-400 font-bold">🔥 خصم ${percent}% (توفير ${savings} ج.م للعميل)</span>`;
+            }
+        } else {
+            hintEl.textContent = 'اتركه فارغاً في حالة عدم وجود خصم (سيظهر السعر الأساسي فقط)';
+        }
+    };
+    document.getElementById('m-price')?.removeEventListener('input', window._onPriceDiscountInput || (() => {}));
+    document.getElementById('m-discount-price')?.removeEventListener('input', window._onPriceDiscountInput || (() => {}));
+    window._onPriceDiscountInput = updateDiscountHint;
+    document.getElementById('m-price')?.addEventListener('input', updateDiscountHint);
+    document.getElementById('m-discount-price')?.addEventListener('input', updateDiscountHint);
+
     if (id) {
         const model = allModels.find(m => m.id === id);
         if (!model) return;
@@ -879,6 +985,11 @@ window.openModelModal = async (id = null) => {
         document.getElementById('m-class').value = model.class_id;
         document.getElementById('m-status').checked = model.is_active;
         document.getElementById('m-status-text').textContent = model.is_active ? 'نشط' : 'معطل';
+
+        if (mC1) mC1.value = model.classification_1_id || '';
+        if (mC2) mC2.value = model.classification_2_id || '';
+        if (discInput) discInput.value = model.discount_price || '';
+        updateDiscountHint();
 
         renderAutoSizes(model.class_id);
 
@@ -919,16 +1030,25 @@ window.openModelModal = async (id = null) => {
         document.getElementById('m-img-3').value = imgs[2]?.image_url || '';
 
     } else {
-        // موديل جديد: تعيين الوضع standard افتراضياً
+        // موديل جديد: تعيين الوضع الافتراضي من القالب المفعل في الإعدادات
         const codeModeSelect = document.getElementById('m-code-mode');
-        if (codeModeSelect) {
-            codeModeSelect.value = 'standard';
-            window.onCodeModeChange('standard');
-        }
+        const badgeEl = document.getElementById('m-code-mode-profile-badge');
+        getExcelProfiles().then(profiles => {
+            const defProf = getActiveExcelProfile(profiles);
+            const activeMode = defProf?.models_import?.code_assignment_mode || 'standard';
+            if (codeModeSelect) {
+                codeModeSelect.value = activeMode;
+                window.onCodeModeChange(activeMode);
+            }
+            if (badgeEl && defProf) {
+                badgeEl.textContent = `القالب المفعل: ${defProf.name}`;
+            }
+        });
         modalTitle.innerHTML = `<i class="ph ph-plus-circle text-devo-orange text-2xl"></i> إضافة موديل`;
         submitBtn.innerHTML = `حفظ الموديل`;
         document.getElementById('m-status').checked = true;
         document.getElementById('m-status-text').textContent = 'نشط';
+        updateDiscountHint();
         currentModalClassSizesCount = getCurrentModalClassSizesCount();
         renderAutoSizes(classSelect.value);
         invContainer.innerHTML = '';
@@ -948,7 +1068,8 @@ function renderAutoSizes(classId) {
         sizesContainer.innerHTML = '<span class="text-devo-error text-xs p-2 bg-devo-error/10 rounded flex items-center gap-2 border border-devo-error/20"><i class="ph ph-warning-circle text-lg"></i> الفئة خالية من المقاسات.</span>';
         return;
     }
-    sizesContainer.innerHTML = selectedClass.class_sizes.map(cs => `<span class="bg-devo-black border border-devo-gray px-3 py-1.5 rounded text-white text-xs shadow-sm flex items-center gap-1 opacity-80"><i class="ph ph-lock-key text-devo-muted"></i> ${cs.sizes.name}</span>`).join('');
+    const sortedSizes = [...(selectedClass.class_sizes || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    sizesContainer.innerHTML = sortedSizes.map(cs => `<span class="bg-devo-black border border-devo-gray px-3 py-1.5 rounded text-white text-xs shadow-sm flex items-center gap-1 opacity-80"><i class="ph ph-lock-key text-devo-muted"></i> ${cs.sizes?.name || ''}</span>`).join('');
 }
 
 // 🔑 تغيير وضع تعيين الكود — يخفي/يظهر الحقول حسب الوضع المختار
@@ -1064,13 +1185,32 @@ async function handleSaveModel(e) {
 
     const codeMode = document.getElementById('m-code-mode')?.value || 'standard';
 
+    const rawDiscount = document.getElementById('m-discount-price')?.value;
+    const discountPrice = (rawDiscount !== '' && rawDiscount !== null && !isNaN(parseFloat(rawDiscount))) ? parseFloat(rawDiscount) : null;
+    const priceNum = parseFloat(document.getElementById('m-price').value) || 0;
+
+    if (discountPrice !== null) {
+        if (discountPrice <= 0) {
+            return showToast('سعر الخصم يجب أن يكون أكبر من الصفر.', 'error');
+        }
+        if (discountPrice >= priceNum) {
+            return showToast('سعر الخصم يجب أن يكون أقل من السعر الأساسي للموديل.', 'error');
+        }
+    }
+
+    const c1Id = document.getElementById('m-classification-1')?.value || null;
+    const c2Id = document.getElementById('m-classification-2')?.value || null;
+
     const modelData = {
         code_assignment_mode: codeMode,
         system_code: codeMode === 'color_system_codes' ? null : (document.getElementById('m-system-code').value || null),
         factory_code: codeMode === 'color_factory_codes' ? null : (document.getElementById('m-factory-code').value || null),
         name: document.getElementById('m-name').value,
         price: document.getElementById('m-price').value,
+        discount_price: discountPrice,
         category_id: document.getElementById('m-category').value,
+        classification_1_id: c1Id,
+        classification_2_id: c2Id,
         class_id: classId,
         is_active: document.getElementById('m-status').checked
     };
@@ -1424,8 +1564,12 @@ window.openExcelImportModal = () => {
     filteredExcelModels = [];
     selectedExcelModelCodes.clear();
 
-    // تحميل قوالب المصانع في القائمة المنسدلة
+    // تحميل القالب المفعل من الإعدادات وتحديث البطاقة
     getExcelProfiles().then(profiles => {
+        const def = getActiveExcelProfile(profiles);
+        const nameEl = document.getElementById('models-active-profile-name');
+        if (nameEl && def) nameEl.textContent = def.name;
+
         const sel = document.getElementById('models-excel-profile-select');
         if (sel && profiles) {
             sel.innerHTML = profiles.map(p => `
@@ -1433,6 +1577,7 @@ window.openExcelImportModal = () => {
                     ${p.name} ${p.is_default ? '★ (افتراضي)' : ''}
                 </option>
             `).join('');
+            if (def) sel.value = def.id;
         }
     });
 
@@ -1786,10 +1931,55 @@ window.executeExcelImport = async () => {
             if (freshCats) defCache.cats = freshCats;
         }
 
+        // Auto-create classifications_1 if needed
+        const c1Needed = new Set(modelsToInsertRaw.map(m => m.classification_1_name).filter(Boolean));
+        const newC1ToInsert = [];
+        for (const c1Name of c1Needed) {
+            const trimmed = String(c1Name).trim();
+            if (!trimmed) continue;
+            const exists = (defCache.c1s || []).find(c => String(c.name).trim().toLowerCase() === trimmed.toLowerCase());
+            if (!exists) {
+                const cObj = { name: trimmed };
+                if (currentTenantId) cObj.tenant_id = currentTenantId;
+                newC1ToInsert.push(cObj);
+            }
+        }
+        if (newC1ToInsert.length > 0) {
+            await supabase.from('classifications_1').upsert(newC1ToInsert, { onConflict: 'tenant_id,name', ignoreDuplicates: true });
+            let c1Q = supabase.from('classifications_1').select('id, name');
+            if (currentTenantId) c1Q = c1Q.eq('tenant_id', currentTenantId);
+            const { data: freshC1 } = await c1Q;
+            if (freshC1) defCache.c1s = freshC1;
+        }
+
+        // Auto-create classifications_2 if needed
+        const c2Needed = new Set(modelsToInsertRaw.map(m => m.classification_2_name).filter(Boolean));
+        const newC2ToInsert = [];
+        for (const c2Name of c2Needed) {
+            const trimmed = String(c2Name).trim();
+            if (!trimmed) continue;
+            const exists = (defCache.c2s || []).find(c => String(c.name).trim().toLowerCase() === trimmed.toLowerCase());
+            if (!exists) {
+                const cObj = { name: trimmed };
+                if (currentTenantId) cObj.tenant_id = currentTenantId;
+                newC2ToInsert.push(cObj);
+            }
+        }
+        if (newC2ToInsert.length > 0) {
+            await supabase.from('classifications_2').upsert(newC2ToInsert, { onConflict: 'tenant_id,name', ignoreDuplicates: true });
+            let c2Q = supabase.from('classifications_2').select('id, name');
+            if (currentTenantId) c2Q = c2Q.eq('tenant_id', currentTenantId);
+            const { data: freshC2 } = await c2Q;
+            if (freshC2) defCache.c2s = freshC2;
+        }
+
         const seenPrimaryCodes = new Set();
         const modelsToInsert = modelsToInsertRaw.map(m => {
-            const { category_name, is_duplicate, code_assignment_mode: mMode, ...cleanModel } = m;
+            const { category_name, classification_1_name, classification_2_name, is_duplicate, code_assignment_mode: mMode, ...cleanModel } = m;
             const mode = mMode || importMode || 'standard';
+
+            const c1Id = classification_1_name ? (defCache.c1s || []).find(c => c.name === classification_1_name)?.id : null;
+            const c2Id = classification_2_name ? (defCache.c2s || []).find(c => c.name === classification_2_name)?.id : null;
 
             // تحديد الكود الرئيسي حسب الوضع
             if (mode === 'color_system_codes') {
@@ -1803,7 +1993,9 @@ window.executeExcelImport = async () => {
                     system_code: null,
                     factory_code: fCode,
                     code_assignment_mode: mode,
-                    category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
+                    category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null,
+                    classification_1_id: c1Id || null,
+                    classification_2_id: c2Id || null
                 };
                 if (currentTenantId) item.tenant_id = currentTenantId;
                 return item;
@@ -1818,7 +2010,9 @@ window.executeExcelImport = async () => {
                     ...cleanModel,
                     factory_code: fCode,
                     code_assignment_mode: mode,
-                    category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null
+                    category_id: category_name ? defCache.cats.find(c => c.name === category_name)?.id : null,
+                    classification_1_id: c1Id || null,
+                    classification_2_id: c2Id || null
                 };
                 if (currentTenantId) item.tenant_id = currentTenantId;
                 return item;

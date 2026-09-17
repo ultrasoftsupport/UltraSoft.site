@@ -15,7 +15,101 @@ let currentPage = 1;
 const itemsPerPage = 25;
 let currentFilteredModels = [];
 
+// ⚙️ إعدادات إظهار وإخفاء عناصر الفلترة والبحث
+let filterOnlyDiscounts = false;
+const DEFAULT_FILTER_PREFERENCES = {
+    'filter-scope': true,
+    'filter-category': true,
+    'filter-class': true,
+    'filter-c1': true,
+    'filter-c2': true,
+    'filter-price': true,
+    'filter-discount': true,
+    'filter-sort': true
+};
+
+function getFilterPrefsKey() {
+    const tenantId = getCurrentTenantId() || 'default';
+    return `devo_gallery_filter_prefs_${tenantId}`;
+}
+
+function getFilterPreferences() {
+    try {
+        const saved = localStorage.getItem(getFilterPrefsKey());
+        if (saved) return { ...DEFAULT_FILTER_PREFERENCES, ...JSON.parse(saved) };
+    } catch(e) {}
+    return { ...DEFAULT_FILTER_PREFERENCES };
+}
+
+function loadAndApplyFilterPreferences() {
+    const prefs = getFilterPreferences();
+    Object.keys(DEFAULT_FILTER_PREFERENCES).forEach(key => {
+        const isVisible = prefs[key] !== false;
+        const els = document.querySelectorAll(`[data-filter-id="${key}"]`);
+        els.forEach(el => {
+            if (isVisible) {
+                el.classList.remove('!hidden');
+            } else {
+                el.classList.add('!hidden');
+            }
+        });
+    });
+}
+
+export async function loadTenantFilterPreferences() {
+    loadAndApplyFilterPreferences();
+
+    const tenantId = getCurrentTenantId();
+    try {
+        let query = supabase
+            .from('home_settings')
+            .select('setting_value')
+            .eq('setting_key', 'gallery_filter_settings');
+        if (tenantId) query = query.eq('tenant_id', tenantId);
+
+        const { data, error } = await query.maybeSingle();
+        if (!error && data && data.setting_value) {
+            localStorage.setItem(getFilterPrefsKey(), data.setting_value.trim());
+            loadAndApplyFilterPreferences();
+        }
+    } catch (err) {
+        console.warn('Error fetching tenant gallery filter settings:', err);
+    }
+}
+
+export async function loadTenantDefaultModelImage() {
+    const tenantId = getCurrentTenantId();
+    const cacheKey = `devo_default_model_img_${tenantId || 'default'}`;
+    
+    // Fast-path: read from localStorage immediately
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        window.tenantDefaultModelImage = cached;
+    }
+
+    try {
+        let query = supabase
+            .from('home_settings')
+            .select('setting_value')
+            .eq('setting_key', 'default_model_image');
+        if (tenantId) query = query.eq('tenant_id', tenantId);
+
+        const { data, error } = await query.maybeSingle();
+        if (!error && data && data.setting_value) {
+            window.tenantDefaultModelImage = data.setting_value.trim();
+            localStorage.setItem(cacheKey, window.tenantDefaultModelImage);
+        } else if (!error && !data && cached) {
+            localStorage.removeItem(cacheKey);
+            window.tenantDefaultModelImage = null;
+        }
+    } catch (err) {
+        console.warn('Error loading tenant default model image:', err);
+    }
+}
+
 export async function initGallery() {
+    loadTenantDefaultModelImage();
+    loadTenantFilterPreferences();
     const { session } = getCurrentSession();
     currentUser = session ? session.user : null;
     
@@ -26,12 +120,38 @@ export async function initGallery() {
         || (currentUser.role === 'worker' && (currentUser.worker_job === 'showroom' || currentUser.worker_job === 'both'))
     );
 
-    // تحميل السلة المحلية وإظهار زر السلة العائم للجميع
+    // تحميل السلة المحلية وإظهار زر السلة العائم للجميع إلا إذا كنا في تابات عن النظام والاشتراكات
     loadLocalCart();
-    document.getElementById('floating-cart-btn')?.classList.remove('hidden');
+    const isNonCartView = window.currentView === 'view-landing-overview' 
+                       || window.currentView === 'view-landing-pricing' 
+                       || window.currentView === 'view-landing'
+                       || window.currentView === 'view-mall';
+    if (!isNonCartView) {
+        document.getElementById('floating-cart-btn')?.classList.remove('hidden');
+    } else {
+        document.getElementById('floating-cart-btn')?.classList.add('hidden');
+    }
 
-    document.getElementById('gal-search')?.addEventListener('input', applyGalleryFilters);
+    // تفعيل تفضيلات إظهار وإخفاء الفلاتر
+    loadAndApplyFilterPreferences();
+
+    // مستمعات عناصر البحث والفلترة
+    document.getElementById('gal-search')?.addEventListener('input', () => {
+        const clearBtn = document.getElementById('gal-search-clear');
+        const val = document.getElementById('gal-search')?.value.trim();
+        if (clearBtn) {
+            if (val) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+        applyGalleryFilters();
+    });
+    document.getElementById('gal-search-scope')?.addEventListener('change', applyGalleryFilters);
     document.getElementById('gal-category')?.addEventListener('change', applyGalleryFilters);
+    document.getElementById('gal-class')?.addEventListener('change', applyGalleryFilters);
+    document.getElementById('gal-c1')?.addEventListener('change', applyGalleryFilters);
+    document.getElementById('gal-c2')?.addEventListener('change', applyGalleryFilters);
+    document.getElementById('gal-price-min')?.addEventListener('input', applyGalleryFilters);
+    document.getElementById('gal-price-max')?.addEventListener('input', applyGalleryFilters);
     document.getElementById('gal-sort')?.addEventListener('change', applyGalleryFilters);
 
     await fetchGalleryModels();
@@ -73,7 +193,7 @@ async function fetchGalleryModels() {
         try {
             allModels = JSON.parse(cachedData);
             window.allGalleryModels = allModels;
-            populateCategoryFilter();
+            populateAllFilterDropdowns();
             applyGalleryFilters();
         } catch (e) {
             console.warn('تجاوز كاش المعرض التالف:', e);
@@ -89,9 +209,11 @@ async function fetchGalleryModels() {
         .from('models')
         .select(`
             *,
-            categories(name),
-            classes(name, class_sizes(sizes(name))),
-            model_sizes(sizes(name)),
+            categories(id, name),
+            classifications_1(id, name),
+            classifications_2(id, name),
+            classes(id, name, class_sizes(sort_order, sizes(id, name))),
+            model_sizes(sizes(id, name)),
             model_inventory(color_id, available_series, color_system_code, color_factory_code, colors(name)),
             model_images(image_url)
         `)
@@ -115,20 +237,54 @@ async function fetchGalleryModels() {
         console.warn('فشل حفظ كاش المعرض بالـ LocalStorage:', e);
     }
     
-    populateCategoryFilter();
+    populateAllFilterDropdowns();
     applyGalleryFilters();
 }
 
-function populateCategoryFilter() {
+function populateAllFilterDropdowns() {
+    // 1. التصنيف الرئيسي
     const catSelect = document.getElementById('gal-category');
-    if (!catSelect) return;
-    const currentVal = catSelect.value;
-    currentCategories = new Set();
-    allModels.forEach(m => { if(m.categories?.name) currentCategories.add(m.categories.name); });
-    let catOptions = `<option value="">جميع التصنيفات</option>`;
-    currentCategories.forEach(cat => catOptions += `<option value="${cat}">${cat}</option>`);
-    catSelect.innerHTML = catOptions;
-    if (currentVal) catSelect.value = currentVal;
+    if (catSelect) {
+        const cur = catSelect.value;
+        const cats = new Set();
+        allModels.forEach(m => { if(m.categories?.name) cats.add(m.categories.name); });
+        catSelect.innerHTML = `<option value="">جميع التصنيفات</option>` + 
+            [...cats].sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        if (cur && cats.has(cur)) catSelect.value = cur;
+    }
+
+    // 2. الفئة العمرية
+    const clsSelect = document.getElementById('gal-class');
+    if (clsSelect) {
+        const cur = clsSelect.value;
+        const clss = new Set();
+        allModels.forEach(m => { if(m.classes?.name) clss.add(m.classes.name); });
+        clsSelect.innerHTML = `<option value="">جميع الفئات العمرية</option>` + 
+            [...clss].sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        if (cur && clss.has(cur)) clsSelect.value = cur;
+    }
+
+    // 3. تصنيف 1
+    const c1Select = document.getElementById('gal-c1');
+    if (c1Select) {
+        const cur = c1Select.value;
+        const c1s = new Set();
+        allModels.forEach(m => { if(m.classifications_1?.name) c1s.add(m.classifications_1.name); });
+        c1Select.innerHTML = `<option value="">جميع تصنيف 1</option>` + 
+            [...c1s].sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        if (cur && c1s.has(cur)) c1Select.value = cur;
+    }
+
+    // 4. تصنيف 2
+    const c2Select = document.getElementById('gal-c2');
+    if (c2Select) {
+        const cur = c2Select.value;
+        const c2s = new Set();
+        allModels.forEach(m => { if(m.classifications_2?.name) c2s.add(m.classifications_2.name); });
+        c2Select.innerHTML = `<option value="">جميع تصنيف 2</option>` + 
+            [...c2s].sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        if (cur && c2s.has(cur)) c2Select.value = cur;
+    }
 }
 
 // ==========================================
@@ -292,7 +448,9 @@ function updateModelViewerDOM(id) {
 // 🌟 3. الفلترة والرسم (Pagination) 🌟
 // ==========================================
 function resolveImageUrl(url) {
-    if (!url || url.trim() === "" || url === "null" || url === "undefined") return './src/assets/icons/devo.png';
+    if (!url || url.trim() === "" || url === "null" || url === "undefined") {
+        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+    }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
             const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -323,30 +481,190 @@ window.toggleGalleryFilters = () => {
     }
 };
 
+window.clearSearchInput = () => {
+    const sInput = document.getElementById('gal-search');
+    if (sInput) sInput.value = '';
+    const clearBtn = document.getElementById('gal-search-clear');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    applyGalleryFilters();
+};
+
+window.toggleDiscountOnlyFilter = () => {
+    filterOnlyDiscounts = !filterOnlyDiscounts;
+    const btn = document.getElementById('gal-discount-toggle');
+    if (btn) {
+        if (filterOnlyDiscounts) {
+            btn.className = 'bg-rose-600 text-white border border-rose-400 shadow-md ring-2 ring-rose-500/30 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 h-[34px] sm:h-[38px] select-none';
+        } else {
+            btn.className = 'bg-devo-dark border border-devo-gray text-devo-muted hover:border-rose-500/50 hover:text-rose-400 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 h-[34px] sm:h-[38px] select-none';
+        }
+    }
+    applyGalleryFilters();
+};
+
 window.clearGalleryFilters = () => {
-    document.getElementById('gal-search').value = '';
-    document.getElementById('gal-category').value = '';
-    document.getElementById('gal-sort').value = 'newest';
+    const sInput = document.getElementById('gal-search');
+    if (sInput) sInput.value = '';
+    const clearBtn = document.getElementById('gal-search-clear');
+    if (clearBtn) clearBtn.classList.add('hidden');
+
+    const sScope = document.getElementById('gal-search-scope');
+    if (sScope) sScope.value = 'all';
+
+    const catSelect = document.getElementById('gal-category');
+    if (catSelect) catSelect.value = '';
+
+    const clsSelect = document.getElementById('gal-class');
+    if (clsSelect) clsSelect.value = '';
+
+    const c1Select = document.getElementById('gal-c1');
+    if (c1Select) c1Select.value = '';
+
+    const c2Select = document.getElementById('gal-c2');
+    if (c2Select) c2Select.value = '';
+
+    const pMin = document.getElementById('gal-price-min');
+    if (pMin) pMin.value = '';
+
+    const pMax = document.getElementById('gal-price-max');
+    if (pMax) pMax.value = '';
+
+    if (filterOnlyDiscounts) {
+        window.toggleDiscountOnlyFilter();
+    }
+
+    const sortSelect = document.getElementById('gal-sort');
+    if (sortSelect) sortSelect.value = 'newest';
+
     applyGalleryFilters();
 };
 
 function applyGalleryFilters() {
     const term = document.getElementById('gal-search')?.value.toLowerCase().trim() || '';
+    const scope = document.getElementById('gal-search-scope')?.value || 'all';
     const cat = document.getElementById('gal-category')?.value || '';
+    const cls = document.getElementById('gal-class')?.value || '';
+    const c1 = document.getElementById('gal-c1')?.value || '';
+    const c2 = document.getElementById('gal-c2')?.value || '';
+    const pMinRaw = document.getElementById('gal-price-min')?.value;
+    const pMaxRaw = document.getElementById('gal-price-max')?.value;
+    const minPrice = (pMinRaw !== '' && pMinRaw !== null && !isNaN(parseFloat(pMinRaw))) ? parseFloat(pMinRaw) : null;
+    const maxPrice = (pMaxRaw !== '' && pMaxRaw !== null && !isNaN(parseFloat(pMaxRaw))) ? parseFloat(pMaxRaw) : null;
     const sort = document.getElementById('gal-sort')?.value || 'newest';
 
+    // Show/hide search clear button
+    const clearBtn = document.getElementById('gal-search-clear');
+    if (clearBtn) {
+        if (term) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+    }
+
+    // Active filters counter
+    let activeFilters = 0;
+    if (term) activeFilters++;
+    if (cat) activeFilters++;
+    if (cls) activeFilters++;
+    if (c1) activeFilters++;
+    if (c2) activeFilters++;
+    if (minPrice !== null || maxPrice !== null) activeFilters++;
+    if (filterOnlyDiscounts) activeFilters++;
+
+    const badge = document.getElementById('gal-active-filters-count');
+    if (badge) {
+        if (activeFilters > 0) {
+            badge.textContent = activeFilters;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
+    const mobileBadge = document.getElementById('gal-mobile-active-badge');
+    if (mobileBadge) {
+        if (activeFilters > 0) {
+            mobileBadge.textContent = activeFilters;
+            mobileBadge.classList.remove('hidden');
+        } else {
+            mobileBadge.classList.add('hidden');
+        }
+    }
+
     let filtered = allModels.filter(m => {
-        let isMatch = true;
-        const colorCodes = m.model_inventory?.map(inv => `${inv.color_system_code || ''} ${inv.color_factory_code || ''}`).join(' ') || '';
-        const searchStr = `${m.factory_code || ''} ${m.system_code || ''} ${m.name || ''} ${colorCodes}`.toLowerCase();
-        if (term && !searchStr.includes(term)) isMatch = false;
-        if (cat && m.categories?.name !== cat) isMatch = false;
-        return isMatch;
+        // 1. Search filter with scope
+        if (term) {
+            const systemCode = String(m.system_code || '').toLowerCase();
+            const factoryCode = String(m.factory_code || '').toLowerCase();
+            const modelName = String(m.name || '').toLowerCase();
+            const colorCodes = (m.model_inventory || []).map(inv => `${inv.color_system_code || ''} ${inv.color_factory_code || ''}`).join(' ').toLowerCase();
+
+            if (scope === 'code') {
+                const isCodeMatch = systemCode.includes(term) || factoryCode.includes(term) || colorCodes.includes(term);
+                if (!isCodeMatch) return false;
+            } else if (scope === 'name') {
+                if (!modelName.includes(term)) return false;
+            } else {
+                // All: search in codes, name, category, classes, and classifications
+                const catName = String(m.categories?.name || '').toLowerCase();
+                const className = String(m.classes?.name || '').toLowerCase();
+                const c1Name = String(m.classifications_1?.name || '').toLowerCase();
+                const c2Name = String(m.classifications_2?.name || '').toLowerCase();
+                const searchStr = `${factoryCode} ${systemCode} ${modelName} ${colorCodes} ${catName} ${className} ${c1Name} ${c2Name}`;
+                if (!searchStr.includes(term)) return false;
+            }
+        }
+
+        // 2. Main Category
+        if (cat && m.categories?.name !== cat) return false;
+
+        // 3. Class (Age Category)
+        if (cls && m.classes?.name !== cls) return false;
+
+        // 4. Classification 1
+        if (c1 && m.classifications_1?.name !== c1) return false;
+
+        // 5. Classification 2
+        if (c2 && m.classifications_2?.name !== c2) return false;
+
+        // 6. Price range (effective price: discount_price if on sale, otherwise regular price)
+        const effectivePrice = (m.discount_price != null && Number(m.discount_price) > 0 && Number(m.discount_price) < Number(m.price))
+            ? Number(m.discount_price)
+            : Number(m.price || 0);
+
+        if (minPrice !== null && effectivePrice < minPrice) return false;
+        if (maxPrice !== null && effectivePrice > maxPrice) return false;
+
+        // 7. Discounts only
+        if (filterOnlyDiscounts) {
+            const hasDiscount = m.discount_price != null && Number(m.discount_price) > 0 && Number(m.discount_price) < Number(m.price);
+            if (!hasDiscount) return false;
+        }
+
+        return true;
     });
 
-    if (sort === 'price_asc') filtered.sort((a, b) => a.price - b.price);
-    else if (sort === 'price_desc') filtered.sort((a, b) => b.price - a.price);
-    else filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    // Sorting
+    if (sort === 'price_asc') {
+        filtered.sort((a, b) => {
+            const pa = (a.discount_price != null && Number(a.discount_price) > 0 && Number(a.discount_price) < Number(a.price)) ? Number(a.discount_price) : Number(a.price || 0);
+            const pb = (b.discount_price != null && Number(b.discount_price) > 0 && Number(b.discount_price) < Number(b.price)) ? Number(b.discount_price) : Number(b.price || 0);
+            return pa - pb;
+        });
+    } else if (sort === 'price_desc') {
+        filtered.sort((a, b) => {
+            const pa = (a.discount_price != null && Number(a.discount_price) > 0 && Number(a.discount_price) < Number(a.price)) ? Number(a.discount_price) : Number(a.price || 0);
+            const pb = (b.discount_price != null && Number(b.discount_price) > 0 && Number(b.discount_price) < Number(b.price)) ? Number(b.discount_price) : Number(b.price || 0);
+            return pb - pa;
+        });
+    } else if (sort === 'discount_desc') {
+        filtered.sort((a, b) => {
+            const getPct = (m) => (m.discount_price != null && Number(m.discount_price) > 0 && Number(m.discount_price) < Number(m.price))
+                ? ((Number(m.price) - Number(m.discount_price)) / Number(m.price)) * 100
+                : 0;
+            return getPct(b) - getPct(a);
+        });
+    } else {
+        filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
 
     currentFilteredModels = filtered;
     currentPage = 1; 
@@ -387,12 +705,19 @@ function generateGalleryCardHTML(m) {
     
     let stockBadge = '';
     if (isWorker) {
-        if (isOut) stockBadge = `<span class="absolute top-2 right-2 bg-devo-error text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg z-30 font-bold flex items-center gap-1"><i class="ph ph-warning-circle"></i> نفذت</span>`;
-        else if (totalSeries <= 5) stockBadge = `<span class="absolute top-2 right-2 bg-devo-orange text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg z-30 font-bold">متبقي ${totalSeries} سيريه</span>`;
-        else stockBadge = `<span class="absolute top-2 right-2 bg-devo-success text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg z-30 font-bold">متبقي ${totalSeries} سيريه</span>`;
+        if (isOut) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-error text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold flex items-center gap-1"><i class="ph ph-warning-circle"></i> نفذت</span>`;
+        else if (totalSeries <= 5) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-orange text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متبقي ${totalSeries} سيريه</span>`;
+        else stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-success text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متبقي ${totalSeries} سيريه</span>`;
     } else {
-        if (isOut) stockBadge = `<span class="absolute top-2 right-2 bg-devo-black/80 backdrop-blur-sm text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg z-30 font-bold border border-devo-gray">نفذت الكمية</span>`;
-        else stockBadge = `<span class="absolute top-2 right-2 bg-devo-success/20 text-devo-success backdrop-blur-sm border border-devo-success/50 text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg z-30 font-bold">متوفر</span>`;
+        if (isOut) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-black/80 backdrop-blur-sm text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold border border-devo-gray">نفذت الكمية</span>`;
+        else stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-success/20 text-devo-success backdrop-blur-sm border border-devo-success/50 text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متوفر</span>`;
+    }
+
+    const hasDiscount = m.discount_price != null && Number(m.discount_price) > 0 && Number(m.discount_price) < Number(m.price);
+    let discountTag = '';
+    if (hasDiscount) {
+        const discountPct = Math.round(((Number(m.price) - Number(m.discount_price)) / Number(m.price)) * 100);
+        discountTag = `<span style="position:absolute; top:8px; left:8px; z-index:30;" class="bg-gradient-to-r from-rose-600 to-red-600 text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-md font-black shadow-lg flex items-center gap-1 border border-white/20"><i class="ph-bold ph-tag"></i> خصم ${discountPct}%</span>`;
     }
 
     const cardStyle = isOut ? 'grayscale opacity-80' : 'card-hover cursor-pointer';
@@ -400,10 +725,11 @@ function generateGalleryCardHTML(m) {
     return `
     <div id="gallery-card-${m.id}" class="product-card bg-devo-dark border border-devo-gray rounded-xl sm:rounded-2xl overflow-hidden flex flex-col relative group transition-all duration-300 shadow-md ${cardStyle}" onclick="openModelViewer('${m.id}')">
         ${stockBadge}
+        ${discountTag}
         <div class="h-44 sm:h-64 md:h-72 bg-devo-black relative overflow-hidden flex items-center justify-center p-3 border-b border-devo-gray/50">
             <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-30 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
             <div class="absolute inset-0 bg-devo-black/10 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-500 group-hover:scale-[1.03]" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">
+            <img src="${mainImg}" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-500 group-hover:scale-[1.03]" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">
         </div>
         <div class="p-2.5 sm:p-4 flex flex-col flex-1 justify-between z-10 relative bg-devo-dark">
             <div>
@@ -411,8 +737,14 @@ function generateGalleryCardHTML(m) {
                 <h3 class="text-devo-text font-black text-xs sm:text-base md:text-lg mb-0.5 sm:mb-1 truncate" title="${m.name}">${m.name}</h3>
             </div>
             <div class="flex justify-between items-end mt-1 sm:mt-2">
-                <span class="text-devo-muted text-[10px] sm:text-xs flex items-center gap-1"><i class="ph ph-tag text-devo-orange"></i> ${m.categories?.name || 'بدون تصنيف'}</span>
-                <p class="text-devo-orange font-black text-sm sm:text-lg md:text-xl">${m.price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>
+                <span class="text-devo-muted text-[10px] sm:text-xs flex items-center gap-1 truncate max-w-[55%]"><i class="ph ph-tag text-devo-orange"></i> ${m.categories?.name || 'بدون تصنيف'}</span>
+                ${hasDiscount 
+                    ? `<div class="text-left">
+                           <span class="line-through text-devo-muted text-[10px] sm:text-xs font-normal block leading-none mb-0.5">${m.price} ج.م</span>
+                           <p class="text-devo-orange font-black text-sm sm:text-lg md:text-xl leading-none">${m.discount_price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>
+                       </div>`
+                    : `<p class="text-devo-orange font-black text-sm sm:text-lg md:text-xl">${m.price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>`
+                }
             </div>
         </div>
     </div>`;
@@ -464,7 +796,10 @@ window.openModelViewer = (id, skipHistory = false) => {
         history.pushState({ modelId: id }, '', newUrl);
     }
 
-    const classSizes = model.classes?.class_sizes || [];
+    let classSizes = model.classes?.class_sizes || [];
+    if (classSizes.length > 0) {
+        classSizes = [...classSizes].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    }
     const sizesCount = classSizes.length > 0 ? classSizes.length : (model.model_sizes?.length || 1);
 
     const modal = document.getElementById('model-viewer-modal');
@@ -478,9 +813,9 @@ window.openModelViewer = (id, skipHistory = false) => {
         <div class="bg-devo-black rounded-xl overflow-hidden border border-devo-gray h-56 sm:h-72 md:h-[380px] mb-2 sm:mb-3 flex items-center justify-center p-4 relative">
             <img src="${mainImg}" id="viewer-blur-bg" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
             <div class="absolute inset-0 bg-devo-black/20 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" id="viewer-main-img" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-xl border border-devo-gray/50 shadow-lg" onerror="this.src='./src/assets/icons/devo.png'" decoding="async">
+            <img src="${mainImg}" id="viewer-main-img" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-xl border border-devo-gray/50 shadow-lg" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" decoding="async">
         </div>
-        ${imgs.length > 1 ? `<div class="flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">${imgs.map(img => `<img src="${resolveImageUrl(img.image_url)}" onclick="document.getElementById('viewer-main-img').src=this.src; if(document.getElementById('viewer-blur-bg')) document.getElementById('viewer-blur-bg').src=this.src" class="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover cursor-pointer border border-devo-gray hover:border-devo-orange transition-colors shrink-0" onerror="this.src='./src/assets/icons/devo.png'" loading="lazy" decoding="async">`).join('')}</div>` : ''}
+        ${imgs.length > 1 ? `<div class="flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">${imgs.map(img => `<img src="${resolveImageUrl(img.image_url)}" onclick="document.getElementById('viewer-main-img').src=this.src; if(document.getElementById('viewer-blur-bg')) document.getElementById('viewer-blur-bg').src=this.src" class="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover cursor-pointer border border-devo-gray hover:border-devo-orange transition-colors shrink-0" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">`).join('')}</div>` : ''}
     `;
 
     const renderSizesTags = classSizes.length > 0 
@@ -530,7 +865,16 @@ window.openModelViewer = (id, skipHistory = false) => {
                         <div>
                             <p class="text-devo-muted text-[10px] sm:text-xs font-mono mb-0.5">كود: ${model.factory_code || model.system_code}</p>
                             <h2 id="viewer-name" class="text-lg sm:text-2xl font-black text-white leading-tight">${model.name}</h2>
-                            <p class="text-xl sm:text-3xl text-devo-orange font-black mt-1"><span id="viewer-price">${model.price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>
+                            ${model.discount_price != null && Number(model.discount_price) > 0 && Number(model.discount_price) < Number(model.price)
+                                ? `<div class="flex items-center gap-2 mt-1 flex-wrap">
+                                       <span class="line-through text-devo-muted text-sm sm:text-lg font-normal">${model.price} ج.م</span>
+                                       <p class="text-xl sm:text-3xl text-devo-orange font-black"><span id="viewer-price">${model.discount_price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>
+                                       <span class="bg-gradient-to-r from-red-600 to-rose-500 text-white text-xs px-2.5 py-0.5 rounded-md font-bold shadow-sm flex items-center gap-1">
+                                           <i class="ph-bold ph-tag"></i> وفرت ${(Number(model.price) - Number(model.discount_price)).toFixed(0)} ج.م (${Math.round(((Number(model.price) - Number(model.discount_price)) / Number(model.price)) * 100)}%)
+                                       </span>
+                                   </div>`
+                                : `<p class="text-xl sm:text-3xl text-devo-orange font-black mt-1"><span id="viewer-price">${model.price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>`
+                            }
                         </div>
                         <button onclick="shareModel('${model.id}')" class="flex items-center justify-center gap-1.5 bg-devo-dark border border-devo-gray hover:border-devo-info hover:text-devo-info text-white px-3 py-1.5 rounded-lg transition-colors text-xs sm:text-sm font-bold shrink-0 shadow-sm">
                             <i class="ph ph-share-network text-base"></i> مشاركة

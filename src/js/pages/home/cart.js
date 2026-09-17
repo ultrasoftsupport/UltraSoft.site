@@ -276,12 +276,31 @@ async function loadAndRenderCart() {
     currentCartFilter = 'all';
     updateFilterButtonsUI();
 
+    const currentTenantId = getCurrentTenantId() || 'default';
     const tenantCartKey = getTenantCartKey();
     const tenantEditKey = getTenantEditOrderKey();
-    let saved = localStorage.getItem(tenantCartKey);
-    const savedOrderData = localStorage.getItem(tenantEditKey);
 
-    if (saved) { try { cartItems = JSON.parse(saved); } catch(e) { cartItems = []; } }
+    let saved = localStorage.getItem(tenantCartKey)
+        || localStorage.getItem(`devo_cart_${currentTenantId}`)
+        || localStorage.getItem('devo_cart_default')
+        || localStorage.getItem('devo_cart_00000000-0000-0000-0000-000000000001')
+        || localStorage.getItem('devo_cart');
+
+    let savedOrderData = localStorage.getItem(tenantEditKey)
+        || localStorage.getItem(`devo_edit_order_data_${currentTenantId}`)
+        || localStorage.getItem('devo_edit_order_data_default')
+        || localStorage.getItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001')
+        || localStorage.getItem('devo_edit_order_data');
+
+    if (saved) { 
+        try { 
+            cartItems = JSON.parse(saved); 
+        } catch(e) { 
+            cartItems = []; 
+        } 
+    } else {
+        cartItems = [];
+    }
 
     // 🌟 نقلنا تعبئة البيانات هنا لتعمل في كل مرة يفتح فيها الموظف السلة 🌟
     let originalOrderData = null;
@@ -419,11 +438,18 @@ window.clearEntireCart = async () => {
         cachedDbInventory = [];
         cachedDbModels = [];
 
+        const currentTenantId = getCurrentTenantId() || 'default';
         localStorage.removeItem(getTenantCartKey());
-        localStorage.removeItem(getTenantEditOrderKey());
-        localStorage.removeItem(getTenantEditOrderCacheKey());
+        localStorage.removeItem(`devo_cart_${currentTenantId}`);
+        localStorage.removeItem('devo_cart_default');
+        localStorage.removeItem('devo_cart_00000000-0000-0000-0000-000000000001');
         localStorage.removeItem('devo_cart');
+        localStorage.removeItem(getTenantEditOrderKey());
+        localStorage.removeItem(`devo_edit_order_data_${currentTenantId}`);
+        localStorage.removeItem('devo_edit_order_data_default');
+        localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
         localStorage.removeItem('devo_edit_order_data');
+        localStorage.removeItem(getTenantEditOrderCacheKey());
         localStorage.removeItem('devo_edit_order_data_cache');
         
         clearCustomerDraft();
@@ -783,9 +809,41 @@ async function handleCheckout(e) {
         }
 
         const currentTenantId = getCurrentTenantId();
+
+        // 🛡️ فحص وتدقيق worker_id لضمان وجوده في جدول system_users وتفادي خطأ Foreign Key
+        let validWorkerId = null;
+        if (currentUser && currentUser.id) {
+            try {
+                const { data: userRow } = await supabase
+                    .from('system_users')
+                    .select('id')
+                    .eq('id', currentUser.id)
+                    .maybeSingle();
+
+                if (userRow && userRow.id) {
+                    validWorkerId = userRow.id;
+                } else {
+                    console.warn(`[Cart] User ID (${currentUser.id}) not found in system_users. Attempting tenant owner fallback.`);
+                    const { data: tenantOwner } = await supabase
+                        .from('system_users')
+                        .select('id')
+                        .eq('tenant_id', currentTenantId)
+                        .eq('is_active', true)
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (tenantOwner && tenantOwner.id) {
+                        validWorkerId = tenantOwner.id;
+                    }
+                }
+            } catch (uErr) {
+                console.warn('[Cart] Error validating worker ID in system_users:', uErr);
+            }
+        }
+
         const orderData = {
             tenant_id: currentTenantId,
-            worker_id: currentUser.id,
+            worker_id: validWorkerId,
             customer_name: document.getElementById('c-name').value,
             phone_1: document.getElementById('c-phone1').value,
             phone_2: document.getElementById('c-phone2').value || null,
@@ -875,9 +933,13 @@ async function handleCheckout(e) {
         
         const finalEditingOrderId = editingOrderId;
         editingOrderId = null;
+        const activeTenantId = currentTenantId || 'default';
         localStorage.removeItem(getTenantEditOrderKey());
-        localStorage.removeItem(getTenantEditOrderCacheKey());
+        localStorage.removeItem(`devo_edit_order_data_${activeTenantId}`);
+        localStorage.removeItem('devo_edit_order_data_default');
+        localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
         localStorage.removeItem('devo_edit_order_data');
+        localStorage.removeItem(getTenantEditOrderCacheKey());
         localStorage.removeItem('devo_edit_order_data_cache');
 
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
@@ -960,7 +1022,12 @@ window.closeConfirmModal = () => {
 
 
 function saveCart() {
-    localStorage.setItem(getTenantCartKey(), JSON.stringify(cartItems));
+    const currentTenantId = getCurrentTenantId() || 'default';
+    const cartJson = JSON.stringify(cartItems);
+    try {
+        localStorage.setItem(getTenantCartKey(), cartJson);
+    } catch(e) {}
+    localStorage.setItem(`devo_cart_${currentTenantId}`, cartJson);
     updateFloatingCart();
 }
 
@@ -1254,17 +1321,32 @@ async function logOrderAction(orderId, actionType, notes, extraMeta = {}) {
             ...extraMeta
         };
         
-        const { error } = await supabase.from('order_logs').insert([{
+        let logUserId = null;
+        if (currentUser?.id) {
+            try {
+                const { data: uCheck } = await supabase.from('system_users').select('id').eq('id', currentUser.id).maybeSingle();
+                if (uCheck?.id) logUserId = uCheck.id;
+            } catch (e) {}
+        }
+        
+        const logPayload = {
             tenant_id: currentTenantId,
             order_id: orderId,
-            user_id: userId,
+            user_id: logUserId,
             user_name: userName,
             action_type: actionType,
             notes: notes,
             details: JSON.stringify(enrichedDetails)
-        }]);
+        };
+
+        const { error } = await supabase.from('order_logs').insert([logPayload]);
         if (error) {
-            console.error('Database error inserting order log:', error);
+            if (error.code === '23503' && logUserId) {
+                // Retry without invalid foreign key
+                await supabase.from('order_logs').insert([{ ...logPayload, user_id: null }]);
+            } else {
+                console.error('Database error inserting order log:', error);
+            }
         }
 
         // 📝 تسـجيل الإجراء في سجلات النظام الشاملة

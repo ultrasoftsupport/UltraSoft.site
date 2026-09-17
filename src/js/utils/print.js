@@ -11,7 +11,7 @@ export async function fetchInvoicePrintSettings(targetTenantId = null) {
             try {
                 const { data: tData } = await supabase
                     .from('tenants')
-                    .select('id, name, phone_1, phone_2, address')
+                    .select('id, name, phone, mobile, whatsapp')
                     .eq('id', targetTenantId)
                     .maybeSingle();
                 if (tData) {
@@ -23,7 +23,8 @@ export async function fetchInvoicePrintSettings(targetTenantId = null) {
         }
 
         const fallbackName = tenantObj?.name || 'UltraSoft Collection';
-        const fallbackSub = tenantObj?.phone_1 ? `هاتف: ${tenantObj.phone_1}` : 'Phone: +20 12 12751111';
+        const phoneVal = tenantObj?.phone || tenantObj?.phone_1 || tenantObj?.mobile;
+        const fallbackSub = phoneVal ? `هاتف: ${phoneVal}` : 'Phone: +20 12 12751111';
 
         // 1. محاولة القراءة من جدول tenant_invoice_settings المنظم أولاً
         if (currentTenantId) {

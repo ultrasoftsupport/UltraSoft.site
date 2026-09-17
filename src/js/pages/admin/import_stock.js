@@ -24,10 +24,14 @@ let filteredPreviewData = [];
 let activeView = 'step-1';
 
 export async function initImportStockView() {
-    if (isInitialized) return;
-
-    // تحميل قوالب المصانع في القائمة المنسدلة
+    // تحميل القالب المفعل من الإعدادات وتحديث البطاقة والقائمة المخفية
     getExcelProfiles().then(profiles => {
+        const def = getActiveExcelProfile(profiles);
+        const nameEl = document.getElementById('stock-active-profile-name');
+        if (nameEl && def) nameEl.textContent = def.name;
+        const descEl = document.getElementById('stock-active-profile-desc');
+        if (descEl && def?.description) descEl.textContent = def.description;
+
         const sel = document.getElementById('stock-excel-profile-select');
         if (sel && profiles) {
             sel.innerHTML = profiles.map(p => `
@@ -35,8 +39,11 @@ export async function initImportStockView() {
                     ${p.name} ${p.is_default ? '★ (افتراضي)' : ''}
                 </option>
             `).join('');
+            if (def) sel.value = def.id;
         }
     });
+
+    if (isInitialized) return;
 
     // Attach Step 1 Listeners
     const fileInput = document.getElementById('import-file-input');

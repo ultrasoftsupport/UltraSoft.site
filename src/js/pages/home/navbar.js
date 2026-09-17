@@ -2,7 +2,7 @@ import { getCurrentSession, logoutUser } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { renderHeader, attachMobileMenuToggle } from './header_layouts.js';
 import { supabase } from '../../config/supabase.js';
-import { getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getCurrentTenant, getTenantStorageKey } from '../../services/tenant_service.js';
 
 export async function initNavbar() {
     const { session } = getCurrentSession();
@@ -21,6 +21,9 @@ export async function initNavbar() {
 
     const layoutId = settings.header_layout || 'classic';
 
+    // كاش سياق الهيدر لإعادة تصييره فورياً عند التبديل بين وضع المنصة ووضع المعاينة
+    window._navbarContext = { layoutId, user, settings };
+
     // تطبيق الـ Layout
     renderHeader(layoutId, user, settings);
 
@@ -30,6 +33,36 @@ export async function initNavbar() {
     // تسجيل تحذير الزائر
     window.alertVisitor = () => {
         showToast('يجب أن تكون من ضمن فريق العمل للوصول لهذه الميزة', 'warning');
+    };
+
+    // 🚀 الدخول في وضع المعاينة الحية للمتجر التجريبي (Demo Showcase Mode)
+    window.enterDemoStoreMode = () => {
+        window.isDemoMode = true;
+        const banner = document.getElementById('demo-mode-banner');
+        if (banner) {
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+        }
+        if (window._navbarContext) {
+            renderHeader(window._navbarContext.layoutId, window._navbarContext.user, window._navbarContext.settings);
+        }
+        window.switchSiteView('view-gallery');
+        showToast('🚀 مرحباً بك في وضع المعاينة الحية للمتجر التجريبي (Live Demo)', 'info');
+    };
+
+    // 🚪 الخروج من وضع المعاينة الحية والعودة للمنصة ومول ألترا سوفت
+    window.exitDemoStoreMode = () => {
+        window.isDemoMode = false;
+        const banner = document.getElementById('demo-mode-banner');
+        if (banner) {
+            banner.classList.add('hidden');
+            banner.classList.remove('flex');
+        }
+        if (window._navbarContext) {
+            renderHeader(window._navbarContext.layoutId, window._navbarContext.user, window._navbarContext.settings);
+        }
+        window.switchSiteView('view-mall');
+        showToast('تمت العودة لمنصة ومول ألترا سوفت بنجاح', 'success');
     };
 
     // دالة مساعدة لعرض التنبيهات المخصصة بدلاً من confirm الافتراضي للمتصفح
@@ -86,6 +119,20 @@ export async function initNavbar() {
             window.switchLandingModule?.('pricing');
         } else if (targetId === 'view-landing') {
             window.switchLandingModule?.('overview');
+        }
+
+        // إخفاء زر السلة العائم تماماً في تابات (عن النظام) و (الاشتراكات) و (UltraSoft Mall)، وإظهاره في بقية التابات
+        const floatingCartBtn = document.getElementById('floating-cart-btn');
+        if (floatingCartBtn) {
+            const isNonCartTab = targetId === 'view-landing-overview' 
+                              || targetId === 'view-landing-pricing' 
+                              || targetId === 'view-landing'
+                              || targetId === 'view-mall';
+            if (isNonCartTab) {
+                floatingCartBtn.classList.add('hidden');
+            } else {
+                floatingCartBtn.classList.remove('hidden');
+            }
         }
 
         // تمييز وتظليل التبويب النشط فورياً في جميع الـ Layouts
@@ -206,20 +253,28 @@ export async function initNavbar() {
         || localStorage.getItem(`ultrasoft_site_view_${tenantId}`)
         || localStorage.getItem('ultrasoft_site_view_default');
     
-    let initialView = 'view-home';
+    const tenant = getCurrentTenant?.() || null;
+    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    
+    let initialView = isMainFactory ? 'view-mall' : 'view-home';
 
     if (savedSiteView) {
         const actualSectionId = (savedSiteView === 'view-landing-overview' || savedSiteView === 'view-landing-pricing') ? 'view-landing' : savedSiteView;
         // حماية الزائر من استعادة صفحات مخصصة للعمال فقط
         if (window.isVisitor && savedSiteView === 'view-orders') {
-            initialView = 'view-home';
+            initialView = isMainFactory ? 'view-mall' : 'view-home';
         } else if (document.getElementById(actualSectionId)) {
-            initialView = savedSiteView;
+            // إذا كان على المصنع الرئيسي وحاول فتح صفحات المتجر بدون وضع الـ Demo يتم توجيهه للمول
+            if (isMainFactory && !window.isDemoMode && (savedSiteView === 'view-gallery' || savedSiteView === 'view-barcode' || savedSiteView === 'view-cart')) {
+                initialView = 'view-mall';
+            } else {
+                initialView = savedSiteView;
+            }
         }
     } else if (hasEditOrder) {
         initialView = 'view-cart';
     } else if (window.isDefaultOrInvalidTenant) {
-        initialView = 'view-landing-overview';
+        initialView = 'view-mall';
     }
     
     window.currentView = initialView;

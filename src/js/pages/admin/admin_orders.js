@@ -614,7 +614,9 @@ window.toggleOrderLock = async (id, lockState) => {
 
 // 🌟 دوال مساعدة لشاشتي التفاصيل والتعديل 🌟
 function resolveImageUrl(url) {
-    if (!url || url.trim() === "" || url === "null" || url === "undefined") return './src/assets/icons/devo.png';
+    if (!url || url.trim() === "" || url === "null" || url === "undefined") {
+        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+    }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
             const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);

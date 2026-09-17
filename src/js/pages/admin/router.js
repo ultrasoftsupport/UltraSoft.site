@@ -1,4 +1,5 @@
 import { requireAuth, logoutUser } from '../../services/auth.js';
+import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
 import { initHomeSettingsView, initPromoCardsView } from './home_settings.js';
 // استيراد صفحة المستخدمين (كما كانت في كودك)
@@ -42,6 +43,29 @@ async function authenticateAdmin() {
     
     if (!user) {
         return false;
+    }
+
+    // 🔒 3. التحقق الأمني الحي: التأكد من وجود المستخدم في قاعدة بيانات هذا المصنع (منع الجلسات العالقة من مواقع أخرى)
+    try {
+        const tenantId = getCurrentTenantId();
+        const { data: dbUser, error } = await supabase
+            .from('system_users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+        if (error || !dbUser || !dbUser.is_active || (tenantId && tenantId !== '00000000-0000-0000-0000-000000000001' && dbUser.tenant_id !== tenantId && user.role !== 'super_admin')) {
+            console.warn('[Admin Guard] User session does not exist in this database or tenant. Logging out foreign session.');
+            await logoutUser();
+            return false;
+        }
+
+        // تحديث بيانات الجلسة بأحدث البيانات الفعلية من قاعدة البيانات
+        user.full_name = dbUser.full_name;
+        user.role = dbUser.role;
+        user.username = dbUser.username;
+    } catch (err) {
+        console.error('Error verifying admin user in DB:', err);
     }
 
     currentUserContext = user;
@@ -97,7 +121,30 @@ const views = document.querySelectorAll('.view-section');
 const navLinks = document.querySelectorAll('.nav-link');
 const pageTitle = document.getElementById('page-title');
 
-function switchView(targetId, titleElement) {
+export function switchView(targetId, titleElement) {
+    const settingsSubtabsList = [
+        'view-home-settings',
+        'view-invoice-settings',
+        'view-theme-manager',
+        'view-barcode-settings',
+        'view-telegram-settings',
+        'view-backup-restore',
+        'view-google-drive-settings',
+        'view-excel-settings',
+        'view-api-settings'
+    ];
+
+    if (settingsSubtabsList.includes(targetId)) {
+        const settingsLink = document.querySelector('[data-target="view-settings"]');
+        switchView('view-settings', settingsLink);
+        switchSettingsSubtab(targetId);
+        return;
+    }
+
+    if (!titleElement) {
+        titleElement = document.querySelector(`.nav-link[data-target="${targetId}"]`);
+    }
+
     // 1. Hide all views
     views.forEach(view => {
         view.classList.add('hidden');
@@ -191,6 +238,7 @@ function switchView(targetId, titleElement) {
         subtab: titleElement?.getAttribute('data-subtab') || null
     });
 }
+window.switchView = switchView;
 
 // Map views to their specific JS initialization functions
 async function loadViewLogic(targetId, titleElement) {
@@ -363,6 +411,10 @@ async function loadViewLogic(targetId, titleElement) {
             await switchView('view-settings');
             await switchSettingsSubtab('view-excel-settings');
             break;
+        case 'view-api-settings':
+            await switchView('view-settings');
+            await switchSettingsSubtab('view-api-settings');
+            break;
     }
 }
 
@@ -405,7 +457,8 @@ export async function switchSettingsSubtab(subtabId) {
         'view-telegram-settings': 'بوت التليجرام والإشعارات',
         'view-backup-restore': 'النسخ الاحتياطي والاستعادة',
         'view-google-drive-settings': 'إعدادات Google API',
-        'view-excel-settings': 'قوالب وإعدادات استيراد/تصدير Excel'
+        'view-excel-settings': 'قوالب وإعدادات استيراد/تصدير Excel',
+        'view-api-settings': 'الربط البرمجي ومفاتيح API'
     };
     const pt = document.getElementById('page-title');
     if (pt && settingsTitles[subtabId]) {
@@ -452,16 +505,36 @@ export async function switchSettingsSubtab(subtabId) {
             }
             break;
         }
+        case 'view-api-settings': {
+            const { initApiKeysView } = await import('./api_keys_view.js');
+            if (typeof initApiKeysView === 'function') {
+                await initApiKeysView();
+            }
+            break;
+        }
     }
 }
+window.switchSettingsSubtab = switchSettingsSubtab;
 
 // --- Event Listeners Initialization ---
 async function initRouter() {
     // مراقبة وإظهار بنر الاتصال بالإنترنت عند الانقطاع
     initNetworkStatusMonitor();
 
-    // تزامن المظهر النشط من قاعدة البيانات
-    syncActiveTheme();
+    // 1. تهيئة سياق المصنع النشط أولاً لضمان تحميل الهوية والثيم الصحيح لهذا المصنع
+    try {
+        await initializeTenantContext();
+    } catch(e) { console.error('Tenant init error:', e); }
+
+    // 2. تزامن المظهر النشط الخاص بهذا المصنع من قاعدة البيانات
+    await syncActiveTheme();
+
+    // الاستماع لأي تغيير حي في المظهر
+    window.addEventListener('ultrasoft:themeChanged', (e) => {
+        if (e.detail) {
+            import('../../services/theme.js').then(m => m.applyTheme(e.detail));
+        }
+    });
 
     // Wait for authentication before rendering anything
     const isAuth = await authenticateAdmin();
@@ -732,6 +805,8 @@ export async function refreshAllSystemData(options = {}) {
 }
 
 window.refreshAllSystemData = refreshAllSystemData;
+window.switchView = switchView;
+window.switchSettingsSubtab = switchSettingsSubtab;
 
 // Start the Router
 document.addEventListener('DOMContentLoaded', initRouter);

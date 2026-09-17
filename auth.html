@@ -34,7 +34,19 @@
         // Prevent FOUC: load and apply theme variables from LocalStorage immediately
         (function() {
             try {
-                const savedTheme = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                let savedTheme = null;
+                try {
+                    const sessionStr = localStorage.getItem('devo_session');
+                    if (sessionStr) {
+                        const sess = JSON.parse(sessionStr);
+                        if (sess && sess.tenant_id) {
+                            savedTheme = localStorage.getItem(`ultrasoft_active_theme_${sess.tenant_id}`);
+                        }
+                    }
+                } catch(e) {}
+                if (!savedTheme) {
+                    savedTheme = localStorage.getItem('devo_active_theme') || localStorage.getItem('ultrasoft_active_theme');
+                }
                 if (savedTheme) {
                     const theme = JSON.parse(savedTheme);
                     const colors = theme.colors;
@@ -43,6 +55,7 @@
                         styleEl.id = 'devo-theme-styles-early';
                         const bgHex = colors.page?.bg || '#0b1329';
                         const isLight = bgHex !== '#0b1329' && bgHex !== '#0f172a' && bgHex !== '#0a0a0a' && bgHex !== '#171717';
+                        document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
                         const defaultGray = isLight ? (colors.brand?.secondary || '#e1effe') : '#1e293b';
                         const defaultGrayHover = isLight ? (colors.brand?.secondary_hover || '#bae6fd') : '#334155';
                         const devoGray = colors.borders?.color || defaultGray;
@@ -164,7 +177,8 @@
         async function initAuthPageTenant() {
             const tenant = await initializeTenantContext();
             const slug = getTenantSlugFromURL();
-            if (tenant && slug && slug !== 'default' && slug !== 'super_admin') {
+            const isLocalOrIp = slug === '127' || slug === '127.0.0.1' || slug === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(slug || '');
+            if (tenant && slug && slug !== 'default' && slug !== 'super_admin' && !isLocalOrIp) {
                 applyTenantBranding(tenant);
                 const badge = document.getElementById('login-tenant-badge');
                 const badgeName = document.getElementById('login-tenant-name');
@@ -210,7 +224,13 @@
             }
 
             const tenantParam = new URLSearchParams(window.location.search).get('tenant');
-            const appendTenant = (path) => path + (tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' ? '?tenant=' + tenantParam : '');
+            const isInvalidParam = !tenantParam || 
+                                   tenantParam === 'default' || 
+                                   tenantParam === '127' || 
+                                   tenantParam === '127.0.0.1' || 
+                                   tenantParam === 'localhost' ||
+                                   /^(\d{1,3}\.){3}\d{1,3}$/.test(tenantParam);
+            const appendTenant = (path) => path + (!isInvalidParam ? '?tenant=' + tenantParam : '');
 
             const destinations = [];
             
@@ -270,7 +290,7 @@
                         .single();
                     
                     if (error || !user || !user.is_active) {
-                        logoutUser();
+                        await logoutUser();
                         return;
                     }
 

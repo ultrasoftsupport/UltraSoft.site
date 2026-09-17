@@ -62,18 +62,43 @@ function buildNavLinks(user) {
     const slug = getTenantSlugFromURL();
     const urlParams = new URLSearchParams(window.location.search);
     const tenantParam = urlParams.get('tenant')?.toLowerCase();
-    const isMarketingDomain = (slug === 'default') && (!tenantParam || tenantParam === 'default');
-    const showLandingTab = isMarketingDomain || Boolean(window.isDefaultOrInvalidTenant);
+    const tenant = getCurrentTenant();
+    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    const isDemoMode = Boolean(window.isDemoMode);
 
     const links = [];
 
-    if (showLandingTab) {
-        links.push(
-            { id: 'view-landing-overview', label: 'عن النظام', action: `switchSiteView('view-landing-overview')`, icon: 'ph-sparkle' },
-            { id: 'view-landing-pricing', label: 'الاشتراكات', action: `switchSiteView('view-landing-pricing')`, icon: 'ph-tag' }
-        );
+    // =========================================================
+    // 1. الوضع الخاص بالمصنع الرئيسي (UltraSoft Main Site)
+    // =========================================================
+    if (isMainFactory) {
+        if (!isDemoMode) {
+            // أ) الوضع الطبيعي الافتراضي للموقع الرئيسي:
+            // نظهر تابات المنصة ومول ألترا سوفت وزر الدخول للمعرض التجريبي
+            links.push(
+                { id: 'view-mall', label: 'UltraSoft Mall', action: `switchSiteView('view-mall')`, icon: 'ph-storefront' },
+                { id: 'view-landing-overview', label: 'عن النظام', action: `switchSiteView('view-landing-overview')`, icon: 'ph-sparkle' },
+                { id: 'view-landing-pricing', label: 'الاشتراكات', action: `switchSiteView('view-landing-pricing')`, icon: 'ph-tag' },
+                { id: 'btn-demo-mode', label: 'استكشاف المعرض (Live Demo)', action: `window.enterDemoStoreMode?.()`, icon: 'ph-play-circle', highlight: true }
+            );
+            return links;
+        } else {
+            // ب) وضع المعاينة التجريبية (Live Demo Store Mode) بالمصنع الرئيسي:
+            // نظهر تابات المتجر التجريبية + زر العودة للمنصة والمول
+            links.push(
+                { id: 'view-home', label: 'الرئيسية للمتجر', action: `switchSiteView('view-home')`, icon: 'ph-house' },
+                { id: 'view-gallery', label: 'المعرض التجريبي', action: `switchSiteView('view-gallery')`, icon: 'ph-images' },
+                { id: 'view-barcode', label: 'الباركود', action: `switchSiteView('view-barcode')`, icon: 'ph-qr-code' },
+                { id: 'view-cart', label: 'طلبي التجريبي', action: `switchSiteView('view-cart'); window.refreshCartView?.()`, icon: 'ph-shopping-cart' },
+                { id: 'btn-exit-demo', label: 'العودة للمنصة / المول', action: `window.exitDemoStoreMode?.()`, icon: 'ph-arrow-u-up-left', exit: true }
+            );
+            return links;
+        }
     }
 
+    // =========================================================
+    // 2. الوضع الخاص بكافة المصانع الأخرى (Multi-Tenant Stores)
+    // =========================================================
     links.push({ id: 'view-home', label: 'الرئيسية', action: `switchSiteView('view-home')`, icon: 'ph-house' });
 
     if (user) {
@@ -95,18 +120,29 @@ function buildNavLinks(user) {
 }
 
 function buildNavBtns(links) {
-    return links.map(l =>
-        `<button data-nav-view="${l.id}" onclick="${l.action}" class="px-2.5 xl:px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold text-devo-muted hover:text-devo-text transition-all flex items-center gap-1.5 border border-transparent whitespace-nowrap shrink-0">
+    return links.map(l => {
+        let extraClasses = 'text-devo-muted hover:text-devo-text border-transparent';
+        if (l.highlight) {
+            extraClasses = 'bg-gradient-to-r from-ultra-500/20 to-sky-500/20 text-ultra-400 border-ultra-500/40 hover:bg-ultra-500 hover:text-white shadow-sm';
+        } else if (l.exit) {
+            extraClasses = 'bg-amber-500/15 text-amber-400 border-amber-500/40 hover:bg-amber-500 hover:text-black font-black shadow-sm';
+        }
+        return `<button data-nav-view="${l.id}" onclick="${l.action}" class="px-2.5 xl:px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold transition-all flex items-center gap-1.5 border whitespace-nowrap shrink-0 ${extraClasses}">
             <i class="ph ${l.icon} text-base shrink-0"></i>
             <span class="whitespace-nowrap">${l.label}</span>
-        </button>`
-    ).join('');
+        </button>`;
+    }).join('');
 }
 
 function buildUserArea(user) {
     const hasAdminAccess = user && (user.role === 'owner' || user.role === 'admin');
     const hasWarehouseAccess = user && (user.role === 'owner' || user.role === 'admin' || user.worker_job === 'warehouse' || user.worker_job === 'both');
     const isWorker = user && user.role === 'worker';
+
+    const tenant = getCurrentTenant();
+    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    const isDemoMode = Boolean(window.isDemoMode);
+    const showNotificationBell = !isMainFactory || isDemoMode || hasAdminAccess;
 
     const adminUrl = buildTenantUrl('admin.html');
     const authUrl = buildTenantUrl('auth.html');
@@ -118,7 +154,8 @@ function buildUserArea(user) {
             else if (user.worker_job === 'both') workerTitle = 'مبيعات + مخزن';
         }
         return `
-            <!-- 🔔 جرس الإشعارات الفوري للصفحة الرئيسية -->
+            ${showNotificationBell ? `
+            <!-- 🔔 جرس الإشعارات الفوري -->
             <div class="relative shrink-0" id="home-notifications-wrapper">
                 <button id="notifications-bell-btn" class="relative p-2 rounded-xl bg-devo-dark border border-devo-gray text-devo-muted hover:text-devo-text hover:border-devo-grayHover transition-all shadow-sm shrink-0" title="الإشعارات">
                     <i class="ph ph-bell text-xl"></i>
@@ -133,6 +170,7 @@ function buildUserArea(user) {
                     <div id="notifications-list" class="max-h-72 overflow-y-auto"></div>
                 </div>
             </div>
+            ` : ''}
             ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all shrink-0" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
             <div class="flex items-center gap-2 border-r border-devo-gray pr-3 shrink-0">
                 <div class="text-right shrink-0">
@@ -156,43 +194,58 @@ function buildUserArea(user) {
 
 function buildMobileMenu(user) {
     const hasAdminAccess = user && (user.role === 'owner' || user.role === 'admin');
-    const hasWarehouseAccess = user && (user.role === 'owner' || user.role === 'admin' || user.worker_job === 'warehouse' || user.worker_job === 'both');
     const adminUrl = buildTenantUrl('admin.html');
     const authUrl = buildTenantUrl('auth.html');
 
-    const slug = getTenantSlugFromURL();
-    const urlParams = new URLSearchParams(window.location.search);
-    const tenantParam = urlParams.get('tenant')?.toLowerCase();
-    const isMarketingDomain = (slug === 'default') && (!tenantParam || tenantParam === 'default');
-    const showLandingTab = isMarketingDomain || Boolean(window.isDefaultOrInvalidTenant);
-
-    const landingMobileBtns = showLandingTab
-        ? `
-            <button data-nav-view="view-landing-overview" onclick="switchSiteView('view-landing-overview')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl"></i> عن النظام</button>
-            <button data-nav-view="view-landing-pricing" onclick="switchSiteView('view-landing-pricing')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-tag text-xl"></i> الاشتراكات</button>
-        `
-        : '';
+    const tenant = getCurrentTenant();
+    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    const isDemoMode = Boolean(window.isDemoMode);
 
     let links = '';
-    if (user) {
-        links = `
-            ${landingMobileBtns}
-            <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
-            <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
-            <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
-            <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> السلة</button>
-            <button data-nav-view="view-orders" onclick="switchSiteView('view-orders')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-receipt text-xl"></i> الأوردرات</button>
 
+    if (isMainFactory) {
+        if (!isDemoMode) {
+            links = `
+                <button data-nav-view="view-mall" onclick="switchSiteView('view-mall')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-storefront text-xl"></i> UltraSoft Mall</button>
+                <button data-nav-view="view-landing-overview" onclick="switchSiteView('view-landing-overview')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl"></i> عن النظام</button>
+                <button data-nav-view="view-landing-pricing" onclick="switchSiteView('view-landing-pricing')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-tag text-xl"></i> الاشتراكات</button>
+                <button onclick="window.enterDemoStoreMode?.()" class="py-3 px-4 text-right text-ultra-400 bg-ultra-500/10 rounded-xl border border-ultra-500/30 flex items-center gap-3 font-bold mt-2"><i class="ph ph-play-circle text-xl"></i> استكشاف المعرض (Live Demo)</button>
+            `;
+        } else {
+            links = `
+                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية للمتجر</button>
+                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
+                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي التجريبي</button>
+                <button onclick="window.exitDemoStoreMode?.()" class="py-3 px-4 text-right text-amber-400 bg-amber-500/10 rounded-xl border border-amber-500/30 flex items-center gap-3 font-bold mt-2"><i class="ph ph-arrow-u-up-left text-xl"></i> العودة للمنصة / المول</button>
+            `;
+        }
+    } else {
+        if (user) {
+            links = `
+                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
+                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
+                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> السلة</button>
+                <button data-nav-view="view-orders" onclick="switchSiteView('view-orders')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-receipt text-xl"></i> الأوردرات</button>
+            `;
+        } else {
+            links = `
+                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
+                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
+                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي</button>
+            `;
+        }
+    }
+
+    if (user) {
+        links += `
             ${hasAdminAccess ? `<a href="${adminUrl}" class="py-3 px-4 text-devo-info hover:text-devo-text rounded-xl bg-devo-info/10 flex items-center gap-3"><i class="ph ph-shield-check text-xl"></i> لوحة الإدارة</a>` : ''}
             <button onclick="handleLogout()" class="py-3 px-4 text-devo-error text-right mt-6 rounded-xl bg-devo-error/10 flex items-center gap-3 font-bold"><i class="ph ph-sign-out text-xl"></i> تسجيل خروج</button>
         `;
     } else {
-        links = `
-            ${landingMobileBtns}
-            <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
-            <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
-            <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
-            <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي</button>
+        links += `
             <a href="${authUrl}" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
         `;
     }
@@ -231,8 +284,12 @@ function buildBrandLogo(badgeText = 'Collection') {
         ? `<span class="text-base sm:text-lg xl:text-xl font-black tracking-tight text-devo-text whitespace-nowrap tenant-name">${brandTitle}</span>`
         : `<span class="text-lg xl:text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>`;
 
+    const clickAction = (!isCustomTenant && window.isDemoMode)
+        ? `window.exitDemoStoreMode?.()`
+        : (!isCustomTenant ? `switchSiteView('view-mall')` : `switchSiteView('view-home')`);
+
     return `
-        <div class="cursor-pointer flex items-center gap-3 select-none shrink-0" dir="ltr" onclick="switchSiteView('view-home')">
+        <div class="cursor-pointer flex items-center gap-3 select-none shrink-0" dir="ltr" onclick="${clickAction}">
             <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${brandTitle}" class="tenant-logo brand-logo h-8 sm:h-9 xl:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
             <div class="flex items-center gap-2 shrink-0">
                 ${brandNameHtml}

@@ -42,7 +42,13 @@ export function getTenantSlugFromURL() {
     // 1. التجاوز المباشر عبر معلمة ?tenant=slug
     if (urlParams.has('tenant') && urlParams.get('tenant').trim() !== '') {
         const paramTenant = urlParams.get('tenant').trim().toLowerCase();
-        if (paramTenant !== '127' && paramTenant !== '127.0.0.1' && paramTenant !== 'localhost') {
+        if (
+            paramTenant !== '127' && 
+            paramTenant !== '127.0.0.1' && 
+            paramTenant !== 'localhost' && 
+            paramTenant !== 'default' &&
+            !/^(\d{1,3}\.){3}\d{1,3}$/.test(paramTenant)
+        ) {
             return paramTenant;
         }
     }
@@ -52,25 +58,31 @@ export function getTenantSlugFromURL() {
         return 'super_admin';
     }
 
-    // 3. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
-    const parts = hostname.split('.');
-    if (parts.length >= 3) {
-        const subdomain = parts[0].toLowerCase();
-        if (subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'admin') {
-            return subdomain;
+    // فحص ما إذا كان العنوان هو IP محلي أو localhost لمنع اعتباره Subdomain خاطئ (مثل 127.0.0.1)
+    const isIpAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.includes(':');
+    const isLocalhost = hostname === 'localhost' || hostname.endsWith('.local') || hostname.endsWith('.internal');
+
+    if (!isIpAddress && !isLocalhost) {
+        // 3. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
+        const parts = hostname.split('.');
+        if (parts.length >= 3) {
+            const subdomain = parts[0].toLowerCase();
+            if (subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'admin' && subdomain !== 'default') {
+                return subdomain;
+            }
         }
     }
 
     // 4. استرجاع المصنع النشط المحفوظ بالجلسة إن وجد (لمنع فقدان هوية المصنع أثناء التنقل)
     try {
         const savedSlug = sessionStorage.getItem('current_active_tenant_slug');
-        if (savedSlug && savedSlug !== 'default' && savedSlug !== 'super_admin') {
+        if (savedSlug && savedSlug !== 'default' && savedSlug !== 'super_admin' && savedSlug !== '127' && !/^(\d{1,3}\.){3}\d{1,3}$/.test(savedSlug)) {
             return savedSlug;
         }
         const sessionStr = localStorage.getItem('devo_session');
         if (sessionStr) {
             const sess = JSON.parse(sessionStr);
-            if (sess && sess.tenant_slug && sess.tenant_slug !== 'default' && sess.role !== 'super_admin') {
+            if (sess && sess.tenant_slug && sess.tenant_slug !== 'default' && sess.tenant_slug !== '127' && !/^(\d{1,3}\.){3}\d{1,3}$/.test(sess.tenant_slug) && sess.role !== 'super_admin') {
                 return sess.tenant_slug;
             }
         }
@@ -87,7 +99,13 @@ export function cleanDefaultTenantFromURL() {
     try {
         const url = new URL(window.location.href);
         const tenantParam = url.searchParams.get('tenant')?.toLowerCase();
-        if (tenantParam === 'default' || tenantParam === '127' || tenantParam === '127.0.0.1') {
+        if (
+            tenantParam === 'default' || 
+            tenantParam === '127' || 
+            tenantParam === '127.0.0.1' || 
+            tenantParam === 'localhost' ||
+            /^(\d{1,3}\.){3}\d{1,3}$/.test(tenantParam || '')
+        ) {
             url.searchParams.delete('tenant');
             const cleanUrl = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash;
             window.history.replaceState({}, document.title, cleanUrl);
@@ -107,7 +125,13 @@ export async function initializeTenantContext() {
         let shouldCleanUrl = false;
 
         // 1. التجاوز المباشر لمعلمة default أو المحلية
-        if (tenantParam === 'default' || tenantParam === '127' || tenantParam === '127.0.0.1') {
+        if (
+            tenantParam === 'default' || 
+            tenantParam === '127' || 
+            tenantParam === '127.0.0.1' || 
+            tenantParam === 'localhost' ||
+            /^(\d{1,3}\.){3}\d{1,3}$/.test(tenantParam || '')
+        ) {
             shouldCleanUrl = true;
         }
 
@@ -358,15 +382,26 @@ export function checkTenantQuota(quotaType = 'products', currentCount = 0) {
  * 🔗 7. بناء رابط موجه حصرياً للمصنع الحالي (Strict Tenant Link Builder)
  */
 export function buildTenantUrl(targetPath = '', extraParams = {}) {
-    const slug = getTenantSlugFromURL();
+    const rawSlug = getTenantSlugFromURL();
+    const slug = (rawSlug === '127' || rawSlug === '127.0.0.1' || rawSlug === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(rawSlug || '')) ? 'default' : rawSlug;
     const basePath = targetPath || window.location.pathname;
     const url = new URL(basePath, window.location.origin);
     const currentParams = new URLSearchParams(window.location.search);
 
-    const tenantParam = currentParams.get('tenant') || (slug !== 'default' && slug !== 'super_admin' ? slug : null);
+    const rawTenantParam = currentParams.get('tenant');
+    const validTenantParam = (rawTenantParam && 
+        rawTenantParam !== '127' && 
+        rawTenantParam !== '127.0.0.1' && 
+        rawTenantParam !== 'localhost' && 
+        rawTenantParam !== 'default' &&
+        !/^(\d{1,3}\.){3}\d{1,3}$/.test(rawTenantParam)) ? rawTenantParam : null;
+
+    const tenantParam = validTenantParam || (slug && slug !== 'default' && slug !== 'super_admin' ? slug : null);
     
     if (tenantParam) {
         url.searchParams.set('tenant', tenantParam);
+    } else {
+        url.searchParams.delete('tenant');
     }
 
     Object.keys(extraParams).forEach(k => {

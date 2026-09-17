@@ -162,30 +162,50 @@ export async function logoutUser() {
             return;
         }
 
-        const slug = getTenantSlugFromURL() || 'default';
+        const rawSlug = getTenantSlugFromURL() || 'default';
+        const slug = (rawSlug === '127' || rawSlug === '127.0.0.1' || rawSlug === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(rawSlug)) ? 'default' : rawSlug;
         const currentTenant = getCurrentTenant();
 
-        localStorage.removeItem(`devo_session_${slug}`);
+        // 🧹 مسح شامل لمفاتيح الجلسة لمنع أي حلقات إعادة توجيه لا نهائية بسبب حسابات غير صالحة
+        localStorage.removeItem('devo_session');
+        if (slug) localStorage.removeItem(`devo_session_${slug}`);
         if (currentTenant && currentTenant.id) {
             localStorage.removeItem(`devo_session_${currentTenant.id}`);
         }
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('devo_session')) {
+                localStorage.removeItem(key);
+            }
+        });
+        sessionStorage.removeItem('current_active_tenant_slug');
 
-        // مسح الجلسة العامة إذا كانت تخص هذا المصنع
-        const globalSessionStr = localStorage.getItem('devo_session');
-        if (globalSessionStr) {
-            try {
-                const globalSession = JSON.parse(globalSessionStr);
-                if (globalSession.tenant_slug === slug || (currentTenant && globalSession.tenant_id === currentTenant.id)) {
-                    localStorage.removeItem('devo_session');
-                }
-            } catch(e) { localStorage.removeItem('devo_session'); }
+        try {
+            await supabase.auth.signOut();
+        } catch(signOutErr) {
+            console.warn('Supabase signOut notice:', signOutErr);
         }
 
-        await supabase.auth.signOut();
+        const isOnAuthPage = window.location.pathname.endsWith('/auth.html') || window.location.pathname.endsWith('auth.html');
+        if (isOnAuthPage) {
+            // إذا كنا بالفعل داخل صفحة تسجيل الدخول، نكتفي بتنظيف رابط الـ URL بدون إعادة تحميل
+            const cleanUrlObj = new URL(window.location.href);
+            if (cleanUrlObj.searchParams.has('tenant')) {
+                const t = cleanUrlObj.searchParams.get('tenant')?.toLowerCase();
+                if (t === '127' || t === '127.0.0.1' || t === 'default' || t === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(t || '')) {
+                    cleanUrlObj.searchParams.delete('tenant');
+                    window.history.replaceState({}, document.title, cleanUrlObj.pathname + (cleanUrlObj.searchParams.toString() ? '?' + cleanUrlObj.searchParams.toString() : ''));
+                }
+            }
+            return;
+        }
+
         window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
     } catch (e) {
         console.error('Signout error:', e);
-        window.location.href = 'auth.html';
+        localStorage.removeItem('devo_session');
+        if (!window.location.pathname.includes('auth.html')) {
+            window.location.href = 'auth.html';
+        }
     }
 }
 
@@ -207,7 +227,8 @@ export function getCurrentSession() {
         }
     }
 
-    const slug = getTenantSlugFromURL() || 'default';
+    const rawSlug = getTenantSlugFromURL() || 'default';
+    const slug = (rawSlug === '127' || rawSlug === '127.0.0.1' || rawSlug === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(rawSlug)) ? 'default' : rawSlug;
     const currentTenant = getCurrentTenant();
     const currentTenantId = currentTenant?.id || getCurrentTenantId();
 
@@ -248,7 +269,8 @@ export function getCurrentSession() {
  */
 export function requireAuth(allowedRoles = []) {
     const { session } = getCurrentSession();
-    const slug = getTenantSlugFromURL();
+    const rawSlug = getTenantSlugFromURL();
+    const slug = (rawSlug === '127' || rawSlug === '127.0.0.1' || rawSlug === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(rawSlug || '')) ? 'default' : rawSlug;
     const isSuperAdminRoute = allowedRoles.includes('super_admin') || window.location.pathname.includes('super_admin');
     
     if (!session) {
