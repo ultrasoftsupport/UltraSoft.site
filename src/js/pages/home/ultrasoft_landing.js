@@ -876,6 +876,7 @@ function getDefaultComparisonFeatures(limitsMap) {
     return [
         {
             feature_name: 'الموديلات النشطة بالمعرض',
+            icon: 'ph ph-t-shirt text-ultra-400',
             plan_values: {
                 quarterly: fmtLimitVal(qLim.max_products, 200, ' موديل'),
                 semi_annual: fmtLimitVal(sLim.max_products, 600, ' موديل'),
@@ -884,6 +885,7 @@ function getDefaultComparisonFeatures(limitsMap) {
         },
         {
             feature_name: 'إجمالي الموديلات بالمعرض',
+            icon: 'ph ph-squares-four text-sky-400',
             plan_values: {
                 quarterly: fmtLimitVal(qLim.max_total_products, 500, ' موديل'),
                 semi_annual: fmtLimitVal(sLim.max_total_products, 1500, ' موديل'),
@@ -892,6 +894,7 @@ function getDefaultComparisonFeatures(limitsMap) {
         },
         {
             feature_name: 'حد الفواتير المسموح إنشاؤها',
+            icon: 'ph ph-receipt text-emerald-400',
             plan_values: {
                 quarterly: fmtLimitVal(qLim.max_invoices, 1000, ' فاتورة'),
                 semi_annual: fmtLimitVal(sLim.max_invoices, 5000, ' فاتورة'),
@@ -900,6 +903,7 @@ function getDefaultComparisonFeatures(limitsMap) {
         },
         {
             feature_name: 'رصيد Excel الشهري المفتوح',
+            icon: 'ph ph-file-arrow-up text-amber-400',
             plan_values: {
                 quarterly: `${(qLim.monthly_excel_credits ?? 200).toLocaleString()} ⚡/ش`,
                 semi_annual: `${(sLim.monthly_excel_credits ?? 500).toLocaleString()} ⚡/ش`,
@@ -908,6 +912,7 @@ function getDefaultComparisonFeatures(limitsMap) {
         },
         {
             feature_name: 'مستخدمو فريق العمل',
+            icon: 'ph ph-users-three text-purple-400',
             plan_values: {
                 quarterly: `حتى ${qLim.max_users ?? 4} أفراد`,
                 semi_annual: `حتى ${sLim.max_users ?? 10} أفراد`,
@@ -916,26 +921,32 @@ function getDefaultComparisonFeatures(limitsMap) {
         },
         {
             feature_name: 'الرفع والتعديل المجمع عبر Excel',
+            icon: 'ph ph-file-arrow-up text-amber-400',
             plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
         },
         {
             feature_name: 'حساب العربون وتقارير الإيداعات',
+            icon: 'ph ph-hand-coins text-blue-400',
             plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
         },
         {
             feature_name: 'قارئ واستيكر الباركود الضوئي',
+            icon: 'ph ph-qr-code text-sky-400',
             plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
         },
         {
             feature_name: 'تخصيص المظهر والهوية على الفاتورة',
+            icon: 'ph ph-palette text-rose-400',
             plan_values: { quarterly: 'غير متاح', semi_annual: 'متاح', annual: 'متاح' }
         },
         {
             feature_name: 'الدعم الفني والتدريب الكامل',
+            icon: 'ph ph-headphones text-rose-400',
             plan_values: { quarterly: '24/7 طوال الأسبوع', semi_annual: 'أولوية مرتفعة 24/7', annual: 'VIP أولوية كبار العملاء' }
         },
         {
             feature_name: 'النسخ الاحتياطي السحابي التلقائي',
+            icon: 'ph ph-database text-teal-400',
             plan_values: { quarterly: 'متاح', semi_annual: 'متاح', annual: 'متاح' }
         }
     ];
@@ -1205,7 +1216,7 @@ function renderMobileComparisonRows() {
     mobileBody.innerHTML = currentComparisonFeatures.map(feat => {
         const vals = feat.plan_values || {};
         const val = vals[activeMobilePlanKey] || 'متاح';
-        const iconClass = getFeatureIconClass(feat.feature_name || '');
+        const iconClass = (feat.icon && feat.icon.trim().length > 0) ? feat.icon : getFeatureIconClass(feat.feature_name || '');
 
         return `
             <tr>
@@ -1276,13 +1287,17 @@ function renderLandingComparisonTable(features) {
             const sVal = vals.semi_annual || 'متاح';
             const aVal = vals.annual || 'متاح';
 
-            const iconClass = getFeatureIconClass(feat.feature_name || '');
+            const iconClass = (feat.icon && feat.icon.trim().length > 0) ? feat.icon : getFeatureIconClass(feat.feature_name || '');
 
             return `
-                <tr>
-                    <td class="p-4 font-bold text-devo-text flex items-center gap-2">
-                        <i class="${iconClass}"></i>
-                        <span>${feat.feature_name}</span>
+                <tr class="hover:bg-devo-gray/10 transition">
+                    <td class="p-4 font-bold text-devo-text">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-devo-black/70 border border-devo-gray/60 flex items-center justify-center shrink-0 shadow-inner">
+                                <i class="${iconClass} text-base shrink-0"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm">${feat.feature_name}</span>
+                        </div>
                     </td>
                     <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">${formatLandingVal(qVal)}</td>
                     <td class="p-4 text-center font-bold text-sky-400 bg-ultra-500/5">${formatLandingVal(sVal)}</td>

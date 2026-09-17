@@ -732,19 +732,26 @@
                                     <i class="ph ph-table text-amber-400 text-xl"></i>
                                     جدول المقارنة الشامل لكافة ميزات ووظائف المنظومة
                                 </h4>
-                                <p class="text-xs text-devo-muted">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft
-                                    للعملاء</p>
+                                <p class="text-xs text-devo-muted">مقارنة تفصيلية تستعرض جميع إمكانيات منظومة UltraSoft للعملاء (يمكنك سحب وإفلات الصفوف لإعادة ترتيبها)</p>
                             </div>
-                            <span id="comparisonFeaturesCountBadge"
-                                class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">--
-                                ميزة</span>
+                            <div class="flex items-center gap-3">
+                                <span id="comparisonFeaturesCountBadge"
+                                    class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">--
+                                    ميزة</span>
+                                <button type="button" id="addComparisonFeatureBtn"
+                                    class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-all flex items-center gap-1.5 shadow-lg hover:shadow-amber-500/20 cursor-pointer">
+                                    <i class="ph ph-plus-circle text-base font-bold"></i>
+                                    <span>إضافة ميزة جديدة</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto rounded-xl border border-devo-gray">
                             <table class="w-full text-right border-collapse">
                                 <thead>
                                     <tr
-                                        class="bg-devo-black border-b border-devo-gray text-xs font-bold text-devo-muted">
+                                        class="bg-devo-black border-b border-devo-gray text-xs font-bold text-devo-muted select-none">
+                                        <th class="py-4 px-3 text-center w-20 min-w-[80px]" title="اسحب وأفلت لإعادة الترتيب">ترتيب</th>
                                         <th class="py-4 px-6 min-w-[240px]">الوظيفة / مميزات المنظومة</th>
                                         <th class="py-4 px-6 text-center text-emerald-400 min-w-[180px]">اشتراك 3 أشهر
                                             (7,000 ج.م)</th>
@@ -752,12 +759,12 @@
                                             (10,000 ج.م)</th>
                                         <th class="py-4 px-6 text-center text-amber-400 min-w-[180px]">اشتراك سنة
                                             (15,000 ج.م)</th>
-                                        <th class="py-4 px-6 text-center min-w-[100px]">إدارة</th>
+                                        <th class="py-4 px-4 text-center min-w-[90px]">إدارة</th>
                                     </tr>
                                 </thead>
                                 <tbody id="comparisonTableBody" class="divide-y divide-devo-gray/50 text-xs">
                                     <tr>
-                                        <td colspan="5" class="py-8 text-center text-devo-muted">
+                                        <td colspan="6" class="py-8 text-center text-devo-muted">
                                             <i
                                                 class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
                                             جاري تحميل جدول المقارنة...
@@ -3537,7 +3544,7 @@
                     <span>خطوة الأمان الأولى: أدخل رمز PIN الماستر الخاص بك بالسوبر أدمن.</span>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-amber-400 block flex items-center justify-between">
+                    <label class="text-xs font-bold text-amber-400 flex items-center justify-between">
                         <span>رمز الحماية الماستر (Master PIN) *</span>
                         <span class="text-[10px] text-devo-muted">6 أرقام</span>
                     </label>
@@ -3880,7 +3887,7 @@
     <div id="editComparisonFeatureModal"
         class="fixed inset-0 bg-black/85 backdrop-blur-md z-[120] hidden items-center justify-center p-4">
         <div
-            class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative text-devo-text">
+            class="bg-devo-dark border border-amber-500/50 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative text-devo-text max-h-[92vh] overflow-y-auto">
             <button id="closeEditComparisonModalBtn" type="button"
                 class="absolute top-4 left-4 text-devo-muted hover:text-white text-xl">
                 <i class="ph ph-x"></i>
@@ -3893,7 +3900,7 @@
                 </div>
                 <div>
                     <h3 id="comparisonModalTitle" class="text-base font-black text-white">تعديل ميزة بجدول المقارنة</h3>
-                    <p class="text-xs text-devo-muted">حدد عنوان الوظيفة وموقفها في الباقات المختلفة</p>
+                    <p class="text-xs text-devo-muted">حدد عنوان الوظيفة، أيقونتها المميزة، وموقفها في الباقات المختلفة</p>
                 </div>
             </div>
 
@@ -3904,10 +3911,58 @@
                     <label class="block text-xs font-bold text-devo-muted mb-1">اسم الوظيفة / ميزة المنظومة *</label>
                     <input type="text" id="editComparisonNameInput" required
                         placeholder="مثال: حدود الموديلات النشطة بالمعرض"
-                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-ultra-500 font-bold">
+                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-bold">
                 </div>
 
-                <div class="space-y-3 pt-2">
+                <!-- 🌟 Feature Icon Selector Section -->
+                <div class="bg-devo-black/70 border border-devo-gray p-3.5 rounded-xl space-y-3 shadow-inner">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-black text-amber-400 flex items-center gap-1.5">
+                            <i class="ph ph-sparkle text-base"></i>
+                            أيقونة الميزة (رمز تعبيري مميز):
+                        </label>
+                        <span class="text-[10px] text-devo-muted">اختر من القائمة أو اكتب كلاس Phosphor</span>
+                    </div>
+
+                    <!-- Selected Icon Live Preview + Custom Input -->
+                    <div class="flex items-center gap-3">
+                        <div id="comparisonIconPreviewBox"
+                            class="w-12 h-12 rounded-xl bg-devo-dark border-2 border-amber-500/60 flex items-center justify-center text-2xl shrink-0 shadow-lg"
+                            title="معاينة حية للأيقونة">
+                            <i id="comparisonIconPreviewEl" class="ph ph-check text-ultra-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" id="editComparisonIconInput"
+                                placeholder="كلاس الأيقونة مثلا: ph ph-receipt text-emerald-400"
+                                value="ph ph-check text-ultra-400"
+                                class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- Color Accents Chips -->
+                    <div class="flex items-center gap-1.5 flex-wrap pt-1 border-t border-devo-gray/50">
+                        <span class="text-[11px] font-bold text-devo-muted ml-1">تحديد اللون:</span>
+                        <button type="button" data-icon-color="text-ultra-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-ultra-500/10 border border-ultra-500/30 text-ultra-400 hover:bg-ultra-500/20 cursor-pointer">سماوي ألترا</button>
+                        <button type="button" data-icon-color="text-emerald-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer">أخضر زمردي</button>
+                        <button type="button" data-icon-color="text-sky-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-sky-500/10 border border-sky-500/30 text-sky-400 hover:bg-sky-500/20 cursor-pointer">أزرق سحابي</button>
+                        <button type="button" data-icon-color="text-amber-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 cursor-pointer">ذهبي عنبري</button>
+                        <button type="button" data-icon-color="text-purple-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20 cursor-pointer">بنفسجي ملكي</button>
+                        <button type="button" data-icon-color="text-rose-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 cursor-pointer">وردي دافئ</button>
+                        <button type="button" data-icon-color="text-teal-400" class="comp-color-chip px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-500/10 border border-teal-500/30 text-teal-400 hover:bg-teal-500/20 cursor-pointer">تيل بحري</button>
+                    </div>
+
+                    <!-- Preset Popular Icons Grid -->
+                    <div>
+                        <div class="text-[11px] font-bold text-devo-muted mb-1.5 flex items-center justify-between">
+                            <span>أيقونات مميزة شائعة (اضغط للاختيار الفوري):</span>
+                        </div>
+                        <div id="comparisonIconsGrid" class="grid grid-cols-5 sm:grid-cols-7 gap-1.5 max-h-36 overflow-y-auto p-1.5 bg-devo-dark/90 rounded-xl border border-devo-gray/50 custom-scrollbar">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-1">
                     <label class="block text-xs font-bold text-white">موقف الميزة حسب كل خطة:</label>
 
                     <div class="p-3 rounded-xl bg-devo-black border border-emerald-500/30 space-y-1">
@@ -3931,13 +3986,13 @@
 
                 <div class="pt-3 flex items-center justify-between border-t border-devo-gray">
                     <button type="button" id="deleteComparisonFeatureBtn"
-                        class="px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs font-bold transition hidden">حذف
+                        class="px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs font-bold transition hidden cursor-pointer">حذف
                         البند</button>
                     <div class="flex items-center gap-3 mr-auto">
                         <button type="button" id="cancelEditComparisonModalBtn"
-                            class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white">إلغاء</button>
+                            class="px-4 py-2 rounded-xl bg-devo-black border border-devo-gray text-devo-muted text-xs font-semibold hover:text-white cursor-pointer">إلغاء</button>
                         <button type="submit"
-                            class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold transition flex items-center gap-1 shadow-md">
+                            class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-md cursor-pointer">
                             <i class="ph ph-floppy-disk text-base"></i>
                             حفظ البند
                         </button>
@@ -9038,17 +9093,40 @@
             renderComparisonTable(globalComparisonFeaturesList);
         }
 
-        // Render Comparison Matrix Table
+        // 🌟 Helper for default feature icons
+        function getFeatureIconDefault(name) {
+            if (!name) return 'ph ph-check text-ultra-400';
+            if (name.includes('نشطة')) return 'ph ph-t-shirt text-ultra-400';
+            if (name.includes('إجمالي الموديلات')) return 'ph ph-squares-four text-sky-400';
+            if (name.includes('حد الفواتير')) return 'ph ph-receipt text-emerald-400';
+            if (name.includes('Excel') || name.includes('الرفع')) return 'ph ph-file-arrow-up text-amber-400';
+            if (name.includes('مستخدمين') || name.includes('فريق')) return 'ph ph-users-three text-purple-400';
+            if (name.includes('إشعارات') || name.includes('تليجرام')) return 'ph ph-telegram-logo text-sky-400';
+            if (name.includes('المزامنة') || name.includes('مشاركة')) return 'ph ph-arrows-clockwise text-emerald-400';
+            if (name.includes('تنبيهات') || name.includes('نواقص')) return 'ph ph-bell-ringing text-amber-400';
+            if (name.includes('تعديل الفواتير') || name.includes('أوردرات')) return 'ph ph-pencil-line text-sky-400';
+            if (name.includes('إسناد') || name.includes('عامل')) return 'ph ph-user-switch text-purple-400';
+            if (name.includes('ألوان') || name.includes('مظهر') || name.includes('Themes')) return 'ph ph-palette text-rose-400';
+            if (name.includes('عربون') || name.includes('إيداع')) return 'ph ph-hand-coins text-blue-400';
+            if (name.includes('معرض') || name.includes('باركود')) return 'ph ph-qr-code text-sky-400';
+            if (name.includes('مخزن') || name.includes('شحن')) return 'ph ph-package text-emerald-400';
+            if (name.includes('طباعة') || name.includes('حراري')) return 'ph ph-printer text-blue-400';
+            if (name.includes('دعم') || name.includes('تدريب')) return 'ph ph-headphones text-rose-400';
+            if (name.includes('نسخ') || name.includes('استعادة')) return 'ph ph-database text-teal-400';
+            return 'ph ph-check text-ultra-400';
+        }
+
+        // Render Comparison Matrix Table with Drag & Drop Reordering and Icons
         function renderComparisonTable(features) {
             const tbody = document.getElementById('comparisonTableBody');
             if (!tbody) return;
 
             if (!features || features.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-devo-muted">لا توجد مميزات في جدول المقارنة</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-devo-muted">لا توجد مميزات في جدول المقارنة</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = features.map(feat => {
+            tbody.innerHTML = features.map((feat, idx) => {
                 const vals = feat.plan_values || {};
                 const qVal = vals.quarterly || 'متاح';
                 const sVal = vals.semi_annual || 'متاح';
@@ -9060,23 +9138,55 @@
                     return `<span class="font-bold ${colorClass}">${v}</span>`;
                 };
 
+                const iconClass = feat.icon && feat.icon.trim().length > 0 ? feat.icon : getFeatureIconDefault(feat.feature_name);
+
                 return `
-                    <tr class="hover:bg-devo-gray/30 transition-all border-b border-devo-gray/40">
-                        <td class="py-4 px-6 font-bold text-white flex items-center gap-2">
-                            <i class="ph ph-check text-ultra-400 text-base"></i>
-                            <span>${feat.feature_name}</span>
+                    <tr draggable="true" data-feature-id="${feat.id}" data-index="${idx}" class="comp-feature-row group hover:bg-devo-gray/25 transition-all border-b border-devo-gray/40 select-none">
+                        <!-- Reorder Handle & Rank -->
+                        <td class="py-3.5 px-3 text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <div class="comp-drag-handle cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-devo-muted hover:text-amber-400 hover:bg-amber-500/10 transition" title="اسحب وأفلت لإعادة الترتيب">
+                                    <i class="ph ph-dots-six-vertical text-lg font-bold"></i>
+                                </div>
+                                <span class="comp-order-badge px-2 py-0.5 rounded-md text-[11px] font-mono font-black bg-devo-black border border-devo-gray text-amber-400/90 shadow-sm">${idx + 1}</span>
+                                <div class="flex flex-col gap-0.5 mr-0.5">
+                                    <button type="button" data-move-index="${idx}" data-move-dir="up" class="btn-move-comp-step p-0.5 rounded hover:bg-devo-gray text-devo-muted hover:text-amber-400 disabled:opacity-20 disabled:hover:text-devo-muted transition cursor-pointer" ${idx === 0 ? 'disabled' : ''} title="تحريك خطوة لأعلى">
+                                        <i class="ph ph-caret-up text-xs font-bold"></i>
+                                    </button>
+                                    <button type="button" data-move-index="${idx}" data-move-dir="down" class="btn-move-comp-step p-0.5 rounded hover:bg-devo-gray text-devo-muted hover:text-amber-400 disabled:opacity-20 disabled:hover:text-devo-muted transition cursor-pointer" ${idx === features.length - 1 ? 'disabled' : ''} title="تحريك خطوة لأسفل">
+                                        <i class="ph ph-caret-down text-xs font-bold"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </td>
+
+                        <!-- Feature Name & Icon -->
+                        <td class="py-4 px-6 font-bold text-white">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-xl bg-devo-black border border-devo-gray/70 group-hover:border-amber-500/50 flex items-center justify-center shrink-0 shadow-inner transition-colors">
+                                    <i class="${iconClass} text-base"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm text-slate-100 font-bold">${feat.feature_name}</span>
+                            </div>
+                        </td>
+
+                        <!-- Plan Values -->
                         <td class="py-4 px-6 text-center">${formatVal(qVal, 'text-emerald-400')}</td>
                         <td class="py-4 px-6 text-center">${formatVal(sVal, 'text-sky-400')}</td>
                         <td class="py-4 px-6 text-center">${formatVal(aVal, 'text-amber-400')}</td>
-                        <td class="py-4 px-6 text-center">
-                            <button type="button" data-feature-id="${feat.id}" class="edit-comparison-feature-btn p-2 rounded-lg bg-devo-black hover:bg-ultra-500 text-devo-muted hover:text-white border border-devo-gray transition-all cursor-pointer" title="تعديل الميزة">
-                                <i class="ph ph-pencil-simple text-base"></i>
+
+                        <!-- Actions -->
+                        <td class="py-4 px-4 text-center">
+                            <button type="button" data-feature-id="${feat.id}" class="edit-comparison-feature-btn p-2 rounded-xl bg-devo-black hover:bg-amber-500 hover:text-slate-950 text-devo-muted border border-devo-gray hover:border-amber-500 transition-all cursor-pointer shadow" title="تعديل الميزة والأيقونة">
+                                <i class="ph ph-pencil-simple text-base font-bold"></i>
                             </button>
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            // Attach HTML5 Drag & Drop Listeners
+            initComparisonDragAndDrop();
         }
 
         // Plan Card Editor Modal logic
@@ -9280,6 +9390,169 @@
             });
         }
 
+        // =========================================================================
+        // 🌟 COMPARISON MATRIX FEATURES: ICONS & DRAG & DROP REORDER ENGINE
+        // =========================================================================
+        const PRESET_COMPARISON_ICONS = [
+            { icon: 'ph ph-check', label: 'افتراضي' },
+            { icon: 'ph ph-t-shirt', label: 'موديلات' },
+            { icon: 'ph ph-squares-four', label: 'أصناف' },
+            { icon: 'ph ph-receipt', label: 'فواتير' },
+            { icon: 'ph ph-file-arrow-up', label: 'إكسيل' },
+            { icon: 'ph ph-users-three', label: 'مستخدمين' },
+            { icon: 'ph ph-telegram-logo', label: 'تليجرام' },
+            { icon: 'ph ph-arrows-clockwise', label: 'مزامنة' },
+            { icon: 'ph ph-bell-ringing', label: 'تنبيهات' },
+            { icon: 'ph ph-pencil-line', label: 'تعديل' },
+            { icon: 'ph ph-user-switch', label: 'إسناد' },
+            { icon: 'ph ph-palette', label: 'ثيمات' },
+            { icon: 'ph ph-hand-coins', label: 'عربون' },
+            { icon: 'ph ph-qr-code', label: 'باركود' },
+            { icon: 'ph ph-package', label: 'مخازن' },
+            { icon: 'ph ph-printer', label: 'طباعة' },
+            { icon: 'ph ph-headphones', label: 'دعم' },
+            { icon: 'ph ph-database', label: 'نسخ سحابي' },
+            { icon: 'ph ph-shield-check', label: 'أمان' },
+            { icon: 'ph ph-chart-bar', label: 'تقارير' },
+            { icon: 'ph ph-trend-up', label: 'أرباح' },
+            { icon: 'ph ph-lightning', label: 'سرعة' },
+            { icon: 'ph ph-star', label: 'مميز' },
+            { icon: 'ph ph-crown', label: 'VIP' },
+            { icon: 'ph ph-lock', label: 'صلاحيات' },
+            { icon: 'ph ph-sparkle', label: 'ذكاء' },
+            { icon: 'ph ph-cloud', label: 'سحابي' },
+            { icon: 'ph ph-storefront', label: 'معرض' },
+            { icon: 'ph ph-truck', label: 'شحن' },
+            { icon: 'ph ph-tag', label: 'خصم' },
+            { icon: 'ph ph-gear', label: 'إعدادات' },
+            { icon: 'ph ph-calculator', label: 'حسابات' },
+            { icon: 'ph ph-share-network', label: 'مشاركة' },
+            { icon: 'ph ph-device-mobile', label: 'موبايل' },
+            { icon: 'ph ph-globe', label: 'موقع' }
+        ];
+
+        function initComparisonIconsPicker() {
+            const grid = document.getElementById('comparisonIconsGrid');
+            const iconInput = document.getElementById('editComparisonIconInput');
+            const previewEl = document.getElementById('comparisonIconPreviewEl');
+            if (!grid || !iconInput || !previewEl) return;
+
+            // Render preset icons grid
+            grid.innerHTML = PRESET_COMPARISON_ICONS.map(item => `
+                <button type="button" data-preset-icon="${item.icon}" class="preset-comp-icon-btn p-1.5 rounded-lg bg-devo-black hover:bg-amber-500 hover:text-slate-950 border border-devo-gray hover:border-amber-400 text-devo-text flex flex-col items-center justify-center gap-1 transition-all group cursor-pointer" title="${item.label}">
+                    <i class="${item.icon} text-lg group-hover:scale-115 transition-transform"></i>
+                    <span class="text-[9px] text-devo-muted group-hover:text-slate-950 truncate max-w-full font-bold">${item.label}</span>
+                </button>
+            `).join('');
+
+            // Click preset icon
+            grid.querySelectorAll('.preset-comp-icon-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const chosenBaseIcon = btn.dataset.presetIcon;
+                    const curVal = iconInput.value.trim();
+                    const colorMatch = curVal.match(/text-([a-z]+-[0-9]+)/);
+                    const curColor = colorMatch ? colorMatch[0] : 'text-amber-400';
+                    const newIconClass = `${chosenBaseIcon} ${curColor}`;
+                    iconInput.value = newIconClass;
+                    previewEl.className = newIconClass;
+                });
+            });
+
+            // Color chips
+            document.querySelectorAll('.comp-color-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const newColor = chip.dataset.iconColor;
+                    let curVal = iconInput.value.trim();
+                    if (/text-[a-z]+-[0-9]+/.test(curVal)) {
+                        curVal = curVal.replace(/text-[a-z]+-[0-9]+/, newColor);
+                    } else {
+                        curVal = `${curVal} ${newColor}`;
+                    }
+                    iconInput.value = curVal;
+                    previewEl.className = curVal;
+                });
+            });
+
+            // Live input typing preview
+            iconInput.addEventListener('input', () => {
+                const val = iconInput.value.trim() || 'ph ph-check text-ultra-400';
+                previewEl.className = val;
+            });
+        }
+
+        // 🔀 HTML5 Drag & Drop Reordering Logic for Comparison Features
+        let draggedCompRow = null;
+
+        function initComparisonDragAndDrop() {
+            const tbody = document.getElementById('comparisonTableBody');
+            if (!tbody) return;
+
+            tbody.querySelectorAll('.comp-feature-row').forEach(row => {
+                row.addEventListener('dragstart', (e) => {
+                    draggedCompRow = row;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', row.dataset.featureId);
+                    row.classList.add('opacity-40', 'bg-amber-500/10', 'ring-2', 'ring-amber-500/50');
+                });
+
+                row.addEventListener('dragend', async () => {
+                    if (draggedCompRow) {
+                        draggedCompRow.classList.remove('opacity-40', 'bg-amber-500/10', 'ring-2', 'ring-amber-500/50');
+                        draggedCompRow = null;
+                    }
+
+                    // Re-calculate visual order
+                    const currentRows = Array.from(tbody.querySelectorAll('.comp-feature-row'));
+                    const reorderedFeatures = [];
+                    const orderUpdates = [];
+
+                    currentRows.forEach((r, idx) => {
+                        const fid = r.dataset.featureId;
+                        const feat = globalComparisonFeaturesList.find(f => f.id === fid);
+                        if (feat) {
+                            feat.sort_order = idx + 1;
+                            reorderedFeatures.push(feat);
+                            orderUpdates.push({ id: feat.id, sort_order: idx + 1 });
+                        }
+                    });
+
+                    globalComparisonFeaturesList = reorderedFeatures;
+                    renderComparisonTable(globalComparisonFeaturesList);
+                    await saveComparisonFeaturesBatchOrders(orderUpdates);
+                });
+
+                row.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (!draggedCompRow || draggedCompRow === row) return;
+
+                    const rect = row.getBoundingClientRect();
+                    const isAfterMiddle = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                    tbody.insertBefore(draggedCompRow, isAfterMiddle ? row.nextSibling : row);
+                });
+            });
+        }
+
+        // Persist batch reorder to database
+        async function saveComparisonFeaturesBatchOrders(orderUpdates) {
+            if (!orderUpdates || orderUpdates.length === 0) return;
+            try {
+                const promises = orderUpdates.map(async ({ id, sort_order }) => {
+                    if (id && !id.startsWith('temp-')) {
+                        return supabase
+                            .from('subscription_comparison_features')
+                            .update({ sort_order })
+                            .eq('id', id);
+                    }
+                });
+                await Promise.all(promises);
+                showToast('تم حفظ الترتيب الجديد للمميزات بنجاح! ⚡', 'success');
+            } catch (err) {
+                console.error('Error saving comparison features order:', err);
+                showToast('حدث خطأ أثناء حفظ الترتيب: ' + (err.message || ''), 'error');
+            }
+        }
+
         // Comparison Matrix Modal logic
         const editComparisonFeatureModal = document.getElementById('editComparisonFeatureModal');
         const closeEditComparisonModalBtn = document.getElementById('closeEditComparisonModalBtn');
@@ -9290,6 +9563,8 @@
 
         function openEditComparisonFeatureModal(featureId = null) {
             document.getElementById('editComparisonFeatureIdInput').value = featureId || '';
+            const iconInput = document.getElementById('editComparisonIconInput');
+            const previewEl = document.getElementById('comparisonIconPreviewEl');
 
             if (featureId) {
                 const feat = globalComparisonFeaturesList.find(f => f.id === featureId);
@@ -9300,6 +9575,11 @@
                     document.getElementById('valQuarterlyInput').value = vals.quarterly || 'متاح';
                     document.getElementById('valSemiAnnualInput').value = vals.semi_annual || 'متاح';
                     document.getElementById('valAnnualInput').value = vals.annual || 'متاح';
+
+                    const chosenIcon = feat.icon && feat.icon.trim().length > 0 ? feat.icon : getFeatureIconDefault(feat.feature_name);
+                    if (iconInput) iconInput.value = chosenIcon;
+                    if (previewEl) previewEl.className = chosenIcon;
+
                     if (deleteComparisonFeatureBtn) deleteComparisonFeatureBtn.classList.remove('hidden');
                 }
             } else {
@@ -9308,6 +9588,11 @@
                 document.getElementById('valQuarterlyInput').value = 'متاح';
                 document.getElementById('valSemiAnnualInput').value = 'متاح';
                 document.getElementById('valAnnualInput').value = 'متاح';
+
+                const defaultIcon = 'ph ph-check text-ultra-400';
+                if (iconInput) iconInput.value = defaultIcon;
+                if (previewEl) previewEl.className = defaultIcon;
+
                 if (deleteComparisonFeatureBtn) deleteComparisonFeatureBtn.classList.add('hidden');
             }
 
@@ -9327,6 +9612,7 @@
                 e.preventDefault();
                 const featureId = document.getElementById('editComparisonFeatureIdInput').value;
                 const feature_name = document.getElementById('editComparisonNameInput').value.trim();
+                const icon = document.getElementById('editComparisonIconInput')?.value.trim() || 'ph ph-check text-ultra-400';
                 const quarterly = document.getElementById('valQuarterlyInput').value.trim();
                 const semi_annual = document.getElementById('valSemiAnnualInput').value.trim();
                 const annual = document.getElementById('valAnnualInput').value.trim();
@@ -9338,6 +9624,7 @@
                     if (feat) {
                         feat.feature_name = feature_name;
                         feat.plan_values = plan_values;
+                        feat.icon = icon;
                     }
                 } else {
                     const newId = 'temp-' + Date.now();
@@ -9345,6 +9632,7 @@
                     globalComparisonFeaturesList.push({
                         id: newId,
                         feature_name,
+                        icon,
                         plan_values,
                         sort_order: maxSort + 1
                     });
@@ -9356,15 +9644,32 @@
 
                 try {
                     if (featureId && !featureId.startsWith('temp-')) {
-                        await supabase
+                        const updatePayload = { feature_name, plan_values, icon };
+                        let { error } = await supabase
                             .from('subscription_comparison_features')
-                            .update({ feature_name, plan_values })
+                            .update(updatePayload)
                             .eq('id', featureId);
+
+                        if (error && (error.code === 'PGRST204' || error.message?.includes('icon'))) {
+                            delete updatePayload.icon;
+                            await supabase
+                                .from('subscription_comparison_features')
+                                .update(updatePayload)
+                                .eq('id', featureId);
+                        }
                     } else {
                         const maxSort = globalComparisonFeaturesList.length > 0 ? Math.max(...globalComparisonFeaturesList.map(f => f.sort_order || 0)) : 0;
-                        await supabase
+                        const insertPayload = { feature_name, plan_values, sort_order: maxSort + 1, icon };
+                        let { error } = await supabase
                             .from('subscription_comparison_features')
-                            .insert({ feature_name, plan_values, sort_order: maxSort + 1 });
+                            .insert(insertPayload);
+
+                        if (error && (error.code === 'PGRST204' || error.message?.includes('icon'))) {
+                            delete insertPayload.icon;
+                            await supabase
+                                .from('subscription_comparison_features')
+                                .insert(insertPayload);
+                        }
                     }
                 } catch (err) {
                     console.warn('Supabase comparison feature save error:', err);
@@ -9403,8 +9708,12 @@
             };
         }
 
+        // Initialize Comparison Icons Picker on Load
+        initComparisonIconsPicker();
+
         // Global Event Delegation for Dynamic Buttons
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
+            // Edit Plan Card Button
             const editPlanBtn = e.target.closest('.edit-plan-card-btn');
             if (editPlanBtn) {
                 const key = editPlanBtn.dataset.planKey;
@@ -9412,6 +9721,7 @@
                 return;
             }
 
+            // Edit Comparison Feature Button
             const editCompBtn = e.target.closest('.edit-comparison-feature-btn');
             if (editCompBtn) {
                 const featureId = editCompBtn.dataset.featureId;
@@ -9419,9 +9729,33 @@
                 return;
             }
 
+            // Add Comparison Feature Button
             const addCompBtn = e.target.closest('#addComparisonFeatureBtn');
             if (addCompBtn) {
                 openEditComparisonFeatureModal(null);
+                return;
+            }
+
+            // Move Comparison Feature Step Up / Down Button
+            const moveBtn = e.target.closest('.btn-move-comp-step');
+            if (moveBtn) {
+                const idx = parseInt(moveBtn.dataset.moveIndex, 10);
+                const dir = moveBtn.dataset.moveDir;
+                const targetIdx = dir === 'up' ? idx - 1 : idx + 1;
+
+                if (targetIdx >= 0 && targetIdx < globalComparisonFeaturesList.length) {
+                    const temp = globalComparisonFeaturesList[idx];
+                    globalComparisonFeaturesList[idx] = globalComparisonFeaturesList[targetIdx];
+                    globalComparisonFeaturesList[targetIdx] = temp;
+
+                    const orderUpdates = globalComparisonFeaturesList.map((f, i) => {
+                        f.sort_order = i + 1;
+                        return { id: f.id, sort_order: i + 1 };
+                    });
+
+                    renderComparisonTable(globalComparisonFeaturesList);
+                    await saveComparisonFeaturesBatchOrders(orderUpdates);
+                }
                 return;
             }
         });
