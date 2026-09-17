@@ -32,26 +32,45 @@ export function normalizeImageUrl(url) {
     return clean;
 }
 
+const KNOWN_HOSTING_SUFFIXES = [
+    'vercel.app',
+    'netlify.app',
+    'pages.dev',
+    'onrender.com',
+    'github.io',
+    'railway.app',
+    'fly.dev',
+    'ngrok-free.app',
+    'loca.lt'
+];
+
+export function isHostingProviderDomain(hostname = window.location.hostname) {
+    if (!hostname) return false;
+    const lower = hostname.toLowerCase();
+    return KNOWN_HOSTING_SUFFIXES.some(suffix => lower === suffix || lower.endsWith('.' + suffix));
+}
+
 /**
  * 🔍 1. استخراج الـ Slug الخاص بالمصنع الحالي من اسم النطاق أو الـ Query Parameters
  */
 export function getTenantSlugFromURL() {
-    const hostname = window.location.hostname;
+    // 1. الأولوية الأولى: معلمة ?tenant=xxxx في الرابط
     const urlParams = new URLSearchParams(window.location.search);
-
-    // 1. التجاوز المباشر عبر معلمة ?tenant=slug
-    if (urlParams.has('tenant') && urlParams.get('tenant').trim() !== '') {
-        const paramTenant = urlParams.get('tenant').trim().toLowerCase();
+    const paramTenant = urlParams.get('tenant')?.trim()?.toLowerCase();
+    
+    if (paramTenant) {
         if (
+            paramTenant !== 'default' && 
             paramTenant !== '127' && 
             paramTenant !== '127.0.0.1' && 
-            paramTenant !== 'localhost' && 
-            paramTenant !== 'default' &&
+            paramTenant !== 'localhost' &&
             !/^(\d{1,3}\.){3}\d{1,3}$/.test(paramTenant)
         ) {
             return paramTenant;
         }
     }
+
+    const hostname = window.location.hostname;
 
     // 2. التحقق مما إذا كان النطاق هو Super Admin
     if (hostname.startsWith('admin.') || window.location.pathname.startsWith('/super-admin') || window.location.pathname.includes('super_admin')) {
@@ -61,11 +80,15 @@ export function getTenantSlugFromURL() {
     // فحص ما إذا كان العنوان هو IP محلي أو localhost لمنع اعتباره Subdomain خاطئ (مثل 127.0.0.1)
     const isIpAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.includes(':');
     const isLocalhost = hostname === 'localhost' || hostname.endsWith('.local') || hostname.endsWith('.internal');
+    const isHosting = isHostingProviderDomain(hostname);
 
     if (!isIpAddress && !isLocalhost) {
         // 3. استخراج الـ Subdomain (مثال: nike.ultrasoft.site -> nike)
         const parts = hostname.split('.');
-        if (parts.length >= 3) {
+        // إذا كان النطاق مستضافاً على Vercel أو Netlify، فإن النطاق الأساسي يتكون من 3 أجزاء (مثل project.vercel.app)
+        // وبالتالي لا يعتبر Subdomain إلا إذا كان 4 أجزاء أو أكثر (مثل tenant.project.vercel.app)
+        const minParts = isHosting ? 4 : 3;
+        if (parts.length >= minParts) {
             const subdomain = parts[0].toLowerCase();
             if (subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'admin' && subdomain !== 'default') {
                 return subdomain;
