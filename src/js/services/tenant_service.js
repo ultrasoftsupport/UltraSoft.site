@@ -188,8 +188,8 @@ export async function initializeTenantContext() {
                     tenant = data;
                 }
             }
-        } else if (!isIpAddress && !isLocalhost) {
-            // في بيئة الإنتاج: فحص الـ domain أو custom_domain إذا لم تكن هناك معلّمة slug
+        } else if (!isIpAddress && !isLocalhost && !isHostingProviderDomain(hostname)) {
+            // في بيئة الإنتاج ذات النطاق المخصص: فحص الـ domain أو custom_domain إذا لم تكن هناك معلّمة slug
             const { data, error } = await supabase
                 .from('tenants')
                 .select('*, subscriptions(*)')

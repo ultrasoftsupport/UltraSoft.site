@@ -151,19 +151,21 @@ function buildTenantStoreUrl(slug) {
     if (!slug || slug === 'default') return window.location.origin;
     const hostname = window.location.hostname;
     
-    // إذا كان يعمل على نطاق محلي (localhost / IP)
+    // إذا كان يعمل على نطاق محلي (localhost / IP) أو استضافة سحابية (Vercel, Netlify, etc.)
     const isLocal = hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.endsWith('.local');
-    if (isLocal) {
-        return `${window.location.origin}${window.location.pathname}?tenant=${slug}`;
+    const isHostingDomain = ['vercel.app', 'netlify.app', 'pages.dev', 'onrender.com', 'github.io', 'railway.app'].some(d => hostname.endsWith(d));
+
+    if (isLocal || isHostingDomain || !hostname.includes('ultrasoft.site')) {
+        return `${window.location.origin}${window.location.pathname}?tenant=${encodeURIComponent(slug)}`;
     }
     
-    // الإنتاج: استخدام Subdomain
+    // الإنتاج على النطاق الرسمي: استخدام Subdomain
     const parts = hostname.split('.');
     if (parts.length >= 2) {
         const rootDomain = parts.slice(-2).join('.');
         return `https://${slug}.${rootDomain}`;
     }
-    return `${window.location.origin}?tenant=${slug}`;
+    return `${window.location.origin}?tenant=${encodeURIComponent(slug)}`;
 }
 
 /**
