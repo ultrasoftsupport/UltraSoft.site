@@ -156,6 +156,8 @@ export function renderHumanReadableDetails(details) {
         bulk_edit: 'تعديل مجمع للموديلات',
         excel_import: 'استيراد عبر ملف إكسيل',
         recharge: 'شحن رصيد كريديت',
+        import_drive_images: 'استيراد صور Google Drive',
+        drive_images_import: 'استيراد صور Google Drive',
         assigned: 'إسناد وتعيين',
         locked: 'قفل واستلام',
         unlocked: 'فك قفل'

@@ -63,7 +63,8 @@ function buildNavLinks(user) {
     const urlParams = new URLSearchParams(window.location.search);
     const tenantParam = urlParams.get('tenant')?.toLowerCase();
     const tenant = getCurrentTenant();
-    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    const isExplicitCustomTenant = Boolean((tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') || (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost'));
+    const isMainFactory = !isExplicitCustomTenant && (!tenant || tenant.slug === 'default' || tenant.is_super_admin);
     const isDemoMode = Boolean(window.isDemoMode);
 
     const links = [];
@@ -139,8 +140,12 @@ function buildUserArea(user) {
     const hasWarehouseAccess = user && (user.role === 'owner' || user.role === 'admin' || user.worker_job === 'warehouse' || user.worker_job === 'both');
     const isWorker = user && user.role === 'worker';
 
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantParam = urlParams.get('tenant')?.toLowerCase();
     const tenant = getCurrentTenant();
-    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    const isExplicitCustomTenant = Boolean((tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') || (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost'));
+    const isMainFactory = !isExplicitCustomTenant && (!tenant || tenant.slug === 'default' || tenant.is_super_admin);
     const isDemoMode = Boolean(window.isDemoMode);
     const showNotificationBell = !isMainFactory || isDemoMode || hasAdminAccess;
 
@@ -197,8 +202,12 @@ function buildMobileMenu(user) {
     const adminUrl = buildTenantUrl('admin.html');
     const authUrl = buildTenantUrl('auth.html');
 
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantParam = urlParams.get('tenant')?.toLowerCase();
     const tenant = getCurrentTenant();
-    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
+    const isExplicitCustomTenant = Boolean((tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') || (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost'));
+    const isMainFactory = !isExplicitCustomTenant && (!tenant || tenant.slug === 'default' || tenant.is_super_admin);
     const isDemoMode = Boolean(window.isDemoMode);
 
     let links = '';
@@ -275,10 +284,13 @@ export function attachMobileMenuToggle() {
 }
 
 function buildBrandLogo(badgeText = 'Collection') {
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantParam = urlParams.get('tenant')?.toLowerCase();
     const tenant = getCurrentTenant();
-    const isCustomTenant = tenant && tenant.slug !== 'default' && !tenant.is_super_admin;
+    const isCustomTenant = Boolean((tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') || (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost') || (tenant && tenant.slug !== 'default' && !tenant.is_super_admin));
     const logoSrc = normalizeImageUrl(tenant?.logo_url || tenant?.settings?.logo_url) || './logo_transparnt.png';
-    const brandTitle = isCustomTenant ? (tenant.name || 'UltraSoft') : 'UltraSoft';
+    const brandTitle = isCustomTenant ? (tenant?.name || slug || 'متجر المصنع') : 'UltraSoft';
 
     const brandNameHtml = isCustomTenant
         ? `<span class="text-base sm:text-lg xl:text-xl font-black tracking-tight text-devo-text whitespace-nowrap tenant-name">${brandTitle}</span>`
@@ -293,7 +305,7 @@ function buildBrandLogo(badgeText = 'Collection') {
             <img src="${logoSrc}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='./logo_transparnt.png';" alt="${brandTitle}" class="tenant-logo brand-logo h-8 sm:h-9 xl:h-10 w-auto object-contain shrink-0 drop-shadow-[0_2px_12px_rgba(2,132,199,0.35)] transition-transform duration-300 hover:scale-105">
             <div class="flex items-center gap-2 shrink-0">
                 ${brandNameHtml}
-                ${badgeText ? `<span class="text-[9px] xl:text-[10px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2 py-0.5 rounded-full uppercase shadow-sm whitespace-nowrap hidden sm:inline-block">${badgeText}</span>` : ''}
+                ${(!isCustomTenant && badgeText) ? `<span class="text-[9px] xl:text-[10px] font-extrabold tracking-widest text-sky-700 dark:text-sky-300 bg-sky-500/15 dark:bg-sky-400/20 border border-sky-500/30 px-2 py-0.5 rounded-full uppercase shadow-sm whitespace-nowrap hidden sm:inline-block">${badgeText}</span>` : ''}
             </div>
         </div>
     `;

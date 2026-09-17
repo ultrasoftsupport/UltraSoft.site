@@ -227,18 +227,26 @@ export function getCurrentSession() {
         }
     }
 
-    const rawSlug = getTenantSlugFromURL() || 'default';
-    const slug = (rawSlug === '127' || rawSlug === '127.0.0.1' || rawSlug === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(rawSlug)) ? 'default' : rawSlug;
-    const currentTenant = getCurrentTenant();
-    const currentTenantId = currentTenant?.id || getCurrentTenantId();
-
-    // 1. البحث في الجلسات المنعزلة للمصنع أولاً
-    let sessionStr = localStorage.getItem(`devo_session_${slug}`);
-    if (!sessionStr && currentTenantId) {
-        sessionStr = localStorage.getItem(`devo_session_${currentTenantId}`);
+    // إذا كان هناك خطأ في معرف المصنع المطلوب بالرابط، نمنع تحميل أي جلسة
+    if (window.isDefaultOrInvalidTenant && window.invalidTenantRequestedSlug) {
+        return { session: null };
     }
-    if (!sessionStr) {
-        sessionStr = localStorage.getItem('devo_session');
+
+    const rawSlug = getTenantSlugFromURL() || 'default';
+    const isCustomTenant = rawSlug && rawSlug !== 'default' && rawSlug !== '127' && rawSlug !== '127.0.0.1' && rawSlug !== 'localhost' && !/^(\d{1,3}\.){3}\d{1,3}$/.test(rawSlug);
+    const slug = isCustomTenant ? rawSlug : 'default';
+    const currentTenant = getCurrentTenant();
+    const currentTenantId = currentTenant?.id || (isCustomTenant ? null : getCurrentTenantId());
+
+    // 1. عزل الجلسات: المصانع المنفصلة تقرأ فقط مفاتيحها المنعزلة الخاصة بها حصراً وتتجاهل الجلسة العامة للمنصة
+    let sessionStr = null;
+    if (isCustomTenant) {
+        sessionStr = localStorage.getItem(`devo_session_${slug}`);
+        if (!sessionStr && currentTenantId) {
+            sessionStr = localStorage.getItem(`devo_session_${currentTenantId}`);
+        }
+    } else {
+        sessionStr = localStorage.getItem('devo_session_default') || localStorage.getItem('devo_session');
     }
 
     if (!sessionStr) return { session: null };
@@ -256,6 +264,17 @@ export function getCurrentSession() {
         if (currentTenantId && session.tenant_id && session.tenant_id !== currentTenantId) {
             console.warn(`[Session Guard] Foreign session blocked. User (${session.username}) belongs to tenant (${session.tenant_id}), but active site is (${currentTenantId}).`);
             return { session: null };
+        }
+
+        if (isCustomTenant) {
+            if (session.tenant_slug && session.tenant_slug !== slug) {
+                console.warn(`[Session Guard] Slug mismatch. Session belongs to (${session.tenant_slug}), but active URL is (${slug}).`);
+                return { session: null };
+            }
+        } else {
+            if (session.tenant_slug && session.tenant_slug !== 'default') {
+                return { session: null };
+            }
         }
 
         return { session: { user: session } }; 

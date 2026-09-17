@@ -3,7 +3,7 @@ import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js'; 
 import { printOrderCustomerInvoice, fetchInvoicePrintSettings } from '../../utils/print.js?v=2';
-import { getCurrentTenantId, getTenantStorageKey, getTenantOrderQuotaDetails } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getCurrentTenant, getTenantSlugFromURL, getTenantStorageKey, getTenantOrderQuotaDetails } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
 import { escapeHtml } from '../../utils/sanitize.js';
 
@@ -41,6 +41,7 @@ function saveCustomerDraft() {
     try {
         const tenantKey = getTenantCustomerDraftKey();
         const tenantId = getCurrentTenantId() || 'default';
+        const slug = getTenantSlugFromURL();
         const draft = {
             name: document.getElementById('c-name')?.value || '',
             phone1: document.getElementById('c-phone1')?.value || '',
@@ -51,14 +52,20 @@ function saveCustomerDraft() {
             receiver: document.getElementById('c-receiver')?.value || '',
             updatedAt: Date.now()
         };
-        const hasContent = (draft.name.trim() || draft.phone1.trim() || draft.phone2.trim() || draft.address.trim() || draft.notes.trim() || (draft.deposit && draft.deposit !== '0') || draft.receiver.trim());
+        const hasContent = Boolean(draft.name.trim() || draft.phone1.trim() || draft.phone2.trim() || draft.address.trim() || draft.notes.trim() || (draft.deposit && draft.deposit !== '0') || draft.receiver.trim());
         if (hasContent) {
             const draftStr = JSON.stringify(draft);
             localStorage.setItem(tenantKey, draftStr);
-            localStorage.setItem(`ultrasoft_customer_draft_${tenantId}`, draftStr);
+            if (slug && slug !== 'default') {
+                localStorage.setItem(`ultrasoft_customer_draft_${slug}`, draftStr);
+            }
+            if (tenantId && tenantId !== '00000000-0000-0000-0000-000000000001') {
+                localStorage.setItem(`ultrasoft_customer_draft_${tenantId}`, draftStr);
+            }
         } else {
             localStorage.removeItem(tenantKey);
-            localStorage.removeItem(`ultrasoft_customer_draft_${tenantId}`);
+            if (slug) localStorage.removeItem(`ultrasoft_customer_draft_${slug}`);
+            if (tenantId) localStorage.removeItem(`ultrasoft_customer_draft_${tenantId}`);
         }
     } catch (e) {}
 }
@@ -69,10 +76,28 @@ function restoreCustomerDraft() {
     try {
         const tenantKey = getTenantCustomerDraftKey();
         const tenantId = getCurrentTenantId() || 'default';
-        const raw = localStorage.getItem(tenantKey) 
-            || localStorage.getItem(`ultrasoft_customer_draft_${tenantId}`)
-            || localStorage.getItem('ultrasoft_customer_draft_default')
-            || localStorage.getItem('ultrasoft_customer_draft_00000000-0000-0000-0000-000000000001');
+        const slug = getTenantSlugFromURL();
+        const tenant = getCurrentTenant();
+        const isExplicitCustom = Boolean(
+            (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost') ||
+            (tenant && tenant.slug && tenant.slug !== 'default' && !tenant.is_super_admin)
+        );
+
+        let raw = localStorage.getItem(tenantKey);
+        if (!raw && slug && slug !== 'default') {
+            raw = localStorage.getItem(`ultrasoft_customer_draft_${slug}`);
+        }
+        if (!raw && tenantId && tenantId !== '00000000-0000-0000-0000-000000000001') {
+            raw = localStorage.getItem(`ultrasoft_customer_draft_${tenantId}`);
+        }
+
+        // الحفظ المشترك أو المصنع الرئيسي فقط له حق قراءة المفاتيح الافتراضية
+        if (!raw && !isExplicitCustom) {
+            raw = localStorage.getItem('ultrasoft_customer_draft_default')
+                || localStorage.getItem('ultrasoft_customer_draft_00000000-0000-0000-0000-000000000001')
+                || localStorage.getItem('ultrasoft_customer_draft');
+        }
+
         if (!raw) return;
         const draft = JSON.parse(raw);
         if (!draft) return;
@@ -103,12 +128,22 @@ function restoreCustomerDraft() {
 // 🧹 تنظيف مسودة وحقول العميل فقط بعد الحفظ الناجح أو إفراغ السلة
 function clearCustomerDraft() {
     try {
-        localStorage.removeItem(getTenantCustomerDraftKey());
+        const tenantKey = getTenantCustomerDraftKey();
         const tenantId = getCurrentTenantId() || 'default';
-        localStorage.removeItem(`ultrasoft_customer_draft_${tenantId}`);
-        localStorage.removeItem('ultrasoft_customer_draft_default');
-        localStorage.removeItem('ultrasoft_customer_draft_00000000-0000-0000-0000-000000000001');
+        const slug = getTenantSlugFromURL();
+        const tenant = getCurrentTenant();
+        const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
+
+        localStorage.removeItem(tenantKey);
+        if (slug) localStorage.removeItem(`ultrasoft_customer_draft_${slug}`);
+        if (tenantId) localStorage.removeItem(`ultrasoft_customer_draft_${tenantId}`);
+        if (isMain) {
+            localStorage.removeItem('ultrasoft_customer_draft_default');
+            localStorage.removeItem('ultrasoft_customer_draft_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('ultrasoft_customer_draft');
+        }
     } catch (e) {}
+
     const form = document.getElementById('checkout-form');
     if (form) form.reset();
     ['c-name', 'c-phone1', 'c-phone2', 'c-address', 'c-notes', 'c-deposit', 'c-receiver'].forEach(id => {
@@ -277,20 +312,40 @@ async function loadAndRenderCart() {
     updateFilterButtonsUI();
 
     const currentTenantId = getCurrentTenantId() || 'default';
+    const slug = getTenantSlugFromURL();
+    const tenant = getCurrentTenant();
+    const isExplicitCustom = Boolean(
+        (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost') ||
+        (tenant && tenant.slug && tenant.slug !== 'default' && !tenant.is_super_admin)
+    );
     const tenantCartKey = getTenantCartKey();
     const tenantEditKey = getTenantEditOrderKey();
 
-    let saved = localStorage.getItem(tenantCartKey)
-        || localStorage.getItem(`devo_cart_${currentTenantId}`)
-        || localStorage.getItem('devo_cart_default')
-        || localStorage.getItem('devo_cart_00000000-0000-0000-0000-000000000001')
-        || localStorage.getItem('devo_cart');
+    let saved = localStorage.getItem(tenantCartKey);
+    if (!saved && slug && slug !== 'default') {
+        saved = localStorage.getItem(`devo_cart_${slug}`);
+    }
+    if (!saved && currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
+        saved = localStorage.getItem(`devo_cart_${currentTenantId}`);
+    }
+    if (!saved && !isExplicitCustom) {
+        saved = localStorage.getItem('devo_cart_default')
+            || localStorage.getItem('devo_cart_00000000-0000-0000-0000-000000000001')
+            || localStorage.getItem('devo_cart');
+    }
 
-    let savedOrderData = localStorage.getItem(tenantEditKey)
-        || localStorage.getItem(`devo_edit_order_data_${currentTenantId}`)
-        || localStorage.getItem('devo_edit_order_data_default')
-        || localStorage.getItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001')
-        || localStorage.getItem('devo_edit_order_data');
+    let savedOrderData = localStorage.getItem(tenantEditKey);
+    if (!savedOrderData && slug && slug !== 'default') {
+        savedOrderData = localStorage.getItem(`devo_edit_order_data_${slug}`);
+    }
+    if (!savedOrderData && currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
+        savedOrderData = localStorage.getItem(`devo_edit_order_data_${currentTenantId}`);
+    }
+    if (!savedOrderData && !isExplicitCustom) {
+        savedOrderData = localStorage.getItem('devo_edit_order_data_default')
+            || localStorage.getItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001')
+            || localStorage.getItem('devo_edit_order_data');
+    }
 
     if (saved) { 
         try { 
@@ -405,17 +460,27 @@ function updateCartHeaderEditState(editingOrderId, invoiceNumber) {
     }
 }
 
-// 🌟 دالة إفراغ السلة بالكامل وإلغاء وضع التعديل 🌟
+// 🌟 دالة إفراغ السلة بالكامل وإلغاء وضع التعديل ومسح بيانات العميل 🌟
 window.clearEntireCart = async () => {
-    if (cartItems.length === 0 && !editingOrderId) {
-        return showToast('السلة فارغة بالفعل', 'info');
+    const hasCustomerData = Boolean(
+        document.getElementById('c-name')?.value?.trim() ||
+        document.getElementById('c-phone1')?.value?.trim() ||
+        document.getElementById('c-phone2')?.value?.trim() ||
+        document.getElementById('c-address')?.value?.trim() ||
+        document.getElementById('c-notes')?.value?.trim() ||
+        (document.getElementById('c-deposit')?.value && document.getElementById('c-deposit')?.value !== '0') ||
+        document.getElementById('c-receiver')?.value?.trim()
+    );
+
+    if (cartItems.length === 0 && !editingOrderId && !editingVisitorOrderId && !hasCustomerData) {
+        return showToast('السلة وبيانات العميل فارغة بالفعل', 'info');
     }
 
-    const isEditMode = !!editingOrderId;
-    const title = isEditMode ? 'إلغاء تعديل الأوردر' : 'إفراغ السلة';
+    const isEditMode = !!(editingOrderId || editingVisitorOrderId);
+    const title = isEditMode ? 'إلغاء تعديل الأوردر' : 'إفراغ السلة وبيانات الطلب';
     const message = isEditMode 
-        ? 'هل أنت متأكد من رغبتك في إلغاء تعديل الأوردر وإفراغ السلة؟ سيتم إلغاء التعديل وإعادة فتح الأوردر بحالة (تم الإنشاء).' 
-        : 'هل أنت متأكد من رغبتك في إفراغ السلة بالكامل؟';
+        ? 'هل أنت متأكد من رغبتك في إلغاء تعديل الأوردر وإفراغ السلة؟ سيتم إلغاء التعديل وإعادة فتح الأوردر.' 
+        : 'هل أنت متأكد من رغبتك في إفراغ السلة ومسح بيانات العميل بالكامل؟';
 
     const confirmed = await confirmDialog({ 
         title: title, 
@@ -431,6 +496,11 @@ window.clearEntireCart = async () => {
             const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
             await logOrderAction(finalEditingOrderId, 'cart_edit_cancel', `تم إلغاء تعديل الأوردر وإفراغ السلة بواسطة (${userName})`);
         }
+        if (editingVisitorOrderId) {
+            editingVisitorOrderId = null;
+            const editBanner = document.getElementById('cart-edit-mode-banner');
+            if (editBanner) editBanner.classList.add('hidden');
+        }
 
         cartItems = [];
         editingOrderId = null;
@@ -439,25 +509,38 @@ window.clearEntireCart = async () => {
         cachedDbModels = [];
 
         const currentTenantId = getCurrentTenantId() || 'default';
+        const slug = getTenantSlugFromURL();
+        const tenant = getCurrentTenant();
+        const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
+
         localStorage.removeItem(getTenantCartKey());
-        localStorage.removeItem(`devo_cart_${currentTenantId}`);
-        localStorage.removeItem('devo_cart_default');
-        localStorage.removeItem('devo_cart_00000000-0000-0000-0000-000000000001');
-        localStorage.removeItem('devo_cart');
+        if (slug) localStorage.removeItem(`devo_cart_${slug}`);
+        if (currentTenantId) localStorage.removeItem(`devo_cart_${currentTenantId}`);
+
         localStorage.removeItem(getTenantEditOrderKey());
-        localStorage.removeItem(`devo_edit_order_data_${currentTenantId}`);
-        localStorage.removeItem('devo_edit_order_data_default');
-        localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
-        localStorage.removeItem('devo_edit_order_data');
+        if (slug) localStorage.removeItem(`devo_edit_order_data_${slug}`);
+        if (currentTenantId) localStorage.removeItem(`devo_edit_order_data_${currentTenantId}`);
+
         localStorage.removeItem(getTenantEditOrderCacheKey());
-        localStorage.removeItem('devo_edit_order_data_cache');
+        if (slug) localStorage.removeItem(`devo_edit_order_data_cache_${slug}`);
+        if (currentTenantId) localStorage.removeItem(`devo_edit_order_data_cache_${currentTenantId}`);
+
+        if (isMain) {
+            localStorage.removeItem('devo_cart_default');
+            localStorage.removeItem('devo_cart_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('devo_cart');
+            localStorage.removeItem('devo_edit_order_data_default');
+            localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('devo_edit_order_data');
+            localStorage.removeItem('devo_edit_order_data_cache');
+        }
         
         clearCustomerDraft();
 
         updateCartHeaderEditState(null, null);
         updateFloatingCart();
         loadAndRenderCart();
-        showToast(isEditMode ? 'تم إلغاء تعديل الأوردر وإعادة فتحه وإفراغ السلة بنجاح' : 'تم إفراغ السلة بنجاح', 'success');
+        showToast(isEditMode ? 'تم إلغاء تعديل الأوردر وإفراغ السلة بنجاح' : 'تم إفراغ السلة وبيانات العميل بنجاح', 'success');
     }
 };
 
@@ -934,13 +1017,21 @@ async function handleCheckout(e) {
         const finalEditingOrderId = editingOrderId;
         editingOrderId = null;
         const activeTenantId = currentTenantId || 'default';
+        const activeSlug = getTenantSlugFromURL();
+        const tenantObj = getCurrentTenant();
+        const isMainT = (!activeSlug || activeSlug === 'default') && (!tenantObj || tenantObj.slug === 'default');
+
         localStorage.removeItem(getTenantEditOrderKey());
-        localStorage.removeItem(`devo_edit_order_data_${activeTenantId}`);
-        localStorage.removeItem('devo_edit_order_data_default');
-        localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
-        localStorage.removeItem('devo_edit_order_data');
+        if (activeSlug) localStorage.removeItem(`devo_edit_order_data_${activeSlug}`);
+        if (activeTenantId) localStorage.removeItem(`devo_edit_order_data_${activeTenantId}`);
         localStorage.removeItem(getTenantEditOrderCacheKey());
-        localStorage.removeItem('devo_edit_order_data_cache');
+
+        if (isMainT) {
+            localStorage.removeItem('devo_edit_order_data_default');
+            localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('devo_edit_order_data');
+            localStorage.removeItem('devo_edit_order_data_cache');
+        }
 
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
         const totalItemsCount = orderItemsData.reduce((acc, item) => acc + (item.qty || 0), 0);
@@ -1023,11 +1114,23 @@ window.closeConfirmModal = () => {
 
 function saveCart() {
     const currentTenantId = getCurrentTenantId() || 'default';
+    const slug = getTenantSlugFromURL();
     const cartJson = JSON.stringify(cartItems);
     try {
         localStorage.setItem(getTenantCartKey(), cartJson);
     } catch(e) {}
-    localStorage.setItem(`devo_cart_${currentTenantId}`, cartJson);
+    if (slug && slug !== 'default') {
+        localStorage.setItem(`devo_cart_${slug}`, cartJson);
+    }
+    if (currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
+        localStorage.setItem(`devo_cart_${currentTenantId}`, cartJson);
+    }
+    const tenant = getCurrentTenant();
+    const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
+    if (isMain) {
+        localStorage.setItem('devo_cart_default', cartJson);
+        localStorage.setItem('devo_cart', cartJson);
+    }
     updateFloatingCart();
 }
 

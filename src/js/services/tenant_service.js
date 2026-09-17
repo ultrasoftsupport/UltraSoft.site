@@ -73,22 +73,7 @@ export function getTenantSlugFromURL() {
         }
     }
 
-    // 4. استرجاع المصنع النشط المحفوظ بالجلسة إن وجد (لمنع فقدان هوية المصنع أثناء التنقل)
-    try {
-        const savedSlug = sessionStorage.getItem('current_active_tenant_slug');
-        if (savedSlug && savedSlug !== 'default' && savedSlug !== 'super_admin' && savedSlug !== '127' && !/^(\d{1,3}\.){3}\d{1,3}$/.test(savedSlug)) {
-            return savedSlug;
-        }
-        const sessionStr = localStorage.getItem('devo_session');
-        if (sessionStr) {
-            const sess = JSON.parse(sessionStr);
-            if (sess && sess.tenant_slug && sess.tenant_slug !== 'default' && sess.tenant_slug !== '127' && !/^(\d{1,3}\.){3}\d{1,3}$/.test(sess.tenant_slug) && sess.role !== 'super_admin') {
-                return sess.tenant_slug;
-            }
-        }
-    } catch(e) {}
-
-    // 5. النمط الافتراضي (المصنع الرئيسي)
+    // 4. النمط الافتراضي (المصنع الرئيسي / المنصة)
     return 'default';
 }
 
@@ -150,19 +135,21 @@ export async function initializeTenantContext() {
         }
 
         const hostname = window.location.hostname;
+        const isIpAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.includes(':');
+        const isLocalhost = hostname === 'localhost' || hostname.endsWith('.local') || hostname.endsWith('.internal');
         let tenant = null;
 
-        // البحث عن بيانات المصنع حسب الـ slug أو custom domain إذا لم يكن slug هو default
+        // البحث الصارم عن بيانات المصنع حسب الـ slug إذا لم يكن slug هو default
         if (slug && slug !== 'default') {
             const { data, error } = await supabase
                 .from('tenants')
                 .select('*, subscriptions(*)')
-                .or(`slug.eq.${slug},domain.eq.${hostname},custom_domain.eq.${hostname}`)
+                .eq('slug', slug)
                 .eq('status', 'active')
                 .maybeSingle();
 
             if (error) {
-                console.error('Error fetching tenant context:', error);
+                console.error('Error fetching tenant context by slug:', error);
             }
 
             if (data) {
@@ -178,35 +165,61 @@ export async function initializeTenantContext() {
                     tenant = data;
                 }
             }
+        } else if (!isIpAddress && !isLocalhost) {
+            // في بيئة الإنتاج: فحص الـ domain أو custom_domain إذا لم تكن هناك معلّمة slug
+            const { data, error } = await supabase
+                .from('tenants')
+                .select('*, subscriptions(*)')
+                .or(`domain.eq.${hostname},custom_domain.eq.${hostname}`)
+                .eq('status', 'active')
+                .maybeSingle();
+
+            if (data) {
+                tenant = data;
+            }
         }
 
         if (tenant) {
             cachedTenant = tenant;
+            window.__ultrasoft_active_tenant = tenant;
             window.isDefaultOrInvalidTenant = false;
-            try {
-                sessionStorage.setItem('current_active_tenant_slug', tenant.slug);
-            } catch(e) {}
+            window.invalidTenantRequestedSlug = null;
         } else {
-            // التراجع للمصنع الافتراضي إن لم يتم العثور على intent صحيح ومفعل
-            if (tenantParam) {
-                shouldCleanUrl = true;
+            // إذا كان المستخدم طلب مصنعاً محدداً بالرابط ولم يتم العثور عليه
+            if (tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') {
+                window.isDefaultOrInvalidTenant = true;
+                window.invalidTenantRequestedSlug = tenantParam;
+                try {
+                    sessionStorage.removeItem('current_active_tenant_slug');
+                } catch(e) {}
+
+                cachedTenant = {
+                    id: null,
+                    name: `المصنع (${tenantParam}) غير موجود`,
+                    slug: tenantParam,
+                    is_invalid: true
+                };
+                window.__ultrasoft_active_tenant = cachedTenant;
+            } else {
+                // التراجع الطبيعي للمنصة والمصنع الرئيسي
+                const { data: defaultTenant } = await supabase
+                    .from('tenants')
+                    .select('*, subscriptions(*)')
+                    .eq('slug', 'default')
+                    .maybeSingle();
+
+                cachedTenant = defaultTenant || {
+                    id: '00000000-0000-0000-0000-000000000001',
+                    name: 'المصنع الرئيسي',
+                    slug: 'default'
+                };
+                window.__ultrasoft_active_tenant = cachedTenant;
+                window.isDefaultOrInvalidTenant = false;
+                window.invalidTenantRequestedSlug = null;
             }
-
-            const { data: defaultTenant } = await supabase
-                .from('tenants')
-                .select('*, subscriptions(*)')
-                .eq('slug', 'default')
-                .maybeSingle();
-
-            cachedTenant = defaultTenant || {
-                id: '00000000-0000-0000-0000-000000000001',
-                name: 'المصنع الرئيسي',
-                slug: 'default'
-            };
-            window.isDefaultOrInvalidTenant = true;
         }
 
-        // تنظيف معلمة الـ tenant من رابط المتصفح فوراً لإرجاع الرابط إلى النمط الرئيسي النظيف
+        // تنظيف معلمة الـ tenant من رابط المتصفح فقط إذا كانت default أو محلية
         if (shouldCleanUrl) {
             try {
                 const cleanUrlObj = new URL(window.location.href);
@@ -219,7 +232,9 @@ export async function initializeTenantContext() {
         }
 
         // تطبيق الهوية البصرية للمصنع
-        applyTenantBranding(cachedTenant);
+        if (cachedTenant && !cachedTenant.is_invalid) {
+            applyTenantBranding(cachedTenant);
+        }
 
         return cachedTenant;
     } catch (e) {
@@ -232,8 +247,9 @@ export async function initializeTenantContext() {
  * 🔑 3. الحصول على معرف المصنع الحالي لاستخدامه في الاستعلامات
  */
 export function getCurrentTenantId() {
-    if (cachedTenant && cachedTenant.id) {
-        return cachedTenant.id;
+    const tenant = cachedTenant || window.__ultrasoft_active_tenant;
+    if (tenant && tenant.id) {
+        return tenant.id;
     }
     return '00000000-0000-0000-0000-000000000001';
 }
@@ -243,14 +259,14 @@ export function getCurrentTenantId() {
  */
 export function getTenantStorageKey(baseKey) {
     const slug = getTenantSlugFromURL();
-    const tenant = cachedTenant;
+    const tenant = cachedTenant || window.__ultrasoft_active_tenant;
     let identifier = 'default';
-    if (tenant && tenant.id && tenant.id !== '00000000-0000-0000-0000-000000000001') {
-        identifier = tenant.id;
-    } else if (tenant && tenant.slug && tenant.slug !== 'default') {
+    if (tenant && tenant.slug && tenant.slug !== 'default' && tenant.slug !== '127' && tenant.slug !== '127.0.0.1' && tenant.slug !== 'localhost') {
         identifier = tenant.slug;
-    } else if (slug && slug !== 'default') {
+    } else if (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost') {
         identifier = slug;
+    } else if (tenant && tenant.id && tenant.id !== '00000000-0000-0000-0000-000000000001') {
+        identifier = tenant.id;
     } else if (tenant && tenant.id) {
         identifier = tenant.id;
     }
@@ -261,7 +277,7 @@ export function getTenantStorageKey(baseKey) {
  * 🏢 4. الحصول على كائن المصنع الحالي بالكامل
  */
 export function getCurrentTenant() {
-    return cachedTenant;
+    return cachedTenant || window.__ultrasoft_active_tenant || null;
 }
 
 /**
@@ -544,7 +560,11 @@ export async function getTenantCreditRules(tenantIdParam = null) {
             bulk_edit_per_item_cost: 0,
             bulk_edit_max_cap: 50,
             excel_upload_items_cost: 0,
-            excel_upload_stock_cost: 0
+            excel_upload_stock_cost: 0,
+            drive_images_pricing_mode: 'per_operation',
+            drive_images_per_op_cost: 0,
+            drive_images_per_item_cost: 0,
+            drive_images_max_cap: 30
         };
     }
 
@@ -564,7 +584,11 @@ export async function getTenantCreditRules(tenantIdParam = null) {
             bulk_edit_per_item_cost: 1,
             bulk_edit_max_cap: 50,
             excel_upload_items_cost: 1,
-            excel_upload_stock_cost: 1
+            excel_upload_stock_cost: 1,
+            drive_images_pricing_mode: 'per_operation',
+            drive_images_per_op_cost: 10,
+            drive_images_per_item_cost: 1,
+            drive_images_max_cap: 30
         };
     }
 }
@@ -586,11 +610,26 @@ export function calculateOperationCredits(operationType, itemsCount, rules) {
         return Number(rules.excel_upload_stock_cost !== undefined ? rules.excel_upload_stock_cost : 10);
     }
 
+    // ⚡ 2. عمليات استيراد صور الموديلات من Google Drive (Fixed Per Op أو Per Item + Max Cap)
+    if (operationType === 'drive_images_import') {
+        const driveMode = rules.drive_images_pricing_mode || 'per_operation';
+        if (driveMode === 'per_operation') {
+            return Number(rules.drive_images_per_op_cost !== undefined ? rules.drive_images_per_op_cost : 10);
+        }
+        const items = Math.max(1, itemsCount || 1);
+        let rawCost = items * (rules.drive_images_per_item_cost !== undefined ? Number(rules.drive_images_per_item_cost) : 1);
+        const maxCap = rules.drive_images_max_cap !== undefined ? Number(rules.drive_images_max_cap) : 30;
+        if (maxCap > 0 && rawCost > maxCap) {
+            rawCost = maxCap;
+        }
+        return Number(rawCost.toFixed(2));
+    }
+
     const items = Math.max(1, itemsCount || 1);
     const mode = rules.bulk_edit_pricing_mode || 'per_item';
     const maxCap = rules.bulk_edit_max_cap !== undefined ? Number(rules.bulk_edit_max_cap) : 50;
 
-    // ⚡ 2. التعديلات المجمعة (Bulk Edits) تعتمد على وضع المحاسبة والسقف الأقصى
+    // ⚡ 3. التعديلات المجمعة (Bulk Edits) تعتمد على وضع المحاسبة والسقف الأقصى
     if (mode === 'per_operation') {
         return Number(rules.bulk_edit_per_op_cost || 5);
     }
@@ -660,6 +699,8 @@ export async function deductTenantCredits(operationType, locationName, creditsTo
     let mode = rules.bulk_edit_pricing_mode || 'per_item';
     if (operationType && operationType.startsWith('excel_')) {
         mode = 'per_operation';
+    } else if (operationType === 'drive_images_import') {
+        mode = rules.drive_images_pricing_mode || 'per_operation';
     }
 
     const { data, error } = await supabase.rpc('deduct_excel_credits', {

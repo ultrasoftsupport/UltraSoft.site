@@ -1,7 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
-import { getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js?v=8.5';
+import { getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js';
 
 let currentUser = null;
 let allOrders = [];
@@ -765,14 +765,17 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
     });
 
     const tenantId = targetOrder.tenant_id || getCurrentTenantId() || 'default';
+    const isMain = tenantId === 'default' || tenantId === '00000000-0000-0000-0000-000000000001';
     const cartJson = JSON.stringify(newCart);
     try {
         localStorage.setItem(getTenantStorageKey('devo_cart'), cartJson);
     } catch(e) {}
     localStorage.setItem(`devo_cart_${tenantId}`, cartJson);
-    localStorage.setItem('devo_cart_default', cartJson);
-    localStorage.setItem('devo_cart_00000000-0000-0000-0000-000000000001', cartJson);
-    localStorage.setItem('devo_cart', cartJson);
+    if (isMain) {
+        localStorage.setItem('devo_cart_default', cartJson);
+        localStorage.setItem('devo_cart_00000000-0000-0000-0000-000000000001', cartJson);
+        localStorage.setItem('devo_cart', cartJson);
+    }
     
     const orderData = {
         id: targetOrder.id,
@@ -788,9 +791,11 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
         localStorage.setItem(getTenantStorageKey('devo_edit_order_data'), orderDataJson);
     } catch(e) {}
     localStorage.setItem(`devo_edit_order_data_${tenantId}`, orderDataJson);
-    localStorage.setItem('devo_edit_order_data_default', orderDataJson);
-    localStorage.setItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001', orderDataJson);
-    localStorage.setItem('devo_edit_order_data', orderDataJson);
+    if (isMain) {
+        localStorage.setItem('devo_edit_order_data_default', orderDataJson);
+        localStorage.setItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001', orderDataJson);
+        localStorage.setItem('devo_edit_order_data', orderDataJson);
+    }
     
     btn.innerHTML = originalText;
     btn.disabled = false;

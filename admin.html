@@ -4108,116 +4108,8 @@
                         </label>
                     </div>
                 </div>
-
-            </div><!-- /view-home-settings -->
-
-            <!-- 2. إدارة المظهر (Themes) -->
-            <div id="view-theme-manager" class="settings-subview hidden space-y-6">
-                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm space-y-6">
-                    <!-- Header Row -->
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-devo-gray pb-4">
-                        <div>
-                            <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
-                                <i class="ph ph-palette text-xl"></i> إدارة مظاهر الموقع وتصميم الهيدر والفوتر
-                            </h3>
-                            <p class="text-xs text-devo-muted mt-1">تخصيص الهوية البصرية، الألوان، الأزرار، وتصميم الشريط العلوي والفوتر للموقع</p>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button onclick="saveHeaderFooterLayouts()" id="btn-save-header-footer" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer">
-                                <i class="ph ph-floppy-disk"></i> حفظ الهيدر والفوتر
-                            </button>
-                            <button onclick="openCreateThemeModal()" class="bg-devo-gray hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all border border-devo-gray flex items-center gap-1.5 cursor-pointer">
-                                <i class="ph ph-plus-circle text-devo-orange text-base"></i> ثيم جديد
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Layout Selectors Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-devo-black/40 p-4 rounded-xl border border-devo-gray/50">
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
-                                <i class="ph ph-browser text-devo-orange text-base"></i> تصميم الشريط العلوي (Top Header Layout)
-                            </label>
-                            <select id="hs-header-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                                <!-- Populated dynamically -->
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-1.5">
-                                <i class="ph ph-columns text-purple-400 text-base"></i> تصميم الشريط السفلي (Footer Layout)
-                            </label>
-                            <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                                <!-- Populated dynamically -->
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- تخصيص نصوص الفوتر للمصنع -->
-                    <div class="bg-devo-black/40 p-4 rounded-xl border border-devo-gray/50 space-y-4">
-                        <h4 class="text-sm font-bold text-devo-orange flex items-center gap-2">
-                            <i class="ph ph-text-align-right text-lg"></i> تخصيص نصوص ووصف الفوتر للمصنع
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-devo-muted mb-1">وصف/نبذة المصنع بالفوتر (Footer Bio / Description)</label>
-                                <textarea id="hs-footer-bio" rows="2" placeholder="مثال: شركة UltraSoft للملابس والأنظمة الذكية. نلتزم بتقديم أفضل الخدمات لعملائنا." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs custom-scrollbar resize-none"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-devo-muted mb-1">نص الحقوق المخصص بالفوتر (Footer Custom Copyright)</label>
-                                <textarea id="hs-footer-copyright" rows="2" placeholder="مثال: جميع الحقوق محفوظة لشركة UltraSoft © 2026." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs font-bold custom-scrollbar resize-none"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Themes Grid List -->
-                    <div id="themes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-                        <div class="col-span-full py-12 text-center text-devo-muted">
-                            <i class="ph ph-spinner animate-spin text-4xl text-devo-orange mb-3 block mx-auto"></i>
-                            جاري تحميل المظاهر المتاحة...
-                        </div>
-                    </div>
-                </div>
-            </div><!-- /view-theme-manager -->
-
-            <!-- 3. إعدادات الباركود والـ QR كود -->
-            <div id="view-barcode-settings" class="settings-subview hidden space-y-6">
-                <div class="bg-devo-dark border border-devo-gray rounded-xl p-5 shadow-sm">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-devo-gray pb-4 mb-6">
-                        <div>
-                            <h3 class="text-lg font-bold text-devo-orange flex items-center gap-2">
-                                <i class="ph ph-qr-code text-xl"></i> إعدادات ماسح الباركود والـ QR كود
-                            </h3>
-                            <p class="text-xs text-devo-muted mt-1">تحديد وضعية الكاميرا ونمط التعرف والبحث في قواعد البيانات لقارئ الباركود</p>
-                        </div>
-                        <button onclick="saveBarcodeSettings()" id="btn-save-barcode" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-md shrink-0 cursor-pointer">
-                            <i class="ph ph-floppy-disk"></i> حفظ إعدادات الباركود
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-2">
-                                <i class="ph ph-camera text-devo-orange text-base"></i> طريقة عمل الكاميرا (Scan Mode)
-                            </label>
-                            <select id="hs-barcode-scan-mode" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                                <option value="both">كلاهما (الباركود الشريطي والـ QR كود)</option>
-                                <option value="barcode">الباركود الشريطي فقط (1D Barcode)</option>
-                                <option value="qr">الـ QR كود المربعي فقط (2D QR Code)</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-devo-muted flex items-center gap-2">
-                                <i class="ph ph-barcode text-purple-400 text-base"></i> نوع الكود للتعرف على المنتج (Product Code Match)
-                            </label>
-                            <select id="hs-barcode-match-type" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-sm cursor-pointer transition-all">
-                                <option value="both">كلاهما (كود السيستم أو كود المصنع)</option>
-                                <option value="system">كود السيستم فقط (System Code)</option>
-                                <option value="factory">كود المصنع فقط (Factory Code)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div><!-- /view-home-settings (or barcode-settings) -->
+            </div><!-- /view-home-settings inner wrapper -->
+        </div><!-- /view-home-settings -->
 
             <!-- 🌟 2. التحكم في الفواتير وهيدر/بيانات الطباعة 🌟 -->
             <div id="view-invoice-settings" class="settings-subview hidden space-y-6">
@@ -4359,6 +4251,23 @@
                                 </label>
                                 <select id="hs-footer-layout" class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2 text-white focus:border-devo-orange outline-none text-xs cursor-pointer transition-all">
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تخصيص نصوص الفوتر للمصنع -->
+                    <div class="bg-devo-black/40 p-4 rounded-xl border border-devo-gray/50 space-y-4">
+                        <h4 class="text-sm font-bold text-devo-orange flex items-center gap-2">
+                            <i class="ph ph-text-align-right text-lg"></i> تخصيص نصوص ووصف الفوتر للمصنع
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">وصف/نبذة المصنع بالفوتر (Footer Bio / Description)</label>
+                                <textarea id="hs-footer-bio" rows="2" placeholder="مثال: شركة UltraSoft للملابس والأنظمة الذكية. نلتزم بتقديم أفضل الخدمات لعملائنا." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs custom-scrollbar resize-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-devo-muted mb-1">نص الحقوق المخصص بالفوتر (Footer Custom Copyright)</label>
+                                <textarea id="hs-footer-copyright" rows="2" placeholder="مثال: جميع الحقوق محفوظة لشركة UltraSoft © 2026." class="w-full bg-devo-black border border-devo-gray rounded-lg px-3 py-2.5 text-white focus:border-devo-orange outline-none text-xs font-bold custom-scrollbar resize-none"></textarea>
                             </div>
                         </div>
                     </div>
@@ -5943,7 +5852,7 @@
                     <div class="bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
-                                <i class="ph ph-file-xls text-purple-400 text-base"></i> رصيد الكريديت (Excel)
+                                <i class="ph ph-lightning text-purple-400 text-base"></i> رصيد الكريديت والعمليات
                             </span>
                             <span id="sub-credits-pct" class="text-xs font-black text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">0%</span>
                         </div>

@@ -7,7 +7,7 @@ import { initUsersView } from './users.js';
 import { syncActiveTheme } from '../../services/theme.js';
 import { initNotifications } from '../../services/notifications.js';
 import { initNetworkStatusMonitor } from '../../components/network_banner.js';
-import { initializeTenantContext, getCurrentTenant, applyTenantBranding, getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js?v=8.5';
+import { initializeTenantContext, getCurrentTenant, applyTenantBranding, getCurrentTenantId, getTenantStorageKey } from '../../services/tenant_service.js';
 
 // --- Security Check (Protect the Admin Route) ---
 let currentUserContext = null;
@@ -473,6 +473,12 @@ export async function switchSettingsSubtab(subtabId) {
     switch (subtabId) {
         case 'view-home-settings':
             await initHomeSettingsView();
+            break;
+        case 'view-invoice-settings':
+            await initHomeSettingsView();
+            if (typeof window.updateInvoicePreview === 'function') {
+                window.updateInvoicePreview();
+            }
             break;
         case 'view-theme-manager':
             const { initThemeManagerView } = await import('./theme_manager.js');

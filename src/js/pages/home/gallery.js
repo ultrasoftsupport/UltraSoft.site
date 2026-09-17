@@ -1,7 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { getCurrentSession } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
-import { getCurrentTenantId, getTenantSlugFromURL, buildTenantUrl, getTenantStorageKey } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getCurrentTenant, getTenantSlugFromURL, buildTenantUrl, getTenantStorageKey } from '../../services/tenant_service.js';
 
 let allModels = [];
 if (!window.allGalleryModels) {
@@ -1215,7 +1215,27 @@ function getTenantCartKey() {
 
 function loadLocalCart() {
     const key = getTenantCartKey();
-    const saved = localStorage.getItem(key);
+    const currentTenantId = getCurrentTenantId();
+    const slug = getTenantSlugFromURL();
+    const tenant = getCurrentTenant();
+    const isExplicitCustom = Boolean(
+        (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost') ||
+        (tenant && tenant.slug && tenant.slug !== 'default' && !tenant.is_super_admin)
+    );
+
+    let saved = localStorage.getItem(key);
+    if (!saved && slug && slug !== 'default') {
+        saved = localStorage.getItem(`devo_cart_${slug}`);
+    }
+    if (!saved && currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
+        saved = localStorage.getItem(`devo_cart_${currentTenantId}`);
+    }
+    if (!saved && !isExplicitCustom) {
+        saved = localStorage.getItem('devo_cart_default')
+            || localStorage.getItem('devo_cart_00000000-0000-0000-0000-000000000001')
+            || localStorage.getItem('devo_cart');
+    }
+
     if (saved) {
         try { localCart = JSON.parse(saved); } catch(e) { localCart = []; }
     } else {
@@ -1226,7 +1246,22 @@ function loadLocalCart() {
 
 function saveLocalCart() {
     const key = getTenantCartKey();
-    localStorage.setItem(key, JSON.stringify(localCart));
+    const currentTenantId = getCurrentTenantId();
+    const slug = getTenantSlugFromURL();
+    const cartStr = JSON.stringify(localCart);
+    localStorage.setItem(key, cartStr);
+    if (slug && slug !== 'default') {
+        localStorage.setItem(`devo_cart_${slug}`, cartStr);
+    }
+    if (currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
+        localStorage.setItem(`devo_cart_${currentTenantId}`, cartStr);
+    }
+    const tenant = getCurrentTenant();
+    const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
+    if (isMain) {
+        localStorage.setItem('devo_cart_default', cartStr);
+        localStorage.setItem('devo_cart', cartStr);
+    }
     updateFloatingCart();
 }
 

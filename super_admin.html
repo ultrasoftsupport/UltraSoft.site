@@ -583,6 +583,55 @@
                     </form>
                 </div>
 
+                <!-- Mall Hero Banner Ads & Slider Management Card -->
+                <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl space-y-5">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-devo-gray pb-4">
+                        <div>
+                            <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                                <i class="ph ph-presentation-chart text-ultra-400 text-lg"></i>
+                                إدارة إعلانات وبانرات المول المتحركة (Hero Slider & Ads)
+                            </h4>
+                            <p class="text-xs text-devo-muted mt-0.5">
+                                أضف وتحكم في إعلانات وبانرات المصانع والعروض في الواجهة العلوية للمول مع السلايدر التلقائي المتحرك كل 5 ثوانٍ
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="saMallBannersCountBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-ultra-500/10 text-ultra-400 border border-ultra-500/20">
+                                -- إعلانات
+                            </span>
+                            <button type="button" id="addNewMallBannerBtn"
+                                class="px-4 py-2 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-1.5 transition cursor-pointer">
+                                <i class="ph ph-plus-circle text-base"></i>
+                                <span>إضافة إعلان جديد</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Banners List / Table -->
+                    <div class="overflow-x-auto rounded-xl border border-devo-gray">
+                        <table class="w-full text-right border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-devo-black border-b border-devo-gray text-devo-muted font-bold">
+                                    <th class="py-3.5 px-3 text-center w-14">الترتيب</th>
+                                    <th class="py-3.5 px-4 w-32">معاينة الصورة</th>
+                                    <th class="py-3.5 px-4">عنوان الإعلان والنصوص الترويجية</th>
+                                    <th class="py-3.5 px-4">أزرار الإجراء والروابط</th>
+                                    <th class="py-3.5 px-4 text-center w-28">حالة الظهور</th>
+                                    <th class="py-3.5 px-4 text-center w-36">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saMallBannersTableBody" class="divide-y divide-devo-gray/50">
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-devo-muted">
+                                        <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
+                                        جاري تحميل إعلانات وبانرات المول...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Factories Mall Management & Reordering Table Card -->
                 <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl shadow-xl space-y-5">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-devo-gray pb-4">
@@ -612,6 +661,9 @@
                         <table class="w-full text-right border-collapse text-xs">
                             <thead>
                                 <tr class="bg-devo-black border-b border-devo-gray text-devo-muted font-bold">
+                                    <th class="py-3.5 px-3 text-center w-12" title="سحب وإفلات لإعادة ترتيب الأولوية">
+                                        <i class="ph ph-arrows-down-up text-base"></i>
+                                    </th>
                                     <th class="py-3.5 px-4">المصنع / الشركة</th>
                                     <th class="py-3.5 px-4 text-center">الظهور في المول</th>
                                     <th class="py-3.5 px-4 text-center">مصنع مميز 🔥</th>
@@ -622,7 +674,7 @@
                             </thead>
                             <tbody id="saMallTenantsTableBody" class="divide-y divide-devo-gray/50">
                                 <tr>
-                                    <td colspan="6" class="py-8 text-center text-devo-muted">
+                                    <td colspan="7" class="py-8 text-center text-devo-muted">
                                         <i class="ph ph-spinner animate-spin text-2xl text-ultra-400 mb-2 block mx-auto"></i>
                                         جاري تحميل مصانع المول...
                                     </td>
@@ -747,7 +799,7 @@
                     <form id="planLimitsConfigForm" class="space-y-6">
                         <input type="hidden" id="limitPlanKeyInput" value="quarterly">
 
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
                             <!-- CARD 1: GENERAL PLAN LIMITS -->
                             <div class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4 shadow-xl">
@@ -999,6 +1051,95 @@
                                         تتم المخاصمة تلقائياً من رصيد المصنع عند كل عملية رفع ناجحة بناءً على قيم
                                         القواعد المحددة أعلاه للباقة الحالية.
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 4: GOOGLE DRIVE MODEL IMAGES IMPORT PRICING -->
+                            <div
+                                class="bg-devo-dark border border-devo-gray p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-3 border-b border-devo-gray pb-3">
+                                        <div
+                                            class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl font-bold">
+                                            <i class="ph ph-images-square"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-black text-white">تسعير استيراد صور Drive</h4>
+                                            <p class="text-[11px] text-devo-muted">خصم الكريديت لسحب صور الموديلات</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mode Selector Tabs -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-white mb-2">اختر طريقة حساب الخصم من الكريديت:</label>
+                                        <div class="grid grid-cols-1 gap-2">
+                                            <label id="driveModeFlatOptionLabel"
+                                                class="p-3 rounded-xl border-2 border-ultra-500 bg-ultra-500/10 flex flex-col gap-1 text-xs text-devo-text font-bold cursor-pointer transition-all shadow-md">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="radio" name="drive_pricing_mode" value="per_operation" checked
+                                                        class="text-ultra-500 focus:ring-0">
+                                                    <span class="text-white">خصم ثابت لكل عملية سحب</span>
+                                                </div>
+                                                <span class="text-[10px] text-devo-muted pr-5">خصم قيمة مقطوعة عند كل عملية استيراد</span>
+                                            </label>
+
+                                            <label id="driveModePerItemOptionLabel"
+                                                class="p-3 rounded-xl border border-devo-gray bg-devo-black flex flex-col gap-1 text-xs text-devo-text font-bold cursor-pointer hover:border-ultra-500 transition-all">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="radio" name="drive_pricing_mode" value="per_item"
+                                                        class="text-ultra-500 focus:ring-0">
+                                                    <span class="text-white">خصم لكل صنف + سقف أقصى</span>
+                                                </div>
+                                                <span class="text-[10px] text-devo-muted pr-5">خصم بحسب عدد الموديلات مع سقف للتوفير</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- DYNAMIC FIELD GROUP 1: Flat Per Operation -->
+                                    <div id="drivePerOpGroup" class="space-y-2">
+                                        <label class="block text-xs font-bold text-devo-muted">الكريديت المخصوم لكل عملية سحب *</label>
+                                        <div class="relative">
+                                            <input type="number" step="0.5" id="limitDrivePerOpCostInput" required min="0" value="10"
+                                                class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-devo-muted">كريديت</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- DYNAMIC FIELD GROUP 2: Per Item & Max Cap -->
+                                    <div id="drivePerItemGroup" class="space-y-3 hidden">
+                                        <div>
+                                            <label class="block text-xs font-bold text-devo-muted mb-1">تكلفة الصنف/الموديل الواحد *</label>
+                                            <div class="relative">
+                                                <input type="number" step="0.1" id="limitDrivePerItemCostInput" required min="0" value="1"
+                                                    class="w-full bg-devo-black border border-devo-gray rounded-xl px-4 py-2.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-ultra-500">
+                                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-devo-muted">كريديت / صنف</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/30 space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <label class="block text-xs font-black text-purple-300">سقف الحد الأقصى للمخاصمة (Max Cap) *</label>
+                                                <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-bold">حد الأمان لحماية العميل</span>
+                                            </div>
+                                            <div class="relative">
+                                                <input type="number" step="1" id="limitDriveMaxCapInput" required min="0" value="30"
+                                                    class="w-full bg-devo-dark border border-purple-500/50 rounded-lg px-3 py-2 text-xs text-purple-300 font-mono font-bold focus:outline-none focus:border-purple-400">
+                                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-purple-300">كريديت كأقصى حد</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DYNAMIC LIVE EXPLANATION BOX -->
+                                <div id="driveLiveExplanationBox"
+                                    class="p-3.5 rounded-xl bg-devo-black border border-purple-500/30 space-y-1 text-xs text-devo-muted">
+                                    <div class="flex items-center gap-1.5 font-bold text-purple-400">
+                                        <i class="ph ph-info text-base"></i>
+                                        <span>مثال توضيحي لآلية الخصم بهذه الباقة:</span>
+                                    </div>
+                                    <p id="driveExplanationText" class="text-[11px] leading-relaxed text-devo-text pt-1">
+                                        عند قيام المصنع باستيراد صور الموديلات، سيتم خصم <strong class="text-amber-400 font-mono">10 كريديت</strong> مقطوعة عن العملية بأكملها.
+                                    </p>
                                 </div>
                             </div>
 
@@ -2656,7 +2797,7 @@
                                 class="bg-devo-black border border-devo-gray p-5 rounded-2xl shadow-md space-y-3 relative overflow-hidden">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-bold text-devo-muted flex items-center gap-1.5">
-                                        <i class="ph ph-file-xls text-purple-400 text-base"></i> رصيد الكريديت (Excel)
+                                        <i class="ph ph-lightning text-purple-400 text-base"></i> رصيد الكريديت والعمليات
                                     </span>
                                     <span id="sa-sub-credits-pct"
                                         class="text-xs font-black text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">0%</span>
@@ -4133,6 +4274,194 @@
         </div>
     </div>
 
+    <!-- MODAL: ADD/EDIT MALL BANNER AD -->
+    <div id="saMallBannerModal" class="fixed inset-0 z-50 items-center justify-center bg-black/80 backdrop-blur-md hidden p-4 overflow-y-auto">
+        <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl my-8">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-devo-gray bg-devo-black/60">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-xl bg-ultra-500/10 border border-ultra-500/30 flex items-center justify-center text-ultra-400 text-lg">
+                        <i class="ph ph-presentation-chart"></i>
+                    </div>
+                    <div>
+                        <h3 id="saMallBannerModalTitle" class="text-sm font-black text-white">إضافة إعلان جديد في المول</h3>
+                        <p class="text-[11px] text-devo-muted">تحكم في محتوى شريحة السلايدر المتحركة بالمول</p>
+                    </div>
+                </div>
+                <button type="button" id="closeSaMallBannerModalBtn" class="text-devo-muted hover:text-white p-2 rounded-lg hover:bg-devo-gray/50 transition cursor-pointer">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="saMallBannerForm" class="p-6 space-y-5 text-right">
+                <input type="hidden" id="saBannerIdInput" value="">
+
+                <!-- 1. Factory / Tenant Quick Select Helper -->
+                <div class="p-3.5 rounded-xl bg-devo-black/70 border border-devo-gray/60 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-ultra-400 flex items-center gap-1.5">
+                            <i class="ph ph-magic-wand"></i>
+                            <span>تعبئة سريعة من مصنع مسجل (اختياري)</span>
+                        </label>
+                        <span class="text-[10px] text-devo-muted">يملأ البيانات والصورة والروابط تلقائياً</span>
+                    </div>
+                    <select id="saBannerFactoryQuickSelect" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        <option value="">-- اختر مصنعاً للتعبئة التلقائية أو أنشئ إعلاناً مخصصاً --</option>
+                    </select>
+                </div>
+
+                <!-- 2. Titles & Badges -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">
+                            العنوان الرئيسي للإعلان <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="text" id="saBannerTitleInput" required placeholder="مثال: مصنع الفا للملابس الجاهزة"
+                            class="w-full bg-devo-black border border-devo-gray rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">
+                            العنوان العلوي الصغير (Subtitle / English)
+                        </label>
+                        <input type="text" id="saBannerSubtitleInput" placeholder="مثال: WELCOME TO ALPHATEX أو تخفيضات الموسم"
+                            class="w-full bg-devo-black border border-devo-gray rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <!-- 3. Descriptions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">
+                            الوصف الرئيسي (بالعربية) <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="text" id="saBannerDescInput" required placeholder="مثال: أحدث موديلات الأزياء والتريكو بأسعار الجملة"
+                            class="w-full bg-devo-black border border-devo-gray rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">
+                            الوصف الثانوي / الميزات (نقاط مفرقة)
+                        </label>
+                        <input type="text" id="saBannerSubDescInput" placeholder="مثال: جودة تصديرية • خامات قطن 100% • شحن فوري"
+                            class="w-full bg-devo-black border border-devo-gray rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                </div>
+
+                <!-- 4. Background Image -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-bold text-devo-muted">
+                            رابط صورة خلفية الإعلان (High-Res Banner Image) <span class="text-rose-400">*</span>
+                        </label>
+                        <button type="button" id="saBannerResetDefaultImgBtn" class="text-[10px] text-ultra-400 hover:underline cursor-pointer">
+                            استخدام صورة المول الافتراضية
+                        </button>
+                    </div>
+                    <input type="text" id="saBannerImageUrlInput" required placeholder="مثال: src/assets/ultrasoft%20mall.png أو https://..."
+                        class="w-full bg-devo-black border border-devo-gray rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    <div class="mt-2 h-24 rounded-xl border border-devo-gray overflow-hidden bg-devo-black relative">
+                        <img id="saBannerImagePreview" src="src/assets/ultrasoft%20mall.png" alt="معاينة الصورة" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex items-center px-4">
+                            <span class="text-[11px] font-bold text-white/80">معاينة الدمج الخلفي للشريحة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Primary Action Button -->
+                <div class="p-4 rounded-xl bg-devo-black/50 border border-devo-gray/70 space-y-3">
+                    <h5 class="text-xs font-black text-white flex items-center gap-1.5">
+                        <i class="ph ph-cursor-click text-ultra-400 text-sm"></i>
+                        <span>الزر الأساسي (Primary Action Button)</span>
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-devo-muted mb-1">نص الزر</label>
+                            <input type="text" id="saBannerPrimaryBtnTextInput" placeholder="مثال: استعرض المصانع"
+                                class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-devo-muted mb-1">نوع الإجراء</label>
+                            <select id="saBannerPrimaryActionSelect" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                                <option value="scroll">التمرير لقائمة المصانع في المول</option>
+                                <option value="factory">فتح متجر المصنع (Slug)</option>
+                                <option value="link">رابط خارجي مخصص (URL)</option>
+                                <option value="demo">استكشاف متجر تجريبي (Demo)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-devo-muted mb-1">الهدف / المعرف / الرابط</label>
+                            <input type="text" id="saBannerPrimaryTargetInput" placeholder="#mall-factories-section أو factory-slug"
+                                class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Secondary Action Button (Optional) -->
+                <div class="p-4 rounded-xl bg-devo-black/50 border border-devo-gray/70 space-y-3">
+                    <h5 class="text-xs font-black text-white flex items-center gap-1.5">
+                        <i class="ph ph-play-circle text-devo-muted text-sm"></i>
+                        <span>الزر الثانوي (Secondary Action Button - اختياري)</span>
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-devo-muted mb-1">نص الزر الثانوي</label>
+                            <input type="text" id="saBannerSecondaryBtnTextInput" placeholder="مثال: تجربة النظام (أو اتركه فارغاً للإخفاء)"
+                                class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-devo-muted mb-1">نوع الإجراء</label>
+                            <select id="saBannerSecondaryActionSelect" class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                                <option value="demo">تجربة النظام (Demo Store)</option>
+                                <option value="scroll">التمرير لقائمة المصانع</option>
+                                <option value="factory">فتح متجر مصنع</option>
+                                <option value="link">رابط مخصص خارجي</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-devo-muted mb-1">الهدف / الرابط</label>
+                            <input type="text" id="saBannerSecondaryTargetInput" placeholder="فارغ أو رابط أو معرف"
+                                class="w-full bg-devo-dark border border-devo-gray rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-ultra-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Order & Active Toggle -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div>
+                        <label class="block text-xs font-bold text-devo-muted mb-1">
+                            ترتيب الأولوية في السلايدر (1 الأول، 2 التالي...)
+                        </label>
+                        <input type="number" id="saBannerOrderInput" value="1" min="1" max="99" required
+                            class="w-full bg-devo-black border border-devo-gray rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-ultra-500">
+                    </div>
+                    <div class="flex items-center justify-between bg-devo-black/40 border border-devo-gray/60 rounded-xl px-4 py-3">
+                        <div>
+                            <span class="text-xs font-bold text-white block">تفعيل الشريحة بالسلايدر</span>
+                            <span class="text-[10px] text-devo-muted">إظهار هذا الإعلان ضمن الحركة التلقائية</span>
+                        </div>
+                        <label class="ultra-switch cursor-pointer">
+                            <input type="checkbox" id="saBannerActiveToggle" checked class="ultra-switch-input">
+                            <span class="ultra-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-devo-gray">
+                    <button type="button" id="cancelSaMallBannerBtn"
+                        class="px-5 py-2.5 rounded-xl border border-devo-gray text-devo-muted hover:text-white hover:bg-devo-gray/30 text-xs font-bold transition cursor-pointer">
+                        إلغاء
+                    </button>
+                    <button type="submit" id="saveSaMallBannerBtn"
+                        class="px-6 py-2.5 rounded-xl bg-ultra-500 hover:bg-ultra-600 text-white font-bold text-xs shadow-md shadow-ultra-500/20 flex items-center gap-1.5 transition cursor-pointer">
+                        <i class="ph ph-floppy-disk text-base"></i>
+                        <span>حفظ الإعلان</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JS Scripts -->
     <script type="module">
         import { supabase } from './src/js/config/supabase.js';
@@ -4163,7 +4492,11 @@
         import {
             fetchMallConfig,
             saveMallConfig,
-            updateTenantMallSettings
+            updateTenantMallSettings,
+            updateTenantMallBatchOrders,
+            fetchMallBanners,
+            saveMallBanners,
+            DEFAULT_MALL_BANNERS
         } from './src/js/services/mall_service.js';
 
         // 🎨 Sync active theme immediately
@@ -6248,7 +6581,7 @@
             const globalEnabledToggle = document.getElementById('saMallGlobalEnabledToggle');
             const filterInput = document.getElementById('saMallFilterInput');
 
-            // 1. Load Global Mall Config
+            // 1. Load Global Mall Config & Hero Slider Banners
             try {
                 const config = await fetchMallConfig();
                 if (globalTitleInput) globalTitleInput.value = config.title || 'UltraSoft Mall';
@@ -6258,6 +6591,9 @@
             } catch (err) {
                 console.warn('Error fetching mall config:', err);
             }
+
+            // تحميل إعلانات وبانرات السلايدر للمول
+            loadSaMallBanners();
 
             // 2. Fetch or reuse tenants list
             if (!globalTenantsList || globalTenantsList.length === 0) {
@@ -6320,7 +6656,7 @@
             if (sorted.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="py-10 text-center text-devo-muted">
+                        <td colspan="7" class="py-10 text-center text-devo-muted">
                             <i class="ph ph-buildings text-3xl mb-2 block mx-auto opacity-40"></i>
                             لا توجد مصانع مطابقة لخيارات البحث
                         </td>
@@ -6329,18 +6665,26 @@
                 return;
             }
 
-            tableBody.innerHTML = sorted.map(t => {
+            tableBody.innerHTML = sorted.map((t, index) => {
                 const mallSettings = t.mall_settings || (t.settings && t.settings.mall) || {};
                 const isInMall = (t.is_in_mall === true || mallSettings.is_in_mall === true);
                 const isFeatured = (t.mall_featured === true || mallSettings.is_featured === true);
-                const sortOrder = t.mall_order ?? (mallSettings.sort_order ?? 1);
                 const logo = mallSettings.logo_url || t.logo_url || t.settings?.logo_url || 'src/assets/icons/ultrasoft_transparent.png';
                 const displayName = mallSettings.display_name || t.name;
                 const badge = mallSettings.badge || '';
                 const tags = Array.isArray(mallSettings.tags) ? mallSettings.tags : [];
 
                 return `
-                    <tr class="hover:bg-devo-black/40 transition-colors">
+                    <tr draggable="true" 
+                        class="sa-mall-row hover:bg-devo-black/60 transition-all select-none border-b border-devo-gray/30" 
+                        data-tenant-id="${t.id}"
+                        data-index="${index}">
+                        
+                        <!-- Drag Handle -->
+                        <td class="py-3.5 px-3 text-center text-devo-muted hover:text-white cursor-grab active:cursor-grabbing sa-mall-drag-handle" title="اسحب وأفلت لإعادة ترتيب الأولوية">
+                            <i class="ph ph-dots-six-vertical text-lg"></i>
+                        </td>
+
                         <!-- Factory Info -->
                         <td class="py-3.5 px-4">
                             <div class="flex items-center gap-3">
@@ -6376,10 +6720,11 @@
                             </label>
                         </td>
 
-                        <!-- Sort Order -->
+                        <!-- Sort Order Rank Badge (1, 2, 3...) -->
                         <td class="py-3.5 px-4 text-center">
-                            <input type="number" min="1" value="${sortOrder}" data-tenant-id="${t.id}"
-                                class="sa-mall-sort-order-input w-16 text-center bg-devo-black border border-devo-gray rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-ultra-500 font-mono">
+                            <span class="sa-mall-order-badge inline-flex items-center justify-center w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/30 text-xs font-mono font-bold text-sky-400 shadow-inner">
+                                ${index + 1}
+                            </span>
                         </td>
 
                         <!-- Badge & Tags -->
@@ -6412,7 +6757,7 @@
                 input.addEventListener('change', async (e) => {
                     const tenantId = e.target.dataset.tenantId;
                     const checked = e.target.checked;
-                    await handleQuickMallUpdate(tenantId, { isInMall: checked });
+                    await handleQuickMallUpdate(tenantId, { isInMall: checked, is_in_mall: checked });
                 });
             });
 
@@ -6420,15 +6765,7 @@
                 input.addEventListener('change', async (e) => {
                     const tenantId = e.target.dataset.tenantId;
                     const checked = e.target.checked;
-                    await handleQuickMallUpdate(tenantId, { mallFeatured: checked });
-                });
-            });
-
-            tableBody.querySelectorAll('.sa-mall-sort-order-input').forEach(input => {
-                input.addEventListener('change', async (e) => {
-                    const tenantId = e.target.dataset.tenantId;
-                    const val = parseInt(e.target.value, 10) || 1;
-                    await handleQuickMallUpdate(tenantId, { mallOrder: val });
+                    await handleQuickMallUpdate(tenantId, { mallFeatured: checked, mall_featured: checked });
                 });
             });
 
@@ -6438,6 +6775,73 @@
                     if (tenantId && typeof openTenantDetailsModal === 'function') {
                         openTenantDetailsModal(tenantId, 'mall');
                     }
+                });
+            });
+
+            // 🔀 HTML5 Drag & Drop Reordering Logic
+            let draggedRow = null;
+
+            tableBody.querySelectorAll('.sa-mall-row').forEach(row => {
+                row.addEventListener('dragstart', (e) => {
+                    draggedRow = row;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', row.dataset.tenantId);
+                    row.classList.add('opacity-40', 'bg-sky-500/10', 'ring-2', 'ring-sky-500/50');
+                });
+
+                row.addEventListener('dragend', async () => {
+                    if (draggedRow) {
+                        draggedRow.classList.remove('opacity-40', 'bg-sky-500/10', 'ring-2', 'ring-sky-500/50');
+                        draggedRow = null;
+                    }
+
+                    // Re-calculate visual order 1, 2, 3... and prepare batch payload
+                    const currentRows = Array.from(tableBody.querySelectorAll('.sa-mall-row'));
+                    const orderPairs = [];
+
+                    currentRows.forEach((r, idx) => {
+                        const newRank = idx + 1;
+                        const badge = r.querySelector('.sa-mall-order-badge');
+                        if (badge) badge.textContent = newRank;
+                        
+                        const tid = r.dataset.tenantId;
+                        orderPairs.push({ id: tid, order: newRank });
+
+                        // Update in-memory caches
+                        const cTenant = saMallTenantsCache.find(x => x.id === tid);
+                        if (cTenant) {
+                            cTenant.mall_order = newRank;
+                            if (cTenant.mall_settings) cTenant.mall_settings.sort_order = newRank;
+                        }
+                        const gTenant = globalTenantsList.find(x => x.id === tid);
+                        if (gTenant) {
+                            gTenant.mall_order = newRank;
+                            if (gTenant.mall_settings) gTenant.mall_settings.sort_order = newRank;
+                        }
+                    });
+
+                    // Persist batch orders directly to database
+                    try {
+                        const res = await updateTenantMallBatchOrders(orderPairs);
+                        if (res.success) {
+                            showToast('تم حفظ الترتيب الجديد للمصانع بنجاح! ⚡', 'success');
+                        } else {
+                            showToast('فشل حفظ الترتيب: ' + (res.message || 'خطأ غير معروف'), 'error');
+                        }
+                    } catch (err) {
+                        console.error('Error saving batch orders:', err);
+                        showToast('حدث خطأ أثناء حفظ الترتيب: ' + err.message, 'error');
+                    }
+                });
+
+                row.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (!draggedRow || draggedRow === row) return;
+
+                    const rect = row.getBoundingClientRect();
+                    const isAfterMiddle = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                    tableBody.insertBefore(draggedRow, isAfterMiddle ? row.nextSibling : row);
                 });
             });
         }
@@ -6450,22 +6854,38 @@
                 const currentSettings = tenant.mall_settings || (tenant.settings && tenant.settings.mall) || {};
                 const newSettings = { ...currentSettings };
 
-                if (partialUpdate.isInMall !== undefined) newSettings.is_in_mall = partialUpdate.isInMall;
-                if (partialUpdate.mallFeatured !== undefined) newSettings.is_featured = partialUpdate.mallFeatured;
-                if (partialUpdate.mallOrder !== undefined) newSettings.sort_order = partialUpdate.mallOrder;
+                const isInMall = partialUpdate.isInMall !== undefined 
+                    ? partialUpdate.isInMall 
+                    : (partialUpdate.is_in_mall !== undefined ? partialUpdate.is_in_mall : (tenant.is_in_mall === true));
+
+                const mallFeatured = partialUpdate.mallFeatured !== undefined 
+                    ? partialUpdate.mallFeatured 
+                    : (partialUpdate.mall_featured !== undefined ? partialUpdate.mall_featured : (tenant.mall_featured === true));
+
+                const mallOrder = partialUpdate.mallOrder !== undefined 
+                    ? partialUpdate.mallOrder 
+                    : (partialUpdate.mall_order !== undefined ? partialUpdate.mall_order : (tenant.mall_order ?? 999));
+
+                newSettings.is_in_mall = isInMall;
+                newSettings.is_featured = mallFeatured;
+                newSettings.sort_order = mallOrder;
 
                 const res = await updateTenantMallSettings(tenantId, {
-                    isInMall: partialUpdate.isInMall !== undefined ? partialUpdate.isInMall : (tenant.is_in_mall === true),
-                    mallOrder: partialUpdate.mallOrder !== undefined ? partialUpdate.mallOrder : (tenant.mall_order ?? 1),
-                    mallFeatured: partialUpdate.mallFeatured !== undefined ? partialUpdate.mallFeatured : (tenant.mall_featured === true),
+                    is_in_mall: isInMall,
+                    isInMall: isInMall,
+                    mall_featured: mallFeatured,
+                    mallFeatured: mallFeatured,
+                    mall_order: mallOrder,
+                    mallOrder: mallOrder,
+                    mall_settings: newSettings,
                     mallSettings: newSettings
                 });
 
                 if (res.success) {
-                    // Update in-memory
-                    if (partialUpdate.isInMall !== undefined) tenant.is_in_mall = partialUpdate.isInMall;
-                    if (partialUpdate.mallFeatured !== undefined) tenant.mall_featured = partialUpdate.mallFeatured;
-                    if (partialUpdate.mallOrder !== undefined) tenant.mall_order = partialUpdate.mallOrder;
+                    // Update in-memory objects
+                    tenant.is_in_mall = isInMall;
+                    tenant.mall_featured = mallFeatured;
+                    tenant.mall_order = mallOrder;
                     tenant.mall_settings = newSettings;
                     if (!tenant.settings) tenant.settings = {};
                     tenant.settings.mall = newSettings;
@@ -6474,9 +6894,9 @@
                     if (Array.isArray(saMallTenantsCache)) {
                         const mTarget = saMallTenantsCache.find(t => t.id === tenantId);
                         if (mTarget) {
-                            if (partialUpdate.isInMall !== undefined) mTarget.is_in_mall = partialUpdate.isInMall;
-                            if (partialUpdate.mallFeatured !== undefined) mTarget.mall_featured = partialUpdate.mallFeatured;
-                            if (partialUpdate.mallOrder !== undefined) mTarget.mall_order = partialUpdate.mallOrder;
+                            mTarget.is_in_mall = isInMall;
+                            mTarget.mall_featured = mallFeatured;
+                            mTarget.mall_order = mallOrder;
                             mTarget.mall_settings = newSettings;
                         }
                         renderSaMallTable(saMallTenantsCache);
@@ -6484,7 +6904,7 @@
 
                     showToast('تم تحديث إعدادات المصنع بالمول بنجاح! ⚡', 'success');
                 } else {
-                    showToast('فشل التحديث: ' + res.error, 'error');
+                    showToast('فشل التحديث: ' + (res.message || res.error || 'خطأ غير معروف'), 'error');
                 }
             } catch (err) {
                 console.error('Quick mall update error:', err);
@@ -6532,6 +6952,513 @@
                     }
                 }
             });
+        }
+
+        // ============================================================
+        // 🎠 UltraSoft Mall Hero Slider & Banner Ads Management
+        // ============================================================
+        let saMallBannersCache = [];
+
+        async function loadSaMallBanners() {
+            const tableBody = document.getElementById('saMallBannersTableBody');
+            const countBadge = document.getElementById('saMallBannersCountBadge');
+            if (!tableBody) return;
+
+            try {
+                const banners = await fetchMallBanners(false);
+                saMallBannersCache = Array.isArray(banners) && banners.length > 0 
+                    ? banners 
+                    : JSON.parse(JSON.stringify(DEFAULT_MALL_BANNERS));
+                renderSaMallBannersTable();
+            } catch (err) {
+                console.error('Error loading mall banners in Super Admin:', err);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-6 text-center text-rose-400">
+                            حدث خطأ أثناء تحميل إعلانات وبانرات المول: ${err.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        window.loadSaMallBanners = loadSaMallBanners;
+
+        function renderSaMallBannersTable() {
+            const tableBody = document.getElementById('saMallBannersTableBody');
+            const countBadge = document.getElementById('saMallBannersCountBadge');
+            if (!tableBody) return;
+
+            // Sort banners by order ascending
+            saMallBannersCache.sort((a, b) => (Number(a.order) || 1) - (Number(b.order) || 1));
+
+            if (countBadge) {
+                const activeCount = saMallBannersCache.filter(b => b.is_active !== false).length;
+                countBadge.textContent = `${saMallBannersCache.length} إعلانات (${activeCount} نشط)`;
+            }
+
+            if (saMallBannersCache.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-10 text-center text-devo-muted">
+                            <i class="ph ph-images text-3xl mb-2 block mx-auto opacity-40"></i>
+                            <p class="text-sm font-bold text-white mb-1">لا توجد إعلانات مسجلة في السلايدر حالياً</p>
+                            <p class="text-xs text-devo-muted">اضغط على زر "إضافة إعلان جديد" بالأعلى لإنشاء شريحة ترويجية جديدة.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = saMallBannersCache.map((banner, index) => {
+                const isActive = banner.is_active !== false;
+                const safeImg = banner.image_url || 'src/assets/ultrasoft%20mall.png';
+                const hasPrimary = Boolean(banner.primary_btn_text);
+                const hasSecondary = Boolean(banner.secondary_btn_text);
+
+                return `
+                    <tr class="hover:bg-devo-black/30 transition border-b border-devo-gray/50" data-banner-id="${banner.id}">
+                        <!-- Order / Rank -->
+                        <td class="py-3 px-3 text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <div class="flex flex-col gap-0.5">
+                                    <button type="button" class="sa-mall-move-banner-up text-devo-muted hover:text-ultra-400 transition p-0.5 cursor-pointer ${index === 0 ? 'opacity-30 pointer-events-none' : ''}"
+                                        data-banner-id="${banner.id}" title="تقديم الإعلان بالأولوية">
+                                        <i class="ph ph-caret-up text-xs"></i>
+                                    </button>
+                                    <button type="button" class="sa-mall-move-banner-down text-devo-muted hover:text-ultra-400 transition p-0.5 cursor-pointer ${index === saMallBannersCache.length - 1 ? 'opacity-30 pointer-events-none' : ''}"
+                                        data-banner-id="${banner.id}" title="تأخير الإعلان بالأولوية">
+                                        <i class="ph ph-caret-down text-xs"></i>
+                                    </button>
+                                </div>
+                                <span class="w-6 h-6 rounded-lg bg-devo-black border border-devo-gray text-white font-mono font-bold text-xs flex items-center justify-center">
+                                    ${banner.order || (index + 1)}
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- Image Preview -->
+                        <td class="py-3 px-4">
+                            <div class="w-24 h-14 rounded-xl border border-devo-gray overflow-hidden bg-devo-black relative group">
+                                <img src="${safeImg}" alt="${banner.title || 'إعلان'}" class="w-full h-full object-cover transition group-hover:scale-105"
+                                    onerror="this.onerror=null; this.src='src/assets/ultrasoft%20mall.png';">
+                            </div>
+                        </td>
+
+                        <!-- Title & Content -->
+                        <td class="py-3 px-4">
+                            <div class="space-y-1">
+                                ${banner.subtitle ? `
+                                    <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider text-ultra-400">
+                                        ${banner.subtitle}
+                                    </span>
+                                ` : ''}
+                                <div class="text-xs font-black text-white line-clamp-1">
+                                    ${banner.title || 'بدون عنوان'}
+                                </div>
+                                <p class="text-[11px] text-devo-muted line-clamp-1">
+                                    ${banner.description || '--'}
+                                </p>
+                                ${banner.sub_description ? `
+                                    <p class="text-[10px] text-devo-muted/80 line-clamp-1 font-mono">
+                                        ${banner.sub_description}
+                                    </p>
+                                ` : ''}
+                            </div>
+                        </td>
+
+                        <!-- Buttons & Actions -->
+                        <td class="py-3 px-4">
+                            <div class="space-y-1 text-[11px]">
+                                ${hasPrimary ? `
+                                    <div class="flex items-center gap-1 text-white">
+                                        <span class="px-1.5 py-0.2 rounded bg-ultra-500/20 text-ultra-400 font-bold text-[10px]">الرئيسي</span>
+                                        <span class="font-bold">${banner.primary_btn_text}</span>
+                                        <span class="text-devo-muted font-mono text-[10px]">(${banner.primary_btn_action || 'scroll'}: ${banner.primary_btn_target || 'factories'})</span>
+                                    </div>
+                                ` : '<span class="text-devo-muted text-[10px]">لا يوجد زر رئيسي</span>'}
+
+                                ${hasSecondary ? `
+                                    <div class="flex items-center gap-1 text-devo-muted">
+                                        <span class="px-1.5 py-0.2 rounded bg-devo-gray/50 text-devo-text font-bold text-[10px]">ثانوي</span>
+                                        <span>${banner.secondary_btn_text}</span>
+                                        <span class="font-mono text-[10px]">(${banner.secondary_btn_action || 'demo'})</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </td>
+
+                        <!-- Active Toggle -->
+                        <td class="py-3 px-4 text-center">
+                            <label class="ultra-switch cursor-pointer inline-block" title="تفعيل أو تعطيل ظهور الإعلان">
+                                <input type="checkbox" class="ultra-switch-input sa-mall-banner-toggle-active"
+                                    data-banner-id="${banner.id}" ${isActive ? 'checked' : ''}>
+                                <span class="ultra-switch-slider"></span>
+                            </label>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button type="button" class="sa-mall-edit-banner-btn p-1.5 rounded-lg bg-devo-black hover:bg-ultra-500/20 text-ultra-400 border border-devo-gray hover:border-ultra-500/40 text-xs transition cursor-pointer"
+                                    data-banner-id="${banner.id}" title="تعديل تفاصيل الإعلان">
+                                    <i class="ph ph-note-pencil text-sm"></i>
+                                </button>
+                                <button type="button" class="sa-mall-delete-banner-btn p-1.5 rounded-lg bg-devo-black hover:bg-rose-500/20 text-rose-400 border border-devo-gray hover:border-rose-500/40 text-xs transition cursor-pointer"
+                                    data-banner-id="${banner.id}" title="حذف الإعلان من السلايدر">
+                                    <i class="ph ph-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Attach action listeners
+            tableBody.querySelectorAll('.sa-mall-banner-toggle-active').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const bannerId = e.target.dataset.bannerId;
+                    const checked = e.target.checked;
+                    await handleToggleSaMallBannerStatus(bannerId, checked);
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-edit-banner-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const bannerId = e.currentTarget.dataset.bannerId;
+                    openSaMallBannerModal(bannerId);
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-delete-banner-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const bannerId = e.currentTarget.dataset.bannerId;
+                    await handleDeleteSaMallBanner(bannerId);
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-move-banner-up').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const bannerId = e.currentTarget.dataset.bannerId;
+                    await handleMoveMallBannerOrder(bannerId, -1);
+                });
+            });
+
+            tableBody.querySelectorAll('.sa-mall-move-banner-down').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const bannerId = e.currentTarget.dataset.bannerId;
+                    await handleMoveMallBannerOrder(bannerId, 1);
+                });
+            });
+        }
+
+        // Modal Controls & Handlers
+        const saMallBannerModal = document.getElementById('saMallBannerModal');
+        const saMallBannerForm = document.getElementById('saMallBannerForm');
+        const addNewMallBannerBtn = document.getElementById('addNewMallBannerBtn');
+        const closeSaMallBannerModalBtn = document.getElementById('closeSaMallBannerModalBtn');
+        const cancelSaMallBannerBtn = document.getElementById('cancelSaMallBannerBtn');
+        const saBannerImageUrlInput = document.getElementById('saBannerImageUrlInput');
+        const saBannerImagePreview = document.getElementById('saBannerImagePreview');
+        const saBannerResetDefaultImgBtn = document.getElementById('saBannerResetDefaultImgBtn');
+        const saBannerFactoryQuickSelect = document.getElementById('saBannerFactoryQuickSelect');
+
+        function openSaMallBannerModal(bannerId = null) {
+            if (!saMallBannerModal) return;
+
+            const modalTitle = document.getElementById('saMallBannerModalTitle');
+            const idInput = document.getElementById('saBannerIdInput');
+            const titleInput = document.getElementById('saBannerTitleInput');
+            const subtitleInput = document.getElementById('saBannerSubtitleInput');
+            const descInput = document.getElementById('saBannerDescInput');
+            const subDescInput = document.getElementById('saBannerSubDescInput');
+            const primaryTextInput = document.getElementById('saBannerPrimaryBtnTextInput');
+            const primaryActionSelect = document.getElementById('saBannerPrimaryActionSelect');
+            const primaryTargetInput = document.getElementById('saBannerPrimaryTargetInput');
+            const secondaryTextInput = document.getElementById('saBannerSecondaryBtnTextInput');
+            const secondaryActionSelect = document.getElementById('saBannerSecondaryActionSelect');
+            const secondaryTargetInput = document.getElementById('saBannerSecondaryTargetInput');
+            const orderInput = document.getElementById('saBannerOrderInput');
+            const activeToggle = document.getElementById('saBannerActiveToggle');
+
+            // Populate factory quick select options
+            if (saBannerFactoryQuickSelect) {
+                saBannerFactoryQuickSelect.innerHTML = '<option value="">-- اختر مصنعاً للتعبئة التلقائية أو أنشئ إعلاناً مخصصاً --</option>';
+                if (Array.isArray(globalTenantsList)) {
+                    globalTenantsList.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t.slug || t.id;
+                        opt.textContent = `${t.name || t.slug} (${t.slug})`;
+                        saBannerFactoryQuickSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            if (bannerId) {
+                // Editing existing banner
+                const banner = saMallBannersCache.find(b => b.id === bannerId);
+                if (banner) {
+                    if (modalTitle) modalTitle.textContent = 'تعديل إعلان المول';
+                    if (idInput) idInput.value = banner.id;
+                    if (titleInput) titleInput.value = banner.title || '';
+                    if (subtitleInput) subtitleInput.value = banner.subtitle || '';
+                    if (descInput) descInput.value = banner.description || '';
+                    if (subDescInput) subDescInput.value = banner.sub_description || '';
+                    if (saBannerImageUrlInput) saBannerImageUrlInput.value = banner.image_url || '';
+                    if (saBannerImagePreview) saBannerImagePreview.src = banner.image_url || 'src/assets/ultrasoft%20mall.png';
+                    if (primaryTextInput) primaryTextInput.value = banner.primary_btn_text || '';
+                    if (primaryActionSelect) primaryActionSelect.value = banner.primary_btn_action || 'scroll';
+                    if (primaryTargetInput) primaryTargetInput.value = banner.primary_btn_target || '';
+                    if (secondaryTextInput) secondaryTextInput.value = banner.secondary_btn_text || '';
+                    if (secondaryActionSelect) secondaryActionSelect.value = banner.secondary_btn_action || 'demo';
+                    if (secondaryTargetInput) secondaryTargetInput.value = banner.secondary_btn_target || '';
+                    if (orderInput) orderInput.value = banner.order || 1;
+                    if (activeToggle) activeToggle.checked = (banner.is_active !== false);
+                }
+            } else {
+                // Adding new banner
+                if (modalTitle) modalTitle.textContent = 'إضافة إعلان جديد في المول';
+                if (idInput) idInput.value = '';
+                if (titleInput) titleInput.value = '';
+                if (subtitleInput) subtitleInput.value = '';
+                if (descInput) descInput.value = '';
+                if (subDescInput) subDescInput.value = '';
+                if (saBannerImageUrlInput) saBannerImageUrlInput.value = 'src/assets/ultrasoft%20mall.png';
+                if (saBannerImagePreview) saBannerImagePreview.src = 'src/assets/ultrasoft%20mall.png';
+                if (primaryTextInput) primaryTextInput.value = 'استعرض المصانع';
+                if (primaryActionSelect) primaryActionSelect.value = 'scroll';
+                if (primaryTargetInput) primaryTargetInput.value = '#mall-factories-section';
+                if (secondaryTextInput) secondaryTextInput.value = 'تجربة النظام';
+                if (secondaryActionSelect) secondaryActionSelect.value = 'demo';
+                if (secondaryTargetInput) secondaryTargetInput.value = '';
+                if (orderInput) orderInput.value = (saMallBannersCache.length + 1);
+                if (activeToggle) activeToggle.checked = true;
+            }
+
+            saMallBannerModal.classList.remove('hidden');
+            saMallBannerModal.classList.add('flex');
+        }
+
+        function closeSaMallBannerModal() {
+            if (saMallBannerModal) {
+                saMallBannerModal.classList.add('hidden');
+                saMallBannerModal.classList.remove('flex');
+            }
+        }
+
+        if (addNewMallBannerBtn) {
+            addNewMallBannerBtn.addEventListener('click', () => openSaMallBannerModal(null));
+        }
+        if (closeSaMallBannerModalBtn) {
+            closeSaMallBannerModalBtn.addEventListener('click', closeSaMallBannerModal);
+        }
+        if (cancelSaMallBannerBtn) {
+            cancelSaMallBannerBtn.addEventListener('click', closeSaMallBannerModal);
+        }
+
+        // Live image preview listener
+        if (saBannerImageUrlInput && saBannerImagePreview) {
+            saBannerImageUrlInput.addEventListener('input', (e) => {
+                const url = e.target.value.trim();
+                saBannerImagePreview.src = url || 'src/assets/ultrasoft%20mall.png';
+            });
+        }
+
+        // Reset default image button
+        if (saBannerResetDefaultImgBtn && saBannerImageUrlInput && saBannerImagePreview) {
+            saBannerResetDefaultImgBtn.addEventListener('click', () => {
+                saBannerImageUrlInput.value = 'src/assets/ultrasoft%20mall.png';
+                saBannerImagePreview.src = 'src/assets/ultrasoft%20mall.png';
+            });
+        }
+
+        // Factory Quick Select Listener
+        if (saBannerFactoryQuickSelect) {
+            saBannerFactoryQuickSelect.addEventListener('change', (e) => {
+                const slugOrId = e.target.value;
+                if (!slugOrId || !Array.isArray(globalTenantsList)) return;
+                const tenant = globalTenantsList.find(t => (t.slug === slugOrId || t.id === slugOrId));
+                if (!tenant) return;
+
+                const mSettings = tenant.mall_settings || (tenant.settings && tenant.settings.mall) || {};
+                const factoryTitle = mSettings.display_name || tenant.name || 'مصنع جديد';
+                const factorySubtitle = mSettings.badge || 'OFFICIAL STORE';
+                const factoryDesc = mSettings.tagline || (tenant.description || 'تسوق أحدث المنتجات مباشرة من متجر المصنع في المول');
+                const factorySubDesc = Array.isArray(mSettings.tags) && mSettings.tags.length > 0 
+                    ? mSettings.tags.join(' • ') 
+                    : 'جودة تصديرية • أسعار منافسة • شحن سريع';
+                const factoryCover = mSettings.cover_url || (tenant.cover_url || 'src/assets/ultrasoft%20mall.png');
+
+                const titleInput = document.getElementById('saBannerTitleInput');
+                const subtitleInput = document.getElementById('saBannerSubtitleInput');
+                const descInput = document.getElementById('saBannerDescInput');
+                const subDescInput = document.getElementById('saBannerSubDescInput');
+                const primaryTextInput = document.getElementById('saBannerPrimaryBtnTextInput');
+                const primaryActionSelect = document.getElementById('saBannerPrimaryActionSelect');
+                const primaryTargetInput = document.getElementById('saBannerPrimaryTargetInput');
+
+                if (titleInput) titleInput.value = factoryTitle;
+                if (subtitleInput) subtitleInput.value = factorySubtitle;
+                if (descInput) descInput.value = factoryDesc;
+                if (subDescInput) subDescInput.value = factorySubDesc;
+                if (saBannerImageUrlInput) saBannerImageUrlInput.value = factoryCover;
+                if (saBannerImagePreview) saBannerImagePreview.src = factoryCover;
+                if (primaryTextInput) primaryTextInput.value = 'استكشف المتجر';
+                if (primaryActionSelect) primaryActionSelect.value = 'factory';
+                if (primaryTargetInput) primaryTargetInput.value = tenant.slug || '';
+            });
+        }
+
+        // Save Banner Form Submit Handler
+        if (saMallBannerForm) {
+            saMallBannerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveSaMallBannerBtn');
+                const origHtml = saveBtn ? saveBtn.innerHTML : '';
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-base"></i> جاري الحفظ...`;
+                }
+
+                try {
+                    const id = document.getElementById('saBannerIdInput')?.value.trim() || `banner_${Date.now()}`;
+                    const title = document.getElementById('saBannerTitleInput')?.value.trim() || '';
+                    const subtitle = document.getElementById('saBannerSubtitleInput')?.value.trim() || '';
+                    const description = document.getElementById('saBannerDescInput')?.value.trim() || '';
+                    const sub_description = document.getElementById('saBannerSubDescInput')?.value.trim() || '';
+                    const image_url = document.getElementById('saBannerImageUrlInput')?.value.trim() || 'src/assets/ultrasoft%20mall.png';
+                    const primary_btn_text = document.getElementById('saBannerPrimaryBtnTextInput')?.value.trim() || '';
+                    const primary_btn_action = document.getElementById('saBannerPrimaryActionSelect')?.value || 'scroll';
+                    const primary_btn_target = document.getElementById('saBannerPrimaryTargetInput')?.value.trim() || '';
+                    const secondary_btn_text = document.getElementById('saBannerSecondaryBtnTextInput')?.value.trim() || '';
+                    const secondary_btn_action = document.getElementById('saBannerSecondaryActionSelect')?.value || 'demo';
+                    const secondary_btn_target = document.getElementById('saBannerSecondaryTargetInput')?.value.trim() || '';
+                    const order = parseInt(document.getElementById('saBannerOrderInput')?.value || '1', 10);
+                    const is_active = document.getElementById('saBannerActiveToggle')?.checked !== false;
+
+                    const bannerObj = {
+                        id,
+                        title,
+                        subtitle,
+                        description,
+                        sub_description,
+                        image_url,
+                        primary_btn_text,
+                        primary_btn_action,
+                        primary_btn_target,
+                        secondary_btn_text,
+                        secondary_btn_action,
+                        secondary_btn_target,
+                        order,
+                        is_active
+                    };
+
+                    const existingIdx = saMallBannersCache.findIndex(b => b.id === id);
+                    if (existingIdx >= 0) {
+                        saMallBannersCache[existingIdx] = bannerObj;
+                    } else {
+                        saMallBannersCache.push(bannerObj);
+                    }
+
+                    // Sort cache by order ascending
+                    saMallBannersCache.sort((a, b) => (Number(a.order) || 1) - (Number(b.order) || 1));
+
+                    const res = await saveMallBanners(saMallBannersCache);
+                    if (res.success) {
+                        showToast('تم حفظ إعلان المول بنجاح! 🚀', 'success');
+                        closeSaMallBannerModal();
+                        renderSaMallBannersTable();
+                    } else {
+                        showToast('فشل حفظ الإعلان: ' + (res.error || 'خطأ غير معروف'), 'error');
+                    }
+                } catch (err) {
+                    console.error('Error saving mall banner:', err);
+                    showToast('حدث خطأ أثناء حفظ الإعلان: ' + err.message, 'error');
+                } finally {
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = origHtml;
+                    }
+                }
+            });
+        }
+
+        // Toggle Banner Active Status
+        async function handleToggleSaMallBannerStatus(bannerId, isActive) {
+            try {
+                const banner = saMallBannersCache.find(b => b.id === bannerId);
+                if (!banner) return;
+                banner.is_active = isActive;
+
+                const res = await saveMallBanners(saMallBannersCache);
+                if (res.success) {
+                    showToast(`تم ${isActive ? 'تفعيل' : 'تعطيل'} ظهور الإعلان بنجاح! ⚡`, 'success');
+                    renderSaMallBannersTable();
+                } else {
+                    showToast('فشل تحديث الحالة: ' + res.error, 'error');
+                }
+            } catch (err) {
+                console.error('Error toggling banner status:', err);
+                showToast('خطأ: ' + err.message, 'error');
+            }
+        }
+
+        // Delete Banner
+        async function handleDeleteSaMallBanner(bannerId) {
+            const confirmed = await confirmDialog(
+                'هل أنت متأكد من حذف هذا الإعلان نهائياً من سلايدر المول؟',
+                'حذف إعلان المول'
+            );
+            if (!confirmed) return;
+
+            try {
+                saMallBannersCache = saMallBannersCache.filter(b => b.id !== bannerId);
+                // Re-sequence order 1, 2, 3...
+                saMallBannersCache.forEach((b, idx) => {
+                    b.order = idx + 1;
+                });
+
+                const res = await saveMallBanners(saMallBannersCache);
+                if (res.success) {
+                    showToast('تم حذف الإعلان بنجاح! 🗑️', 'success');
+                    renderSaMallBannersTable();
+                } else {
+                    showToast('فشل حذف الإعلان: ' + res.error, 'error');
+                }
+            } catch (err) {
+                console.error('Error deleting banner:', err);
+                showToast('خطأ أثناء الحذف: ' + err.message, 'error');
+            }
+        }
+
+        // Move Banner Order (Up / Down)
+        async function handleMoveMallBannerOrder(bannerId, direction) {
+            const idx = saMallBannersCache.findIndex(b => b.id === bannerId);
+            if (idx === -1) return;
+            const targetIdx = idx + direction;
+            if (targetIdx < 0 || targetIdx >= saMallBannersCache.length) return;
+
+            // Swap
+            const temp = saMallBannersCache[idx];
+            saMallBannersCache[idx] = saMallBannersCache[targetIdx];
+            saMallBannersCache[targetIdx] = temp;
+
+            // Reassign numeric orders
+            saMallBannersCache.forEach((b, i) => {
+                b.order = i + 1;
+            });
+
+            try {
+                const res = await saveMallBanners(saMallBannersCache);
+                if (res.success) {
+                    showToast('تم تحديث ترتيب ظهور الإعلانات بالسلايدر! ⚡', 'success');
+                    renderSaMallBannersTable();
+                } else {
+                    showToast('فشل حفظ الترتيب: ' + res.error, 'error');
+                }
+            } catch (err) {
+                console.error('Error reordering banners:', err);
+                showToast('خطأ أثناء حفظ الترتيب: ' + err.message, 'error');
+            }
         }
 
         // 🗑️ High-Security Cascade Delete Tenant Handlers (3-Step Interactive Wizard)
@@ -8547,7 +9474,11 @@
                 bulk_edit_max_cap: 50,
                 excel_upload_colors_cost: 1,
                 excel_upload_items_cost: 1,
-                excel_upload_stock_cost: 1
+                excel_upload_stock_cost: 1,
+                drive_images_pricing_mode: 'per_operation',
+                drive_images_per_op_cost: 10,
+                drive_images_per_item_cost: 1,
+                drive_images_max_cap: 30
             },
             'semi_annual': {
                 plan_key: 'semi_annual',
@@ -8563,7 +9494,11 @@
                 bulk_edit_max_cap: 50,
                 excel_upload_colors_cost: 0.8,
                 excel_upload_items_cost: 0.8,
-                excel_upload_stock_cost: 0.8
+                excel_upload_stock_cost: 0.8,
+                drive_images_pricing_mode: 'per_operation',
+                drive_images_per_op_cost: 10,
+                drive_images_per_item_cost: 0.8,
+                drive_images_max_cap: 30
             },
             'annual': {
                 plan_key: 'annual',
@@ -8579,7 +9514,11 @@
                 bulk_edit_max_cap: 0,
                 excel_upload_colors_cost: 0,
                 excel_upload_items_cost: 0,
-                excel_upload_stock_cost: 0
+                excel_upload_stock_cost: 0,
+                drive_images_pricing_mode: 'per_operation',
+                drive_images_per_op_cost: 10,
+                drive_images_per_item_cost: 1,
+                drive_images_max_cap: 30
             }
         };
 
@@ -8681,7 +9620,7 @@
 
             // Bulk Edit Pricing Mode
             const modeRadios = document.getElementsByName('bulk_pricing_mode');
-            const mode = lim.bulk_pricing_mode || 'per_item';
+            const mode = lim.bulk_pricing_mode || lim.bulk_edit_pricing_mode || 'per_item';
             for (const r of modeRadios) {
                 if (r.value === mode) r.checked = true;
             }
@@ -8695,10 +9634,27 @@
             document.getElementById('limitExcelItemsCostInput').value = lim.excel_upload_items_cost ?? 1;
             document.getElementById('limitExcelStockCostInput').value = lim.excel_upload_stock_cost ?? 1;
 
+            // Google Drive Model Images Pricing Mode
+            const driveModeRadios = document.getElementsByName('drive_pricing_mode');
+            const driveMode = lim.drive_images_pricing_mode || 'per_operation';
+            for (const r of driveModeRadios) {
+                if (r.value === driveMode) r.checked = true;
+            }
+
+            const drivePerOpInp = document.getElementById('limitDrivePerOpCostInput');
+            if (drivePerOpInp) drivePerOpInp.value = lim.drive_images_per_op_cost ?? 10;
+
+            const drivePerItemInp = document.getElementById('limitDrivePerItemCostInput');
+            if (drivePerItemInp) drivePerItemInp.value = lim.drive_images_per_item_cost ?? 1;
+
+            const driveMaxCapInp = document.getElementById('limitDriveMaxCapInput');
+            if (driveMaxCapInp) driveMaxCapInp.value = lim.drive_images_max_cap ?? 30;
+
             updateBulkPricingModeVisibility();
+            updateDrivePricingModeVisibility();
         }
 
-        // Toggle visibility between Flat per op and Per Item + Max Cap
+        // Toggle visibility between Flat per op and Per Item + Max Cap for Bulk Edit
         function updateBulkPricingModeVisibility() {
             const modeRadios = document.getElementsByName('bulk_pricing_mode');
             let selectedMode = 'per_item';
@@ -8753,6 +9709,61 @@
             }
         }
 
+        // Toggle visibility between Flat per op and Per Item + Max Cap for Drive Images
+        function updateDrivePricingModeVisibility() {
+            const modeRadios = document.getElementsByName('drive_pricing_mode');
+            let selectedMode = 'per_operation';
+            for (const r of modeRadios) {
+                if (r.checked) selectedMode = r.value;
+            }
+
+            const perOpGroup = document.getElementById('drivePerOpGroup');
+            const perItemGroup = document.getElementById('drivePerItemGroup');
+            const flatLabel = document.getElementById('driveModeFlatOptionLabel');
+            const perItemLabel = document.getElementById('driveModePerItemOptionLabel');
+
+            if (selectedMode === 'per_operation') {
+                if (perOpGroup) perOpGroup.classList.remove('hidden');
+                if (perItemGroup) perItemGroup.classList.add('hidden');
+
+                if (flatLabel) flatLabel.className = 'p-3 rounded-xl border-2 border-ultra-500 bg-ultra-500/10 flex flex-col gap-1 text-xs font-bold cursor-pointer transition-all shadow-md';
+                if (perItemLabel) perItemLabel.className = 'p-3 rounded-xl border border-devo-gray bg-devo-black flex flex-col gap-1 text-xs font-bold cursor-pointer hover:border-ultra-500 transition-all';
+            } else {
+                if (perItemGroup) perItemGroup.classList.remove('hidden');
+                if (perOpGroup) perOpGroup.classList.add('hidden');
+
+                if (perItemLabel) perItemLabel.className = 'p-3 rounded-xl border-2 border-ultra-500 bg-ultra-500/10 flex flex-col gap-1 text-xs font-bold cursor-pointer transition-all shadow-md';
+                if (flatLabel) flatLabel.className = 'p-3 rounded-xl border border-devo-gray bg-devo-black flex flex-col gap-1 text-xs font-bold cursor-pointer hover:border-ultra-500 transition-all';
+            }
+
+            updateDriveLiveExplanation();
+        }
+
+        function updateDriveLiveExplanation() {
+            const modeRadios = document.getElementsByName('drive_pricing_mode');
+            let mode = 'per_operation';
+            for (const r of modeRadios) {
+                if (r.checked) mode = r.value;
+            }
+
+            const explanationText = document.getElementById('driveExplanationText');
+            if (!explanationText) return;
+
+            if (mode === 'per_operation') {
+                const perOpCost = parseFloat(document.getElementById('limitDrivePerOpCostInput')?.value || 0);
+                explanationText.innerHTML = `عند قيام المصنع باستيراد صور الموديلات، سيتم خصم <strong class="text-amber-400 font-mono">${perOpCost} كريديت</strong> مقطوعة عن العملية بأكملها.`;
+            } else {
+                const perItemCost = parseFloat(document.getElementById('limitDrivePerItemCostInput')?.value || 0);
+                const maxCap = parseFloat(document.getElementById('limitDriveMaxCapInput')?.value || 0);
+
+                const sampleCount = 50;
+                const calculatedCost = sampleCount * perItemCost;
+                const actualDeducted = Math.min(calculatedCost, maxCap);
+
+                explanationText.innerHTML = `عند قيام المصنع باستيراد صور 50 موديل، سيتم احتساب التكلفة (${perItemCost} كريديت × 50 موديل = ${calculatedCost} كريديت)، ولكن سيتم خصم <strong class="text-amber-400 font-mono">${actualDeducted} كريديت فقط</strong> بفضل سقف الحماية المحدد بـ ${maxCap}.`;
+            }
+        }
+
         // Unlimited Checkboxes Handlers
         ['unlimitedProductsCheck', 'unlimitedTotalProductsCheck', 'unlimitedInvoicesCheck', 'unlimitedCreditsCheck'].forEach(id => {
             const check = document.getElementById(id);
@@ -8791,10 +9802,19 @@
             radio.addEventListener('change', updateBulkPricingModeVisibility);
         });
 
+        document.getElementsByName('drive_pricing_mode').forEach(radio => {
+            radio.addEventListener('change', updateDrivePricingModeVisibility);
+        });
+
         // Listen for input value changes to update explanation
         ['limitBulkPerOpCostInput', 'limitBulkPerItemCostInput', 'limitBulkMaxCapInput'].forEach(inputId => {
             const inp = document.getElementById(inputId);
             if (inp) inp.addEventListener('input', updateBulkLiveExplanation);
+        });
+
+        ['limitDrivePerOpCostInput', 'limitDrivePerItemCostInput', 'limitDriveMaxCapInput'].forEach(inputId => {
+            const inp = document.getElementById(inputId);
+            if (inp) inp.addEventListener('input', updateDriveLiveExplanation);
         });
 
         // Plan Selector Click Delegates
@@ -8838,6 +9858,16 @@
                 const excel_upload_items_cost = parseFloat(document.getElementById('limitExcelItemsCostInput').value);
                 const excel_upload_stock_cost = parseFloat(document.getElementById('limitExcelStockCostInput').value);
 
+                let drive_images_pricing_mode = 'per_operation';
+                const driveRadios = document.getElementsByName('drive_pricing_mode');
+                for (const r of driveRadios) {
+                    if (r.checked) drive_images_pricing_mode = r.value;
+                }
+
+                const drive_images_per_op_cost = parseFloat(document.getElementById('limitDrivePerOpCostInput')?.value || 10);
+                const drive_images_per_item_cost = parseFloat(document.getElementById('limitDrivePerItemCostInput')?.value || 1);
+                const drive_images_max_cap = parseFloat(document.getElementById('limitDriveMaxCapInput')?.value || 30);
+
                 const updatedPayload = {
                     plan_key,
                     max_products,
@@ -8853,6 +9883,10 @@
                     excel_upload_colors_cost,
                     excel_upload_items_cost,
                     excel_upload_stock_cost,
+                    drive_images_pricing_mode,
+                    drive_images_per_op_cost,
+                    drive_images_per_item_cost,
+                    drive_images_max_cap,
                     updated_at: new Date().toISOString()
                 };
 

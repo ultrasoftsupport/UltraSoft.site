@@ -1,7 +1,7 @@
 import { supabase } from '../../config/supabase.js';
 import { showToast } from '../../components/toast.js';
-import { confirmDialog } from '../../components/modal.js';
-import { getCurrentTenantId } from '../../services/tenant_service.js';
+import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js';
+import { getCurrentTenantId, getTenantCreditRules, calculateOperationCredits, deductTenantCredits } from '../../services/tenant_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
 import { escapeHtml } from '../../utils/sanitize.js';
 
@@ -905,10 +905,28 @@ async function handleImportSelected() {
         return;
     }
 
+    // ⚡ 1. فحص واحتساب رصيد الكريديت المطلوب للعملية
+    const creditRules = await getTenantCreditRules(currentTenantId);
+    const requiredCredits = calculateOperationCredits('drive_images_import', groupsToImport.length, creditRules);
+
+    if (!creditRules.is_unlimited && creditRules.remaining_credits < requiredCredits) {
+        showSubscriptionUpgradeModal({
+            quotaType: 'excel_credits',
+            limit: creditRules.remaining_credits,
+            title: '⚠️ وصول للحد الأقصى لرصيد الكريديت',
+            message: `تعذر استيراد صور الموديلات من Google Drive: تتطلب العملية خصم (${requiredCredits} كريديت) بينما الرصيد المتاح لديك (${creditRules.remaining_credits} كريديت). يرجى شحن الرصيد أو ترقية الباقة.`
+        });
+        return;
+    }
+
+    const costDescription = creditRules.is_unlimited 
+        ? 'باقة غير محدودة (مجاناً ⚡)' 
+        : `${requiredCredits} كريديت ⚡ (الرصيد المتاح: ${creditRules.remaining_credits} كريديت)`;
+
     // Confirmation dialog
     const confirmed = await confirmDialog({
         title: 'تأكيد استيراد صور الموديلات',
-        message: `أنت على وشك استيراد وربط صور ${groupsToImport.length} موديل بنظام المتجر.\nسيتم الرفع والحفظ على دفعات لضمان الاستقرار.\nهل تريد متابعة العملية وحفظ الصور؟`,
+        message: `أنت على وشك استيراد وربط صور ${groupsToImport.length} موديل بنظام المتجر.\nتكلفة العملية: ${costDescription}.\nسيتم الرفع والحفظ على دفعات لضمان الاستقرار.\nهل تريد متابعة العملية وحفظ الصور؟`,
         confirmText: 'نعم، ابدأ الاستيراد',
         cancelText: 'إلغاء'
     });
@@ -1091,11 +1109,26 @@ async function handleImportSelected() {
         })));
         renderStudioUI();
 
+        // ⚡ 2. خصم الكريديت وتوثيق العملية في سجل استهلاك الكريديت
+        if (requiredCredits > 0 || creditRules.is_unlimited) {
+            try {
+                await deductTenantCredits('drive_images_import', 'استيراد صور Google Drive', requiredCredits, groupsToImport.length, currentTenantId);
+            } catch (deductErr) {
+                console.error('Failed to deduct credits after drive images import:', deductErr);
+            }
+        }
+
         await logAuditEvent({
             module: 'drive_images',
             actionType: 'import_drive_images',
             entityType: 'model_images',
-            details: `استيراد صور Google Drive: تم تحديث ${updatedModelsCount} موديل وإضافة ${importedImagesCount} صورة.`
+            details: {
+                message: `استيراد صور Google Drive: تم تحديث ${updatedModelsCount} موديل وإضافة ${importedImagesCount} صورة.`,
+                credits_deducted: requiredCredits,
+                items_count: groupsToImport.length,
+                models_updated: updatedModelsCount,
+                images_imported: importedImagesCount
+            }
         });
 
         setTimeout(() => {

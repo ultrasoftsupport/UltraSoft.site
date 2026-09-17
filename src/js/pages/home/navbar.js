@@ -2,7 +2,7 @@ import { getCurrentSession, logoutUser } from '../../services/auth.js';
 import { showToast } from '../../components/toast.js';
 import { renderHeader, attachMobileMenuToggle } from './header_layouts.js';
 import { supabase } from '../../config/supabase.js';
-import { getCurrentTenantId, getCurrentTenant, getTenantStorageKey } from '../../services/tenant_service.js';
+import { getCurrentTenantId, getCurrentTenant, getTenantStorageKey, getTenantSlugFromURL } from '../../services/tenant_service.js';
 
 export async function initNavbar() {
     const { session } = getCurrentSession();
@@ -81,6 +81,16 @@ export async function initNavbar() {
 
     // نظام التوجيه (التبديل بين الصفحات بدون تحميل)
     window.switchSiteView = async (targetId, skipHistory = false) => {
+        const slug = getTenantSlugFromURL();
+        const urlParams = new URLSearchParams(window.location.search);
+        const tenantParam = urlParams.get('tenant')?.toLowerCase();
+        const activeTenant = getCurrentTenant?.() || null;
+        const isExplicitCustomTenant = Boolean((tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') || (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost'));
+        const isMainFactory = !isExplicitCustomTenant && (!activeTenant || activeTenant.slug === 'default' || activeTenant.is_super_admin);
+        if (!isMainFactory && (targetId === 'view-mall' || targetId.startsWith('view-landing'))) {
+            targetId = 'view-home';
+        }
+
         // تأكيد الخروج من صفحة الباركود إلا إذا كان الهدف هو السلة
         if (!skipHistory && window.currentView === 'view-barcode' && targetId !== 'view-cart') {
             const confirmed = await showCustomConfirm("هل تريد الخروج من صفحة الباركود؟", "تأكيد الانتقال");
@@ -119,6 +129,10 @@ export async function initNavbar() {
             window.switchLandingModule?.('pricing');
         } else if (targetId === 'view-landing') {
             window.switchLandingModule?.('overview');
+        } else if (targetId === 'view-mall') {
+            if (typeof window.initUltraSoftMall === 'function') {
+                window.initUltraSoftMall();
+            }
         }
 
         // إخفاء زر السلة العائم تماماً في تابات (عن النظام) و (الاشتراكات) و (UltraSoft Mall)، وإظهاره في بقية التابات
@@ -246,35 +260,58 @@ export async function initNavbar() {
 
     // التنشيط الأولي للشاشة مع استعادة موقع الوقوف المحفوظ لكل مصنع وحماية الرجوع للخلف (exit-trap)
     const viewStorageKey = getTenantStorageKey('ultrasoft_site_view');
-    const tenantId = getCurrentTenantId() || 'default';
+    const tenantId = getCurrentTenantId();
     const editOrderKey = getTenantStorageKey('devo_edit_order_data');
-    const hasEditOrder = localStorage.getItem(editOrderKey) || localStorage.getItem(`devo_edit_order_data_${tenantId}`);
-    const savedSiteView = localStorage.getItem(viewStorageKey) 
-        || localStorage.getItem(`ultrasoft_site_view_${tenantId}`)
-        || localStorage.getItem('ultrasoft_site_view_default');
-    
+    const hasEditOrder = localStorage.getItem(editOrderKey) || (tenantId ? localStorage.getItem(`devo_edit_order_data_${tenantId}`) : null);
+
+    const slug = getTenantSlugFromURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantParam = urlParams.get('tenant')?.toLowerCase();
     const tenant = getCurrentTenant?.() || null;
-    const isMainFactory = !tenant || tenant.slug === 'default' || tenant.is_super_admin;
-    
+    const isExplicitCustomTenant = Boolean((tenantParam && tenantParam !== 'default' && tenantParam !== '127' && tenantParam !== '127.0.0.1' && tenantParam !== 'localhost') || (slug && slug !== 'default' && slug !== '127' && slug !== '127.0.0.1' && slug !== 'localhost'));
+    const isMainFactory = !isExplicitCustomTenant && (!tenant || tenant.slug === 'default' || tenant.is_super_admin);
+
     let initialView = isMainFactory ? 'view-mall' : 'view-home';
 
-    if (savedSiteView) {
-        const actualSectionId = (savedSiteView === 'view-landing-overview' || savedSiteView === 'view-landing-pricing') ? 'view-landing' : savedSiteView;
-        // حماية الزائر من استعادة صفحات مخصصة للعمال فقط
-        if (window.isVisitor && savedSiteView === 'view-orders') {
-            initialView = isMainFactory ? 'view-mall' : 'view-home';
-        } else if (document.getElementById(actualSectionId)) {
-            // إذا كان على المصنع الرئيسي وحاول فتح صفحات المتجر بدون وضع الـ Demo يتم توجيهه للمول
-            if (isMainFactory && !window.isDemoMode && (savedSiteView === 'view-gallery' || savedSiteView === 'view-barcode' || savedSiteView === 'view-cart')) {
-                initialView = 'view-mall';
+    if (!isMainFactory) {
+        // 🏬 المصانع المستقلة: لا نستخدم أبداً ultrasoft_site_view_default ونمنع فتح صفحات المنصة
+        const savedSiteView = localStorage.getItem(viewStorageKey) || (tenantId ? localStorage.getItem(`ultrasoft_site_view_${tenantId}`) : null);
+        const allowedFactoryViews = ['view-home', 'view-gallery', 'view-barcode', 'view-cart', 'view-orders'];
+        if (savedSiteView && allowedFactoryViews.includes(savedSiteView)) {
+            if (window.isVisitor && savedSiteView === 'view-orders') {
+                initialView = 'view-home';
             } else {
                 initialView = savedSiteView;
             }
+        } else if (hasEditOrder) {
+            initialView = 'view-cart';
+        } else {
+            initialView = 'view-home';
         }
-    } else if (hasEditOrder) {
-        initialView = 'view-cart';
-    } else if (window.isDefaultOrInvalidTenant) {
-        initialView = 'view-mall';
+    } else {
+        // 🌐 المنصة الرئيسية والمصنع الرئيسي الافتراضي:
+        const savedSiteView = localStorage.getItem(viewStorageKey) 
+            || (tenantId ? localStorage.getItem(`ultrasoft_site_view_${tenantId}`) : null)
+            || localStorage.getItem('ultrasoft_site_view_default');
+
+        if (savedSiteView) {
+            const actualSectionId = (savedSiteView === 'view-landing-overview' || savedSiteView === 'view-landing-pricing') ? 'view-landing' : savedSiteView;
+            // حماية الزائر من استعادة صفحات مخصصة للعمال فقط
+            if (window.isVisitor && savedSiteView === 'view-orders') {
+                initialView = 'view-mall';
+            } else if (document.getElementById(actualSectionId)) {
+                // إذا كان على المصنع الرئيسي وحاول فتح صفحات المتجر بدون وضع الـ Demo يتم توجيهه للمول
+                if (!window.isDemoMode && (savedSiteView === 'view-gallery' || savedSiteView === 'view-barcode' || savedSiteView === 'view-cart')) {
+                    initialView = 'view-mall';
+                } else {
+                    initialView = savedSiteView;
+                }
+            }
+        } else if (hasEditOrder) {
+            initialView = 'view-cart';
+        } else if (window.isDefaultOrInvalidTenant) {
+            initialView = 'view-mall';
+        }
     }
     
     window.currentView = initialView;

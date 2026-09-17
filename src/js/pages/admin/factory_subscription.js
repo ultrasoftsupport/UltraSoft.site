@@ -612,13 +612,13 @@ export async function loadCreditsLogTable() {
         }
         const { data: excelLogs } = await excelQuery.order('created_at', { ascending: false }).limit(100);
 
-        // 2. جلب سجلات استهلاك الكريديت والفعاليات المرتبطة بالإكسيل والتعديلات المجمعة من سجل النظام
+        // 2. جلب سجلات استهلاك الكريديت والفعاليات المرتبطة بالإكسيل والتعديلات المجمعة واستيراد الدرايف من سجل النظام
         let auditQuery = supabase.from('system_audit_logs').select('*');
         if (currentTenantId) {
             auditQuery = auditQuery.eq('tenant_id', currentTenantId);
         }
         const { data: auditLogs } = await auditQuery
-            .or('module.in.(credits,excel_imports),action_type.in.(bulk_edit,excel_import,recharge)')
+            .or('module.in.(credits,excel_imports,drive_images),action_type.in.(bulk_edit,excel_import,recharge,import_drive_images,drive_images_import)')
             .order('created_at', { ascending: false })
             .limit(100);
 
@@ -649,6 +649,7 @@ export async function loadCreditsLogTable() {
                 if (audit.action_type === 'bulk_edit') title = 'تعديلات مجمعة للموديلات';
                 else if (audit.action_type === 'excel_import') title = 'استيراد بيانات عبر Excel';
                 else if (audit.action_type === 'recharge') title = 'شحن رصيد الكريديت';
+                else if (audit.action_type === 'import_drive_images' || audit.action_type === 'drive_images_import') title = 'استيراد صور Google Drive';
                 else title = 'عملية استهلاك كريديت';
             }
 
