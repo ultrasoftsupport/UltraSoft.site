@@ -14,7 +14,7 @@
     <script>
         (function() {
             try {
-                const savedThemeStr = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('devo_active_theme');
+                const savedThemeStr = localStorage.getItem('ultrasoft_active_theme') || localStorage.getItem('ultra_active_theme');
                 let colors = null;
                 if (savedThemeStr) {
                     try {
@@ -26,29 +26,29 @@
                 // Default Light Theme Fallback Colors
                 const bgBlack = colors?.page?.bg || '#f7fbff';
                 const bgDark = colors?.page?.bg_secondary || colors?.page?.surface || '#ffffff';
-                const devoOrange = colors?.brand?.primary || '#0284c7';
-                const devoOrangeHover = colors?.brand?.primary_hover || '#0369a1';
-                const devoText = colors?.page?.text || '#0f172a';
-                const devoMuted = colors?.page?.text_muted || '#475569';
+                const ultraOrange = colors?.brand?.primary || '#0284c7';
+                const ultraOrangeHover = colors?.brand?.primary_hover || '#0369a1';
+                const ultraText = colors?.page?.text || '#0f172a';
+                const ultraMuted = colors?.page?.text_muted || '#475569';
                 
                 const isLight = bgBlack !== '#0b1329' && bgBlack !== '#0f172a' && bgBlack !== '#0a0a0a' && bgBlack !== '#171717';
                 const defaultGray = isLight ? (colors?.brand?.secondary || '#e1effe') : '#1e293b';
                 const defaultGrayHover = isLight ? (colors?.brand?.secondary_hover || '#bae6fd') : '#334155';
-                const devoGray = colors?.borders?.color || defaultGray;
-                const devoGrayHover = colors?.brand?.secondary_hover || defaultGrayHover;
+                const ultraGray = colors?.borders?.color || defaultGray;
+                const ultraGrayHover = colors?.brand?.secondary_hover || defaultGrayHover;
 
                 const styleEl = document.createElement('style');
-                styleEl.id = 'devo-theme-styles-early';
+                styleEl.id = 'ultra-theme-styles-early';
                 styleEl.innerHTML = `
                     :root {
-                        --devo-black: ${bgBlack};
-                        --devo-dark: ${bgDark};
-                        --devo-gray: ${devoGray};
-                        --devo-gray-hover: ${devoGrayHover};
-                        --devo-orange: ${devoOrange};
-                        --devo-orange-hover: ${devoOrangeHover};
-                        --devo-text: ${devoText};
-                        --devo-muted: ${devoMuted};
+                        --ultra-black: ${bgBlack};
+                        --ultra-dark: ${bgDark};
+                        --ultra-gray: ${ultraGray};
+                        --ultra-gray-hover: ${ultraGrayHover};
+                        --ultra-orange: ${ultraOrange};
+                        --ultra-orange-hover: ${ultraOrangeHover};
+                        --ultra-text: ${ultraText};
+                        --ultra-muted: ${ultraMuted};
                     }
                 `;
                 document.head.appendChild(styleEl);
@@ -68,49 +68,49 @@
         body { font-family: 'Cairo', 'Tajawal', sans-serif; } 
     </style>
 </head>
-<body class="bg-devo-black min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-devo-text transition-colors duration-300">
+<body class="bg-ultra-black min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-ultra-text transition-colors duration-300">
 
     <!-- Glowing Background Aura -->
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-devo-orange/10 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-ultra-orange/10 rounded-full blur-[140px] pointer-events-none"></div>
 
     <!-- MAIN CONTAINER -->
-    <div id="super-login-container" class="w-full max-w-md bg-devo-dark border border-devo-gray rounded-2xl p-8 shadow-2xl relative z-10 space-y-6 transition-all duration-300">
+    <div id="super-login-container" class="w-full max-w-md bg-ultra-dark border border-ultra-gray rounded-2xl p-8 shadow-2xl relative z-10 space-y-6 transition-all duration-300">
         
         <!-- Header -->
         <div class="text-center space-y-2">
-            <div class="w-16 h-16 rounded-2xl bg-devo-orange/10 border border-devo-orange/30 flex items-center justify-center mx-auto text-devo-orange text-3xl font-black shadow-inner mb-3">
+            <div class="w-16 h-16 rounded-2xl bg-ultra-orange/10 border border-ultra-orange/30 flex items-center justify-center mx-auto text-ultra-orange text-3xl font-black shadow-inner mb-3">
                 <i class="ph ph-crown"></i>
             </div>
-            <h1 class="text-3xl font-black text-devo-text">
-                Ultra<span class="text-devo-orange">Soft</span>
+            <h1 class="text-3xl font-black text-ultra-text">
+                Ultra<span class="text-ultra-orange">Soft</span>
             </h1>
-            <p class="text-xs text-devo-orange font-bold tracking-wider">بوابة دخول الإدارة العليا (Super Admin Portal)</p>
-            <p class="text-[11px] text-devo-muted">منطقة دخول مشددة ومخصصة لمشرفي ومسؤولي النظام فقط</p>
+            <p class="text-xs text-ultra-orange font-bold tracking-wider">بوابة دخول الإدارة العليا (Super Admin Portal)</p>
+            <p class="text-[11px] text-ultra-muted">منطقة دخول مشددة ومخصصة لمشرفي ومسؤولي النظام فقط</p>
         </div>
 
         <!-- STAGE 1 FORM: Username & Password -->
         <form id="super-stage1-form" class="space-y-5">
             <div>
-                <label class="block text-xs font-bold text-devo-muted mb-2">اسم المستخدم السوبر أدمن</label>
+                <label class="block text-xs font-bold text-ultra-muted mb-2">اسم المستخدم السوبر أدمن</label>
                 <div class="relative">
-                    <i class="ph ph-shield-user absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-orange"></i>
+                    <i class="ph ph-shield-user absolute right-4 top-1/2 -translate-y-1/2 text-xl text-ultra-orange"></i>
                     <input type="text" id="username" required autocomplete="off" dir="ltr"
-                        class="w-full bg-devo-black border border-devo-gray rounded-xl pr-12 pl-4 py-3 text-sm text-devo-text placeholder-devo-muted/60 focus:outline-none focus:border-devo-orange font-mono transition-colors"
+                        class="w-full bg-ultra-black border border-ultra-gray rounded-xl pr-12 pl-4 py-3 text-sm text-ultra-text placeholder-ultra-muted/60 focus:outline-none focus:border-ultra-orange font-mono transition-colors"
                         placeholder="أدخل اسم المستخدم" style="text-align: right;">
                 </div>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-devo-muted mb-2">كلمة المرور الخاصة</label>
+                <label class="block text-xs font-bold text-ultra-muted mb-2">كلمة المرور الخاصة</label>
                 <div class="relative">
-                    <i class="ph ph-lock-key absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-orange"></i>
+                    <i class="ph ph-lock-key absolute right-4 top-1/2 -translate-y-1/2 text-xl text-ultra-orange"></i>
                     <input type="password" id="password" required autocomplete="current-password" dir="ltr"
-                        class="w-full bg-devo-black border border-devo-gray rounded-xl pr-12 pl-4 py-3 text-sm text-devo-text placeholder-devo-muted/60 focus:outline-none focus:border-devo-orange font-mono transition-colors"
+                        class="w-full bg-ultra-black border border-ultra-gray rounded-xl pr-12 pl-4 py-3 text-sm text-ultra-text placeholder-ultra-muted/60 focus:outline-none focus:border-ultra-orange font-mono transition-colors"
                         placeholder="أدخل كلمة المرور" style="text-align: right;">
                 </div>
             </div>
 
-            <button type="submit" id="stage1-submit-btn" class="w-full bg-devo-orange hover:bg-devo-orangeHover text-white font-black py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-devo-orange/20 cursor-pointer text-sm">
+            <button type="submit" id="stage1-submit-btn" class="w-full bg-ultra-orange hover:bg-ultra-orangeHover text-white font-black py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-ultra-orange/20 cursor-pointer text-sm">
                 <span id="btn-text">التحقق المبدئي والدخول</span>
                 <i id="btn-icon" class="ph ph-arrow-left text-xl font-bold"></i>
             </button>
@@ -118,23 +118,23 @@
 
         <!-- STAGE 2 FORM: Master Security PIN Verification (Hidden initially) -->
         <form id="super-stage2-form" class="space-y-5 hidden">
-            <div class="p-3 rounded-xl bg-devo-orange/10 border border-devo-orange/30 text-devo-orange text-xs text-center font-bold">
+            <div class="p-3 rounded-xl bg-ultra-orange/10 border border-ultra-orange/30 text-ultra-orange text-xs text-center font-bold">
                 ⚠️ تفعيل المرحلة الثانية: أدخل رمز الحماية الماستر 6-Digits
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-devo-muted mb-2 text-center">رمز الحماية الماستر (Master Security PIN)</label>
+                <label class="block text-xs font-bold text-ultra-muted mb-2 text-center">رمز الحماية الماستر (Master Security PIN)</label>
                 <input type="password" id="security-pin-input" required maxlength="10" placeholder="••••••" dir="ltr" autocomplete="off"
-                    class="w-full bg-devo-black border border-devo-orange/50 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-devo-orange tracking-[0.5em] focus:outline-none focus:border-devo-orange transition-all shadow-inner">
+                    class="w-full bg-ultra-black border border-ultra-orange/50 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-ultra-orange tracking-[0.5em] focus:outline-none focus:border-ultra-orange transition-all shadow-inner">
             </div>
 
             <div id="pin-error-alert" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs text-center hidden font-bold"></div>
 
             <div class="flex items-center gap-3">
-                <button type="button" id="back-to-stage1-btn" class="py-3 px-4 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-devo-text text-xs font-bold transition">
+                <button type="button" id="back-to-stage1-btn" class="py-3 px-4 rounded-xl bg-ultra-black border border-ultra-gray text-ultra-muted hover:text-ultra-text text-xs font-bold transition">
                     إلغاء
                 </button>
-                <button type="submit" id="stage2-submit-btn" class="flex-1 bg-devo-orange hover:bg-devo-orangeHover text-white font-black py-3 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg text-xs cursor-pointer">
+                <button type="submit" id="stage2-submit-btn" class="flex-1 bg-ultra-orange hover:bg-ultra-orangeHover text-white font-black py-3 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg text-xs cursor-pointer">
                     <span>تأكيد رمز PIN</span>
                     <i class="ph ph-arrow-left text-lg font-bold"></i>
                 </button>
@@ -148,16 +148,16 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-devo-muted mb-2 text-center">رمز الـ 2FA المولد من تطبيق Authenticator أو رمز الاسترداد</label>
+                <label class="block text-xs font-bold text-ultra-muted mb-2 text-center">رمز الـ 2FA المولد من تطبيق Authenticator أو رمز الاسترداد</label>
                 <input type="text" id="totp-2fa-input" required maxlength="12" placeholder="123456" dir="ltr" autocomplete="off"
-                    class="w-full bg-devo-black border border-emerald-500/50 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-emerald-400 tracking-widest focus:outline-none focus:border-emerald-400 transition-all shadow-inner">
-                <p class="text-[10px] text-devo-muted text-center mt-1">افتح تطبيق Google Authenticator بالموبايل واكتب الرمز المكون من 6 أرقام</p>
+                    class="w-full bg-ultra-black border border-emerald-500/50 rounded-xl px-4 py-3.5 text-center text-2xl font-mono text-emerald-400 tracking-widest focus:outline-none focus:border-emerald-400 transition-all shadow-inner">
+                <p class="text-[10px] text-ultra-muted text-center mt-1">افتح تطبيق Google Authenticator بالموبايل واكتب الرمز المكون من 6 أرقام</p>
             </div>
 
             <div id="totp-error-alert" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs text-center hidden font-bold"></div>
 
             <div class="flex items-center gap-3">
-                <button type="button" id="back-to-stage2-btn" class="py-3 px-4 rounded-xl bg-devo-black border border-devo-gray text-devo-muted hover:text-devo-text text-xs font-bold transition">
+                <button type="button" id="back-to-stage2-btn" class="py-3 px-4 rounded-xl bg-ultra-black border border-ultra-gray text-ultra-muted hover:text-ultra-text text-xs font-bold transition">
                     إلغاء
                 </button>
                 <button type="submit" id="stage3-submit-btn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black py-3 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg text-xs cursor-pointer">
@@ -167,8 +167,8 @@
             </div>
         </form>
 
-        <div class="pt-2 text-center border-t border-devo-gray">
-            <a href="auth.html" class="text-xs text-devo-muted hover:text-devo-text transition flex items-center justify-center gap-1">
+        <div class="pt-2 text-center border-t border-ultra-gray">
+            <a href="auth.html" class="text-xs text-ultra-muted hover:text-ultra-text transition flex items-center justify-center gap-1">
                 <i class="ph ph-arrow-right"></i>
                 <span>العودة لبوابة دخول المصانع والمتاجر</span>
             </a>

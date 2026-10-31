@@ -4,7 +4,7 @@ import { getCurrentTenantId } from './tenant_service.js';
 import { escapeHtml } from '../utils/sanitize.js';
 
 let unreadOrders = [];
-let soundEnabled = localStorage.getItem('devo_notifications_sound') !== 'false';
+let soundEnabled = localStorage.getItem('ultra_notifications_sound') !== 'false';
 let desktopEnabled = Notification.permission === 'granted';
 let originalTitle = document.title || 'UltraSoft | لوحة تحكم الإدارة';
 let realtimeChannel = null;
@@ -50,7 +50,7 @@ export async function initNotifications() {
         }
 
         // الاستماع لحدث التحديث اليدوي من صفحة إدارة الإشعارات لإعادة الجلب
-        window.addEventListener('devo:notifications-updated', async () => {
+        window.addEventListener('ultrasoft:notifications-updated', async () => {
             await fetchUnreadNotifications();
         });
     } else {
@@ -63,7 +63,7 @@ export async function initNotifications() {
         const listContainer = document.getElementById('notifications-list');
         if (listContainer) {
             listContainer.innerHTML = `
-                <div class="p-8 text-center text-xs text-devo-muted flex flex-col items-center gap-2">
+                <div class="p-8 text-center text-xs text-ultra-muted flex flex-col items-center gap-2">
                     <i class="ph ph-bell-slash text-2xl opacity-40"></i>
                     تم تعطيل بث الإشعارات داخل الموقع
                 </div>
@@ -73,9 +73,9 @@ export async function initNotifications() {
 
     // اقتراح تفعيل إشعارات المتصفح للعمال والمسؤولين المسجلين إذا لم يفعلوا ذلك بعد
     if (webNotificationsEnabled && currentUser && 'Notification' in window && Notification.permission === 'default') {
-        const alreadyPrompted = sessionStorage.getItem('devo_notification_prompted');
+        const alreadyPrompted = sessionStorage.getItem('ultra_notification_prompted');
         if (!alreadyPrompted) {
-            sessionStorage.setItem('devo_notification_prompted', 'true');
+            sessionStorage.setItem('ultra_notification_prompted', 'true');
             setTimeout(async () => {
                 const confirmed = await window.confirmDialog?.({
                     title: '🔔 تفعيل تنبيهات سطح المكتب',
@@ -109,7 +109,7 @@ export async function initNotifications() {
 
 // تحميل بيانات الجلسة الحالية للمستخدم
 function loadUserSession() {
-    const sessionStr = localStorage.getItem('devo_session');
+    const sessionStr = localStorage.getItem('ultra_session');
     if (sessionStr) {
         try { currentUser = JSON.parse(sessionStr); } catch (e) {}
     }
@@ -143,7 +143,7 @@ function setupUI() {
         soundCheckbox.checked = soundEnabled;
         soundCheckbox.addEventListener('change', (e) => {
             soundEnabled = e.target.checked;
-            localStorage.setItem('devo_notifications_sound', soundEnabled);
+            localStorage.setItem('ultra_notifications_sound', soundEnabled);
             showToast(soundEnabled ? 'تم تفعيل التنبيه الصوتي 🔊' : 'تم كتم التنبيه الصوتي 🔇', 'info');
             if (soundEnabled) {
                 playChimeSound();
@@ -177,7 +177,7 @@ function setupUI() {
                 updateNotificationsListUI();
                 updateAppBadge(0);
                 showToast('تم مسح جميع الإشعارات وتحديدها كمقروءة', 'success');
-                window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+                window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
             } catch (err) {
                 console.error('Failed to clear notifications:', err);
                 showToast('خطأ أثناء مسح الإشعارات', 'error');
@@ -217,14 +217,14 @@ function updateDesktopBtnUI() {
     if (!desktopBtn) return;
     
     if (Notification.permission === 'granted') {
-        desktopBtn.innerHTML = `<i class="ph ph-check-circle text-devo-success text-sm"></i> <span>الإشعارات مفعلة</span>`;
-        desktopBtn.className = "text-devo-success pointer-events-none flex items-center gap-1.5";
+        desktopBtn.innerHTML = `<i class="ph ph-check-circle text-ultra-success text-sm"></i> <span>الإشعارات مفعلة</span>`;
+        desktopBtn.className = "text-ultra-success pointer-events-none flex items-center gap-1.5";
     } else if (Notification.permission === 'denied') {
-        desktopBtn.innerHTML = `<i class="ph ph-x-circle text-devo-error text-sm"></i> <span>الإشعارات محظورة</span>`;
-        desktopBtn.className = "text-devo-muted pointer-events-none flex items-center gap-1.5";
+        desktopBtn.innerHTML = `<i class="ph ph-x-circle text-ultra-error text-sm"></i> <span>الإشعارات محظورة</span>`;
+        desktopBtn.className = "text-ultra-muted pointer-events-none flex items-center gap-1.5";
     } else {
         desktopBtn.innerHTML = `<i class="ph ph-desktop text-sm"></i> <span>تفعيل إشعارات سطح المكتب</span>`;
-        desktopBtn.className = "text-devo-orange hover:text-devo-orange-hover transition-colors flex items-center gap-1.5 cursor-pointer";
+        desktopBtn.className = "text-ultra-orange hover:text-ultra-orange-hover transition-colors flex items-center gap-1.5 cursor-pointer";
     }
 }
 
@@ -318,7 +318,7 @@ function setupRealtimeSubscription() {
             updateAppBadge(unreadOrders.length);
 
             // إرسال حدث عام لتحديث صفحة الإشعارات بالأدمن لو كانت مفتوحة حالياً
-            window.dispatchEvent(new CustomEvent('devo:notifications-received'));
+            window.dispatchEvent(new CustomEvent('ultrasoft:notifications-received'));
         })
         .subscribe(async (status, err) => {
             if (err && (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT')) {
@@ -370,7 +370,7 @@ function updateNotificationsListUI() {
 
     if (unreadOrders.length === 0) {
         listContainer.innerHTML = `
-            <div class="p-8 text-center text-xs text-devo-muted flex flex-col items-center gap-2">
+            <div class="p-8 text-center text-xs text-ultra-muted flex flex-col items-center gap-2">
                 <i class="ph ph-bell-slash text-2xl opacity-40"></i>
                 لا توجد إشعارات جديدة حالياً
             </div>
@@ -391,21 +391,21 @@ function updateNotificationsListUI() {
     listContainer.innerHTML = unreadOrders.map(o => {
         const timeStr = new Date(o.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
         
-        let colorClass = 'bg-devo-orange';
-        if (o.type === 'out_of_stock') colorClass = 'bg-devo-error';
-        else if (o.type === 'order_created') colorClass = 'bg-devo-success';
+        let colorClass = 'bg-ultra-orange';
+        if (o.type === 'out_of_stock') colorClass = 'bg-ultra-error';
+        else if (o.type === 'order_created') colorClass = 'bg-ultra-success';
         else if (o.type === 'order_assigned') colorClass = 'bg-blue-500';
 
         return `
-            <div class="p-3 hover:bg-devo-gray/30 border-b border-devo-gray/20 transition-all cursor-pointer flex flex-col gap-1 text-right" data-order-id="${escapeHtml(o.id)}">
+            <div class="p-3 hover:bg-ultra-gray/30 border-b border-ultra-gray/20 transition-all cursor-pointer flex flex-col gap-1 text-right" data-order-id="${escapeHtml(o.id)}">
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-white flex items-center gap-1">
                         <span class="w-1.5 h-1.5 ${colorClass} rounded-full animate-ping"></span>
                         ${escapeHtml(o.title)}
                     </span>
-                    <span class="text-[10px] text-devo-muted font-medium">${timeStr}</span>
+                    <span class="text-[10px] text-ultra-muted font-medium">${timeStr}</span>
                 </div>
-                <div class="text-[11px] text-devo-muted mt-1 leading-relaxed truncate max-w-[280px]">
+                <div class="text-[11px] text-ultra-muted mt-1 leading-relaxed truncate max-w-[280px]">
                     ${escapeHtml(o.body)}
                 </div>
             </div>
@@ -439,7 +439,7 @@ async function handleNotificationClick(notifId) {
             .eq('id', notifId);
         
         // إرسال تنبيه لتحديث صفحة الإشعارات لو كانت مفتوحة
-        window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+        window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
     } catch (err) {
         console.error(err);
     }
@@ -455,8 +455,8 @@ async function handleNotificationClick(notifId) {
                 const row = document.getElementById(`admin-order-row-${notif.metadata.order_id}`);
                 if (row) {
                     row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    row.classList.add('bg-devo-orange/30', 'transition-all', 'duration-500');
-                    setTimeout(() => row.classList.remove('bg-devo-orange/30'), 3000);
+                    row.classList.add('bg-ultra-orange/30', 'transition-all', 'duration-500');
+                    setTimeout(() => row.classList.remove('bg-ultra-orange/30'), 3000);
                 }
             }, 500);
         } else if (notif.metadata.model_id) {
@@ -594,7 +594,7 @@ export async function initHomeNotifications() {
     }
 
     // تحديث القائمة عند تغيير الإشعارات من نافذة أخرى
-    window.addEventListener('devo:notifications-updated', async () => {
+    window.addEventListener('ultrasoft:notifications-updated', async () => {
         await fetchUnreadNotifications();
     });
 }

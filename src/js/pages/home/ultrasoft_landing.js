@@ -46,7 +46,7 @@ function setupModuleTabListeners() {
                 linkPricing.className = 'px-3.5 py-2 text-xs sm:text-sm font-black text-ultra-400 border-b-2 border-ultra-400 transition-all';
             }
             if (linkOverview) {
-                linkOverview.className = 'px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all';
+                linkOverview.className = 'px-3.5 py-2 text-xs sm:text-sm font-bold text-ultra-muted hover:text-white transition-all';
             }
         } else {
             pricingMod.classList.add('hidden');
@@ -57,7 +57,7 @@ function setupModuleTabListeners() {
                 linkOverview.className = 'px-3.5 py-2 text-xs sm:text-sm font-black text-ultra-400 border-b-2 border-ultra-400 transition-all';
             }
             if (linkPricing) {
-                linkPricing.className = 'px-3.5 py-2 text-xs sm:text-sm font-bold text-devo-muted hover:text-white transition-all';
+                linkPricing.className = 'px-3.5 py-2 text-xs sm:text-sm font-bold text-ultra-muted hover:text-white transition-all';
             }
         }
 
@@ -65,11 +65,11 @@ function setupModuleTabListeners() {
         document.querySelectorAll('[data-nav-view]').forEach(btn => {
             const v = btn.getAttribute('data-nav-view');
             if (v === activeNavView) {
-                btn.classList.add('text-devo-orange', 'font-black', 'bg-devo-orange/15', 'border-devo-orange/40', 'shadow-sm');
-                btn.classList.remove('text-devo-muted', 'border-transparent');
+                btn.classList.add('text-ultra-orange', 'font-black', 'bg-ultra-orange/15', 'border-ultra-orange/40', 'shadow-sm');
+                btn.classList.remove('text-ultra-muted', 'border-transparent');
             } else if (v === inactiveNavView) {
-                btn.classList.remove('text-devo-orange', 'font-black', 'bg-devo-orange/15', 'border-devo-orange/40', 'shadow-sm');
-                btn.classList.add('text-devo-muted', 'border-transparent');
+                btn.classList.remove('text-ultra-orange', 'font-black', 'bg-ultra-orange/15', 'border-ultra-orange/40', 'shadow-sm');
+                btn.classList.add('text-ultra-muted', 'border-transparent');
             }
         });
 
@@ -93,7 +93,7 @@ function renderLandingHTML() {
     };
 
     return `
-        <div class="relative overflow-hidden bg-devo-black text-devo-text selection:bg-ultra-500 selection:text-white pb-12">
+        <div class="relative overflow-hidden bg-ultra-black text-ultra-text selection:bg-ultra-500 selection:text-white pb-12">
             
             <!-- Glow Background Highlights -->
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-ultra-600/15 rounded-full filter blur-[120px] pointer-events-none"></div>
@@ -127,7 +127,7 @@ function renderLandingHTML() {
                             </h1>
 
                             <!-- Value Proposition Paragraph (Spacious, comfortable line-height) -->
-                            <p class="text-devo-muted text-sm sm:text-base lg:text-[17px] leading-[1.75] font-normal max-w-xl">
+                            <p class="text-ultra-muted text-sm sm:text-base lg:text-[17px] leading-[1.75] font-normal max-w-xl">
                                 نظام UltraSoft يوفر حلولاً سحابية ذكية ومرنة لإدارة مصانع وشركات ومعارض الملابس. نظام واحد متكامل، يدير كافة عملياتك، مخازنك، وفواتيرك بدقة لحظية.
                             </p>
 
@@ -147,7 +147,7 @@ function renderLandingHTML() {
                             </div>
 
                             <!-- Trust Signal Divider (Matching Reference: Line + Text) -->
-                            <div class="flex items-center gap-3 pt-2 text-xs text-devo-muted font-medium">
+                            <div class="flex items-center gap-3 pt-2 text-xs text-ultra-muted font-medium">
                                 <span class="w-8 h-[1.5px] bg-slate-700"></span>
                                 <span>مصمم خصيصاً لمصانع وشركات ومعارض الملابس</span>
                             </div>
@@ -186,25 +186,25 @@ function renderLandingHTML() {
 
                     <!-- Target Business Types (4-Column Grid) -->
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mt-10 max-w-5xl mx-auto">
-                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                        <div class="px-3.5 py-3 rounded-2xl bg-ultra-dark/90 border border-ultra-gray/80 hover:border-ultra-500/40 text-ultra-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
                             <div class="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-factory text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">المصانع والمعارض</span>
                         </div>
-                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                        <div class="px-3.5 py-3 rounded-2xl bg-ultra-dark/90 border border-ultra-gray/80 hover:border-ultra-500/40 text-ultra-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
                             <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-t-shirt text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">محلات الملابس</span>
                         </div>
-                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                        <div class="px-3.5 py-3 rounded-2xl bg-ultra-dark/90 border border-ultra-gray/80 hover:border-ultra-500/40 text-ultra-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
                             <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-package text-base"></i>
                             </div>
                             <span class="whitespace-nowrap">إدارة الموديلات والمخزن</span>
                         </div>
-                        <div class="px-3.5 py-3 rounded-2xl bg-devo-dark/90 border border-devo-gray/80 hover:border-ultra-500/40 text-devo-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
+                        <div class="px-3.5 py-3 rounded-2xl bg-ultra-dark/90 border border-ultra-gray/80 hover:border-ultra-500/40 text-ultra-text text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm transition-all">
                             <div class="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-chart-line-up text-base"></i>
                             </div>
@@ -215,46 +215,46 @@ function renderLandingHTML() {
                     <!-- Capabilities Cards Grid (4-card metric strip below) -->
                     <div class="w-full grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 max-w-5xl mx-auto">
                         <!-- Card 1 -->
-                        <div class="bg-devo-dark/90 border border-ultra-500/30 hover:border-ultra-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
+                        <div class="bg-ultra-dark/90 border border-ultra-500/30 hover:border-ultra-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-ultra-500/10 border border-ultra-500/30 text-ultra-400 flex items-center justify-center text-sm sm:text-base font-black shrink-0 group-hover:bg-ultra-600 group-hover:text-white transition-all">
                                 100%
                             </div>
                             <div>
-                                <h3 class="text-xs sm:text-sm font-bold text-devo-text mb-0.5">مزامنة سحابية</h3>
-                                <p class="text-[10px] sm:text-xs text-devo-muted leading-tight font-medium">تزامن فوري بدون ريفريش</p>
+                                <h3 class="text-xs sm:text-sm font-bold text-ultra-text mb-0.5">مزامنة سحابية</h3>
+                                <p class="text-[10px] sm:text-xs text-ultra-muted leading-tight font-medium">تزامن فوري بدون ريفريش</p>
                             </div>
                         </div>
 
                         <!-- Card 2 -->
-                        <div class="bg-devo-dark/90 border border-sky-500/30 hover:border-sky-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
+                        <div class="bg-ultra-dark/90 border border-sky-500/30 hover:border-sky-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center text-sm sm:text-base font-black shrink-0 group-hover:bg-sky-500 group-hover:text-white transition-all">
                                 0s
                             </div>
                             <div>
-                                <h3 class="text-xs sm:text-sm font-bold text-devo-text mb-0.5">تجهيز الفواتير</h3>
-                                <p class="text-[10px] sm:text-xs text-devo-muted leading-tight font-medium">طباعة وإصدار فوري</p>
+                                <h3 class="text-xs sm:text-sm font-bold text-ultra-text mb-0.5">تجهيز الفواتير</h3>
+                                <p class="text-[10px] sm:text-xs text-ultra-muted leading-tight font-medium">طباعة وإصدار فوري</p>
                             </div>
                         </div>
 
                         <!-- Card 3 -->
-                        <div class="bg-devo-dark/90 border border-emerald-500/30 hover:border-emerald-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
+                        <div class="bg-ultra-dark/90 border border-emerald-500/30 hover:border-emerald-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs sm:text-sm font-black shrink-0 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                                 PWA
                             </div>
                             <div>
-                                <h3 class="text-xs sm:text-sm font-bold text-devo-text mb-0.5">كافة الأجهزة</h3>
-                                <p class="text-[10px] sm:text-xs text-devo-muted leading-tight font-medium">موبايل، كمبيوتر، تابلت</p>
+                                <h3 class="text-xs sm:text-sm font-bold text-ultra-text mb-0.5">كافة الأجهزة</h3>
+                                <p class="text-[10px] sm:text-xs text-ultra-muted leading-tight font-medium">موبايل، كمبيوتر، تابلت</p>
                             </div>
                         </div>
 
                         <!-- Card 4 -->
-                        <div class="bg-devo-dark/90 border border-amber-500/30 hover:border-amber-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
+                        <div class="bg-ultra-dark/90 border border-amber-500/30 hover:border-amber-400 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-lg transition-all duration-300 flex flex-col items-center text-center gap-2 group">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xs sm:text-sm font-black shrink-0 group-hover:bg-amber-500 group-hover:text-white transition-all">
                                 24/7
                             </div>
                             <div>
-                                <h3 class="text-xs sm:text-sm font-bold text-devo-text mb-0.5">دعم وتحديثات</h3>
-                                <p class="text-[10px] sm:text-xs text-devo-muted leading-tight font-medium">تطوير ودعم متواصل</p>
+                                <h3 class="text-xs sm:text-sm font-bold text-ultra-text mb-0.5">دعم وتحديثات</h3>
+                                <p class="text-[10px] sm:text-xs text-ultra-muted leading-tight font-medium">تطوير ودعم متواصل</p>
                             </div>
                         </div>
                     </div>
@@ -262,7 +262,7 @@ function renderLandingHTML() {
                 </section>
 
                 <!-- SYSTEM FEATURES & CAPABILITIES SECTION -->
-                <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-devo-gray/40">
+                <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-ultra-gray/40">
                     
                     <!-- Section Heading -->
                     <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
@@ -273,13 +273,13 @@ function renderLandingHTML() {
                         <h2 class="text-2xl sm:text-4xl lg:text-[40px] font-black text-white mb-4 leading-tight">
                             كافة الإمكانيات والقدرات في منظومة واحدة
                         </h2>
-                        <p class="text-devo-muted text-sm sm:text-base leading-relaxed font-medium">
+                        <p class="text-ultra-muted text-sm sm:text-base leading-relaxed font-medium">
                             صُممت UltraSoft لتقضي على الهدر الزمني وتلغي الدورة الورقية نهائياً؛ لتسجيل الفاتورة مرة واحدة، وتحديث المخزون فورياً بدون أخطاء بشرية.
                         </p>
                     </div>
 
                     <!-- Workflow Problem & Solution Highlight Banner -->
-                    <div class="mb-12 bg-gradient-to-r from-slate-900/90 via-devo-dark to-slate-900/90 border border-sky-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                    <div class="mb-12 bg-gradient-to-r from-slate-900/90 via-ultra-dark to-slate-900/90 border border-sky-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
                         <div class="absolute top-0 right-1/4 w-72 h-72 bg-sky-500/10 rounded-full blur-[100px] pointer-events-none"></div>
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                             
@@ -291,7 +291,7 @@ function renderLandingHTML() {
                                 <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-snug">
                                     تسجيل الفاتورة مرة واحدة مباشرة... وداعاً لتفريغ الدفاتر وضغط التأخير
                                 </h3>
-                                <p class="text-devo-muted text-sm sm:text-base leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-sm sm:text-base leading-relaxed font-medium">
                                     في النظام التقليدي: كتابة الفاتورة ورقياً في الدفتر ثم الانتظار لتفريغها وإعادة تسجيلها يدوياً على الجهاز يؤخر تجهيز الأوردرات، يهدر ساعات طويلة، ويزيد العمالة، مع مخزون غامض يولد أخطاء بشرية وتضارباً تحت ضغط الوقت. مع <span class="text-sky-400 font-bold">UltraSoft</span>، الفاتورة تُسجل مرة واحدة في ثوانٍ، وتُخصم الأرصدة لحظياً في نفس الثانية بدقة 100%.
                                 </p>
                             </div>
@@ -303,7 +303,7 @@ function renderLandingHTML() {
                                     </div>
                                     <div class="text-right">
                                         <div class="text-red-300 font-bold text-xs">الدورة الورقية التقليدية</div>
-                                        <div class="text-devo-muted text-[11px] leading-tight mt-0.5">تسجيل مكرر، تأخير أوردرات، وأخطاء رصيد</div>
+                                        <div class="text-ultra-muted text-[11px] leading-tight mt-0.5">تسجيل مكرر، تأخير أوردرات، وأخطاء رصيد</div>
                                     </div>
                                 </div>
 
@@ -313,7 +313,7 @@ function renderLandingHTML() {
                                     </div>
                                     <div class="text-right">
                                         <div class="text-emerald-300 font-bold text-xs">منظومة UltraSoft اللحظية</div>
-                                        <div class="text-devo-muted text-[11px] leading-tight mt-0.5">تسجيل مرة واحدة، خصم فوري، وصفر أخطاء</div>
+                                        <div class="text-ultra-muted text-[11px] leading-tight mt-0.5">تسجيل مرة واحدة، خصم فوري، وصفر أخطاء</div>
                                     </div>
                                 </div>
                             </div>
@@ -325,117 +325,117 @@ function renderLandingHTML() {
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-12">
                         
                         <!-- Capability 1: Single-Entry Instant Dispatch -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-sky-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-sky-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-sky-500 group-hover:text-slate-950 transition-all">
                                     <i class="ph-fill ph-receipt"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">تسجيل الفاتورة مرة واحدة ولحظياً</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     إنهاء الدورة الورقية تماماً؛ تُسجل الفاتورة مرة واحدة فقط فتخصم من رصيد المخزن فوراً بدون تكرار يدوي أو تأخير يسبب ضغطاً وأخطاء بشرية.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 2: Google Drive Auto Photo Sync (Requested Feature) -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-emerald-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-emerald-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
                                     <i class="ph-bold ph-google-logo"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">سحب وإدارة الصور تلقائياً من Google Drive</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     ربط مباشر وتزامن ذكي مع مجلدات Google Drive لسحب وتحديث صور الموديلات والألوان تلقائياً بمجرد تسمية الصورة بكود الصنف دون رفع يدوي لكل صورة.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 3: Realtime Stock Sync -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-ultra-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-ultra-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-ultra-500/10 border border-ultra-500/20 text-ultra-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-ultra-500 group-hover:text-white transition-all">
                                     <i class="ph-fill ph-arrows-clockwise"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">المزامنة والتحديث اللحظي للأرصدة</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     تحديث فوري وتزامن حي للأوردرات، الفواتير، والمخزون عبر كافة هواتف وأجهزة فريق العمل في نفس الثانية وبدون الحاجة لعمل ريفريش.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 4: Excel Batch Operations (Fixed Icon) -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-amber-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-amber-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
                                     <i class="ph-bold ph-file-xls"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">الرفع والتعديل المجمع عبر Excel</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     استيراد وتحديث آلاف الأصناف، الأسعار، والمقاسات بالجملة من خلال ملفات Excel مع تتبع رصيد الكريديت الذكي وسهولة استعادة البيانات.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 5: Telegram & Browser Notifications -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-blue-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-blue-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
                                     <i class="ph-fill ph-telegram-logo"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">إشعارات فورية عبر Telegram والمتصفح</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     إرسال وتلقي إشعارات الأوردرات الجديدة، المبيعات، ونواقص الأصناف لحظياً على أجهزة المتصفح وعلى تطبيق Telegram لإدارة أسرع.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 6: Smart Barcode Scanner -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-teal-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-teal-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-teal-500 group-hover:text-slate-950 transition-all">
                                     <i class="ph-fill ph-qr-code"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">قارئ واستيكر الباركود الضوئي</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     ماسح ضوئي فوري يعمل بكاميرا الهاتف والكمبيوتر دون شراء أجهزة خارجية، مع طباعة ملصقات الباركود للموديلات والمقاسات بسهولة.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 7: Flexible Order Editing & Reloading -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-purple-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-purple-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all">
                                     <i class="ph-fill ph-pencil-line"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">تعديل الأوردرات وإعادة تحميلها</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     إمكانية فتح وتعديل أي أوردر سابق بسهولة، وإعادة تحميل محتوياته للسلة للعمل عليها من جديد وإصدار الفاتورة المحدثة دون أي لبس.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 8: Order Delegation & Staff Tracking -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-rose-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-rose-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-white transition-all">
                                     <i class="ph-fill ph-user-switch"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">إسناد الأوردرات وتحويل العاملين</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     إسناد الطلبات لموظف مبيعات أو عامل تجهيز محدد، وتحديد مستلم العربون والمسئول المالي عن كل معاملة لمنع التضارب وحفظ الحقوق.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Capability 9: Deposit Calculation & Cash Drawer -->
-                        <div class="bg-devo-dark/90 border border-devo-gray hover:border-cyan-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
+                        <div class="bg-ultra-dark/90 border border-ultra-gray hover:border-cyan-500/50 p-6 rounded-3xl transition-all duration-300 transform hover:-translate-y-1.5 shadow-lg group flex flex-col justify-between">
                             <div>
                                 <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl sm:text-3xl mb-4 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all">
                                     <i class="ph-fill ph-hand-coins"></i>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white mb-2">حساب العربون وتقارير الإيداعات</h3>
-                                <p class="text-devo-muted text-xs sm:text-sm leading-relaxed font-medium">
+                                <p class="text-ultra-muted text-xs sm:text-sm leading-relaxed font-medium">
                                     حساب العربون والمتبقي تلقائياً، تعيين مستلم العربون، واستخراج تقارير المقبوضات والإيداعات اليومية والشهرية للخزينة بدقة تامة.
                                 </p>
                             </div>
@@ -444,9 +444,9 @@ function renderLandingHTML() {
                     </div>
 
                     <!-- Bottom Module 1 Action Banner -->
-                    <div class="text-center bg-gradient-to-r from-ultra-600/20 via-devo-dark to-blue-600/20 border border-ultra-500/30 p-6 sm:p-8 rounded-3xl backdrop-blur-md">
-                        <h3 class="text-lg sm:text-xl font-bold text-devo-text mb-2">هل ترغب في معرفة خطط الأسعار المناسبة لنشاطك؟</h3>
-                        <p class="text-devo-muted text-xs sm:text-sm mb-5 font-medium">انتقل فوراً لموديول خطط الأسعار وجدول المقارنة للاختيار من بين الباقات المتاحة.</p>
+                    <div class="text-center bg-gradient-to-r from-ultra-600/20 via-ultra-dark to-blue-600/20 border border-ultra-500/30 p-6 sm:p-8 rounded-3xl backdrop-blur-md">
+                        <h3 class="text-lg sm:text-xl font-bold text-ultra-text mb-2">هل ترغب في معرفة خطط الأسعار المناسبة لنشاطك؟</h3>
+                        <p class="text-ultra-muted text-xs sm:text-sm mb-5 font-medium">انتقل فوراً لموديول خطط الأسعار وجدول المقارنة للاختيار من بين الباقات المتاحة.</p>
                         <button onclick="switchLandingModule('pricing')" class="px-6 sm:px-8 py-3.5 rounded-xl bg-ultra-600 hover:bg-ultra-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all inline-flex items-center gap-2">
                             <span>استعرض خطط الأسعار والمقارنة</span>
                             <i class="ph-fill ph-arrow-left"></i>
@@ -465,10 +465,10 @@ function renderLandingHTML() {
                 <section class="py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                     
                     <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-                        <h2 class="text-2xl sm:text-5xl font-black text-devo-text mb-3">
+                        <h2 class="text-2xl sm:text-5xl font-black text-ultra-text mb-3">
                             خطط الأسعار والاشتراكات
                         </h2>
-                        <p class="text-devo-muted text-xs sm:text-base leading-relaxed font-medium">
+                        <p class="text-ultra-muted text-xs sm:text-base leading-relaxed font-medium">
                             اختر الباقة المناسبة لنشاطك التجاري واستمتع بإمكانيات مخصصة تزيد قيمتها مع كل باقة.
                         </p>
                     </div>
@@ -477,7 +477,7 @@ function renderLandingHTML() {
                     <div id="landing-pricing-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch max-w-5xl mx-auto mb-16 pt-4">
                         
                         <!-- PLAN 1: 3 MONTHS - EMERALD GREEN THEME -->
-                        <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                        <div class="bg-gradient-to-b from-emerald-500/10 via-ultra-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                             
                             <!-- Top Header Badge -->
                             <div class="absolute -top-4 right-1/2 translate-x-1/2 px-3.5 py-1 rounded-full bg-emerald-500 text-slate-950 text-[11px] sm:text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -487,49 +487,49 @@ function renderLandingHTML() {
 
                             <div>
                                 <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                                    <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 3 أشهر</h3>
+                                    <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">اشتراك 3 أشهر</h3>
                                     <span class="px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm whitespace-nowrap">ربع سنوي</span>
                                 </div>
 
                                 <div class="mb-5">
                                     <div class="flex items-baseline gap-1.5">
                                         <span class="text-3xl sm:text-5xl font-black text-emerald-400">7,000</span>
-                                        <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                                        <span class="text-ultra-muted text-xs sm:text-sm font-bold">ج.م</span>
                                     </div>
                                     <p class="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1">الباقة الأساسية للمحلات والمتاجر الناشئة</p>
                                 </div>
 
                                 <!-- Spec Box -->
-                                <div class="bg-devo-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                <div class="bg-ultra-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                                         <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 200</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                                         <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">200 كريديت</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                                         <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 4 أفراد</span>
                                     </div>
                                 </div>
 
                                 <!-- Unique Benefits Bullet List -->
-                                <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                                         <span>مناسبة للمتاجر والمحلات في بداية الانطلاق</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                                         <span>إعداد وتأمين قاعدة البيانات السحابية فورياً</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                                         <span>دعم فني وتدريب كامل 24/7 طوال الأسبوع</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                                         <span>نسخ احتياطي سحابي تلقائي لبيانات الحساب</span>
                                     </li>
@@ -543,7 +543,7 @@ function renderLandingHTML() {
                         </div>
 
                         <!-- PLAN 2: 6 MONTHS - CYAN / SKY BLUE THEME (RECOMMENDED) -->
-                        <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
+                        <div class="bg-gradient-to-b from-ultra-500/20 via-ultra-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
                             
                             <!-- Top Header Badge -->
                             <div class="absolute -top-4 right-1/2 translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-[11px] sm:text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -558,49 +558,49 @@ function renderLandingHTML() {
 
                             <div>
                                 <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                                    <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 6 أشهر</h3>
+                                    <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">اشتراك 6 أشهر</h3>
                                     <span class="px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">توفير 4,000 ج.م</span>
                                 </div>
 
                                 <div class="mb-5">
                                     <div class="flex items-baseline gap-1.5">
                                         <span class="text-3xl sm:text-5xl font-black text-sky-400">10,000</span>
-                                        <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                                        <span class="text-ultra-muted text-xs sm:text-sm font-bold">ج.م</span>
                                     </div>
                                     <p class="text-[11px] sm:text-xs text-sky-400 font-bold mt-1">الباقة المتكاملة لنشاط تجاري متوسط ومتوسع</p>
                                 </div>
 
                                 <!-- Spec Box -->
-                                <div class="bg-devo-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                <div class="bg-ultra-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                                         <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 600 (3x)</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                                         <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">500 كريديت (2.5x)</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                                         <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 10 أفراد (2.5x)</span>
                                     </div>
                                 </div>
 
                                 <!-- Unique Benefits Bullet List -->
-                                <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                                    <li class="flex items-center gap-2 text-devo-text font-bold">
+                                <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                                    <li class="flex items-center gap-2 text-ultra-text font-bold">
                                         <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                                         <span>جميع مميزات وتسهيلات باقة الـ 3 أشهر</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                                         <span>توفير اقتصادي ممتاز بنسبة 28%</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                                         <span>تخصيص الشعار والألوان والهوية على الفاتورة</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                                         <span>أولوية مرتفعة في الدعم الفني والتدريب</span>
                                     </li>
@@ -614,7 +614,7 @@ function renderLandingHTML() {
                         </div>
 
                         <!-- PLAN 3: 1 YEAR - GOLD / AMBER THEME (BEST VALUE) -->
-                        <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                        <div class="bg-gradient-to-b from-amber-500/15 via-ultra-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                             
                             <!-- Top Header Badge -->
                             <div class="absolute -top-4 right-1/2 translate-x-1/2 px-3.5 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-[11px] sm:text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -629,49 +629,49 @@ function renderLandingHTML() {
 
                             <div>
                                 <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                                    <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك سنة كاملة</h3>
+                                    <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">اشتراك سنة كاملة</h3>
                                     <span class="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">توفير 13,000 ج.م</span>
                                 </div>
 
                                 <div class="mb-5">
                                     <div class="flex items-baseline gap-1.5">
                                         <span class="text-3xl sm:text-5xl font-black text-amber-400">15,000</span>
-                                        <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                                        <span class="text-ultra-muted text-xs sm:text-sm font-bold">ج.م</span>
                                     </div>
                                     <p class="text-[11px] sm:text-xs text-amber-400/90 font-bold mt-1">الباقة الملكية الشاملة بأعلى مستويات الحدود والتوفير</p>
                                 </div>
 
                                 <!-- Spec Box -->
-                                <div class="bg-devo-black/80 border border-amber-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                                <div class="bg-ultra-black/80 border border-amber-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                                         <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 1,000 (5x)</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                                         <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">2,000 ⚡/ش (10x)</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-devo-text gap-2">
-                                        <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                                    <div class="flex items-center justify-between text-ultra-text gap-2">
+                                        <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                                         <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 25 فرد</span>
                                     </div>
                                 </div>
 
                                 <!-- Unique Benefits Bullet List -->
-                                <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                                    <li class="flex items-center gap-2 text-devo-text font-bold">
+                                <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                                    <li class="flex items-center gap-2 text-ultra-text font-bold">
                                         <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                                         <span>جميع المميزات والوظائف المتقدمة بأقصى السعات</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <li class="flex items-center gap-2 text-ultra-text font-bold">
                                         <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                                         <span>توفير ضخم يصل إلى 46% مقارنة بالاشتراك الربع سنوي</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-bold">
+                                    <li class="flex items-center gap-2 text-ultra-text font-bold">
                                         <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                                         <span>دعم فني وتدريب VIP 24/7 (أولوية كبار العملاء)</span>
                                     </li>
-                                    <li class="flex items-center gap-2 text-devo-text font-medium">
+                                    <li class="flex items-center gap-2 text-ultra-text font-medium">
                                         <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                                         <span>تصميم وتفصيل قوالب الفواتير والباركود مخصصاً</span>
                                     </li>
@@ -687,12 +687,12 @@ function renderLandingHTML() {
                     </div>
 
                     <!-- Comparison Section Wrapper -->
-                    <div class="mt-16 bg-devo-dark/80 border border-devo-gray rounded-3xl p-5 sm:p-8 backdrop-blur-md shadow-2xl">
+                    <div class="mt-16 bg-ultra-dark/80 border border-ultra-gray rounded-3xl p-5 sm:p-8 backdrop-blur-md shadow-2xl">
                         <div class="text-center max-w-2xl mx-auto mb-8">
-                            <h3 class="text-xl sm:text-3xl font-black text-devo-text mb-2">
+                            <h3 class="text-xl sm:text-3xl font-black text-ultra-text mb-2">
                                 جدول المقارنة التفصيلي بين الباقات
                             </h3>
-                            <p class="text-devo-muted text-xs sm:text-sm font-medium">
+                            <p class="text-ultra-muted text-xs sm:text-sm font-medium">
                                 مقارنة كاملة ودقيقة تتيح لك الاطلاع على كافة الخصائص والصلاحيات المتاحة في كل باقة.
                             </p>
                         </div>
@@ -701,14 +701,14 @@ function renderLandingHTML() {
                         <div class="hidden md:block overflow-x-auto">
                             <table class="w-full text-right text-sm border-collapse">
                                 <thead>
-                                    <tr class="border-b border-devo-gray/60 text-devo-muted">
+                                    <tr class="border-b border-ultra-gray/60 text-ultra-muted">
                                         <th class="p-4 text-right font-black text-white text-base">الميزة / الخصائص</th>
                                         <th id="landing-th-quarterly" class="p-4 text-center font-black text-emerald-400 bg-emerald-500/10 rounded-t-2xl">اشتراك 3 أشهر (7,000 ج.م)</th>
                                         <th id="landing-th-semi-annual" class="p-4 text-center font-black text-sky-400 bg-ultra-500/10 rounded-t-2xl">اشتراك 6 أشهر (10,000 ج.م)</th>
                                         <th id="landing-th-annual" class="p-4 text-center font-black text-amber-400 bg-amber-500/10 rounded-t-2xl">اشتراك سنة (15,000 ج.م)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="landing-comparison-table-body" class="divide-y divide-devo-gray/30 text-devo-text font-medium">
+                                <tbody id="landing-comparison-table-body" class="divide-y divide-ultra-gray/30 text-ultra-text font-medium">
                                     <!-- Populated dynamically by renderLandingComparisonTable(features) -->
                                 </tbody>
                             </table>
@@ -716,27 +716,27 @@ function renderLandingHTML() {
 
                         <!-- Mobile Interactive Comparison Tabs & Table (Visible on mobile) -->
                         <div class="block md:hidden">
-                            <div class="mb-4 bg-devo-black p-1.5 rounded-2xl border border-devo-gray grid grid-cols-3 gap-1 text-xs">
-                                <button id="tab-mobile-quarterly" onclick="window.switchMobileComparisonPlan('quarterly')" class="py-2.5 px-1 rounded-xl text-center transition-all font-bold text-devo-muted hover:text-white">
+                            <div class="mb-4 bg-ultra-black p-1.5 rounded-2xl border border-ultra-gray grid grid-cols-3 gap-1 text-xs">
+                                <button id="tab-mobile-quarterly" onclick="window.switchMobileComparisonPlan('quarterly')" class="py-2.5 px-1 rounded-xl text-center transition-all font-bold text-ultra-muted hover:text-white">
                                     3 أشهر
                                 </button>
                                 <button id="tab-mobile-semi_annual" onclick="window.switchMobileComparisonPlan('semi_annual')" class="py-2.5 px-1 rounded-xl text-center transition-all bg-sky-500 text-white shadow font-black">
                                     6 أشهر ⭐
                                 </button>
-                                <button id="tab-mobile-annual" onclick="window.switchMobileComparisonPlan('annual')" class="py-2.5 px-1 rounded-xl text-center transition-all font-bold text-devo-muted hover:text-white">
+                                <button id="tab-mobile-annual" onclick="window.switchMobileComparisonPlan('annual')" class="py-2.5 px-1 rounded-xl text-center transition-all font-bold text-ultra-muted hover:text-white">
                                     سنة كاملة
                                 </button>
                             </div>
 
-                            <div class="overflow-x-auto rounded-2xl border border-devo-gray bg-devo-black/60">
+                            <div class="overflow-x-auto rounded-2xl border border-ultra-gray bg-ultra-black/60">
                                 <table class="w-full text-right text-xs">
                                     <thead>
-                                        <tr id="mobile-table-header-row" class="bg-devo-dark border-b border-devo-gray">
+                                        <tr id="mobile-table-header-row" class="bg-ultra-dark border-b border-ultra-gray">
                                             <th class="p-3 text-right font-black text-white">الميزة</th>
                                             <th id="mobile-selected-plan-header" class="p-3 text-center font-black text-sky-400">القيمة المتاحة</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="landing-comparison-mobile-body" class="divide-y divide-devo-gray/30 font-medium">
+                                    <tbody id="landing-comparison-mobile-body" class="divide-y divide-ultra-gray/30 font-medium">
                                         <!-- Populated dynamically by renderMobileComparisonRows() -->
                                     </tbody>
                                 </table>
@@ -818,8 +818,8 @@ function renderLandingCardLimitBadges(planKey, plan, limitsMap, badgeBgClass) {
     });
 
     return badges.map(b => `
-        <div class="flex items-center justify-between text-devo-text gap-2 pb-2 border-b border-devo-gray/30 last:border-b-0 last:pb-0">
-            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0 whitespace-nowrap">${b.label}</span>
+        <div class="flex items-center justify-between text-ultra-text gap-2 pb-2 border-b border-ultra-gray/30 last:border-b-0 last:pb-0">
+            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0 whitespace-nowrap">${b.label}</span>
             <span class="font-black text-slate-950 ${badgeBgClass} px-2 py-0.5 rounded-md text-[11px] sm:text-xs shadow-sm font-mono shrink-0 whitespace-nowrap">
                 ${b.value}
             </span>
@@ -968,7 +968,7 @@ window.switchMobileComparisonPlan = function(planKey) {
             if (k === 'annual') activeBg = 'bg-amber-500 text-slate-950 shadow font-black';
             btn.className = `py-2.5 px-1 rounded-xl text-center transition-all ${activeBg}`;
         } else {
-            btn.className = 'py-2.5 px-1 rounded-xl font-bold text-center transition-all text-devo-muted hover:text-white';
+            btn.className = 'py-2.5 px-1 rounded-xl font-bold text-center transition-all text-ultra-muted hover:text-white';
         }
     });
 
@@ -977,13 +977,13 @@ window.switchMobileComparisonPlan = function(planKey) {
     if (headerEl && headerRow) {
         if (planKey === 'quarterly') {
             headerEl.textContent = 'اشتراك 3 أشهر';
-            headerRow.className = 'border-b border-devo-gray bg-emerald-500/15 text-emerald-400 font-bold';
+            headerRow.className = 'border-b border-ultra-gray bg-emerald-500/15 text-emerald-400 font-bold';
         } else if (planKey === 'semi_annual') {
             headerEl.textContent = 'اشتراك 6 أشهر (الأكثر طلباً)';
-            headerRow.className = 'border-b border-devo-gray bg-sky-500/15 text-sky-400 font-bold';
+            headerRow.className = 'border-b border-ultra-gray bg-sky-500/15 text-sky-400 font-bold';
         } else if (planKey === 'annual') {
             headerEl.textContent = 'اشتراك سنة كاملة (أفضل قيمة)';
-            headerRow.className = 'border-b border-devo-gray bg-amber-500/15 text-amber-400 font-bold';
+            headerRow.className = 'border-b border-ultra-gray bg-amber-500/15 text-amber-400 font-bold';
         }
     }
 
@@ -1013,7 +1013,7 @@ function renderLandingPlanCards(plans, limitsMap) {
 
         if (isPurple) {
             return `
-                <div class="bg-gradient-to-b from-purple-500/15 via-devo-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                <div class="bg-gradient-to-b from-purple-500/15 via-ultra-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                     <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-purple-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                         <i class="ph-fill ph-gift text-amber-300"></i>
                         <span>${plan.name || 'الباقة التجريبية المجانية'}</span>
@@ -1027,26 +1027,26 @@ function renderLandingPlanCards(plans, limitsMap) {
 
                     <div>
                         <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                            <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'تجربة مجانية (5 أيام)'}</h3>
+                            <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">${plan.badge_text || 'تجربة مجانية (5 أيام)'}</h3>
                             ${plan.savings_tag ? `<span class="px-2 py-0.5 rounded-full bg-purple-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
                         </div>
 
                         <div class="mb-5">
                             <div class="flex items-baseline gap-1.5">
                                 <span class="text-3xl sm:text-5xl font-black text-purple-400">مجاناً</span>
-                                <span class="text-devo-muted text-xs font-bold">(5 أيام تجريبية)</span>
+                                <span class="text-ultra-muted text-xs font-bold">(5 أيام تجريبية)</span>
                             </div>
                             <p class="text-[11px] sm:text-xs text-purple-300/90 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
                         <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-purple-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="bg-ultra-black/80 border border-purple-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
                             ${renderLandingCardLimitBadges('trial', plan, limitsMap, 'bg-purple-400')}
                         </div>
 
-                        <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
                             ${features.map(f => `
-                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                <li class="flex items-center gap-2 text-ultra-text font-bold">
                                     <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                                     <span>${f}</span>
                                 </li>
@@ -1062,7 +1062,7 @@ function renderLandingPlanCards(plans, limitsMap) {
             `;
         } else if (isEmerald) {
             return `
-                <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                <div class="bg-gradient-to-b from-emerald-500/10 via-ultra-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                     <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                         <i class="ph-fill ph-sparkle text-slate-950"></i>
                         <span>${plan.name || 'باقة البداية الاقتصادية'}</span>
@@ -1070,26 +1070,26 @@ function renderLandingPlanCards(plans, limitsMap) {
 
                     <div>
                         <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                            <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 3 أشهر'}</h3>
+                            <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 3 أشهر'}</h3>
                             <span class="px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm whitespace-nowrap">${plan.savings_tag || 'ربع سنوي'}</span>
                         </div>
 
                         <div class="mb-5">
                             <div class="flex items-baseline gap-1.5">
                                 <span class="text-3xl sm:text-5xl font-black text-emerald-400">${priceFormatted}</span>
-                                <span class="text-devo-muted text-xs sm:text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                                <span class="text-ultra-muted text-xs sm:text-sm font-bold">${plan.currency || 'ج.م'}</span>
                             </div>
                             <p class="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
                         <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="bg-ultra-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
                             ${renderLandingCardLimitBadges('quarterly', plan, limitsMap, 'bg-emerald-400')}
                         </div>
 
-                        <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
                             ${features.map(f => `
-                                <li class="flex items-center gap-2 text-devo-text font-medium">
+                                <li class="flex items-center gap-2 text-ultra-text font-medium">
                                     <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                                     <span>${f}</span>
                                 </li>
@@ -1105,7 +1105,7 @@ function renderLandingPlanCards(plans, limitsMap) {
             `;
         } else if (isSky) {
             return `
-                <div class="bg-gradient-to-b from-ultra-500/20 via-devo-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
+                <div class="bg-gradient-to-b from-ultra-500/20 via-ultra-dark to-sky-600/25 border-2 border-ultra-500 hover:border-sky-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-[0_10px_40px_rgba(2,132,199,0.4)] relative transform md:-translate-y-3">
                     <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-ultra-600 to-sky-500 text-white text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                         <i class="ph-fill ph-lightning text-amber-300"></i>
                         <span>${plan.name || 'الباقة الأكثر طلباً'}</span>
@@ -1119,26 +1119,26 @@ function renderLandingPlanCards(plans, limitsMap) {
 
                     <div>
                         <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                            <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 6 أشهر'}</h3>
+                            <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك 6 أشهر'}</h3>
                             ${plan.savings_tag ? `<span class="px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
                         </div>
 
                         <div class="mb-5">
                             <div class="flex items-baseline gap-1.5">
                                 <span class="text-3xl sm:text-5xl font-black text-sky-400">${priceFormatted}</span>
-                                <span class="text-devo-muted text-xs sm:text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                                <span class="text-ultra-muted text-xs sm:text-sm font-bold">${plan.currency || 'ج.م'}</span>
                             </div>
                             <p class="text-[11px] sm:text-xs text-sky-400 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
                         <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="bg-ultra-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
                             ${renderLandingCardLimitBadges('semi_annual', plan, limitsMap, 'bg-sky-400')}
                         </div>
 
-                        <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
                             ${features.map(f => `
-                                <li class="flex items-center gap-2 text-devo-text font-bold">
+                                <li class="flex items-center gap-2 text-ultra-text font-bold">
                                     <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                                     <span>${f}</span>
                                 </li>
@@ -1154,7 +1154,7 @@ function renderLandingPlanCards(plans, limitsMap) {
             `;
         } else {
             return `
-                <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+                <div class="bg-gradient-to-b from-amber-500/15 via-ultra-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                     <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                         <i class="ph-fill ph-crown text-slate-950"></i>
                         <span>${plan.name || 'أفضل قيمة وتوفير'}</span>
@@ -1168,26 +1168,26 @@ function renderLandingPlanCards(plans, limitsMap) {
 
                     <div>
                         <div class="flex justify-between items-center mb-3 pt-3">
-                            <h3 class="text-lg sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك سنة كاملة'}</h3>
+                            <h3 class="text-lg sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">${plan.badge_text || 'اشتراك سنة كاملة'}</h3>
                             ${plan.savings_tag ? `<span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm">${plan.savings_tag}</span>` : ''}
                         </div>
 
                         <div class="mb-6">
                             <div class="flex items-baseline gap-1.5">
                                 <span class="text-4xl sm:text-5xl font-black text-amber-400">${priceFormatted}</span>
-                                <span class="text-devo-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
+                                <span class="text-ultra-muted text-sm font-bold">${plan.currency || 'ج.م'}</span>
                             </div>
                             <p class="text-xs text-amber-400/90 font-bold mt-1">${plan.subtitle || ''}</p>
                         </div>
 
                         <!-- Dynamic Spec Box -->
-                        <div class="bg-devo-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
+                        <div class="bg-ultra-black/80 border border-amber-500/40 p-4 rounded-2xl mb-6 space-y-2.5 text-xs">
                             ${renderLandingCardLimitBadges('annual', plan, limitsMap, 'bg-amber-400')}
                         </div>
 
-                        <ul class="space-y-3 text-xs sm:text-sm text-devo-muted mb-8">
+                        <ul class="space-y-3 text-xs sm:text-sm text-ultra-muted mb-8">
                             ${features.map(f => `
-                                <li class="flex items-center gap-2.5 text-devo-text font-bold">
+                                <li class="flex items-center gap-2.5 text-ultra-text font-bold">
                                     <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                                     <span>${f}</span>
                                 </li>
@@ -1220,7 +1220,7 @@ function renderMobileComparisonRows() {
 
         return `
             <tr>
-                <td class="p-3 font-bold text-devo-text flex items-center gap-1.5 text-xs">
+                <td class="p-3 font-bold text-ultra-text flex items-center gap-1.5 text-xs">
                     <i class="${iconClass} shrink-0"></i>
                     <span class="leading-tight">${feat.feature_name}</span>
                 </td>
@@ -1290,10 +1290,10 @@ function renderLandingComparisonTable(features) {
             const iconClass = (feat.icon && feat.icon.trim().length > 0) ? feat.icon : getFeatureIconClass(feat.feature_name || '');
 
             return `
-                <tr class="hover:bg-devo-gray/10 transition">
-                    <td class="p-4 font-bold text-devo-text">
+                <tr class="hover:bg-ultra-gray/10 transition">
+                    <td class="p-4 font-bold text-ultra-text">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-devo-black/70 border border-devo-gray/60 flex items-center justify-center shrink-0 shadow-inner">
+                            <div class="w-8 h-8 rounded-xl bg-ultra-black/70 border border-ultra-gray/60 flex items-center justify-center shrink-0 shadow-inner">
                                 <i class="${iconClass} text-base shrink-0"></i>
                             </div>
                             <span class="text-xs sm:text-sm">${feat.feature_name}</span>

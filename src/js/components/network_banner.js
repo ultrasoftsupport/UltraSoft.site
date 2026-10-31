@@ -1,13 +1,13 @@
 // ==========================================
-// 📡 DEVO Network Status Monitor & Offline Banner 📡
+// 📡 UltraSoft Network Status Monitor & Offline Banner 📡
 // ==========================================
 
 export function initNetworkStatusMonitor() {
-    let banner = document.getElementById('devo-network-status-banner');
+    let banner = document.getElementById('ultra-network-status-banner');
 
     if (!banner) {
         banner = document.createElement('div');
-        banner.id = 'devo-network-status-banner';
+        banner.id = 'ultra-network-status-banner';
         banner.className = 'fixed bottom-4 left-4 right-4 md:right-auto md:left-6 md:bottom-6 z-[999999] pointer-events-none transition-all duration-500 opacity-0 translate-y-8 max-w-md';
         document.body.appendChild(banner);
     }

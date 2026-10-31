@@ -29,7 +29,7 @@ export async function loadApiKeys() {
     const emptyState = document.getElementById('api-keys-empty-state');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-devo-muted"><i class="ph ph-spinner animate-spin text-2xl text-cyan-400"></i> جاري تحميل مفاتيح الربط...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-ultra-muted"><i class="ph ph-spinner animate-spin text-2xl text-cyan-400"></i> جاري تحميل مفاتيح الربط...</td></tr>`;
 
     const tenantId = getCurrentTenantId();
     let query = supabase.from('tenant_api_keys').select('*').order('created_at', { ascending: false });
@@ -70,8 +70,8 @@ export async function loadApiKeys() {
         const lastUsed = key.last_used_at ? new Date(key.last_used_at).toLocaleDateString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : 'لم يُستخدم بعد';
 
         return `
-            <tr class="hover:bg-devo-black/50 transition-colors border-b border-devo-gray/50 text-xs">
-                <td class="p-3.5 text-center text-devo-muted font-mono">${index + 1}</td>
+            <tr class="hover:bg-ultra-black/50 transition-colors border-b border-ultra-gray/50 text-xs">
+                <td class="p-3.5 text-center text-ultra-muted font-mono">${index + 1}</td>
                 <td class="p-3.5 font-bold text-white">
                     <div class="flex items-center gap-2">
                         <i class="ph ph-key text-cyan-400 text-base"></i>
@@ -79,12 +79,12 @@ export async function loadApiKeys() {
                     </div>
                 </td>
                 <td class="p-3.5 font-mono text-cyan-300 dir-ltr text-left">
-                    <span class="bg-devo-black border border-devo-gray px-2 py-1 rounded select-all">${key.key_prefix}••••••••</span>
+                    <span class="bg-ultra-black border border-ultra-gray px-2 py-1 rounded select-all">${key.key_prefix}••••••••</span>
                 </td>
                 <td class="p-3.5">
                     <div class="flex flex-wrap gap-1">${permsBadges}</div>
                 </td>
-                <td class="p-3.5 text-devo-muted">${lastUsed}</td>
+                <td class="p-3.5 text-ultra-muted">${lastUsed}</td>
                 <td class="p-3.5 text-center">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${key.is_active ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'}">
                         <span class="w-1.5 h-1.5 rounded-full ${key.is_active ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
@@ -93,10 +93,10 @@ export async function loadApiKeys() {
                 </td>
                 <td class="p-3.5">
                     <div class="flex justify-center gap-1.5">
-                        <button onclick="window.toggleApiKeyStatus('${key.id}', ${!key.is_active})" class="p-1.5 rounded-lg border border-devo-gray hover:border-amber-500/50 text-devo-muted hover:text-amber-400 transition-colors" title="${key.is_active ? 'تعطيل المفتاح' : 'تفعيل المفتاح'}">
+                        <button onclick="window.toggleApiKeyStatus('${key.id}', ${!key.is_active})" class="p-1.5 rounded-lg border border-ultra-gray hover:border-amber-500/50 text-ultra-muted hover:text-amber-400 transition-colors" title="${key.is_active ? 'تعطيل المفتاح' : 'تفعيل المفتاح'}">
                             <i class="ph ${key.is_active ? 'ph-pause-circle' : 'ph-play-circle'} text-base"></i>
                         </button>
-                        <button onclick="window.handleDeleteApiKey('${key.id}')" class="p-1.5 rounded-lg border border-devo-gray hover:border-rose-500/50 text-devo-muted hover:text-rose-400 transition-colors" title="حذف نهائي">
+                        <button onclick="window.handleDeleteApiKey('${key.id}')" class="p-1.5 rounded-lg border border-ultra-gray hover:border-rose-500/50 text-ultra-muted hover:text-rose-400 transition-colors" title="حذف نهائي">
                             <i class="ph ph-trash text-base"></i>
                         </button>
                     </div>

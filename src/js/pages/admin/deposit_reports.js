@@ -94,8 +94,8 @@ export async function fetchDepositOrders() {
     if (tBody && allDepositOrders.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="7" class="p-10 text-center text-devo-muted">
-                    <i class="ph ph-spinner animate-spin text-3xl text-devo-orange mb-2 block"></i>
+                <td colspan="7" class="p-10 text-center text-ultra-muted">
+                    <i class="ph ph-spinner animate-spin text-3xl text-ultra-orange mb-2 block"></i>
                     <span>جاري تحميل تقارير العربون...</span>
                 </td>
             </tr>
@@ -226,8 +226,8 @@ function renderDepositTable(orders) {
     if (!orders || orders.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="7" class="p-8 text-center text-devo-muted">
-                    <i class="ph ph-ghost text-4xl mb-2 block text-devo-grayHover"></i>
+                <td colspan="7" class="p-8 text-center text-ultra-muted">
+                    <i class="ph ph-ghost text-4xl mb-2 block text-ultra-grayHover"></i>
                     <span>لا توجد تقارير عربون تطابق الخيارات المحددة</span>
                 </td>
             </tr>
@@ -261,21 +261,21 @@ function renderDepositTable(orders) {
         const depositReceiver = o.deposit_receiver || '-';
 
         return `
-            <tr class="hover:bg-devo-dark/50 transition-colors border-b border-devo-gray/40 text-sm">
-                <td class="px-4 py-3 font-mono font-bold text-devo-orange">#${orderNumDisplay}</td>
+            <tr class="hover:bg-ultra-dark/50 transition-colors border-b border-ultra-gray/40 text-sm">
+                <td class="px-4 py-3 font-mono font-bold text-ultra-orange">#${orderNumDisplay}</td>
                 <td class="px-4 py-3 whitespace-nowrap">
                     <div class="font-medium text-white">${formattedDate}</div>
-                    <div class="text-xs text-devo-muted">${formattedTime}</div>
+                    <div class="text-xs text-ultra-muted">${formattedTime}</div>
                 </td>
                 <td class="px-4 py-3 font-semibold text-white">${custName}</td>
-                <td class="px-4 py-3 font-mono text-devo-muted" dir="ltr">${custPhone}</td>
-                <td class="px-4 py-3 text-devo-text">${workerName}</td>
+                <td class="px-4 py-3 font-mono text-ultra-muted" dir="ltr">${custPhone}</td>
+                <td class="px-4 py-3 text-ultra-text">${workerName}</td>
                 <td class="px-4 py-3">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-devo-gray text-white border border-devo-grayHover inline-block">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-ultra-gray text-white border border-ultra-grayHover inline-block">
                         ${depositReceiver}
                     </span>
                 </td>
-                <td class="px-4 py-3 font-bold text-devo-success text-base whitespace-nowrap">
+                <td class="px-4 py-3 font-bold text-ultra-success text-base whitespace-nowrap">
                     ${depositVal.toLocaleString('ar-EG')} ج.م
                 </td>
             </tr>
@@ -286,9 +286,9 @@ function renderDepositTable(orders) {
 
     if (tFooter) {
         tFooter.innerHTML = `
-            <tr class="bg-devo-dark font-bold text-white border-t-2 border-devo-orange/50">
+            <tr class="bg-ultra-dark font-bold text-white border-t-2 border-ultra-orange/50">
                 <td colspan="6" class="px-4 py-3 text-left">إجمالي مبالغ العربون (المفلترة):</td>
-                <td class="px-4 py-3 text-devo-success text-lg whitespace-nowrap">
+                <td class="px-4 py-3 text-ultra-success text-lg whitespace-nowrap">
                     ${totalDepositSum.toLocaleString('ar-EG')} ج.م
                 </td>
             </tr>

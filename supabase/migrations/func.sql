@@ -50,7 +50,7 @@ BEGIN
     END IF;
 
     v_user_id := gen_random_uuid();
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
     v_hashed_password := crypt(p_password, gen_salt('bf'));
 
     -- إنشاء الحساب في جدول auth.users الخاص بـ Supabase Auth
@@ -149,7 +149,7 @@ BEGIN
         RAISE EXCEPTION 'لا يمكنك تغيير صلاحيتك أو تعطيل حسابك الشخصي.';
     END IF;
 
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
 
     -- تحديث جدول system_users
     UPDATE public.system_users SET
@@ -198,7 +198,7 @@ BEGIN
         RAISE EXCEPTION 'لا يمكنك تغيير صلاحيتك أو تعطيل حسابك الشخصي.';
     END IF;
 
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
 
     -- تحديث جدول system_users
     UPDATE public.system_users SET

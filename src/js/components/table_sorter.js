@@ -1,5 +1,5 @@
 // ========================================================
-// 📊 DEVO Collection - Table Sorter Component
+// 📊 UltraSoft Collection - Table Sorter Component
 // ========================================================
 
 window.customSortHandlers = window.customSortHandlers || {};
@@ -69,7 +69,7 @@ function initTableHeaders(table) {
         }
 
         th.style.cursor = 'pointer';
-        th.classList.add('select-none', 'hover:text-devo-orange', 'transition-colors');
+        th.classList.add('select-none', 'hover:text-ultra-orange', 'transition-colors');
 
         // Append arrow indicator placeholder
         let indicator = th.querySelector('.sort-indicator');
@@ -96,7 +96,7 @@ function initTableHeaders(table) {
 
             // Set state on current header
             th.setAttribute('data-sort-dir', nextDir);
-            indicator.className = 'sort-indicator mr-1 text-[10px] text-devo-orange opacity-100 inline-block font-bold';
+            indicator.className = 'sort-indicator mr-1 text-[10px] text-ultra-orange opacity-100 inline-block font-bold';
             indicator.innerHTML = nextDir === 'asc' ? ' ▲' : ' ▼';
 
             // Dispatch sorting

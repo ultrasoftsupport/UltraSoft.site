@@ -45,8 +45,8 @@
 **في ملف:** [`auth.js`](file:///d:/work/UltraSoft.site/src/js/services/auth.js#L116-L136)
 
 ```javascript
-localStorage.setItem('devo_super_admin_session', JSON.stringify(sessionData));
-localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(sessionData));
+localStorage.setItem('ultra_super_admin_session', JSON.stringify(sessionData));
+localStorage.setItem(`ultra_session_${activeSlug}`, JSON.stringify(sessionData));
 ```
 
 **المخاطر:**
@@ -287,12 +287,12 @@ const SUPABASE_ANON_KEY = 'sb_publishable_IBhIvEnrzgpY0iip4ek9ag_C5kWk2FV';
 
 ---
 
-### 17. 📱 اسم تعليق DEVO القديم لا يزال في بعض الملفات
-يبدو أن المشروع كان يُسمى "DEVO" سابقاً. بعض المتغيرات والتعليقات لا تزال تستخدم هذا الاسم:
+### 17. 📱 اسم تعليق UltraSoft القديم لا يزال في بعض الملفات
+يبدو أن المشروع كان يُسمى "UltraSoft" سابقاً. بعض المتغيرات والتعليقات لا تزال تستخدم هذا الاسم:
 
-- `devo_session`, `devo_active_theme`, `devo_notifications_sound`
-- `devo-theme-styles-early`
-- `DEVO | لوحة تحكم الإدارة`
+- `ultra_session`, `ultra_active_theme`, `ultra_notifications_sound`
+- `ultra-theme-styles-early`
+- `UltraSoft | لوحة تحكم الإدارة`
 
 هذا لا يؤثر على الوظائف لكنه يُسبب إرباك في قراءة الكود.
 
@@ -317,4 +317,4 @@ const SUPABASE_ANON_KEY = 'sb_publishable_IBhIvEnrzgpY0iip4ek9ag_C5kWk2FV';
 1. **🔴 عاجل:** إزالة ملف النسخ الاحتياطي من Git، وإصلاح Auto-Provisioning لـ Super Admin
 2. **🟠 مهم:** إعداد Tailwind CLI بدلاً من CDN، وإضافة Security Headers
 3. **🟡 متوسط:** إضافة `escapeHtml()` لمنع XSS، وتحسين `.gitignore`
-4. **🔵 تحسين:** إضافة Meta Tags SEO، وتوحيد التسمية من DEVO إلى UltraSoft
+4. **🔵 تحسين:** إضافة Meta Tags SEO، وتوحيد التسمية من UltraSoft إلى UltraSoft

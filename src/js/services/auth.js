@@ -6,7 +6,7 @@ import { getCurrentTenantId, getTenantSlugFromURL, getCurrentTenant, initializeT
  */
 export function getTenantSessionKey(slug, tenantId) {
     const activeSlug = slug || getTenantSlugFromURL() || 'default';
-    return `devo_session_${activeSlug}`;
+    return `ultra_session_${activeSlug}`;
 }
 
 /**
@@ -69,7 +69,7 @@ export async function loginUser(usernameInput, password) {
         }
 
         // ب) محاولة تسجيل الدخول عبر Supabase Auth مع دعم RPC Fallback المباشر في حال تسبب GoTrue بـ 500 على auth.users
-        const targetEmail = targetUser.email || `${targetUser.username}@staff.devo.internal`;
+        const targetEmail = targetUser.email || `${targetUser.username}@staff.ultrasoft.internal`;
         
         let isAuthSuccess = false;
 
@@ -125,14 +125,14 @@ export async function loginUser(usernameInput, password) {
 
         if (targetUser.role === 'super_admin') {
             // 👑 مفتاح منفصل ومستقل للجلسة العليا بالسوبر أدمن لعدم تدمير أو مسح جلسات المصانع
-            localStorage.setItem('devo_super_admin_session', JSON.stringify(sessionData));
+            localStorage.setItem('ultra_super_admin_session', JSON.stringify(sessionData));
         } else {
             // 🔑 حفظ الجلسة بصورة منعزلة لكل مصنع لتمكين فتح أكثر من جلسة في نفس الوقت
-            localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(sessionData));
+            localStorage.setItem(`ultra_session_${activeSlug}`, JSON.stringify(sessionData));
             if (targetUser.tenant_id) {
-                localStorage.setItem(`devo_session_${targetUser.tenant_id}`, JSON.stringify(sessionData));
+                localStorage.setItem(`ultra_session_${targetUser.tenant_id}`, JSON.stringify(sessionData));
             }
-            localStorage.setItem('devo_session', JSON.stringify(sessionData));
+            localStorage.setItem('ultra_session', JSON.stringify(sessionData));
         }
 
         return { user: sessionData, error: null };
@@ -150,10 +150,10 @@ export async function logoutUser() {
         const isSuperAdminPage = window.location.pathname.includes('super_admin') || window.location.pathname.includes('super_auth');
 
         if (isSuperAdminPage) {
-            localStorage.removeItem('devo_super_admin_session');
+            localStorage.removeItem('ultra_super_admin_session');
             // مسح مفتاح التحقق من الـ PIN أيضاً للسوبر أدمن
             Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('devo_super_admin_pin_verified_')) {
+                if (key.startsWith('ultra_super_admin_pin_verified_')) {
                     localStorage.removeItem(key);
                 }
             });
@@ -167,13 +167,13 @@ export async function logoutUser() {
         const currentTenant = getCurrentTenant();
 
         // 🧹 مسح شامل لمفاتيح الجلسة لمنع أي حلقات إعادة توجيه لا نهائية بسبب حسابات غير صالحة
-        localStorage.removeItem('devo_session');
-        if (slug) localStorage.removeItem(`devo_session_${slug}`);
+        localStorage.removeItem('ultra_session');
+        if (slug) localStorage.removeItem(`ultra_session_${slug}`);
         if (currentTenant && currentTenant.id) {
-            localStorage.removeItem(`devo_session_${currentTenant.id}`);
+            localStorage.removeItem(`ultra_session_${currentTenant.id}`);
         }
         Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('devo_session')) {
+            if (key.startsWith('ultra_session')) {
                 localStorage.removeItem(key);
             }
         });
@@ -202,7 +202,7 @@ export async function logoutUser() {
         window.location.href = `auth.html${slug && slug !== 'default' ? '?tenant=' + slug : ''}`;
     } catch (e) {
         console.error('Signout error:', e);
-        localStorage.removeItem('devo_session');
+        localStorage.removeItem('ultra_session');
         if (!window.location.pathname.includes('auth.html')) {
             window.location.href = 'auth.html';
         }
@@ -216,7 +216,7 @@ export function getCurrentSession() {
     const isSuperAdminPage = window.location.pathname.includes('super_admin') || window.location.pathname.includes('super_auth');
 
     if (isSuperAdminPage) {
-        const superSessionStr = localStorage.getItem('devo_super_admin_session');
+        const superSessionStr = localStorage.getItem('ultra_super_admin_session');
         if (!superSessionStr) return { session: null };
         try {
             const session = JSON.parse(superSessionStr);
@@ -241,12 +241,12 @@ export function getCurrentSession() {
     // 1. عزل الجلسات: المصانع المنفصلة تقرأ فقط مفاتيحها المنعزلة الخاصة بها حصراً وتتجاهل الجلسة العامة للمنصة
     let sessionStr = null;
     if (isCustomTenant) {
-        sessionStr = localStorage.getItem(`devo_session_${slug}`);
+        sessionStr = localStorage.getItem(`ultra_session_${slug}`);
         if (!sessionStr && currentTenantId) {
-            sessionStr = localStorage.getItem(`devo_session_${currentTenantId}`);
+            sessionStr = localStorage.getItem(`ultra_session_${currentTenantId}`);
         }
     } else {
-        sessionStr = localStorage.getItem('devo_session_default') || localStorage.getItem('devo_session');
+        sessionStr = localStorage.getItem('ultra_session_default') || localStorage.getItem('ultra_session');
     }
 
     if (!sessionStr) return { session: null };

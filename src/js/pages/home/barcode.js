@@ -259,8 +259,8 @@ async function startScanning() {
 
         if (txtToggleScan) txtToggleScan.textContent = "إيقاف الكاميرا";
         if (btnToggleScan) {
-            btnToggleScan.classList.replace('bg-devo-orange', 'bg-devo-error');
-            btnToggleScan.classList.replace('hover:bg-devo-orangeHover', 'hover:bg-red-600');
+            btnToggleScan.classList.replace('bg-ultra-orange', 'bg-ultra-error');
+            btnToggleScan.classList.replace('hover:bg-ultra-orangeHover', 'hover:bg-red-600');
         }
         if (laser) laser.classList.remove('hidden');
 
@@ -293,8 +293,8 @@ async function stopScanning() {
 
         if (txtToggleScan) txtToggleScan.textContent = "تشغيل الكاميرا";
         if (btnToggleScan) {
-            btnToggleScan.classList.replace('bg-devo-error', 'bg-devo-orange');
-            btnToggleScan.classList.replace('hover:bg-red-600', 'hover:bg-devo-orangeHover');
+            btnToggleScan.classList.replace('bg-ultra-error', 'bg-ultra-orange');
+            btnToggleScan.classList.replace('hover:bg-red-600', 'hover:bg-ultra-orangeHover');
         }
         if (laser) laser.classList.add('hidden');
     }

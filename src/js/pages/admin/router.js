@@ -94,7 +94,7 @@ function updateUserProfileUI(profile) {
     document.getElementById('user-avatar').textContent = profile.full_name.charAt(0).toUpperCase();
     
     const roleText = profile.role === 'owner' ? 'مالك النظام' : 'مدير نظام';
-    const roleColor = profile.role === 'owner' ? 'text-red-500' : 'text-devo-orange';
+    const roleColor = profile.role === 'owner' ? 'text-red-500' : 'text-ultra-orange';
     
     const roleEl = document.getElementById('current-user-role');
     if (roleEl) {
@@ -153,8 +153,8 @@ export function switchView(targetId, titleElement) {
 
     // 2. Remove active state from all links
     document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('bg-devo-orange/10', 'text-devo-orange');
-        link.classList.add('text-devo-muted');
+        link.classList.remove('bg-ultra-orange/10', 'text-ultra-orange');
+        link.classList.add('text-ultra-muted');
     });
 
     // 2.1 التعامل مع القائمة الجانبية للتقارير (تمدد أو طي تلقائي عند الخروج)
@@ -166,7 +166,7 @@ export function switchView(targetId, titleElement) {
         if (reportsSubmenu) reportsSubmenu.classList.remove('hidden');
         if (reportsChevron) reportsChevron.classList.add('rotate-180');
         if (reportsToggle) {
-            reportsToggle.classList.remove('text-devo-muted');
+            reportsToggle.classList.remove('text-ultra-muted');
             reportsToggle.classList.add('text-white');
         }
     } else {
@@ -174,8 +174,8 @@ export function switchView(targetId, titleElement) {
         if (reportsSubmenu) reportsSubmenu.classList.add('hidden');
         if (reportsChevron) reportsChevron.classList.remove('rotate-180');
         if (reportsToggle) {
-            reportsToggle.classList.remove('text-white', 'bg-devo-orange/10', 'text-devo-orange');
-            reportsToggle.classList.add('text-devo-muted');
+            reportsToggle.classList.remove('text-white', 'bg-ultra-orange/10', 'text-ultra-orange');
+            reportsToggle.classList.add('text-ultra-muted');
         }
     }
 
@@ -188,7 +188,7 @@ export function switchView(targetId, titleElement) {
         if (settingsSubmenu) settingsSubmenu.classList.remove('hidden');
         if (settingsChevron) settingsChevron.classList.add('rotate-180');
         if (settingsToggle) {
-            settingsToggle.classList.remove('text-devo-muted');
+            settingsToggle.classList.remove('text-ultra-muted');
             settingsToggle.classList.add('text-white');
         }
     } else {
@@ -196,8 +196,8 @@ export function switchView(targetId, titleElement) {
         if (settingsSubmenu) settingsSubmenu.classList.add('hidden');
         if (settingsChevron) settingsChevron.classList.remove('rotate-180');
         if (settingsToggle) {
-            settingsToggle.classList.remove('text-white', 'bg-devo-orange/10', 'text-devo-orange');
-            settingsToggle.classList.add('text-devo-muted');
+            settingsToggle.classList.remove('text-white', 'bg-ultra-orange/10', 'text-ultra-orange');
+            settingsToggle.classList.add('text-ultra-muted');
         }
     }
 
@@ -222,8 +222,8 @@ export function switchView(targetId, titleElement) {
 
     // 4. Highlight active link
     if (titleElement) {
-        titleElement.classList.remove('text-devo-muted');
-        titleElement.classList.add('bg-devo-orange/10', 'text-devo-orange');
+        titleElement.classList.remove('text-ultra-muted');
+        titleElement.classList.add('bg-ultra-orange/10', 'text-ultra-orange');
         const pt = document.getElementById('page-title');
         if (pt && titleElement.querySelector('span')) {
             pt.textContent = titleElement.querySelector('span').textContent;
@@ -430,9 +430,9 @@ export async function switchSettingsSubtab(subtabId) {
     subtabBtns.forEach(btn => {
         const target = btn.getAttribute('data-settings-subtab');
         if (target === subtabId) {
-            btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer';
+            btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-ultra-orange text-white shadow-md cursor-pointer';
         } else {
-            btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer';
+            btn.className = 'settings-subtab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-ultra-muted hover:bg-ultra-gray/50 hover:text-white cursor-pointer';
         }
     });
 
@@ -440,11 +440,11 @@ export async function switchSettingsSubtab(subtabId) {
     const settingsSublinks = document.querySelectorAll('.settings-sublink');
     settingsSublinks.forEach(link => {
         if (link.getAttribute('data-settings-subtab') === subtabId) {
-            link.classList.remove('text-devo-muted');
-            link.classList.add('text-devo-orange', 'bg-devo-orange/15', 'font-bold');
+            link.classList.remove('text-ultra-muted');
+            link.classList.add('text-ultra-orange', 'bg-ultra-orange/15', 'font-bold');
         } else {
-            link.classList.remove('text-devo-orange', 'bg-devo-orange/15', 'font-bold');
-            link.classList.add('text-devo-muted');
+            link.classList.remove('text-ultra-orange', 'bg-ultra-orange/15', 'font-bold');
+            link.classList.add('text-ultra-muted');
         }
     });
 
@@ -795,7 +795,7 @@ export async function refreshAllSystemData(options = {}) {
             }
         }
 
-        window.dispatchEvent(new CustomEvent('devo:global-data-refreshed'));
+        window.dispatchEvent(new CustomEvent('ultrasoft:global-data-refreshed'));
 
         if (!isSilent) {
             showToast('تم تحديث جميع بيانات النظام بنجاح 🔄', 'success');

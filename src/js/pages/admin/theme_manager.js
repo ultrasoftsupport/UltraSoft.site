@@ -44,8 +44,8 @@ async function loadThemes() {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="col-span-full py-12 flex items-center justify-center text-devo-muted gap-3">
-      <i class="ph ph-spinner animate-spin text-2xl text-devo-orange"></i>
+    <div class="col-span-full py-12 flex items-center justify-center text-ultra-muted gap-3">
+      <i class="ph ph-spinner animate-spin text-2xl text-ultra-orange"></i>
       جاري تحميل المظاهر المتاحة...
     </div>
   `;
@@ -84,7 +84,7 @@ function updateThemeStats() {
 function renderThemesGrid() {
   const container = document.getElementById('themes-grid-container');
   if (allThemes.length === 0) {
-    container.innerHTML = `<div class="col-span-full py-12 text-center text-devo-muted">لا يوجد مظاهر مسجلة في النظام</div>`;
+    container.innerHTML = `<div class="col-span-full py-12 text-center text-ultra-muted">لا يوجد مظاهر مسجلة في النظام</div>`;
     return;
   }
 
@@ -116,50 +116,50 @@ function renderThemesGrid() {
 
     // Buttons
     const activateBtn = isAct 
-      ? `<button disabled class="flex-1 py-2 bg-devo-success/10 text-devo-success border border-devo-success/20 rounded-lg text-xs font-bold flex items-center justify-center gap-1 cursor-default"><i class="ph ph-check-circle"></i> المظهر النشط</button>`
-      : `<button onclick="window.triggerActivateTheme('${t.id}')" class="flex-1 py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"><i class="ph ph-lightning"></i> تفعيل المظهر</button>`;
+      ? `<button disabled class="flex-1 py-2 bg-ultra-success/10 text-ultra-success border border-ultra-success/20 rounded-lg text-xs font-bold flex items-center justify-center gap-1 cursor-default"><i class="ph ph-check-circle"></i> المظهر النشط</button>`
+      : `<button onclick="window.triggerActivateTheme('${t.id}')" class="flex-1 py-2 bg-ultra-orange hover:bg-ultra-orangeHover text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"><i class="ph ph-lightning"></i> تفعيل المظهر</button>`;
 
     const deleteBtn = (isSys || isAct)
-      ? `<button disabled class="w-10 h-10 bg-devo-gray/10 text-devo-muted border border-devo-gray/20 rounded-lg flex items-center justify-center cursor-not-allowed" title="لا يمكن حذف المظهر النشط أو مظاهر النظام الافتراضية"><i class="ph ph-lock text-sm"></i></button>`
-      : `<button onclick="window.triggerDeleteTheme('${t.id}')" class="w-10 h-10 bg-devo-error/10 hover:bg-devo-error text-devo-error hover:text-white rounded-lg flex items-center justify-center transition-colors" title="حذف المظهر"><i class="ph ph-trash text-sm"></i></button>`;
+      ? `<button disabled class="w-10 h-10 bg-ultra-gray/10 text-ultra-muted border border-ultra-gray/20 rounded-lg flex items-center justify-center cursor-not-allowed" title="لا يمكن حذف المظهر النشط أو مظاهر النظام الافتراضية"><i class="ph ph-lock text-sm"></i></button>`
+      : `<button onclick="window.triggerDeleteTheme('${t.id}')" class="w-10 h-10 bg-ultra-error/10 hover:bg-ultra-error text-ultra-error hover:text-white rounded-lg flex items-center justify-center transition-colors" title="حذف المظهر"><i class="ph ph-trash text-sm"></i></button>`;
 
     const customizeBtn = isSys
-      ? `<button onclick="window.triggerResetSystemTheme('${t.id}', '${t.name}')" class="w-10 h-10 bg-devo-black hover:bg-yellow-500/10 text-yellow-500 border border-devo-gray hover:border-yellow-500/30 rounded-lg flex items-center justify-center transition-colors" title="استعادة الإعدادات الافتراضية للمظهر"><i class="ph ph-arrow-counter-clockwise text-sm"></i></button>`
-      : `<button onclick="window.triggerOpenCustomizer('${t.id}')" class="w-10 h-10 bg-devo-black hover:bg-devo-gray text-white border border-devo-gray rounded-lg flex items-center justify-center transition-colors" title="تخصيص وتعديل المتغيرات"><i class="ph ph-paint-brush-broad text-sm"></i></button>`;
+      ? `<button onclick="window.triggerResetSystemTheme('${t.id}', '${t.name}')" class="w-10 h-10 bg-ultra-black hover:bg-yellow-500/10 text-yellow-500 border border-ultra-gray hover:border-yellow-500/30 rounded-lg flex items-center justify-center transition-colors" title="استعادة الإعدادات الافتراضية للمظهر"><i class="ph ph-arrow-counter-clockwise text-sm"></i></button>`
+      : `<button onclick="window.triggerOpenCustomizer('${t.id}')" class="w-10 h-10 bg-ultra-black hover:bg-ultra-gray text-white border border-ultra-gray rounded-lg flex items-center justify-center transition-colors" title="تخصيص وتعديل المتغيرات"><i class="ph ph-paint-brush-broad text-sm"></i></button>`;
 
     return `
-      <div class="bg-devo-dark border ${isAct ? 'border-devo-orange ring-1 ring-devo-orange' : 'border-devo-gray'} rounded-xl p-5 shadow-sm flex flex-col justify-between relative transition-all hover:border-devo-orange/50">
+      <div class="bg-ultra-dark border ${isAct ? 'border-ultra-orange ring-1 ring-ultra-orange' : 'border-ultra-gray'} rounded-xl p-5 shadow-sm flex flex-col justify-between relative transition-all hover:border-ultra-orange/50">
         
         <!-- Header -->
         <div class="flex items-start justify-between gap-3 mb-3">
           <div>
             <h3 class="font-bold text-white text-base flex items-center gap-2">
               ${t.name}
-              ${isAct ? `<span class="w-2 h-2 rounded-full bg-devo-success animate-pulse"></span>` : ''}
+              ${isAct ? `<span class="w-2 h-2 rounded-full bg-ultra-success animate-pulse"></span>` : ''}
             </h3>
-            <p class="text-xs text-devo-muted line-clamp-2 mt-1 leading-relaxed">${finalDescription}</p>
+            <p class="text-xs text-ultra-muted line-clamp-2 mt-1 leading-relaxed">${finalDescription}</p>
           </div>
-          <span class="px-2.5 py-1 rounded-md text-[10px] font-bold shrink-0 ${isSys ? 'bg-devo-warning/10 text-devo-warning border border-devo-warning/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'}">
+          <span class="px-2.5 py-1 rounded-md text-[10px] font-bold shrink-0 ${isSys ? 'bg-ultra-warning/10 text-ultra-warning border border-ultra-warning/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'}">
             ${isSys ? 'نظام (System)' : 'مخصص (Custom)'}
           </span>
         </div>
 
         <!-- Palette Preview -->
-        <div class="bg-devo-black/60 border border-devo-gray/50 rounded-lg p-3 my-4 flex items-center justify-between">
-          <span class="text-xs text-devo-muted font-bold">لوحة الألوان الأساسية:</span>
+        <div class="bg-ultra-black/60 border border-ultra-gray/50 rounded-lg p-3 my-4 flex items-center justify-between">
+          <span class="text-xs text-ultra-muted font-bold">لوحة الألوان الأساسية:</span>
           <div class="flex items-center gap-1.5">
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${pageBg}" title="خلفية الموقع: ${pageBg}"></span>
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${primary}" title="اللون الرئيسي: ${primary}"></span>
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${surface}" title="خلفية الكروت: ${surface}"></span>
-            <span class="w-6 h-6 rounded-full border border-devo-gray flex items-center justify-center shadow-inner" style="background-color: ${text}" title="لون الخطوط: ${text}"></span>
+            <span class="w-6 h-6 rounded-full border border-ultra-gray flex items-center justify-center shadow-inner" style="background-color: ${pageBg}" title="خلفية الموقع: ${pageBg}"></span>
+            <span class="w-6 h-6 rounded-full border border-ultra-gray flex items-center justify-center shadow-inner" style="background-color: ${primary}" title="اللون الرئيسي: ${primary}"></span>
+            <span class="w-6 h-6 rounded-full border border-ultra-gray flex items-center justify-center shadow-inner" style="background-color: ${surface}" title="خلفية الكروت: ${surface}"></span>
+            <span class="w-6 h-6 rounded-full border border-ultra-gray flex items-center justify-center shadow-inner" style="background-color: ${text}" title="لون الخطوط: ${text}"></span>
           </div>
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center gap-2 border-t border-devo-gray pt-4 mt-auto">
+        <div class="flex items-center gap-2 border-t border-ultra-gray pt-4 mt-auto">
           ${activateBtn}
           ${customizeBtn}
-          <button onclick="window.triggerDuplicateTheme('${t.id}')" class="w-10 h-10 bg-devo-black hover:bg-devo-gray text-white border border-devo-gray rounded-lg flex items-center justify-center transition-colors" title="تكرار وعمل نسخة (Duplicate)"><i class="ph ph-copy text-sm"></i></button>
+          <button onclick="window.triggerDuplicateTheme('${t.id}')" class="w-10 h-10 bg-ultra-black hover:bg-ultra-gray text-white border border-ultra-gray rounded-lg flex items-center justify-center transition-colors" title="تكرار وعمل نسخة (Duplicate)"><i class="ph ph-copy text-sm"></i></button>
           ${deleteBtn}
         </div>
 

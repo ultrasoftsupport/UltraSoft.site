@@ -122,7 +122,7 @@ function buildNavLinks(user) {
 
 function buildNavBtns(links) {
     return links.map(l => {
-        let extraClasses = 'text-devo-muted hover:text-devo-text border-transparent';
+        let extraClasses = 'text-ultra-muted hover:text-ultra-text border-transparent';
         if (l.highlight) {
             extraClasses = 'bg-gradient-to-r from-ultra-500/20 to-sky-500/20 text-ultra-400 border-ultra-500/40 hover:bg-ultra-500 hover:text-white shadow-sm';
         } else if (l.exit) {
@@ -162,34 +162,34 @@ function buildUserArea(user) {
             ${showNotificationBell ? `
             <!-- 🔔 جرس الإشعارات الفوري -->
             <div class="relative shrink-0" id="home-notifications-wrapper">
-                <button id="notifications-bell-btn" class="relative p-2 rounded-xl bg-devo-dark border border-devo-gray text-devo-muted hover:text-devo-text hover:border-devo-grayHover transition-all shadow-sm shrink-0" title="الإشعارات">
+                <button id="notifications-bell-btn" class="relative p-2 rounded-xl bg-ultra-dark border border-ultra-gray text-ultra-muted hover:text-ultra-text hover:border-ultra-grayHover transition-all shadow-sm shrink-0" title="الإشعارات">
                     <i class="ph ph-bell text-xl"></i>
-                    <span id="notifications-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-devo-error text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-devo-black animate-pulse"></span>
+                    <span id="notifications-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-ultra-error text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-ultra-black animate-pulse"></span>
                 </button>
                 <!-- قائمة الإشعارات المنسدلة -->
-                <div id="notifications-dropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-devo-black border border-devo-gray rounded-2xl shadow-2xl z-[200] overflow-hidden" style="right:auto;left:0">
-                    <div class="flex items-center justify-between px-4 py-3 border-b border-devo-gray">
+                <div id="notifications-dropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-ultra-black border border-ultra-gray rounded-2xl shadow-2xl z-[200] overflow-hidden" style="right:auto;left:0">
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-ultra-gray">
                         <span class="text-xs font-bold text-white">🔔 الإشعارات الفورية</span>
-                        <button id="clear-notifications-btn" class="text-[10px] text-devo-muted hover:text-devo-error transition-colors">مسح الكل</button>
+                        <button id="clear-notifications-btn" class="text-[10px] text-ultra-muted hover:text-ultra-error transition-colors">مسح الكل</button>
                     </div>
                     <div id="notifications-list" class="max-h-72 overflow-y-auto"></div>
                 </div>
             </div>
             ` : ''}
-            ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white transition-all shrink-0" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
-            <div class="flex items-center gap-2 border-r border-devo-gray pr-3 shrink-0">
+            ${hasAdminAccess ? `<a href="${adminUrl}" class="p-2 rounded-lg bg-ultra-info/10 text-ultra-info hover:bg-ultra-info hover:text-white transition-all shrink-0" title="لوحة الإدارة"><i class="ph ph-shield-check text-xl"></i></a>` : ''}
+            <div class="flex items-center gap-2 border-r border-ultra-gray pr-3 shrink-0">
                 <div class="text-right shrink-0">
                     <p class="text-xs md:text-sm font-bold text-white leading-tight truncate max-w-[110px]" title="${user.full_name}">${user.full_name}</p>
-                    <p class="text-[10px] text-devo-orange leading-tight font-medium">${isWorker ? workerTitle : 'إدارة'}</p>
+                    <p class="text-[10px] text-ultra-orange leading-tight font-medium">${isWorker ? workerTitle : 'إدارة'}</p>
                 </div>
-                <div class="w-9 h-9 rounded-xl bg-devo-dark border border-devo-gray flex items-center justify-center text-devo-muted hover:text-devo-error hover:border-devo-error/40 cursor-pointer transition-all shadow-sm shrink-0" onclick="handleLogout()" title="تسجيل الخروج">
+                <div class="w-9 h-9 rounded-xl bg-ultra-dark border border-ultra-gray flex items-center justify-center text-ultra-muted hover:text-ultra-error hover:border-ultra-error/40 cursor-pointer transition-all shadow-sm shrink-0" onclick="handleLogout()" title="تسجيل الخروج">
                     <i class="ph ph-sign-out text-lg"></i>
                 </div>
             </div>
         `;
     } else {
         return `
-            <a href="${authUrl}" class="px-4 py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shrink-0 whitespace-nowrap">
+            <a href="${authUrl}" class="px-4 py-2 bg-ultra-orange hover:bg-ultra-orangeHover text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shrink-0 whitespace-nowrap">
                 <i class="ph ph-sign-in text-base shrink-0"></i>
                 <span>تسجيل الدخول</span>
             </a>
@@ -215,52 +215,52 @@ function buildMobileMenu(user) {
     if (isMainFactory) {
         if (!isDemoMode) {
             links = `
-                <button data-nav-view="view-mall" onclick="switchSiteView('view-mall')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-storefront text-xl"></i> UltraSoft Mall</button>
-                <button data-nav-view="view-landing-overview" onclick="switchSiteView('view-landing-overview')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl"></i> عن النظام</button>
-                <button data-nav-view="view-landing-pricing" onclick="switchSiteView('view-landing-pricing')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-tag text-xl"></i> الاشتراكات</button>
+                <button data-nav-view="view-mall" onclick="switchSiteView('view-mall')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-storefront text-xl"></i> UltraSoft Mall</button>
+                <button data-nav-view="view-landing-overview" onclick="switchSiteView('view-landing-overview')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-sparkle text-xl"></i> عن النظام</button>
+                <button data-nav-view="view-landing-pricing" onclick="switchSiteView('view-landing-pricing')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-tag text-xl"></i> الاشتراكات</button>
                 <button onclick="window.enterDemoStoreMode?.()" class="py-3 px-4 text-right text-ultra-400 bg-ultra-500/10 rounded-xl border border-ultra-500/30 flex items-center gap-3 font-bold mt-2"><i class="ph ph-play-circle text-xl"></i> استكشاف المعرض (Live Demo)</button>
             `;
         } else {
             links = `
-                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية للمتجر</button>
-                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
-                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
-                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي التجريبي</button>
+                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية للمتجر</button>
+                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض التجريبي</button>
+                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي التجريبي</button>
                 <button onclick="window.exitDemoStoreMode?.()" class="py-3 px-4 text-right text-amber-400 bg-amber-500/10 rounded-xl border border-amber-500/30 flex items-center gap-3 font-bold mt-2"><i class="ph ph-arrow-u-up-left text-xl"></i> العودة للمنصة / المول</button>
             `;
         }
     } else {
         if (user) {
             links = `
-                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
-                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
-                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
-                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> السلة</button>
-                <button data-nav-view="view-orders" onclick="switchSiteView('view-orders')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-receipt text-xl"></i> الأوردرات</button>
+                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
+                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
+                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> السلة</button>
+                <button data-nav-view="view-orders" onclick="switchSiteView('view-orders')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl border border-transparent flex items-center gap-3"><i class="ph ph-receipt text-xl"></i> الأوردرات</button>
             `;
         } else {
             links = `
-                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
-                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
-                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
-                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-devo-muted hover:text-devo-text rounded-xl flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي</button>
+                <button data-nav-view="view-home" onclick="switchSiteView('view-home')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl flex items-center gap-3"><i class="ph ph-house text-xl"></i> الرئيسية</button>
+                <button data-nav-view="view-gallery" onclick="switchSiteView('view-gallery')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl flex items-center gap-3"><i class="ph ph-images text-xl"></i> المعرض</button>
+                <button data-nav-view="view-barcode" onclick="switchSiteView('view-barcode')" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl flex items-center gap-3"><i class="ph ph-qr-code text-xl"></i> الباركود</button>
+                <button data-nav-view="view-cart" onclick="switchSiteView('view-cart'); window.refreshCartView?.();" class="py-3 px-4 text-right text-ultra-muted hover:text-ultra-text rounded-xl flex items-center gap-3"><i class="ph ph-shopping-cart text-xl"></i> طلبي</button>
             `;
         }
     }
 
     if (user) {
         links += `
-            ${hasAdminAccess ? `<a href="${adminUrl}" class="py-3 px-4 text-devo-info hover:text-devo-text rounded-xl bg-devo-info/10 flex items-center gap-3"><i class="ph ph-shield-check text-xl"></i> لوحة الإدارة</a>` : ''}
-            <button onclick="handleLogout()" class="py-3 px-4 text-devo-error text-right mt-6 rounded-xl bg-devo-error/10 flex items-center gap-3 font-bold"><i class="ph ph-sign-out text-xl"></i> تسجيل خروج</button>
+            ${hasAdminAccess ? `<a href="${adminUrl}" class="py-3 px-4 text-ultra-info hover:text-ultra-text rounded-xl bg-ultra-info/10 flex items-center gap-3"><i class="ph ph-shield-check text-xl"></i> لوحة الإدارة</a>` : ''}
+            <button onclick="handleLogout()" class="py-3 px-4 text-ultra-error text-right mt-6 rounded-xl bg-ultra-error/10 flex items-center gap-3 font-bold"><i class="ph ph-sign-out text-xl"></i> تسجيل خروج</button>
         `;
     } else {
         links += `
-            <a href="${authUrl}" class="py-3 px-4 text-devo-orange hover:text-devo-text rounded-xl bg-devo-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
+            <a href="${authUrl}" class="py-3 px-4 text-ultra-orange hover:text-ultra-text rounded-xl bg-ultra-orange/10 flex items-center gap-3 font-bold mt-4"><i class="ph ph-sign-in text-xl"></i> تسجيل الدخول</a>
         `;
     }
 
     return `
-        <div id="mobile-menu" class="fixed inset-0 bg-devo-black/95 backdrop-blur-xl z-[500000] transform translate-x-full transition-transform duration-300 xl:hidden flex flex-col pt-24 px-6 overflow-y-auto">
+        <div id="mobile-menu" class="fixed inset-0 bg-ultra-black/95 backdrop-blur-xl z-[500000] transform translate-x-full transition-transform duration-300 xl:hidden flex flex-col pt-24 px-6 overflow-y-auto">
             <div class="flex flex-col space-y-2 text-base font-bold" id="mobile-nav-links">
                 ${links}
             </div>
@@ -293,8 +293,8 @@ function buildBrandLogo(badgeText = 'Collection') {
     const brandTitle = isCustomTenant ? (tenant?.name || slug || 'متجر المصنع') : 'UltraSoft';
 
     const brandNameHtml = isCustomTenant
-        ? `<span class="text-base sm:text-lg xl:text-xl font-black tracking-tight text-devo-text whitespace-nowrap tenant-name">${brandTitle}</span>`
-        : `<span class="text-lg xl:text-2xl font-extrabold tracking-tight text-devo-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>`;
+        ? `<span class="text-base sm:text-lg xl:text-xl font-black tracking-tight text-ultra-text whitespace-nowrap tenant-name">${brandTitle}</span>`
+        : `<span class="text-lg xl:text-2xl font-extrabold tracking-tight text-ultra-text whitespace-nowrap">Ultra<span class="text-sky-600 dark:text-sky-400 font-black">Soft</span></span>`;
 
     const clickAction = (!isCustomTenant && window.isDemoMode)
         ? `window.exitDemoStoreMode?.()`
@@ -321,18 +321,18 @@ function renderClassic(user, settings) {
     const userArea = buildUserArea(user);
 
     return `
-        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="classic">
+        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-ultra-black/95 backdrop-blur-md border-b border-ultra-gray shadow-md transition-all duration-300" data-layout="classic">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-2" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
-                    <div class="hidden xl:flex items-center gap-1 bg-devo-dark/80 p-1.5 rounded-2xl border border-devo-gray/60 shadow-inner overflow-x-auto scrollbar-none max-w-full">
+                    <div class="hidden xl:flex items-center gap-1 bg-ultra-dark/80 p-1.5 rounded-2xl border border-ultra-gray/60 shadow-inner overflow-x-auto scrollbar-none max-w-full">
                         ${buildNavBtns(navLinks)}
                     </div>
                     <div class="hidden xl:flex items-center gap-3 shrink-0">
                         ${userArea}
                     </div>
                     <div class="xl:hidden flex items-center gap-2">
-                        <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text focus:outline-none bg-devo-dark border border-devo-gray rounded-xl">
+                        <button id="mobile-menu-btn" class="p-2 text-ultra-muted hover:text-ultra-text focus:outline-none bg-ultra-dark border border-ultra-gray rounded-xl">
                             <i class="ph ph-list text-2xl"></i>
                         </button>
                     </div>
@@ -353,7 +353,7 @@ function renderCentered(user, settings) {
     const rightLinks = navLinks.slice(half);
 
     return `
-        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="centered">
+        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-ultra-black/95 backdrop-blur-md border-b border-ultra-gray shadow-md transition-all duration-300" data-layout="centered">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="hidden xl:grid grid-cols-3 items-center" style="height:${height}px">
                     <div class="flex items-center justify-start gap-1 overflow-x-auto scrollbar-none">
@@ -364,14 +364,14 @@ function renderCentered(user, settings) {
                     </div>
                     <div class="flex items-center justify-end gap-2 shrink-0">
                         ${buildNavBtns(leftLinks)}
-                        <div class="border-r border-devo-gray pr-2 mr-1 shrink-0">
+                        <div class="border-r border-ultra-gray pr-2 mr-1 shrink-0">
                             ${userArea}
                         </div>
                     </div>
                 </div>
                 <div class="xl:hidden flex items-center justify-between" style="height:${height}px">
                     ${buildBrandLogo('')}
-                    <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
+                    <button id="mobile-menu-btn" class="p-2 text-ultra-muted hover:text-ultra-text bg-ultra-dark border border-ultra-gray rounded-xl">
                         <i class="ph ph-list text-2xl"></i>
                     </button>
                 </div>
@@ -387,7 +387,7 @@ function renderMinimal(user, settings) {
 
     return `
         <header id="site-header-nav" class="fixed w-full top-3 left-0 right-0 z-50 px-3 md:px-6 transition-all duration-300 pointer-events-none" data-layout="minimal">
-            <div class="max-w-6xl mx-auto bg-devo-black/95 backdrop-blur-xl border border-devo-gray/80 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] px-4 py-2 flex items-center justify-between pointer-events-auto gap-2">
+            <div class="max-w-6xl mx-auto bg-ultra-black/95 backdrop-blur-xl border border-ultra-gray/80 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] px-4 py-2 flex items-center justify-between pointer-events-auto gap-2">
                 ${buildBrandLogo('Collection')}
                 <div class="hidden xl:flex items-center gap-1 overflow-x-auto scrollbar-none">
                     ${buildNavBtns(navLinks)}
@@ -396,7 +396,7 @@ function renderMinimal(user, settings) {
                     ${userArea}
                 </div>
                 <div class="xl:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
+                    <button id="mobile-menu-btn" class="p-2 text-ultra-muted hover:text-ultra-text bg-ultra-dark border border-ultra-gray rounded-xl">
                         <i class="ph ph-list text-xl"></i>
                     </button>
                 </div>
@@ -424,18 +424,18 @@ function renderLuxury(user, settings) {
                 </div>
             </div>
         </div>
-        <nav id="site-header-nav" class="fixed w-full z-40 bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" style="top:26px" data-layout="luxury">
+        <nav id="site-header-nav" class="fixed w-full z-40 bg-ultra-black/95 backdrop-blur-md border-b border-ultra-gray shadow-md transition-all duration-300" style="top:26px" data-layout="luxury">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-2" style="height:${height}px">
                     ${buildBrandLogo('LUXURY')}
-                    <div class="hidden xl:flex items-center gap-1 bg-devo-dark p-1.5 rounded-2xl border border-devo-gray/50 overflow-x-auto scrollbar-none">
+                    <div class="hidden xl:flex items-center gap-1 bg-ultra-dark p-1.5 rounded-2xl border border-ultra-gray/50 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(navLinks)}
                     </div>
                     <div class="hidden xl:flex items-center gap-3 shrink-0">
                         ${userArea}
                     </div>
                     <div class="xl:hidden flex items-center">
-                        <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
+                        <button id="mobile-menu-btn" class="p-2 text-ultra-muted hover:text-ultra-text bg-ultra-dark border border-ultra-gray rounded-xl">
                             <i class="ph ph-list text-2xl"></i>
                         </button>
                     </div>
@@ -452,20 +452,20 @@ function renderSearchHero(user, settings) {
     const userArea = buildUserArea(user);
 
     return `
-        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-devo-black/95 backdrop-blur-md border-b border-devo-gray shadow-md transition-all duration-300" data-layout="search-hero">
+        <nav id="site-header-nav" class="fixed w-full top-0 left-0 right-0 z-[5000000] bg-ultra-black/95 backdrop-blur-md border-b border-ultra-gray shadow-md transition-all duration-300" data-layout="search-hero">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-4" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
                     <div class="hidden xl:flex flex-1 max-w-md mx-4 relative">
-                        <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted"></i>
-                        <input type="text" onclick="switchSiteView('view-gallery')" placeholder="بحث سريع في الموديلات والمعرض..." readonly class="w-full bg-devo-dark border border-devo-gray rounded-xl pr-9 pl-4 py-2 text-xs text-white focus:border-devo-orange cursor-pointer hover:border-devo-grayHover transition-all">
+                        <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-ultra-muted"></i>
+                        <input type="text" onclick="switchSiteView('view-gallery')" placeholder="بحث سريع في الموديلات والمعرض..." readonly class="w-full bg-ultra-dark border border-ultra-gray rounded-xl pr-9 pl-4 py-2 text-xs text-white focus:border-ultra-orange cursor-pointer hover:border-ultra-grayHover transition-all">
                     </div>
                     <div class="hidden xl:flex items-center gap-1 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(navLinks)}
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         <div class="hidden sm:flex shrink-0">${userArea}</div>
-                        <button id="mobile-menu-btn" class="xl:hidden p-2 text-devo-muted hover:text-devo-text bg-devo-dark border border-devo-gray rounded-xl">
+                        <button id="mobile-menu-btn" class="xl:hidden p-2 text-ultra-muted hover:text-ultra-text bg-ultra-dark border border-ultra-gray rounded-xl">
                             <i class="ph ph-list text-xl"></i>
                         </button>
                     </div>
@@ -486,14 +486,14 @@ function renderTransparent(user, settings) {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-2" style="height:${height}px">
                     ${buildBrandLogo('Collection')}
-                    <div class="hidden xl:flex items-center gap-1 bg-devo-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 overflow-x-auto scrollbar-none">
+                    <div class="hidden xl:flex items-center gap-1 bg-ultra-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 overflow-x-auto scrollbar-none">
                         ${buildNavBtns(navLinks)}
                     </div>
                     <div class="hidden xl:flex items-center gap-3 shrink-0">
                         ${userArea}
                     </div>
                     <div class="xl:hidden flex items-center">
-                        <button id="mobile-menu-btn" class="p-2 text-devo-muted hover:text-devo-text bg-black/40 backdrop-blur-md border border-white/10 rounded-xl">
+                        <button id="mobile-menu-btn" class="p-2 text-ultra-muted hover:text-ultra-text bg-black/40 backdrop-blur-md border border-white/10 rounded-xl">
                             <i class="ph ph-list text-2xl"></i>
                         </button>
                     </div>

@@ -186,15 +186,15 @@ window.updateImportStockMultiSelectLabel = (key) => {
 
     if (count === 0) {
         labelEl.textContent = isExclude ? `استثناء: لا شيء (الكل)` : defaultLabel;
-        labelEl.classList.remove('text-devo-orange');
+        labelEl.classList.remove('text-ultra-orange');
     } else {
         const names = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
         if (isExclude) {
             labelEl.textContent = count <= 2 ? `استثناء: ${names.join('، ')}` : `الكل عدا ${count}`;
-            labelEl.classList.add('text-devo-orange');
+            labelEl.classList.add('text-ultra-orange');
         } else {
             labelEl.textContent = count <= 2 ? names.join('، ') : `${count} محددة`;
-            labelEl.classList.add('text-devo-orange');
+            labelEl.classList.add('text-ultra-orange');
         }
     }
 };
@@ -236,8 +236,8 @@ export async function loadInitialData() {
             const container = document.getElementById(containerId);
             if (container && data) {
                 container.innerHTML = data.map(item => `
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-devo-black/40 rounded cursor-pointer text-xs text-white select-none" onclick="event.stopPropagation()">
-                        <input type="checkbox" value="${item.id}" name="import-stock-filter-${key}" class="accent-devo-orange w-3.5 h-3.5 rounded cursor-pointer" onchange="updateImportStockMultiSelectLabel('${key}'); applyImportStockFilters();">
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-ultra-black/40 rounded cursor-pointer text-xs text-white select-none" onclick="event.stopPropagation()">
+                        <input type="checkbox" value="${item.id}" name="import-stock-filter-${key}" class="accent-ultra-orange w-3.5 h-3.5 rounded cursor-pointer" onchange="updateImportStockMultiSelectLabel('${key}'); applyImportStockFilters();">
                         <span class="truncate">${item.name}</span>
                     </label>
                 `).join('');
@@ -437,7 +437,7 @@ function renderUnregisteredModelsTable() {
 
     tbody.innerHTML = unregisteredModels.map(m => {
         const descText = m.factoryCode 
-            ? `${m.name} <span class="bg-devo-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">مصنع: ${m.factoryCode}</span>` 
+            ? `${m.name} <span class="bg-ultra-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">مصنع: ${m.factoryCode}</span>` 
             : m.name;
 
         const modelColors = excelRawData.filter(r => r.systemCode === m.systemCode);
@@ -447,24 +447,24 @@ function renderUnregisteredModelsTable() {
         });
 
         const colorsHtml = Object.entries(colorMap).map(([colorName, balance]) => `
-            <span class="bg-devo-black/60 border border-devo-gray px-2 py-0.5 rounded text-[10px] text-devo-muted flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-devo-orange"></span>
-                <span class="text-white font-bold">${colorName}</span>: <span class="text-devo-orange font-bold font-mono">${balance}</span> قطعة
+            <span class="bg-ultra-black/60 border border-ultra-gray px-2 py-0.5 rounded text-[10px] text-ultra-muted flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-ultra-orange"></span>
+                <span class="text-white font-bold">${colorName}</span>: <span class="text-ultra-orange font-bold font-mono">${balance}</span> قطعة
             </span>
         `).join('');
 
         const actionVal = modelActions[m.systemCode] || 'create';
 
         return `
-            <tr class="hover:bg-devo-black/50 transition-colors" data-code="${m.systemCode}" data-name="${m.name}" data-factory="${m.factoryCode}">
-                <td class="p-3 font-mono text-xs text-devo-muted">${m.systemCode}</td>
+            <tr class="hover:bg-ultra-black/50 transition-colors" data-code="${m.systemCode}" data-name="${m.name}" data-factory="${m.factoryCode}">
+                <td class="p-3 font-mono text-xs text-ultra-muted">${m.systemCode}</td>
                 <td class="p-3">
                     <div class="font-bold text-white">${descText}</div>
                     <div class="mt-2 flex flex-wrap gap-2">${colorsHtml}</div>
                 </td>
-                <td class="p-3 text-center font-mono text-xs text-devo-orange">${m.price} ج.م</td>
+                <td class="p-3 text-center font-mono text-xs text-ultra-orange">${m.price} ج.م</td>
                 <td class="p-3">
-                    <select data-code="${m.systemCode}" class="model-mapping-select bg-devo-black border border-devo-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-devo-orange w-full">
+                    <select data-code="${m.systemCode}" class="model-mapping-select bg-ultra-black border border-ultra-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-ultra-orange w-full">
                         <option value="create" ${actionVal === 'create' ? 'selected' : ''}>➕ إنشاء موديل جديد بالسيستم</option>
                         <option value="ignore" ${actionVal === 'ignore' ? 'selected' : ''}>🚫 تجاهل هذا الموديل بالكامل</option>
                     </select>
@@ -637,16 +637,16 @@ function renderColorMappingTable() {
 
     tbody.innerHTML = unknownColorsList.map(item => {
         const descText = item.factoryCode
-            ? `${item.modelName} <span class="bg-devo-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">مصنع: ${item.factoryCode}</span>`
+            ? `${item.modelName} <span class="bg-ultra-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">مصنع: ${item.factoryCode}</span>`
             : item.modelName;
 
         return `
-            <tr class="hover:bg-devo-black/50 transition-colors">
+            <tr class="hover:bg-ultra-black/50 transition-colors">
                 <td class="p-3 font-bold text-white">${descText}</td>
-                <td class="p-3 text-devo-orange font-bold text-xs">${item.colorName}</td>
-                <td class="p-3 text-center text-devo-muted text-xs">${item.count} صفوف بالملف</td>
+                <td class="p-3 text-ultra-orange font-bold text-xs">${item.colorName}</td>
+                <td class="p-3 text-center text-ultra-muted text-xs">${item.count} صفوف بالملف</td>
                 <td class="p-3">
-                    <select data-code="${item.systemCode}" data-color="${item.colorName}" class="color-mapping-select bg-devo-black border border-devo-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-devo-orange w-full">
+                    <select data-code="${item.systemCode}" data-color="${item.colorName}" class="color-mapping-select bg-ultra-black border border-ultra-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-ultra-orange w-full">
                         <option value="add" selected>➕ إضافة كلون جديد بالسيستم</option>
                         <option value="ignore">🚫 تجاهل هذا اللون في هذا الموديل</option>
                         <optgroup label="ربط بلون موجود بالسيستم:">
@@ -1051,7 +1051,7 @@ function renderPreviewTable(data) {
         tbodyContainer.innerHTML = `
             <tbody>
                 <tr>
-                    <td colspan="8" class="p-8 text-center text-devo-muted text-xs">
+                    <td colspan="8" class="p-8 text-center text-ultra-muted text-xs">
                         لا توجد أي نتائج مطابقة للفلترة بالمعاينة.
                     </td>
                 </tr>
@@ -1061,7 +1061,7 @@ function renderPreviewTable(data) {
 
     let bodiesHtml = '';
     data.forEach(item => {
-        const borderClass = item.isNew ? 'border-b-4 border-devo-orange/40 bg-devo-orange/5' : 'border-b-4 border-devo-gray bg-devo-dark/50 hover:bg-devo-black/20';
+        const borderClass = item.isNew ? 'border-b-4 border-ultra-orange/40 bg-ultra-orange/5' : 'border-b-4 border-ultra-gray bg-ultra-dark/50 hover:bg-ultra-black/20';
         
         let rowsHtml = '';
         item.colors.forEach((color, idx) => {
@@ -1069,21 +1069,21 @@ function renderPreviewTable(data) {
             const rowSpan = item.colors.length;
 
             const nameDisplay = item.factoryCode 
-                ? `${item.modelName} <span class="bg-devo-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">مصنع: ${item.factoryCode}</span>` 
+                ? `${item.modelName} <span class="bg-ultra-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">مصنع: ${item.factoryCode}</span>` 
                 : item.modelName;
 
-            const newBadge = item.isNew ? `<span class="bg-devo-orange text-white text-[9px] font-bold px-1.5 py-0.5 rounded ml-2">جديد</span>` : '';
+            const newBadge = item.isNew ? `<span class="bg-ultra-orange text-white text-[9px] font-bold px-1.5 py-0.5 rounded ml-2">جديد</span>` : '';
 
             let priceDiffHtml = '';
             if (item.isNew) {
-                priceDiffHtml = `<span class="text-devo-success font-bold font-mono">${item.newPrice} ج.م</span>`;
+                priceDiffHtml = `<span class="text-ultra-success font-bold font-mono">${item.newPrice} ج.م</span>`;
             } else if (item.priceChanged) {
-                priceDiffHtml = `<span class="text-devo-error line-through ml-2 font-mono">${item.oldPrice}</span>➔ <span class="text-devo-success font-bold font-mono">${item.newPrice}</span>`;
+                priceDiffHtml = `<span class="text-ultra-error line-through ml-2 font-mono">${item.oldPrice}</span>➔ <span class="text-ultra-success font-bold font-mono">${item.newPrice}</span>`;
             } else {
                 priceDiffHtml = `<span class="text-white font-mono">${item.oldPrice} ج.م</span>`;
             }
 
-            const qtyDiffClass = color.diff > 0 ? 'text-devo-success' : (color.diff < 0 ? 'text-devo-error' : 'text-devo-muted');
+            const qtyDiffClass = color.diff > 0 ? 'text-ultra-success' : (color.diff < 0 ? 'text-ultra-error' : 'text-ultra-muted');
             const qtyDiffIcon = color.diff > 0 ? ' ph-arrow-up-right' : (color.diff < 0 ? ' ph-arrow-down-left' : '');
             
             const displayCalculated = color.calculatedQty % 1 !== 0 ? color.calculatedQty.toFixed(2) : color.calculatedQty;
@@ -1091,21 +1091,21 @@ function renderPreviewTable(data) {
 
             const diffHtml = color.diff !== 0
                 ? `<span class="${qtyDiffClass} font-bold flex items-center justify-center gap-1 font-mono"><i class="ph${qtyDiffIcon}"></i> ${displayDiff}</span>`
-                : `<span class="text-devo-muted font-mono">-</span>`;
+                : `<span class="text-ultra-muted font-mono">-</span>`;
 
             rowsHtml += `
-                <tr class="transition-colors border-b border-devo-gray/30">
-                    ${isFirst ? `<td class="p-3 text-center border-l border-devo-gray/50" rowspan="${rowSpan}"><input type="checkbox" ${selectedImportStockModelCodes.has(item.systemCode) ? 'checked' : ''} onchange="toggleImportStockModelSelection('${item.systemCode}', this.checked)" class="accent-devo-orange w-4 h-4 cursor-pointer"></td>` : ''}
-                    ${isFirst ? `<td class="p-3 font-mono text-xs text-devo-muted border-l border-devo-gray/50" rowspan="${rowSpan}">${newBadge}${item.codeMode === 'color_system_codes' ? `<span class="text-purple-400 font-bold" title="كود المصنع الموحد للموديل">🎨 ${item.systemCode}</span>` : item.systemCode}</td>` : ''}
-                    ${isFirst ? `<td class="p-3 font-bold text-white border-l border-devo-gray/50" rowspan="${rowSpan}">${nameDisplay}</td>` : ''}
-                    <td class="p-3 text-white text-xs border-l border-devo-gray/50">
+                <tr class="transition-colors border-b border-ultra-gray/30">
+                    ${isFirst ? `<td class="p-3 text-center border-l border-ultra-gray/50" rowspan="${rowSpan}"><input type="checkbox" ${selectedImportStockModelCodes.has(item.systemCode) ? 'checked' : ''} onchange="toggleImportStockModelSelection('${item.systemCode}', this.checked)" class="accent-ultra-orange w-4 h-4 cursor-pointer"></td>` : ''}
+                    ${isFirst ? `<td class="p-3 font-mono text-xs text-ultra-muted border-l border-ultra-gray/50" rowspan="${rowSpan}">${newBadge}${item.codeMode === 'color_system_codes' ? `<span class="text-purple-400 font-bold" title="كود المصنع الموحد للموديل">🎨 ${item.systemCode}</span>` : item.systemCode}</td>` : ''}
+                    ${isFirst ? `<td class="p-3 font-bold text-white border-l border-ultra-gray/50" rowspan="${rowSpan}">${nameDisplay}</td>` : ''}
+                    <td class="p-3 text-white text-xs border-l border-ultra-gray/50">
                         <span>${color.displayColorName}</span>
                         ${color.colorSystemCode ? `<span class="block text-[10px] font-mono text-purple-400 font-bold mt-0.5">كود: ${color.colorSystemCode}</span>` : ''}
                         ${color.colorFactoryCode ? `<span class="block text-[10px] font-mono text-amber-400 font-bold mt-0.5">مصنع: ${color.colorFactoryCode}</span>` : ''}
                     </td>
-                    ${isFirst ? `<td class="p-3 text-center text-xs border-l border-devo-gray/50" rowspan="${rowSpan}">${priceDiffHtml}</td>` : ''}
-                    <td class="p-3 text-center text-xs font-mono text-devo-muted border-l border-devo-gray/50">${color.currentQty}</td>
-                    <td class="p-3 text-center text-xs font-mono font-bold text-white border-l border-devo-gray/50">${displayCalculated}</td>
+                    ${isFirst ? `<td class="p-3 text-center text-xs border-l border-ultra-gray/50" rowspan="${rowSpan}">${priceDiffHtml}</td>` : ''}
+                    <td class="p-3 text-center text-xs font-mono text-ultra-muted border-l border-ultra-gray/50">${color.currentQty}</td>
+                    <td class="p-3 text-center text-xs font-mono font-bold text-white border-l border-ultra-gray/50">${displayCalculated}</td>
                     <td class="p-3 text-center text-xs font-mono">${diffHtml}</td>
                 </tr>
             `;

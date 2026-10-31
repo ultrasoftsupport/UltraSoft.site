@@ -23,7 +23,7 @@ function resolveImageUrl(url) {
 // جلب الإعدادات (نصوص، صور، سوشيال ميديا) مع الكاش الفوري المعزول لكل مصنع
 async function loadHeroSettings() {
     const currentTenantId = getCurrentTenantId();
-    const cacheKey = `devo_cached_hero_settings_${currentTenantId || 'default'}`;
+    const cacheKey = `ultra_cached_hero_settings_${currentTenantId || 'default'}`;
 
     // ⚡ 1. التحميل الفوري السريع من الكاش الخاص بالمصنع ⚡
     const cachedMap = localStorage.getItem(cacheKey);
@@ -153,7 +153,7 @@ function applyHeroSettingsMap(map) {
         let cleanTitle = map['hero_title']
             .replace(/color:\s*(#f97316|#ea580c|#de8824|#f59e0b|#d97706|#ff8800|rgb\([^)]+\))/gi, 'color: #ffffff')
             .replace(/#f97316|#ea580c|#de8824|#f59e0b|#d97706|#ff8800/gi, '#38bdf8')
-            .replace(/text-devo-orange/g, 'text-ultra-400');
+            .replace(/text-ultra-orange/g, 'text-ultra-400');
         titleEl.innerHTML = cleanTitle;
         titleEl.style.setProperty('color', titleColor, 'important');
     }
@@ -162,7 +162,7 @@ function applyHeroSettingsMap(map) {
             let cleanSubtitle = map['hero_subtitle']
                 .replace(/color:\s*(#f97316|#ea580c|#de8824|#f59e0b|#d97706|#ff8800|rgb\([^)]+\))/gi, 'color: #e0f2fe')
                 .replace(/#f97316|#ea580c|#de8824|#f59e0b|#d97706|#ff8800/gi, '#e0f2fe')
-                .replace(/text-devo-orange/g, 'text-ultra-100');
+                .replace(/text-ultra-orange/g, 'text-ultra-100');
             subtitleEl.innerHTML = cleanSubtitle;
         }
         subtitleEl.style.setProperty('color', subtitleColor, 'important');
@@ -170,7 +170,7 @@ function applyHeroSettingsMap(map) {
         // إزالة أية كلاسات أو ألوان داخلية برتقالية
         subtitleEl.querySelectorAll('*').forEach(child => {
             child.style.color = '#e0f2fe';
-            child.classList.remove('text-devo-orange', 'text-amber-500', 'text-orange-500');
+            child.classList.remove('text-ultra-orange', 'text-amber-500', 'text-orange-500');
         });
     }
 
@@ -243,11 +243,11 @@ function applyHeroSettingsMap(map) {
     const fadeHeight = Math.max(15, edgeFeatherVal);
     if (topFadeLayer) {
         topFadeLayer.style.height = `${fadeHeight}%`;
-        topFadeLayer.style.backgroundImage = `linear-gradient(to bottom, var(--devo-black) 0%, transparent 100%)`;
+        topFadeLayer.style.backgroundImage = `linear-gradient(to bottom, var(--ultra-black) 0%, transparent 100%)`;
     }
     if (bottomFadeLayer) {
         bottomFadeLayer.style.height = `${fadeHeight + 10}%`;
-        bottomFadeLayer.style.backgroundImage = `linear-gradient(to top, var(--devo-black) 0%, transparent 100%)`;
+        bottomFadeLayer.style.backgroundImage = `linear-gradient(to top, var(--ultra-black) 0%, transparent 100%)`;
     }
 
     // تطبيق ماسك حواف الصورة الداخلي لجعل الصورة مدمجة بدون أي حواف حادة بالجانبين أو الأركان
@@ -376,10 +376,10 @@ window.detectPromoImageAspect = (imgEl, cardId) => {
 
     // 🌟 1. الصورة طويلة (Portrait: ratio < 1.15) -> الكارت يكون جانبـي بارتفاع موحد متناسق وتصميم فخم 🌟
     if (ratio < 1.15) {
-        cardEl.className = "w-[82vw] md:w-full bg-gradient-to-br from-devo-dark to-devo-dark/95 border border-devo-gray/50 rounded-2xl overflow-hidden card-hover transition-all duration-500 flex flex-row relative group cursor-pointer h-52 sm:h-60 shadow-md hover:shadow-xl hover:shadow-devo-orange/5 hover:-translate-y-1 hover:scale-[1.015] active:scale-[0.98] snap-center shrink-0";
+        cardEl.className = "w-[82vw] md:w-full bg-gradient-to-br from-ultra-dark to-ultra-dark/95 border border-ultra-gray/50 rounded-2xl overflow-hidden card-hover transition-all duration-500 flex flex-row relative group cursor-pointer h-52 sm:h-60 shadow-md hover:shadow-xl hover:shadow-ultra-orange/5 hover:-translate-y-1 hover:scale-[1.015] active:scale-[0.98] snap-center shrink-0";
         
         if (imgWrapper) {
-            imgWrapper.className = "promo-img-container w-1/3 sm:w-2/5 h-full bg-devo-gray/10 relative shrink-0 flex items-center justify-center p-2.5 border-l border-devo-gray/30 overflow-hidden";
+            imgWrapper.className = "promo-img-container w-1/3 sm:w-2/5 h-full bg-ultra-gray/10 relative shrink-0 flex items-center justify-center p-2.5 border-l border-ultra-gray/30 overflow-hidden";
         }
         if (textWrapper) {
             textWrapper.className = "promo-text-container p-3.5 sm:p-4 flex flex-col justify-between flex-1 h-full min-w-0 relative z-10";
@@ -387,10 +387,10 @@ window.detectPromoImageAspect = (imgEl, cardId) => {
     } 
     // 🌟 2. الصورة عريضة (Landscape: ratio >= 1.15) -> الكارت يكون رأسي بارتفاع موحد متناسق وتصميم فخم 🌟
     else {
-        cardEl.className = "w-[82vw] md:w-full bg-gradient-to-br from-devo-dark to-devo-dark/95 border border-devo-gray/50 rounded-2xl overflow-hidden card-hover transition-all duration-500 flex flex-col relative group cursor-pointer h-72 sm:h-80 shadow-md hover:shadow-xl hover:shadow-devo-orange/5 hover:-translate-y-1 hover:scale-[1.015] active:scale-[0.98] snap-center shrink-0";
+        cardEl.className = "w-[82vw] md:w-full bg-gradient-to-br from-ultra-dark to-ultra-dark/95 border border-ultra-gray/50 rounded-2xl overflow-hidden card-hover transition-all duration-500 flex flex-col relative group cursor-pointer h-72 sm:h-80 shadow-md hover:shadow-xl hover:shadow-ultra-orange/5 hover:-translate-y-1 hover:scale-[1.015] active:scale-[0.98] snap-center shrink-0";
         
         if (imgWrapper) {
-            imgWrapper.className = "promo-img-container w-full h-36 sm:h-40 bg-devo-gray/10 relative shrink-0 flex items-center justify-center p-3 border-b border-devo-gray/30 overflow-hidden";
+            imgWrapper.className = "promo-img-container w-full h-36 sm:h-40 bg-ultra-gray/10 relative shrink-0 flex items-center justify-center p-3 border-b border-ultra-gray/30 overflow-hidden";
         }
         if (textWrapper) {
             textWrapper.className = "promo-text-container p-3.5 sm:p-4 flex flex-col justify-between flex-1 h-full min-w-0 relative z-10";
@@ -447,7 +447,7 @@ async function loadPromoCards() {
     if (!container) return;
 
     const currentTenantId = getCurrentTenantId();
-    const cacheKey = 'devo_cached_promo_cards_' + (currentTenantId || 'default');
+    const cacheKey = 'ultra_cached_promo_cards_' + (currentTenantId || 'default');
 
     // ⚡ 1. التحميل الفوري السريع من الكاش (0ms Instant Load) ⚡
     const cachedCards = localStorage.getItem(cacheKey);
@@ -484,14 +484,14 @@ function renderPromoCardsUI(data, container) {
         const imgUrl = resolveImageUrl(card.image_url);
         
         const imgHtml = imgUrl 
-            ? `<div class="promo-img-container w-full h-36 sm:h-40 bg-devo-gray/10 relative shrink-0 flex items-center justify-center p-3 border-b border-devo-gray/30 overflow-hidden">
+            ? `<div class="promo-img-container w-full h-36 sm:h-40 bg-ultra-gray/10 relative shrink-0 flex items-center justify-center p-3 border-b border-ultra-gray/30 overflow-hidden">
                 <img src="${imgUrl}" class="promo-blur-bg animate-drift absolute inset-0 w-full h-full object-cover blur-md scale-125 opacity-60 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-black/10 backdrop-blur-[2px] pointer-events-none"></div>
                 <div class="w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.06] flex items-center justify-center relative z-10">
-                    <img src="${imgUrl}" class="promo-main-img max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md animate-kenburns" loading="lazy" decoding="async" onload="window.detectPromoImageAspect(this, '${card.id}')">
+                    <img src="${imgUrl}" class="promo-main-img max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-ultra-gray/50 shadow-md animate-kenburns" loading="lazy" decoding="async" onload="window.detectPromoImageAspect(this, '${card.id}')">
                 </div>
                </div>`
-            : `<div class="promo-img-container w-full h-36 sm:h-40 bg-devo-gray/10 relative shrink-0 flex items-center justify-center text-devo-gray/30 border-b border-devo-gray/30"><i class="ph ${card.icon || 'ph-image'} text-5xl"></i></div>`;
+            : `<div class="promo-img-container w-full h-36 sm:h-40 bg-ultra-gray/10 relative shrink-0 flex items-center justify-center text-ultra-gray/30 border-b border-ultra-gray/30"><i class="ph ${card.icon || 'ph-image'} text-5xl"></i></div>`;
 
         const clickAction = card.model_id 
             ? `openPromoModelLink('${card.model_id}')` 
@@ -500,15 +500,15 @@ function renderPromoCardsUI(data, container) {
         const lines = card.description ? card.description.split('\n').map(l => l.trim()).filter(l => l.length > 0) : [];
         let descHtml = '';
         if (lines.length > 1) {
-            descHtml = `<ul class="text-devo-muted text-[11px] sm:text-xs leading-normal space-y-1.5 flex flex-col items-start w-full list-none">` + 
-                lines.map(line => `<li class="flex items-start gap-1.5 text-right w-full"><i class="ph ph-caret-left text-devo-orange text-xs shrink-0 mt-[2.5px] transition-transform group-hover:-translate-x-0.5"></i><span class="line-clamp-2">${line}</span></li>`).join('') + 
+            descHtml = `<ul class="text-ultra-muted text-[11px] sm:text-xs leading-normal space-y-1.5 flex flex-col items-start w-full list-none">` + 
+                lines.map(line => `<li class="flex items-start gap-1.5 text-right w-full"><i class="ph ph-caret-left text-ultra-orange text-xs shrink-0 mt-[2.5px] transition-transform group-hover:-translate-x-0.5"></i><span class="line-clamp-2">${line}</span></li>`).join('') + 
                 `</ul>`;
         } else {
-            descHtml = `<p class="text-devo-muted text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 text-right w-full">${card.description || ''}</p>`;
+            descHtml = `<p class="text-ultra-muted text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 text-right w-full">${card.description || ''}</p>`;
         }
 
         return `
-        <div id="promo-card-${card.id}" class="w-[82vw] md:w-full bg-gradient-to-br from-devo-dark to-devo-dark/95 border border-devo-gray/50 rounded-2xl overflow-hidden card-hover transition-all duration-500 flex flex-col relative group cursor-pointer h-72 sm:h-80 shadow-md hover:shadow-xl hover:shadow-ultra-500/10 hover:-translate-y-1 hover:scale-[1.015] active:scale-[0.98] snap-center shrink-0" onclick="${clickAction}">
+        <div id="promo-card-${card.id}" class="w-[82vw] md:w-full bg-gradient-to-br from-ultra-dark to-ultra-dark/95 border border-ultra-gray/50 rounded-2xl overflow-hidden card-hover transition-all duration-500 flex flex-col relative group cursor-pointer h-72 sm:h-80 shadow-md hover:shadow-xl hover:shadow-ultra-500/10 hover:-translate-y-1 hover:scale-[1.015] active:scale-[0.98] snap-center shrink-0" onclick="${clickAction}">
             ${card.badge_text ? `<div class="absolute top-3 right-3 ${card.badge_color || 'bg-ultra-600'} text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg z-20 transition-transform duration-300 group-hover:scale-105">${card.badge_text}</div>` : ''}
             
             <!-- Glass Shine Effect -->
@@ -517,7 +517,7 @@ function renderPromoCardsUI(data, container) {
             ${imgHtml}
             
             <div class="promo-text-container p-3.5 sm:p-4 flex flex-col justify-between flex-1 h-full min-w-0 relative z-10">
-                <h3 class="text-devo-text font-bold text-sm sm:text-base mb-1 group-hover:text-ultra-400 transition-colors line-clamp-2 shrink-0 leading-tight">${card.title}</h3>
+                <h3 class="text-ultra-text font-bold text-sm sm:text-base mb-1 group-hover:text-ultra-400 transition-colors line-clamp-2 shrink-0 leading-tight">${card.title}</h3>
                 
                 <div class="flex-1 flex flex-col justify-center my-2 overflow-hidden w-full">
                     ${descHtml}

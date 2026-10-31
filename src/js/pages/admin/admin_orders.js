@@ -23,13 +23,13 @@ let visitorOrderUnderAction = null;
 let visitorOrderEditingItems = [];
 
 const statusConfig = {
-    'created': { text: 'تم إنشاء الأوردر', color: 'bg-devo-gray text-white border-devo-gray' },
-    'in_progress': { text: 'جاري العمل', color: 'bg-devo-orange/20 text-devo-orange border-devo-orange/50' },
+    'created': { text: 'تم إنشاء الأوردر', color: 'bg-ultra-gray text-white border-ultra-gray' },
+    'in_progress': { text: 'جاري العمل', color: 'bg-ultra-orange/20 text-ultra-orange border-ultra-orange/50' },
     'editing': { text: 'جاري التعديل', color: 'bg-amber-500/20 text-amber-400 border-amber-500/50' },
     'registered': { text: 'تم التسجيل', color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' },
     'preparing': { text: 'جاري التجهيز', color: 'bg-purple-500/20 text-purple-400 border-purple-500/50' },
     'shipped': { text: 'تم الشحن', color: 'bg-green-500/20 text-green-400 border-green-500/50' },
-    'delivered': { text: 'تم التسليم', color: 'bg-devo-success/20 text-devo-success border-devo-success/50' }
+    'delivered': { text: 'تم التسليم', color: 'bg-ultra-success/20 text-ultra-success border-ultra-success/50' }
 };
 
 export async function initAdminOrdersView() {
@@ -70,7 +70,7 @@ export async function initAdminOrdersView() {
 // ==========================================
 export async function fetchAdminOrders() {
     const tBody = document.getElementById('ao-table-body');
-    if(tBody && allAdminOrders.length === 0) tBody.innerHTML = `<tr><td colspan="9" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i></td></tr>`;
+    if(tBody && allAdminOrders.length === 0) tBody.innerHTML = `<tr><td colspan="9" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i></td></tr>`;
 
     const currentTenantId = getCurrentTenantId();
     let query = supabase
@@ -169,8 +169,8 @@ function setupRealtimeAdminOrders() {
                     // تنبيه مرئي (وميض برتقالي) للصف الجديد
                     const newRow = document.getElementById(`admin-order-row-${data.id}`);
                     if(newRow) {
-                        newRow.classList.add('bg-devo-orange/30', 'transition-all', 'duration-500');
-                        setTimeout(() => newRow.classList.remove('bg-devo-orange/30'), 3000);
+                        newRow.classList.add('bg-ultra-orange/30', 'transition-all', 'duration-500');
+                        setTimeout(() => newRow.classList.remove('bg-ultra-orange/30'), 3000);
                     }
                 }
             }
@@ -192,8 +192,8 @@ function setupRealtimeAdminOrders() {
                     
                     const newRow = document.getElementById(`admin-order-row-${payload.new.id}`);
                     if (newRow) {
-                        newRow.classList.add('bg-devo-info/30', 'transition-all', 'duration-500');
-                        setTimeout(() => newRow.classList.remove('bg-devo-info/30'), 2000);
+                        newRow.classList.add('bg-ultra-info/30', 'transition-all', 'duration-500');
+                        setTimeout(() => newRow.classList.remove('bg-ultra-info/30'), 2000);
                     }
                 }
             }
@@ -234,7 +234,7 @@ window.addEventListener('online', () => {
 function generateOrderRowHTML(o) {
     const dateStr = new Date(o.created_at).toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour:'2-digit', minute:'2-digit' });
     const isOwner = currentUserProfile?.role === 'owner';
-    const conf = statusConfig[o.status] || { text: 'غير معروف', color: 'text-devo-muted bg-transparent' };
+    const conf = statusConfig[o.status] || { text: 'غير معروف', color: 'text-ultra-muted bg-transparent' };
     
     // الصلاحيات
     const isAssignedToMe = o.assigned_admin_name === currentUserProfile?.full_name;
@@ -246,15 +246,15 @@ function generateOrderRowHTML(o) {
     const isEditable = o.status === 'created' && !o.is_locked;
     const editBtnHtml = isOwnerOrAdmin
         ? (isEditable 
-            ? `<button onclick="openEditOrderChoices('${o.id}')" class="p-1.5 bg-devo-orange/20 text-devo-orange hover:bg-devo-orange hover:text-white rounded transition-colors" title="تعديل الأوردر"><i class="ph ph-pencil-simple text-lg"></i></button>`
-            : `<button disabled class="p-1.5 bg-devo-gray/30 text-devo-muted rounded cursor-not-allowed opacity-50" title="${o.is_locked ? 'الأوردر مقفل أو قيد التعديل حالياً' : 'يجب إعادة حالة الأوردر إلى تم إنشاء الأوردر لتعديله'}"><i class="ph ph-lock text-lg text-devo-muted"></i></button>`)
+            ? `<button onclick="openEditOrderChoices('${o.id}')" class="p-1.5 bg-ultra-orange/20 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded transition-colors" title="تعديل الأوردر"><i class="ph ph-pencil-simple text-lg"></i></button>`
+            : `<button disabled class="p-1.5 bg-ultra-gray/30 text-ultra-muted rounded cursor-not-allowed opacity-50" title="${o.is_locked ? 'الأوردر مقفل أو قيد التعديل حالياً' : 'يجب إعادة حالة الأوردر إلى تم إنشاء الأوردر لتعديله'}"><i class="ph ph-lock text-lg text-ultra-muted"></i></button>`)
         : '';
 
-    const lockIcon = `<button onclick="toggleOrderLock('${o.id}', ${!o.is_locked})" class="${o.is_locked ? 'text-devo-error' : 'text-devo-success'} p-1 hover:bg-white/10 rounded transition-colors" title="${o.is_locked ? 'إلغاء القفل' : 'قفل واستلام الأوردر'}"><i class="ph ${o.is_locked ? 'ph-lock' : 'ph-lock-open'} text-lg"></i></button>`;
+    const lockIcon = `<button onclick="toggleOrderLock('${o.id}', ${!o.is_locked})" class="${o.is_locked ? 'text-ultra-error' : 'text-ultra-success'} p-1 hover:bg-white/10 rounded transition-colors" title="${o.is_locked ? 'إلغاء القفل' : 'قفل واستلام الأوردر'}"><i class="ph ${o.is_locked ? 'ph-lock' : 'ph-lock-open'} text-lg"></i></button>`;
 
     const assignedHTML = o.assigned_admin_name 
-        ? `<span class="bg-devo-info/20 text-devo-info px-2 py-1 rounded text-[10px] font-bold"><i class="ph ph-user-gear"></i> ${o.assigned_admin_name}</span>` 
-        : `<span class="text-devo-muted text-[10px]">-</span>`;
+        ? `<span class="bg-ultra-info/20 text-ultra-info px-2 py-1 rounded text-[10px] font-bold"><i class="ph ph-user-gear"></i> ${o.assigned_admin_name}</span>` 
+        : `<span class="text-ultra-muted text-[10px]">-</span>`;
 
     const buildStatusOptions = (currentVal) => {
         return Object.keys(statusConfig).map(k => `<option value="${k}" ${k === currentVal ? 'selected' : ''}>${statusConfig[k].text}</option>`).join('');
@@ -265,36 +265,36 @@ function generateOrderRowHTML(o) {
         : '';
 
     return `
-        <tr id="admin-order-row-${o.id}" class="hover:bg-devo-black/40 transition-colors">
-            <td class="p-3 font-mono text-devo-orange font-bold text-xs flex items-center gap-1.5">${o.invoice_number} ${archivedBadge} ${lockIcon}</td>
-            <td class="p-3 text-devo-muted text-[10px]">${dateStr}</td>
+        <tr id="admin-order-row-${o.id}" class="hover:bg-ultra-black/40 transition-colors">
+            <td class="p-3 font-mono text-ultra-orange font-bold text-xs flex items-center gap-1.5">${o.invoice_number} ${archivedBadge} ${lockIcon}</td>
+            <td class="p-3 text-ultra-muted text-[10px]">${dateStr}</td>
             <td class="p-3 font-bold text-white text-xs">
                 ${o.customer_name} <br>
-                <span class="text-devo-muted text-[10px] font-mono">${o.phone_1}</span>
+                <span class="text-ultra-muted text-[10px] font-mono">${o.phone_1}</span>
             </td>
-            <td class="p-3 text-devo-muted text-[11px]"><i class="ph-fill ph-user-circle"></i> ${o.system_users?.full_name || '-'}</td>
+            <td class="p-3 text-ultra-muted text-[11px]"><i class="ph-fill ph-user-circle"></i> ${o.system_users?.full_name || '-'}</td>
             <td class="p-3 text-center text-white font-black">${o.total_series}</td>
-            <td class="p-3 text-center text-devo-orange font-bold">${o.total_price}</td>
+            <td class="p-3 text-center text-ultra-orange font-bold">${o.total_price}</td>
             <td class="p-3 text-center">${assignedHTML}</td>
             <td class="p-3 text-center">
-                <select ${!canEdit ? 'disabled' : ''} onchange="updateOrderStatus('${o.id}', this.value)" class="bg-devo-black border border-devo-gray rounded px-2 py-1 text-white text-xs outline-none focus:border-devo-orange cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                <select ${!canEdit ? 'disabled' : ''} onchange="updateOrderStatus('${o.id}', this.value)" class="bg-ultra-black border border-ultra-gray rounded px-2 py-1 text-white text-xs outline-none focus:border-ultra-orange cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                     ${buildStatusOptions(o.status)}
                 </select>
                 <div class="mt-1 text-[10px] ${conf.color} px-2 py-0.5 rounded inline-block">${conf.text}</div>
             </td>
             <td class="p-3">
                 <div class="flex items-center justify-center gap-1.5">
-                    <button onclick="exportSingleOrderToExcel('${o.id}')" class="p-1.5 bg-devo-success/10 text-devo-success hover:bg-devo-success hover:text-white rounded transition-colors" title="تصدير (Excel)"><i class="ph ph-file-xls text-lg"></i></button>
+                    <button onclick="exportSingleOrderToExcel('${o.id}')" class="p-1.5 bg-ultra-success/10 text-ultra-success hover:bg-ultra-success hover:text-white rounded transition-colors" title="تصدير (Excel)"><i class="ph ph-file-xls text-lg"></i></button>
 
                     <button onclick="printAdminOrder('${o.id}', 'customer')" class="p-1.5 bg-gray-200 text-gray-800 hover:bg-white rounded transition-colors" title="طباعة فاتورة العميل"><i class="ph ph-receipt text-lg"></i></button>
-                    <button onclick="printAdminOrder('${o.id}', 'detailed')" class="p-1.5 bg-devo-orange/20 text-devo-orange hover:bg-devo-orange hover:text-white rounded transition-colors" title="طباعة فاتورة الإدارة"><i class="ph ph-printer text-lg"></i></button>
+                    <button onclick="printAdminOrder('${o.id}', 'detailed')" class="p-1.5 bg-ultra-orange/20 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded transition-colors" title="طباعة فاتورة الإدارة"><i class="ph ph-printer text-lg"></i></button>
                     ${editBtnHtml}
-                    <button onclick="viewAdminOrderDetails('${o.id}')" class="p-1.5 bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white rounded transition-colors" title="التفاصيل"><i class="ph ph-eye text-lg"></i></button>
+                    <button onclick="viewAdminOrderDetails('${o.id}')" class="p-1.5 bg-ultra-info/10 text-ultra-info hover:bg-ultra-info hover:text-white rounded transition-colors" title="التفاصيل"><i class="ph ph-eye text-lg"></i></button>
                     ${o.is_archived 
                         ? `<button onclick="toggleOrderArchive('${o.id}', false)" class="p-1.5 bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white rounded transition-colors" title="استعادة من الأرشيف"><i class="ph ph-arrow-u-up-left text-lg"></i></button>`
                         : `<button onclick="toggleOrderArchive('${o.id}', true)" class="p-1.5 bg-purple-500/10 text-purple-400 hover:bg-purple-500 hover:text-white rounded transition-colors" title="نقل إلى الأرشيف"><i class="ph ph-archive-box text-lg"></i></button>`
                     }
-                    ${isOwner ? `<button onclick="deleteOrder('${o.id}')" class="p-1.5 bg-devo-error/10 text-devo-error hover:bg-devo-error hover:text-white rounded transition-colors" title="حذف وإرجاع المخزون"><i class="ph ph-trash text-lg"></i></button>` : ''}
+                    ${isOwner ? `<button onclick="deleteOrder('${o.id}')" class="p-1.5 bg-ultra-error/10 text-ultra-error hover:bg-ultra-error hover:text-white rounded transition-colors" title="حذف وإرجاع المخزون"><i class="ph ph-trash text-lg"></i></button>` : ''}
                 </div>
             </td>
         </tr>
@@ -355,14 +355,14 @@ window.switchAdminOrdersTab = (tab) => {
 
     const resetBtn = (btn) => {
         if (!btn) return;
-        btn.classList.remove('bg-devo-orange', 'text-white', 'shadow-md');
-        btn.classList.add('bg-devo-dark', 'text-devo-muted', 'hover:text-white', 'border', 'border-devo-gray', 'hover:bg-devo-gray/40');
+        btn.classList.remove('bg-ultra-orange', 'text-white', 'shadow-md');
+        btn.classList.add('bg-ultra-dark', 'text-ultra-muted', 'hover:text-white', 'border', 'border-ultra-gray', 'hover:bg-ultra-gray/40');
     };
 
     const activateBtn = (btn) => {
         if (!btn) return;
-        btn.classList.remove('bg-devo-dark', 'text-devo-muted', 'hover:text-white', 'border', 'border-devo-gray', 'hover:bg-devo-gray/40');
-        btn.classList.add('bg-devo-orange', 'text-white', 'shadow-md');
+        btn.classList.remove('bg-ultra-dark', 'text-ultra-muted', 'hover:text-white', 'border', 'border-ultra-gray', 'hover:bg-ultra-gray/40');
+        btn.classList.add('bg-ultra-orange', 'text-white', 'shadow-md');
     };
 
     resetBtn(activeBtn);
@@ -537,7 +537,7 @@ window.applyAdminOrdersFilter = () => {
         const emptyMsg = hasAnyFilter
             ? 'لا توجد أوردرات مطابقة لنتائج البحث والتصفية.'
             : (currentAdminOrdersTab === 'archived' ? 'لا توجد أوردرات في الأرشيف حالياً.' : 'لا توجد أوردرات نشطة حالياً.');
-        tbody.innerHTML = `<tr class="no-data-row"><td colspan="9" class="p-10 text-center text-devo-muted">${emptyMsg}</td></tr>`;
+        tbody.innerHTML = `<tr class="no-data-row"><td colspan="9" class="p-10 text-center text-ultra-muted">${emptyMsg}</td></tr>`;
         return;
     }
 
@@ -615,7 +615,7 @@ window.toggleOrderLock = async (id, lockState) => {
 // 🌟 دوال مساعدة لشاشتي التفاصيل والتعديل 🌟
 function resolveImageUrl(url) {
     if (!url || url.trim() === "" || url === "null" || url === "undefined") {
-        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+        return window.tenantDefaultModelImage || localStorage.getItem(`ultra_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/ultrasoft_transparent.png';
     }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
@@ -673,7 +673,7 @@ window.copyAdminOrderDetails = async (id) => {
     const o = freshOrder || allAdminOrders.find(x => x.id === id);
     if (!o) return;
 
-    const brandName = document.getElementById('admin-footer-factory-name')?.textContent?.trim() || 'DEVO';
+    const brandName = document.getElementById('admin-footer-factory-name')?.textContent?.trim() || 'UltraSoft';
     let text = `📦 *تفاصيل أوردر #${o.invoice_number || o.id.slice(0, 8)}* (${brandName})\n`;
     text += `👤 *العميل:* ${o.customer_name || '-'}\n`;
     text += `📞 *الهاتف الأساسي:* ${o.phone_1 || '-'}${o.phone_2 ? ` / ${o.phone_2}` : ''}\n`;
@@ -744,7 +744,7 @@ window.viewAdminOrderDetails = async (id) => {
 
     const remaining = (o.total_price || 0) - (o.deposit || 0);
     const invoiceNum = o.invoice_number || o.id.slice(0, 8);
-    const statusConf = statusConfig[o.status] || { text: 'غير معروف', color: 'bg-devo-gray text-white border-devo-gray' };
+    const statusConf = statusConfig[o.status] || { text: 'غير معروف', color: 'bg-ultra-gray text-white border-ultra-gray' };
 
     // تجميع الأصناف حسب الموديل
     const modelGroups = [];
@@ -801,30 +801,30 @@ window.viewAdminOrderDetails = async (id) => {
     let modelsHtml = '';
     if (modelGroups.length === 0) {
         modelsHtml = `
-            <div class="p-8 text-center bg-devo-black/60 border border-devo-gray rounded-2xl">
-                <i class="ph ph-package text-3xl text-devo-muted mb-2 block"></i>
-                <p class="text-devo-muted text-sm font-bold">لا توجد أصناف مسجلة في هذا الأوردر.</p>
+            <div class="p-8 text-center bg-ultra-black/60 border border-ultra-gray rounded-2xl">
+                <i class="ph ph-package text-3xl text-ultra-muted mb-2 block"></i>
+                <p class="text-ultra-muted text-sm font-bold">لا توجد أصناف مسجلة في هذا الأوردر.</p>
             </div>
         `;
     } else {
         modelsHtml = modelGroups.map(group => {
             const allColorsText = group.items.map(i => i.colorName).join(' ');
             return `
-                <div class="bg-devo-black/50 border border-devo-gray/70 hover:border-devo-orange/40 rounded-2xl p-4 transition-all shadow-sm view-model-card" data-model-search="${group.modelName} ${group.code} ${allColorsText}">
+                <div class="bg-ultra-black/50 border border-ultra-gray/70 hover:border-ultra-orange/40 rounded-2xl p-4 transition-all shadow-sm view-model-card" data-model-search="${group.modelName} ${group.code} ${allColorsText}">
                     <!-- هيدر الموديل -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-devo-gray/60">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-ultra-gray/60">
                         <div class="flex items-center gap-3">
-                            <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-devo-gray bg-devo-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/devo.png'">
+                            <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-ultra-gray bg-ultra-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'">
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h4 class="text-white font-black text-sm sm:text-base">${escapeHtml(group.modelName)}</h4>
-                                    ${group.code ? `<span class="bg-devo-gray/70 border border-devo-gray text-devo-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${group.code}</span>` : ''}
-                                    <span class="bg-devo-gray/70 border border-devo-gray text-devo-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
+                                    ${group.code ? `<span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${group.code}</span>` : ''}
+                                    <span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
                                     <span class="bg-sky-500/15 border border-sky-500/30 text-sky-400 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">ق: ${(group.piecePrice || 0).toLocaleString()} ج</span>
                                     <span class="bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono">سيريه: ${(group.seriesPrice || 0).toLocaleString()} ج</span>
                                 </div>
-                                <div class="text-xs text-devo-muted flex items-center gap-1.5 mt-1.5 font-medium">
-                                    <i class="ph ph-palette text-devo-orange"></i>
+                                <div class="text-xs text-ultra-muted flex items-center gap-1.5 mt-1.5 font-medium">
+                                    <i class="ph ph-palette text-ultra-orange"></i>
                                     <span>الألوان المسجلة لهذا الموديل (${group.items.length}):</span>
                                 </div>
                             </div>
@@ -834,7 +834,7 @@ window.viewAdminOrderDetails = async (id) => {
                     <!-- صفوف ألوان الموديل -->
                     <div class="space-y-2">
                         ${group.items.map(item => `
-                            <div class="flex items-center justify-between p-3 bg-devo-dark/60 border border-devo-gray/50 hover:border-devo-gray rounded-xl transition-colors view-color-row" data-color-search="${group.modelName} ${group.code} ${item.colorName} ${item.colorSystemCode || ''} ${item.colorFactoryCode || ''}">
+                            <div class="flex items-center justify-between p-3 bg-ultra-dark/60 border border-ultra-gray/50 hover:border-ultra-gray rounded-xl transition-colors view-color-row" data-color-search="${group.modelName} ${group.code} ${item.colorName} ${item.colorSystemCode || ''} ${item.colorFactoryCode || ''}">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-3.5 h-3.5 rounded-full shrink-0 border border-white/20 shadow-sm" style="background-color: ${item.colorCode || '#38BDF8'}"></span>
                                     <span class="text-white text-xs sm:text-sm font-bold">${escapeHtml(item.colorName)}</span>
@@ -842,12 +842,12 @@ window.viewAdminOrderDetails = async (id) => {
                                     ${item.colorFactoryCode ? `<span class="text-[9px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-1.5 py-0.5 rounded">مصنع: ${item.colorFactoryCode}</span>` : ''}
                                 </div>
                                 <div class="flex items-center gap-3 sm:gap-5">
-                                    <span class="bg-devo-black/80 border border-devo-gray/60 px-3 py-1.5 rounded-xl text-devo-text text-xs font-bold shadow-inner">
-                                        ${item.quantity} سيريه <span class="text-[11px] text-devo-muted font-normal">(${item.pieces} قطعة)</span>
+                                    <span class="bg-ultra-black/80 border border-ultra-gray/60 px-3 py-1.5 rounded-xl text-ultra-text text-xs font-bold shadow-inner">
+                                        ${item.quantity} سيريه <span class="text-[11px] text-ultra-muted font-normal">(${item.pieces} قطعة)</span>
                                     </span>
                                     <div class="text-left min-w-[90px] sm:min-w-[110px]">
-                                        <span class="text-devo-orange font-black font-mono text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
-                                        <span class="text-[10px] text-devo-muted font-mono block">سعر السيريه: ${(item.price_per_series || 0).toLocaleString()} ج</span>
+                                        <span class="text-ultra-orange font-black font-mono text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
+                                        <span class="text-[10px] text-ultra-muted font-mono block">سعر السيريه: ${(item.price_per_series || 0).toLocaleString()} ج</span>
                                     </div>
                                 </div>
                             </div>
@@ -855,9 +855,9 @@ window.viewAdminOrderDetails = async (id) => {
                     </div>
 
                     <!-- فوتر إجمالي الموديل -->
-                    <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-devo-gray/50 text-xs">
-                        <span class="text-devo-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.items.reduce((s, i) => s + (Number(i.quantity) || 0), 0)} سيريه</span> (${group.items.reduce((s, i) => s + (Number(i.pieces) || 0), 0)} قطعة)</span>
-                        <span class="text-devo-orange font-black font-mono text-sm sm:text-base">${group.items.reduce((s, i) => s + (Number(i.itemTotal) || 0), 0).toLocaleString()} ج.م</span>
+                    <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-ultra-gray/50 text-xs">
+                        <span class="text-ultra-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.items.reduce((s, i) => s + (Number(i.quantity) || 0), 0)} سيريه</span> (${group.items.reduce((s, i) => s + (Number(i.pieces) || 0), 0)} قطعة)</span>
+                        <span class="text-ultra-orange font-black font-mono text-sm sm:text-base">${group.items.reduce((s, i) => s + (Number(i.itemTotal) || 0), 0).toLocaleString()} ج.م</span>
                     </div>
                 </div>
             `;
@@ -875,18 +875,18 @@ window.viewAdminOrderDetails = async (id) => {
 
         if (!logsError && logs && logs.length > 0) {
             logsHtml = `
-                <div class="mt-2 border border-devo-gray rounded-2xl p-4 bg-devo-black/50 shadow-sm">
-                    <h5 class="text-xs text-devo-orange font-bold mb-3 flex items-center gap-1.5">
+                <div class="mt-2 border border-ultra-gray rounded-2xl p-4 bg-ultra-black/50 shadow-sm">
+                    <h5 class="text-xs text-ultra-orange font-bold mb-3 flex items-center gap-1.5">
                         <i class="ph ph-clock-counter-clockwise text-base"></i>
                         <span>سجل حركات وتعديلات الأوردر</span>
                     </h5>
                     <div class="space-y-2.5 max-h-[190px] overflow-y-auto custom-scrollbar text-xs">
                         ${logs.map(log => `
                             <div class="flex gap-2.5 items-start">
-                                <div class="w-2 h-2 rounded-full bg-devo-orange mt-1.5 shrink-0 shadow-sm shadow-devo-orange/50"></div>
-                                <div class="flex-1 text-devo-text leading-relaxed font-medium">
+                                <div class="w-2 h-2 rounded-full bg-ultra-orange mt-1.5 shrink-0 shadow-sm shadow-ultra-orange/50"></div>
+                                <div class="flex-1 text-ultra-text leading-relaxed font-medium">
                                     <span class="text-white">${escapeHtml(log.notes)}</span>
-                                    <span class="text-[11px] text-devo-muted mr-1.5 font-mono">(${formatArabicTime(log.created_at)})</span>
+                                    <span class="text-[11px] text-ultra-muted mr-1.5 font-mono">(${formatArabicTime(log.created_at)})</span>
                                 </div>
                             </div>
                         `).join('')}
@@ -895,8 +895,8 @@ window.viewAdminOrderDetails = async (id) => {
             `;
         } else {
             logsHtml = `
-                <div class="mt-2 border border-devo-gray/50 rounded-2xl p-3.5 bg-devo-black/30 text-xs text-devo-muted flex items-center gap-1.5">
-                    <i class="ph ph-info text-devo-orange text-sm"></i>
+                <div class="mt-2 border border-ultra-gray/50 rounded-2xl p-3.5 bg-ultra-black/30 text-xs text-ultra-muted flex items-center gap-1.5">
+                    <i class="ph ph-info text-ultra-orange text-sm"></i>
                     <span>لا توجد حركات مسجلة لهذا الأوردر بعد.</span>
                 </div>
             `;
@@ -908,21 +908,21 @@ window.viewAdminOrderDetails = async (id) => {
     document.getElementById('ao-details-content').innerHTML = `
         <div class="flex flex-col gap-4">
             <!-- الهيدر العلوي للأوردر -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-devo-gray/80">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-ultra-gray/80">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-devo-orange/15 border border-devo-orange/30 flex items-center justify-center text-devo-orange text-lg shadow-sm">
+                    <div class="w-9 h-9 rounded-xl bg-ultra-orange/15 border border-ultra-orange/30 flex items-center justify-center text-ultra-orange text-lg shadow-sm">
                         <i class="ph ph-receipt font-bold"></i>
                     </div>
                     <h3 class="text-base sm:text-lg font-black text-white">تفاصيل الأوردر #${invoiceNum}</h3>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="closeAdminOrderDetails()" class="text-devo-muted hover:text-white p-2 rounded-xl border border-devo-gray hover:bg-white/5 transition-colors cursor-pointer" title="إغلاق">
+                    <button onclick="closeAdminOrderDetails()" class="text-ultra-muted hover:text-white p-2 rounded-xl border border-ultra-gray hover:bg-white/5 transition-colors cursor-pointer" title="إغلاق">
                         <i class="ph ph-x text-lg"></i>
                     </button>
-                    <button onclick="window.printAdminOrder('${o.id}', 'detailed')" class="px-3.5 py-1.5 bg-devo-orange/15 hover:bg-devo-orange text-devo-orange hover:text-white border border-devo-orange/40 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+                    <button onclick="window.printAdminOrder('${o.id}', 'detailed')" class="px-3.5 py-1.5 bg-ultra-orange/15 hover:bg-ultra-orange text-ultra-orange hover:text-white border border-ultra-orange/40 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
                         <i class="ph ph-printer text-sm"></i> فاتورة الإدارة
                     </button>
-                    <button onclick="window.printAdminOrder('${o.id}', 'customer')" class="px-3.5 py-1.5 bg-devo-gray/50 hover:bg-white/15 text-white border border-devo-gray text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+                    <button onclick="window.printAdminOrder('${o.id}', 'customer')" class="px-3.5 py-1.5 bg-ultra-gray/50 hover:bg-white/15 text-white border border-ultra-gray text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
                         <i class="ph ph-receipt text-sm"></i> فاتورة العميل
                     </button>
                     <button onclick="window.copyAdminOrderDetails('${o.id}')" class="px-3.5 py-1.5 bg-teal-500/15 hover:bg-teal-500 text-teal-400 hover:text-white border border-teal-500/40 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
@@ -934,30 +934,30 @@ window.viewAdminOrderDetails = async (id) => {
             <!-- الكروت الثلاثة العلوية -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                 <!-- 1. بيانات العميل -->
-                <div class="bg-devo-black/60 border border-devo-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <div class="bg-ultra-black/60 border border-ultra-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                     <div>
-                        <div class="flex items-center gap-1.5 text-devo-orange text-xs font-bold mb-2.5">
+                        <div class="flex items-center gap-1.5 text-ultra-orange text-xs font-bold mb-2.5">
                             <i class="ph ph-user-circle text-base"></i>
                             <span>بيانات العميل</span>
                         </div>
                         <h4 class="text-white font-black text-base mb-2 truncate">${escapeHtml(o.customer_name || 'عميل غير مسجل')}</h4>
-                        <div class="text-xs text-devo-info font-mono mb-1.5 flex items-center gap-1">
-                            <span class="text-devo-muted font-sans text-[11px]">الهاتف الأساسي:</span>
+                        <div class="text-xs text-ultra-info font-mono mb-1.5 flex items-center gap-1">
+                            <span class="text-ultra-muted font-sans text-[11px]">الهاتف الأساسي:</span>
                             <a href="tel:${o.phone_1}" class="hover:underline font-bold" dir="ltr">${o.phone_1 || '-'}</a>
-                            ${o.phone_2 ? `<span class="text-devo-muted">/</span><a href="tel:${o.phone_2}" class="hover:underline font-bold" dir="ltr">${o.phone_2}</a>` : ''}
+                            ${o.phone_2 ? `<span class="text-ultra-muted">/</span><a href="tel:${o.phone_2}" class="hover:underline font-bold" dir="ltr">${o.phone_2}</a>` : ''}
                         </div>
-                        <div class="text-xs text-devo-muted flex items-center gap-1 truncate">
+                        <div class="text-xs text-ultra-muted flex items-center gap-1 truncate">
                             <span class="text-[11px] shrink-0">العنوان:</span>
-                            <span class="text-devo-text font-medium truncate">${escapeHtml(o.address || '-')}</span>
+                            <span class="text-ultra-text font-medium truncate">${escapeHtml(o.address || '-')}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. معلومات الأوردر -->
-                <div class="bg-devo-black/60 border border-devo-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <div class="bg-ultra-black/60 border border-ultra-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <div class="flex items-center gap-1.5 text-devo-orange text-xs font-bold">
+                            <div class="flex items-center gap-1.5 text-ultra-orange text-xs font-bold">
                                 <i class="ph ph-receipt text-base"></i>
                                 <span>معلومات الأوردر</span>
                             </div>
@@ -967,52 +967,52 @@ window.viewAdminOrderDetails = async (id) => {
                         </div>
                         <div class="space-y-1 text-xs">
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">رقم الفاتورة:</span>
-                                <span class="text-devo-orange font-bold font-mono text-sm">#${invoiceNum}</span>
+                                <span class="text-ultra-muted text-[11px]">رقم الفاتورة:</span>
+                                <span class="text-ultra-orange font-bold font-mono text-sm">#${invoiceNum}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">البائع (المعرض):</span>
-                                <span class="text-devo-text font-medium">${escapeHtml(o.system_users?.full_name || 'غير محدد')}</span>
+                                <span class="text-ultra-muted text-[11px]">البائع (المعرض):</span>
+                                <span class="text-ultra-text font-medium">${escapeHtml(o.system_users?.full_name || 'غير محدد')}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">مستلم العربون:</span>
-                                <span class="text-devo-text font-medium">${escapeHtml(o.deposit_receiver || 'غير محدد')}</span>
+                                <span class="text-ultra-muted text-[11px]">مستلم العربون:</span>
+                                <span class="text-ultra-text font-medium">${escapeHtml(o.deposit_receiver || 'غير محدد')}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">تاريخ الإنشاء:</span>
-                                <span class="text-devo-text font-medium">${formatArabicDateTime(o.created_at)}</span>
+                                <span class="text-ultra-muted text-[11px]">تاريخ الإنشاء:</span>
+                                <span class="text-ultra-text font-medium">${formatArabicDateTime(o.created_at)}</span>
                             </div>
-                            <div class="flex justify-between items-start pt-1 border-t border-devo-gray/50">
-                                <span class="text-devo-muted text-[11px] shrink-0">ملاحظات الأوردر:</span>
-                                <span class="text-devo-text text-[11px] font-medium text-left pr-2 truncate max-w-[200px]" title="${escapeHtml(o.notes || '')}">${escapeHtml(o.notes || 'لا توجد ملاحظات')}</span>
+                            <div class="flex justify-between items-start pt-1 border-t border-ultra-gray/50">
+                                <span class="text-ultra-muted text-[11px] shrink-0">ملاحظات الأوردر:</span>
+                                <span class="text-ultra-text text-[11px] font-medium text-left pr-2 truncate max-w-[200px]" title="${escapeHtml(o.notes || '')}">${escapeHtml(o.notes || 'لا توجد ملاحظات')}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. الملخص المالي -->
-                <div class="bg-devo-black/60 border border-devo-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <div class="bg-ultra-black/60 border border-ultra-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                     <div>
-                        <div class="flex items-center gap-1.5 text-devo-orange text-xs font-bold mb-2">
+                        <div class="flex items-center gap-1.5 text-ultra-orange text-xs font-bold mb-2">
                             <i class="ph ph-calculator text-base"></i>
                             <span>الملخص المالي</span>
                         </div>
                         <div class="space-y-1.5 text-xs">
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">الكمية الإجمالية:</span>
-                                <span class="text-devo-text font-bold">${totalSeries} سيريه <span class="text-[11px] text-devo-muted font-normal">(${totalPieces} قطعة)</span></span>
+                                <span class="text-ultra-muted text-[11px]">الكمية الإجمالية:</span>
+                                <span class="text-ultra-text font-bold">${totalSeries} سيريه <span class="text-[11px] text-ultra-muted font-normal">(${totalPieces} قطعة)</span></span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">إجمالي الفاتورة:</span>
-                                <span class="text-devo-text font-bold font-mono text-sm">${(o.total_price || 0).toLocaleString()} ج.م</span>
+                                <span class="text-ultra-muted text-[11px]">إجمالي الفاتورة:</span>
+                                <span class="text-ultra-text font-bold font-mono text-sm">${(o.total_price || 0).toLocaleString()} ج.م</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">المدفوع (العربون):</span>
-                                <span class="text-devo-success font-bold font-mono">${(o.deposit || 0).toLocaleString()} ج.م</span>
+                                <span class="text-ultra-muted text-[11px]">المدفوع (العربون):</span>
+                                <span class="text-ultra-success font-bold font-mono">${(o.deposit || 0).toLocaleString()} ج.م</span>
                             </div>
-                            <div class="flex justify-between items-center bg-devo-orange/10 border border-devo-orange/30 px-3 py-2 rounded-xl mt-1.5">
-                                <span class="text-devo-orange font-bold text-xs">المتبقي للتحصيل:</span>
-                                <span class="text-devo-orange font-black text-sm font-mono">${(remaining || 0).toLocaleString()} ج.م</span>
+                            <div class="flex justify-between items-center bg-ultra-orange/10 border border-ultra-orange/30 px-3 py-2 rounded-xl mt-1.5">
+                                <span class="text-ultra-orange font-bold text-xs">المتبقي للتحصيل:</span>
+                                <span class="text-ultra-orange font-black text-sm font-mono">${(remaining || 0).toLocaleString()} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -1021,9 +1021,9 @@ window.viewAdminOrderDetails = async (id) => {
 
             <!-- حقل البحث السريع في الأصناف -->
             <div class="relative">
-                <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-devo-muted text-base"></i>
+                <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-ultra-muted text-base"></i>
                 <input type="text" oninput="filterViewOrderItems(this.value)" placeholder="بحث سريع داخل الأصناف باسم الموديل أو الكود أو اللون..." 
-                    class="w-full bg-devo-black/70 border border-devo-gray rounded-xl pr-10 pl-4 py-2.5 text-devo-text placeholder-devo-muted text-xs sm:text-sm focus:outline-none focus:border-devo-orange transition-all shadow-inner">
+                    class="w-full bg-ultra-black/70 border border-ultra-gray rounded-xl pr-10 pl-4 py-2.5 text-ultra-text placeholder-ultra-muted text-xs sm:text-sm focus:outline-none focus:border-ultra-orange transition-all shadow-inner">
             </div>
 
             <!-- كروت الموديلات المجمعة -->
@@ -1549,7 +1549,7 @@ async function renderLocalEditModal(o) {
     const currentDeposit = o.deposit !== undefined ? o.deposit : 0;
     const remaining = totalPrice - currentDeposit;
     const invoiceNum = o.invoice_number || o.id.slice(0, 8);
-    const brandName = document.getElementById('admin-footer-factory-name')?.textContent?.trim() || 'DEVO';
+    const brandName = document.getElementById('admin-footer-factory-name')?.textContent?.trim() || 'UltraSoft';
 
     // حفظ قيمة البحث ومواضع السكرول الحالية قبل إعادة الرسم
     const searchInput = document.getElementById('ao-local-search-input');
@@ -1623,30 +1623,30 @@ async function renderLocalEditModal(o) {
     let itemsHtml = '';
     if (groupedModels.length === 0) {
         itemsHtml = `
-            <div class="p-8 text-center bg-devo-black/60 border border-devo-gray rounded-2xl">
-                <i class="ph ph-trash text-3xl text-devo-muted mb-2 block"></i>
-                <p class="text-devo-muted text-sm font-bold">تم حذف جميع الأصناف من الفاتورة.</p>
+            <div class="p-8 text-center bg-ultra-black/60 border border-ultra-gray rounded-2xl">
+                <i class="ph ph-trash text-3xl text-ultra-muted mb-2 block"></i>
+                <p class="text-ultra-muted text-sm font-bold">تم حذف جميع الأصناف من الفاتورة.</p>
             </div>
         `;
     } else {
         itemsHtml = groupedModels.map(group => {
             const allColorsText = group.items.map(i => i.colorName).join(' ');
             return `
-                <div class="bg-devo-black/50 border border-devo-gray/70 hover:border-devo-orange/40 rounded-2xl p-4 transition-all shadow-sm le-model-card" data-model-search="${group.modelName} ${group.code} ${allColorsText}">
+                <div class="bg-ultra-black/50 border border-ultra-gray/70 hover:border-ultra-orange/40 rounded-2xl p-4 transition-all shadow-sm le-model-card" data-model-search="${group.modelName} ${group.code} ${allColorsText}">
                     <!-- هيدر كارت الموديل -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-devo-gray/60">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-ultra-gray/60">
                         <div class="flex items-center gap-3">
-                            <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-devo-gray bg-devo-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/devo.png'">
+                            <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-ultra-gray bg-ultra-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'">
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h4 class="text-white font-black text-sm sm:text-base">${escapeHtml(group.modelName)}</h4>
-                                    ${group.code ? `<span class="bg-devo-gray/70 border border-devo-gray text-devo-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${group.code}</span>` : ''}
-                                    <span class="bg-devo-gray/70 border border-devo-gray text-devo-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
+                                    ${group.code ? `<span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${group.code}</span>` : ''}
+                                    <span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
                                     <span class="bg-sky-500/15 border border-sky-500/30 text-sky-400 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">ق: ${(group.piecePrice || 0).toLocaleString()} ج</span>
                                     <span class="bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono">سيريه: ${(group.seriesPrice || 0).toLocaleString()} ج</span>
                                 </div>
-                                <div class="text-xs text-devo-muted flex items-center gap-1.5 mt-1.5 font-medium">
-                                    <i class="ph ph-palette text-devo-orange"></i>
+                                <div class="text-xs text-ultra-muted flex items-center gap-1.5 mt-1.5 font-medium">
+                                    <i class="ph ph-palette text-ultra-orange"></i>
                                     <span>الألوان المحددة لهذا الموديل (${group.items.length}):</span>
                                 </div>
                             </div>
@@ -1662,7 +1662,7 @@ async function renderLocalEditModal(o) {
                     <!-- صفوف ألوان الموديل -->
                     <div class="space-y-2">
                         ${group.items.map(item => `
-                            <div class="flex items-center justify-between p-2.5 sm:p-3 bg-devo-dark/60 border border-devo-gray/50 hover:border-devo-gray rounded-xl transition-colors le-color-row" data-color-search="${group.modelName} ${group.code} ${item.colorName} ${item.colorSystemCode || ''} ${item.colorFactoryCode || ''}">
+                            <div class="flex items-center justify-between p-2.5 sm:p-3 bg-ultra-dark/60 border border-ultra-gray/50 hover:border-ultra-gray rounded-xl transition-colors le-color-row" data-color-search="${group.modelName} ${group.code} ${item.colorName} ${item.colorSystemCode || ''} ${item.colorFactoryCode || ''}">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-3.5 h-3.5 rounded-full shrink-0 border border-white/20 shadow-sm" style="background-color: ${item.colorCode || '#38BDF8'}"></span>
                                     <span class="text-white text-xs sm:text-sm font-bold">${escapeHtml(item.colorName)}</span>
@@ -1675,16 +1675,16 @@ async function renderLocalEditModal(o) {
                                 </div>
                                 <div class="flex items-center gap-3 sm:gap-4">
                                     <!-- عداد الكميات -->
-                                    <div class="flex items-center bg-devo-black border border-devo-gray rounded-xl overflow-hidden h-8 w-26 sm:w-28 shadow-inner">
-                                        <button type="button" onclick="updateLocalItemQty(${item.originalIndex}, ${item.quantity - 1})" class="px-2 sm:px-2.5 text-devo-muted hover:text-white transition-colors h-full flex items-center justify-center cursor-pointer ${item.quantity <= 1 ? 'opacity-40 cursor-not-allowed' : ''}"><i class="ph ph-minus text-xs"></i></button>
-                                        <input type="text" inputmode="numeric" pattern="[0-9]*" onchange="updateLocalItemQty(${item.originalIndex}, parseInt(this.value) || 1)" value="${item.quantity}" class="w-10 sm:w-12 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-devo-gray leading-none font-mono">
-                                        <button type="button" onclick="updateLocalItemQty(${item.originalIndex}, ${item.quantity + 1})" ${item.realTimeStock <= 0 ? 'disabled' : ''} class="px-2 sm:px-2.5 h-full transition-colors flex items-center justify-center cursor-pointer ${item.realTimeStock <= 0 ? 'text-devo-muted/40 cursor-not-allowed' : 'text-devo-muted hover:text-white'}"><i class="ph ph-plus text-xs"></i></button>
+                                    <div class="flex items-center bg-ultra-black border border-ultra-gray rounded-xl overflow-hidden h-8 w-26 sm:w-28 shadow-inner">
+                                        <button type="button" onclick="updateLocalItemQty(${item.originalIndex}, ${item.quantity - 1})" class="px-2 sm:px-2.5 text-ultra-muted hover:text-white transition-colors h-full flex items-center justify-center cursor-pointer ${item.quantity <= 1 ? 'opacity-40 cursor-not-allowed' : ''}"><i class="ph ph-minus text-xs"></i></button>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" onchange="updateLocalItemQty(${item.originalIndex}, parseInt(this.value) || 1)" value="${item.quantity}" class="w-10 sm:w-12 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-ultra-gray leading-none font-mono">
+                                        <button type="button" onclick="updateLocalItemQty(${item.originalIndex}, ${item.quantity + 1})" ${item.realTimeStock <= 0 ? 'disabled' : ''} class="px-2 sm:px-2.5 h-full transition-colors flex items-center justify-center cursor-pointer ${item.realTimeStock <= 0 ? 'text-ultra-muted/40 cursor-not-allowed' : 'text-ultra-muted hover:text-white'}"><i class="ph ph-plus text-xs"></i></button>
                                     </div>
 
                                     <!-- إجمالي السعر وعدد القطع -->
                                     <div class="text-left min-w-[80px] sm:min-w-[100px]">
-                                        <span class="text-devo-orange font-black font-mono text-xs sm:text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
-                                        <span class="text-[10px] text-devo-muted font-normal block">(${item.pieces} قطعة)</span>
+                                        <span class="text-ultra-orange font-black font-mono text-xs sm:text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
+                                        <span class="text-[10px] text-ultra-muted font-normal block">(${item.pieces} قطعة)</span>
                                     </div>
 
                                     <!-- زر حذف اللون المنفرد -->
@@ -1695,9 +1695,9 @@ async function renderLocalEditModal(o) {
                     </div>
 
                     <!-- فوتر إجمالي الموديل -->
-                    <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-devo-gray/50 text-xs">
-                        <span class="text-devo-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.items.reduce((s, i) => s + (Number(i.quantity) || 0), 0)} سيريه</span> (${group.items.reduce((s, i) => s + (Number(i.pieces) || 0), 0)} قطعة)</span>
-                        <span class="text-devo-orange font-black font-mono text-sm sm:text-base">${group.items.reduce((s, i) => s + (Number(i.itemTotal) || 0), 0).toLocaleString()} ج.م</span>
+                    <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-ultra-gray/50 text-xs">
+                        <span class="text-ultra-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.items.reduce((s, i) => s + (Number(i.quantity) || 0), 0)} سيريه</span> (${group.items.reduce((s, i) => s + (Number(i.pieces) || 0), 0)} قطعة)</span>
+                        <span class="text-ultra-orange font-black font-mono text-sm sm:text-base">${group.items.reduce((s, i) => s + (Number(i.itemTotal) || 0), 0).toLocaleString()} ج.م</span>
                     </div>
                 </div>
             `;
@@ -1720,19 +1720,19 @@ async function renderLocalEditModal(o) {
     const logsListHtml = logs.length > 0 
         ? logs.map(log => `
             <div class="flex gap-2.5 items-start">
-                <div class="w-2 h-2 rounded-full bg-devo-orange mt-1 shrink-0 shadow-sm shadow-devo-orange/50"></div>
-                <div class="flex-1 text-devo-text leading-relaxed font-medium">
+                <div class="w-2 h-2 rounded-full bg-ultra-orange mt-1 shrink-0 shadow-sm shadow-ultra-orange/50"></div>
+                <div class="flex-1 text-ultra-text leading-relaxed font-medium">
                     <span class="text-white">${escapeHtml(log.notes)}</span>
-                    <span class="text-[11px] text-devo-muted mr-1.5 font-mono">(${formatArabicTime(log.created_at)})</span>
+                    <span class="text-[11px] text-ultra-muted mr-1.5 font-mono">(${formatArabicTime(log.created_at)})</span>
                 </div>
             </div>
         `).join('')
-        : `<div class="text-devo-muted text-xs p-2">لا توجد حركات مسجلة بعد.</div>`;
+        : `<div class="text-ultra-muted text-xs p-2">لا توجد حركات مسجلة بعد.</div>`;
 
     document.getElementById('ao-details-content').innerHTML = `
         <div class="flex flex-col gap-4">
             <!-- الهيدر العلوي -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-devo-gray/80">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-ultra-gray/80">
                 <div class="flex items-center gap-2.5">
                     <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg shadow-sm">
                         <i class="ph ph-pencil-simple font-bold"></i>
@@ -1743,7 +1743,7 @@ async function renderLocalEditModal(o) {
                         وضع التعديل المباشر
                     </span>
                 </div>
-                <button onclick="cancelLocalEdit('${o.id}')" class="text-devo-muted hover:text-white p-2 rounded-xl border border-devo-gray hover:bg-white/5 transition-colors cursor-pointer" title="إلغاء التعديل وإغلاق">
+                <button onclick="cancelLocalEdit('${o.id}')" class="text-ultra-muted hover:text-white p-2 rounded-xl border border-ultra-gray hover:bg-white/5 transition-colors cursor-pointer" title="إلغاء التعديل وإغلاق">
                     <i class="ph ph-x text-lg"></i>
                 </button>
             </div>
@@ -1751,105 +1751,105 @@ async function renderLocalEditModal(o) {
             <!-- الكروت الثلاثة العلوية القابلة للتعديل والمربوطة لحظياً -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                 <!-- 1. بيانات العميل المستلم -->
-                <div class="bg-devo-black/60 border border-devo-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <div class="bg-ultra-black/60 border border-ultra-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
-                            <div class="flex items-center gap-1.5 text-devo-orange text-xs font-bold">
+                            <div class="flex items-center gap-1.5 text-ultra-orange text-xs font-bold">
                                 <i class="ph ph-user-circle text-base"></i>
                                 <span>بيانات العميل المستلم</span>
                             </div>
-                            <span class="text-[10px] text-devo-muted font-medium">قابلة للتعديل مباشرة</span>
+                            <span class="text-[10px] text-ultra-muted font-medium">قابلة للتعديل مباشرة</span>
                         </div>
                         <div class="space-y-2">
                             <div>
-                                <label class="block text-[11px] text-devo-muted mb-1 font-medium">اسم العميل / المحل *</label>
+                                <label class="block text-[11px] text-ultra-muted mb-1 font-medium">اسم العميل / المحل *</label>
                                 <input type="text" id="le-customer-name" value="${escapeHtml(o.customer_name || '')}" placeholder="اسم العميل..." 
-                                    class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-white text-xs font-bold focus:border-devo-orange outline-none transition-colors shadow-inner">
+                                    class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-white text-xs font-bold focus:border-ultra-orange outline-none transition-colors shadow-inner">
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-[11px] text-devo-muted mb-1 font-medium">رقم الهاتف الأساسي *</label>
+                                    <label class="block text-[11px] text-ultra-muted mb-1 font-medium">رقم الهاتف الأساسي *</label>
                                     <input type="text" id="le-phone-1" dir="ltr" value="${escapeHtml(o.phone_1 || '')}" placeholder="01XXXXXXXXX" 
-                                        class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-white text-xs font-mono font-bold focus:border-devo-orange outline-none transition-colors shadow-inner">
+                                        class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-white text-xs font-mono font-bold focus:border-ultra-orange outline-none transition-colors shadow-inner">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] text-devo-muted mb-1 font-medium">رقم هاتف إضافي (اختياري)</label>
+                                    <label class="block text-[11px] text-ultra-muted mb-1 font-medium">رقم هاتف إضافي (اختياري)</label>
                                     <input type="text" id="le-phone-2" dir="ltr" value="${escapeHtml(o.phone_2 || '')}" placeholder="...رقم إضافي" 
-                                        class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-white text-xs font-mono focus:border-devo-orange outline-none transition-colors shadow-inner">
+                                        class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-white text-xs font-mono focus:border-ultra-orange outline-none transition-colors shadow-inner">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] text-devo-muted mb-1 font-medium">العنوان وتفاصيل الشحن</label>
+                                <label class="block text-[11px] text-ultra-muted mb-1 font-medium">العنوان وتفاصيل الشحن</label>
                                 <input type="text" id="le-address" value="${escapeHtml(o.address || '')}" placeholder="العنوان وتفاصيل الشحن..." 
-                                    class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-white text-xs focus:border-devo-orange outline-none transition-colors shadow-inner">
+                                    class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-white text-xs focus:border-ultra-orange outline-none transition-colors shadow-inner">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. الدفع والملاحظات -->
-                <div class="bg-devo-black/60 border border-devo-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <div class="bg-ultra-black/60 border border-ultra-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
-                            <div class="flex items-center gap-1.5 text-devo-orange text-xs font-bold">
+                            <div class="flex items-center gap-1.5 text-ultra-orange text-xs font-bold">
                                 <i class="ph ph-credit-card text-base"></i>
                                 <span>الدفع والملاحظات</span>
                             </div>
-                            <span class="text-[10px] text-devo-muted font-medium">تحديث تلقائي</span>
+                            <span class="text-[10px] text-ultra-muted font-medium">تحديث تلقائي</span>
                         </div>
                         <div class="space-y-2">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-[11px] text-devo-muted mb-1 font-medium">العربون المدفوع (ج.م)</label>
+                                    <label class="block text-[11px] text-ultra-muted mb-1 font-medium">العربون المدفوع (ج.م)</label>
                                     <input type="number" id="le-deposit" min="0" oninput="updateLocalDepositSummary()" value="${currentDeposit}" 
-                                        class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-devo-success text-xs font-mono font-bold focus:border-devo-orange outline-none transition-colors shadow-inner">
+                                        class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-ultra-success text-xs font-mono font-bold focus:border-ultra-orange outline-none transition-colors shadow-inner">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] text-devo-muted mb-1 font-medium">مستلم العربون</label>
+                                    <label class="block text-[11px] text-ultra-muted mb-1 font-medium">مستلم العربون</label>
                                     <input type="text" id="le-deposit-receiver" value="${escapeHtml(o.deposit_receiver || '')}" placeholder="اسم المستلم / الخزينة..." 
-                                        class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-white text-xs focus:border-devo-orange outline-none transition-colors shadow-inner">
+                                        class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-white text-xs focus:border-ultra-orange outline-none transition-colors shadow-inner">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] text-devo-muted mb-1 font-medium">ملاحظات وتعليمات الأوردر</label>
+                                <label class="block text-[11px] text-ultra-muted mb-1 font-medium">ملاحظات وتعليمات الأوردر</label>
                                 <textarea id="le-notes" rows="2" placeholder="ملاحظات وتعليمات الأوردر..." 
-                                    class="w-full bg-devo-black/80 border border-devo-gray rounded-xl px-3 py-1.5 text-white text-xs focus:border-devo-orange outline-none transition-colors shadow-inner resize-none">${escapeHtml(o.notes || '')}</textarea>
+                                    class="w-full bg-ultra-black/80 border border-ultra-gray rounded-xl px-3 py-1.5 text-white text-xs focus:border-ultra-orange outline-none transition-colors shadow-inner resize-none">${escapeHtml(o.notes || '')}</textarea>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. ملخص الحسابات اللحظي -->
-                <div class="bg-devo-black/60 border border-devo-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <div class="bg-ultra-black/60 border border-ultra-gray rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <div class="flex items-center gap-1.5 text-devo-orange text-xs font-bold">
+                            <div class="flex items-center gap-1.5 text-ultra-orange text-xs font-bold">
                                 <i class="ph ph-calculator text-base"></i>
                                 <span>ملخص الحسابات اللحظي</span>
                             </div>
-                            <span class="bg-devo-orange/15 border border-devo-orange/30 text-devo-orange px-2 py-0.5 rounded-full text-[10px] font-bold">مباشر</span>
+                            <span class="bg-ultra-orange/15 border border-ultra-orange/30 text-ultra-orange px-2 py-0.5 rounded-full text-[10px] font-bold">مباشر</span>
                         </div>
-                        <div class="text-xs font-bold text-devo-muted mb-2 tracking-wider font-mono">${brandName}</div>
+                        <div class="text-xs font-bold text-ultra-muted mb-2 tracking-wider font-mono">${brandName}</div>
                         <div class="space-y-1.5 text-xs">
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">البائع المنشئ:</span>
-                                <span class="text-devo-text font-medium">${escapeHtml(o.system_users?.full_name || '-')}</span>
+                                <span class="text-ultra-muted text-[11px]">البائع المنشئ:</span>
+                                <span class="text-ultra-text font-medium">${escapeHtml(o.system_users?.full_name || '-')}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">إجمالي السيريهات:</span>
-                                <span id="le-summary-series" class="text-devo-text font-bold">${totalSeries} سيريه <span class="text-[11px] text-devo-muted font-normal">(${totalPieces} قطعة)</span></span>
+                                <span class="text-ultra-muted text-[11px]">إجمالي السيريهات:</span>
+                                <span id="le-summary-series" class="text-ultra-text font-bold">${totalSeries} سيريه <span class="text-[11px] text-ultra-muted font-normal">(${totalPieces} قطعة)</span></span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">إجمالي الفاتورة:</span>
-                                <span id="le-summary-total" class="text-devo-text font-bold font-mono text-sm">${totalPrice.toLocaleString()} ج.م</span>
+                                <span class="text-ultra-muted text-[11px]">إجمالي الفاتورة:</span>
+                                <span id="le-summary-total" class="text-ultra-text font-bold font-mono text-sm">${totalPrice.toLocaleString()} ج.م</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-devo-muted text-[11px]">المدفوع (العربون):</span>
-                                <span id="le-summary-deposit" class="text-devo-success font-bold font-mono">${currentDeposit.toLocaleString()} ج.م</span>
+                                <span class="text-ultra-muted text-[11px]">المدفوع (العربون):</span>
+                                <span id="le-summary-deposit" class="text-ultra-success font-bold font-mono">${currentDeposit.toLocaleString()} ج.م</span>
                             </div>
-                            <div class="flex justify-between items-center bg-devo-orange/10 border border-devo-orange/30 px-3 py-2 rounded-xl mt-1.5">
-                                <span class="text-devo-orange font-bold text-xs">المتبقي للتحصيل:</span>
-                                <span id="le-summary-remaining" class="text-devo-orange font-black text-sm font-mono">${remaining.toLocaleString()} ج.م</span>
+                            <div class="flex justify-between items-center bg-ultra-orange/10 border border-ultra-orange/30 px-3 py-2 rounded-xl mt-1.5">
+                                <span class="text-ultra-orange font-bold text-xs">المتبقي للتحصيل:</span>
+                                <span id="le-summary-remaining" class="text-ultra-orange font-black text-sm font-mono">${remaining.toLocaleString()} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -1858,13 +1858,13 @@ async function renderLocalEditModal(o) {
 
             <!-- شريط البحث وإحصائية الأصناف -->
             <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <div class="text-xs text-devo-muted font-medium">
+                <div class="text-xs text-ultra-muted font-medium">
                     عدد الأصناف المتاحة بالفاتورة: <span id="le-active-items-count" class="font-bold text-white font-mono">${activeItemsWithIndex.length}</span>
                 </div>
                 <div class="relative flex-1 max-w-md">
-                    <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-devo-muted text-base"></i>
+                    <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-ultra-muted text-base"></i>
                     <input type="text" id="ao-local-search-input" oninput="filterLocalEditItems(this.value)" placeholder="بحث سريع في الأصناف بالكود أو الموديل أو اللون..." value="${term}"
-                        class="w-full bg-devo-black/70 border border-devo-gray rounded-xl pr-10 pl-4 py-2 text-devo-text placeholder-devo-muted text-xs sm:text-sm focus:outline-none focus:border-devo-orange transition-all shadow-inner">
+                        class="w-full bg-ultra-black/70 border border-ultra-gray rounded-xl pr-10 pl-4 py-2 text-ultra-text placeholder-ultra-muted text-xs sm:text-sm focus:outline-none focus:border-ultra-orange transition-all shadow-inner">
                 </div>
             </div>
 
@@ -1875,30 +1875,30 @@ async function renderLocalEditModal(o) {
 
             <!-- سجل حركات وتعديلات الأوردر القابل للطي -->
             <div class="mt-2">
-                <button type="button" onclick="toggleLocalOrderLogs()" class="w-full flex items-center justify-between p-3.5 bg-devo-black/50 border border-devo-gray rounded-2xl hover:border-devo-gray-hover text-devo-muted hover:text-white transition-all cursor-pointer">
-                    <div class="flex items-center gap-2 text-xs font-bold text-devo-orange">
+                <button type="button" onclick="toggleLocalOrderLogs()" class="w-full flex items-center justify-between p-3.5 bg-ultra-black/50 border border-ultra-gray rounded-2xl hover:border-ultra-gray-hover text-ultra-muted hover:text-white transition-all cursor-pointer">
+                    <div class="flex items-center gap-2 text-xs font-bold text-ultra-orange">
                         <i class="ph ph-clock-counter-clockwise text-base"></i>
                         <span>سجل حركات وتعديلات الأوردر (${logs.length})</span>
                     </div>
                     <i id="le-logs-chevron" class="ph ph-caret-down text-base transition-transform duration-300"></i>
                 </button>
-                <div id="le-logs-body" class="hidden mt-2 p-3.5 bg-devo-black/40 border border-devo-gray/50 rounded-2xl space-y-2.5 max-h-[160px] overflow-y-auto custom-scrollbar text-xs">
+                <div id="le-logs-body" class="hidden mt-2 p-3.5 bg-ultra-black/40 border border-ultra-gray/50 rounded-2xl space-y-2.5 max-h-[160px] overflow-y-auto custom-scrollbar text-xs">
                     ${logsListHtml}
                 </div>
             </div>
 
             <!-- شريط الحفظ والإجراءات السفلي -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-devo-gray/80 mt-1">
-                <div class="flex items-center gap-2 text-devo-muted text-xs">
-                    <i class="ph ph-info text-devo-info text-base"></i>
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-ultra-gray/80 mt-1">
+                <div class="flex items-center gap-2 text-ultra-muted text-xs">
+                    <i class="ph ph-info text-ultra-info text-base"></i>
                     <span>تعديل الكميات يخصم/يضيف تلقائياً من المخزون عند الحفظ.</span>
                 </div>
                 <div class="flex items-center gap-2.5">
-                    <button id="ao-local-save-btn" onclick="saveLocalOrderEdits('${o.id}')" class="bg-devo-orange hover:bg-devo-orangeHover text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md flex items-center gap-2 text-xs sm:text-sm cursor-pointer">
+                    <button id="ao-local-save-btn" onclick="saveLocalOrderEdits('${o.id}')" class="bg-ultra-orange hover:bg-ultra-orangeHover text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md flex items-center gap-2 text-xs sm:text-sm cursor-pointer">
                         <i class="ph ph-check-circle text-lg"></i>
                         <span>حفظ جميع التعديلات</span>
                     </button>
-                    <button type="button" onclick="cancelLocalEdit('${o.id}')" class="bg-devo-gray/70 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold transition-colors text-xs sm:text-sm cursor-pointer">
+                    <button type="button" onclick="cancelLocalEdit('${o.id}')" class="bg-ultra-gray/70 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-bold transition-colors text-xs sm:text-sm cursor-pointer">
                         إلغاء التعديل
                     </button>
                 </div>
@@ -1939,21 +1939,21 @@ window.showOrderLogsModal = async (orderId) => {
             logsHtml = logs.map(log => {
                 const logDate = formatArabicTime(log.created_at);
                 return `
-                    <div class="flex gap-3 items-start p-3 bg-devo-black border border-devo-gray/50 rounded-xl">
-                        <div class="w-2 h-2 rounded-full bg-devo-orange mt-1.5 shrink-0 shadow-sm shadow-devo-orange/50"></div>
-                        <div class="flex-1 text-devo-text text-xs leading-relaxed font-medium">
+                    <div class="flex gap-3 items-start p-3 bg-ultra-black border border-ultra-gray/50 rounded-xl">
+                        <div class="w-2 h-2 rounded-full bg-ultra-orange mt-1.5 shrink-0 shadow-sm shadow-ultra-orange/50"></div>
+                        <div class="flex-1 text-ultra-text text-xs leading-relaxed font-medium">
                             <div class="text-white font-bold mb-0.5">${escapeHtml(log.notes)}</div>
-                            <div class="text-[10px] text-devo-muted font-mono">بواسطة: ${escapeHtml(log.user_name || 'غير معروف')} &bull; (${logDate})</div>
+                            <div class="text-[10px] text-ultra-muted font-mono">بواسطة: ${escapeHtml(log.user_name || 'غير معروف')} &bull; (${logDate})</div>
                         </div>
                     </div>
                 `;
             }).join('');
         } else {
-            logsHtml = `<div class="p-6 text-center text-devo-muted text-xs"><i class="ph ph-info text-xl mb-1 block text-devo-orange"></i> لا توجد حركات مسجلة لهذا الأوردر بعد.</div>`;
+            logsHtml = `<div class="p-6 text-center text-ultra-muted text-xs"><i class="ph ph-info text-xl mb-1 block text-ultra-orange"></i> لا توجد حركات مسجلة لهذا الأوردر بعد.</div>`;
         }
     } catch (e) {
         console.error('Error fetching logs modal:', e);
-        logsHtml = `<div class="p-4 text-center text-devo-error text-xs">تعذر تحميل سجل الحركات</div>`;
+        logsHtml = `<div class="p-4 text-center text-ultra-error text-xs">تعذر تحميل سجل الحركات</div>`;
     }
 
     let logsModal = document.getElementById('ao-order-logs-modal');
@@ -1965,18 +1965,18 @@ window.showOrderLogsModal = async (orderId) => {
     }
 
     logsModal.innerHTML = `
-        <div class="bg-devo-dark border border-devo-gray rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-devo-float">
-            <div class="p-4 border-b border-devo-gray flex justify-between items-center bg-devo-black/80">
+        <div class="bg-ultra-dark border border-ultra-gray rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-ultra-float">
+            <div class="p-4 border-b border-ultra-gray flex justify-between items-center bg-ultra-black/80">
                 <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                    <i class="ph ph-clock-counter-clockwise text-devo-orange text-lg"></i> سجل حركات وتعديلات الأوردر
+                    <i class="ph ph-clock-counter-clockwise text-ultra-orange text-lg"></i> سجل حركات وتعديلات الأوردر
                 </h4>
-                <button onclick="closeOrderLogsModal()" class="text-devo-muted hover:text-white p-1 rounded-full hover:bg-devo-gray/40 transition-colors"><i class="ph ph-x text-lg"></i></button>
+                <button onclick="closeOrderLogsModal()" class="text-ultra-muted hover:text-white p-1 rounded-full hover:bg-ultra-gray/40 transition-colors"><i class="ph ph-x text-lg"></i></button>
             </div>
             <div class="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-2.5">
                 ${logsHtml}
             </div>
-            <div class="p-3 border-t border-devo-gray text-left bg-devo-black/50">
-                <button onclick="closeOrderLogsModal()" class="px-4 py-1.5 bg-devo-gray hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-colors">إغلاق</button>
+            <div class="p-3 border-t border-ultra-gray text-left bg-ultra-black/50">
+                <button onclick="closeOrderLogsModal()" class="px-4 py-1.5 bg-ultra-gray hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-colors">إغلاق</button>
             </div>
         </div>
     `;
@@ -2174,7 +2174,7 @@ window.triggerCartEdit = async () => {
     showToast('جاري تجهيز السلة والتحويل للمعرض...', 'info');
 
     const newCart = o.order_items.map(item => {
-        const imgUrl = item.models?.image_url_1 || './src/assets/icons/devo.png';
+        const imgUrl = item.models?.image_url_1 || './src/assets/icons/ultrasoft_transparent.png';
         const classSizes = item.models?.classes?.class_sizes || [];
         const sizesCount = classSizes.length > 0 ? classSizes.length : (item.models?.model_sizes?.length || 1);
         const colorInv = item.models?.model_inventory?.find(inv => inv.color_id === item.color_id);
@@ -2196,7 +2196,7 @@ window.triggerCartEdit = async () => {
     });
 
     const tenantId = o.tenant_id || getCurrentTenantId() || 'default';
-    localStorage.setItem(`devo_cart_${tenantId}`, JSON.stringify(newCart));
+    localStorage.setItem(`ultra_cart_${tenantId}`, JSON.stringify(newCart));
 
     const orderData = {
         id: o.id,
@@ -2214,7 +2214,7 @@ window.triggerCartEdit = async () => {
             quantity: oi.quantity
         }))
     };
-    localStorage.setItem(`devo_edit_order_data_${tenantId}`, JSON.stringify(orderData));
+    localStorage.setItem(`ultra_edit_order_data_${tenantId}`, JSON.stringify(orderData));
 
     closeEditOrderChoices(true);
     const tenantParam = new URLSearchParams(window.location.search).get('tenant');
@@ -2282,7 +2282,7 @@ async function logOrderAction(orderId, actionType, notes, extraMeta = {}) {
     try {
         const { session } = getCurrentSession();
         const userId = session?.user?.id || null;
-        const userName = currentUserProfile?.full_name || 'نظام DEVO';
+        const userName = currentUserProfile?.full_name || 'نظام UltraSoft';
         const currentTenantId = getCurrentTenantId();
         
         let orderObj = null;
@@ -2355,9 +2355,9 @@ window.switchVisitorOrdersSubtab = (subtab) => {
         const btn = document.getElementById(`vo-tab-${tabKey}`);
         if (!btn) return;
         if (tabKey === subtab) {
-            btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer';
+            btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-ultra-orange text-white shadow-md cursor-pointer';
         } else {
-            btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-devo-dark text-devo-muted hover:text-white border border-devo-gray hover:bg-devo-gray/40 cursor-pointer';
+            btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-ultra-dark text-ultra-muted hover:text-white border border-ultra-gray hover:bg-ultra-gray/40 cursor-pointer';
         }
     });
     renderVisitorOrders();
@@ -2596,8 +2596,8 @@ export function renderVisitorOrders() {
     if (filtered.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="9" class="p-12 text-center text-devo-muted">
-                    <div class="w-14 h-14 rounded-2xl bg-devo-gray/30 border border-devo-gray flex items-center justify-center text-devo-muted text-2xl mx-auto mb-3">
+                <td colspan="9" class="p-12 text-center text-ultra-muted">
+                    <div class="w-14 h-14 rounded-2xl bg-ultra-gray/30 border border-ultra-gray flex items-center justify-center text-ultra-muted text-2xl mx-auto mb-3">
                         <i class="ph ph-tray"></i>
                     </div>
                     <span class="text-sm font-bold block text-white">لا توجد طلبات في هذا التبويب</span>
@@ -2623,7 +2623,7 @@ export function renderVisitorOrders() {
         } else if (o.status === 'rejected') {
             statusBadgeHTML = `<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 justify-center" title="${escapeHtml(o.rejection_reason || '')}"><i class="ph ph-x-circle text-xs"></i> مرفوض</span>`;
         } else {
-            statusBadgeHTML = `<span class="bg-devo-gray text-white text-[11px] font-bold px-3 py-1 rounded-full">${o.status}</span>`;
+            statusBadgeHTML = `<span class="bg-ultra-gray text-white text-[11px] font-bold px-3 py-1 rounded-full">${o.status}</span>`;
         }
 
         const itemsCount = o.total_models || (Array.isArray(o.items) ? o.items.length : 0);
@@ -2636,14 +2636,14 @@ export function renderVisitorOrders() {
                 <td class="p-3">
                     <div class="flex items-center gap-1.5">
                         <span class="font-mono font-black text-amber-400 text-xs tracking-wider">${escapeHtml(o.order_code || '')}</span>
-                        <button type="button" onclick="navigator.clipboard.writeText('${o.order_code}'); showToast('تم نسخ كود الطلب', 'info');" class="text-devo-muted hover:text-white transition-colors cursor-pointer" title="نسخ الكود">
+                        <button type="button" onclick="navigator.clipboard.writeText('${o.order_code}'); showToast('تم نسخ كود الطلب', 'info');" class="text-ultra-muted hover:text-white transition-colors cursor-pointer" title="نسخ الكود">
                             <i class="ph ph-copy text-xs"></i>
                         </button>
                     </div>
                 </td>
 
                 <!-- تاريخ الإرسال ومؤشر التقادم -->
-                <td class="p-3 text-xs text-devo-muted font-medium">
+                <td class="p-3 text-xs text-ultra-muted font-medium">
                     <div class="text-[11px] text-slate-200 mb-1 leading-tight">${formattedDate}</div>
                     ${agingInfo.badgeHtml}
                 </td>
@@ -2651,9 +2651,9 @@ export function renderVisitorOrders() {
                 <!-- العميل / الهاتف / واتساب -->
                 <td class="p-3">
                     <div class="font-bold text-white text-xs">${escapeHtml(o.customer_name || 'عميل بدون اسم')}</div>
-                    <div class="text-[11px] font-mono text-devo-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+                    <div class="text-[11px] font-mono text-ultra-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
                         <i class="ph ph-phone text-xs"></i>
-                        <a href="tel:${o.customer_phone_1}" class="hover:text-devo-orange transition-colors">${escapeHtml(o.customer_phone_1 || '-')}</a>
+                        <a href="tel:${o.customer_phone_1}" class="hover:text-ultra-orange transition-colors">${escapeHtml(o.customer_phone_1 || '-')}</a>
                         ${o.customer_phone_1 ? `
                             <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppOrderMessage(o))}" target="_blank" class="w-5 h-5 rounded-md bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 inline-flex items-center justify-center transition-all cursor-pointer" title="محادثة العميل عبر واتساب">
                                 <i class="ph ph-whatsapp-logo text-xs"></i>
@@ -2681,7 +2681,7 @@ export function renderVisitorOrders() {
                 </td>
 
                 <!-- الإجمالي -->
-                <td class="p-3 text-center text-xs font-black text-devo-orange font-mono">
+                <td class="p-3 text-center text-xs font-black text-ultra-orange font-mono">
                     ${totalAmount} ج.م
                 </td>
 
@@ -2723,7 +2723,7 @@ export function renderVisitorOrders() {
                         ` : ''}
 
                         <!-- Printer: طباعة -->
-                        <button type="button" onclick="window.printVisitorOrder('${o.id}')" class="w-7 h-7 rounded-lg bg-devo-gray/40 hover:bg-devo-gray text-white flex items-center justify-center transition-all cursor-pointer" title="طباعة الفاتورة">
+                        <button type="button" onclick="window.printVisitorOrder('${o.id}')" class="w-7 h-7 rounded-lg bg-ultra-gray/40 hover:bg-ultra-gray text-white flex items-center justify-center transition-all cursor-pointer" title="طباعة الفاتورة">
                             <i class="ph ph-printer text-sm"></i>
                         </button>
 
@@ -2796,7 +2796,7 @@ window.openVisitorOrderDetails = (orderId) => {
             statusBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40';
             statusBadge.textContent = 'مرفوض';
         } else {
-            statusBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-devo-gray text-white';
+            statusBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-ultra-gray text-white';
             statusBadge.textContent = order.status;
         }
     }
@@ -2856,7 +2856,7 @@ window.openVisitorOrderDetails = (orderId) => {
                 modelId,
                 modelName: item.model_name || item.modelName || 'موديل',
                 code: item.factory_code || item.factoryCode || '',
-                imageUrl: item.image_url || item.image || './src/assets/icons/devo.png',
+                imageUrl: item.image_url || item.image || './src/assets/icons/ultrasoft_transparent.png',
                 sizesCount: sizesCount,
                 seriesPrice: seriesPrice,
                 piecePrice: piecePrice,
@@ -2903,30 +2903,30 @@ window.openVisitorOrderDetails = (orderId) => {
     if (container) {
         if (modelGroups.length === 0) {
             container.innerHTML = `
-                <div class="p-8 text-center bg-devo-black/60 border border-devo-gray rounded-2xl">
-                    <i class="ph ph-package text-3xl text-devo-muted mb-2 block"></i>
-                    <p class="text-devo-muted text-sm font-bold">لا توجد أصناف مسجلة في هذا الطلب.</p>
+                <div class="p-8 text-center bg-ultra-black/60 border border-ultra-gray rounded-2xl">
+                    <i class="ph ph-package text-3xl text-ultra-muted mb-2 block"></i>
+                    <p class="text-ultra-muted text-sm font-bold">لا توجد أصناف مسجلة في هذا الطلب.</p>
                 </div>
             `;
         } else {
             container.innerHTML = modelGroups.map(group => {
                 const allColorsText = group.items.map(i => i.colorName).join(' ');
                 return `
-                    <div class="bg-devo-black/50 border border-devo-gray/70 hover:border-devo-orange/40 rounded-2xl p-4 transition-all shadow-sm vo-detail-model-card" data-model-search="${escapeHtml(group.modelName)} ${escapeHtml(group.code)} ${allColorsText}">
+                    <div class="bg-ultra-black/50 border border-ultra-gray/70 hover:border-ultra-orange/40 rounded-2xl p-4 transition-all shadow-sm vo-detail-model-card" data-model-search="${escapeHtml(group.modelName)} ${escapeHtml(group.code)} ${allColorsText}">
                         <!-- هيدر الموديل -->
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-devo-gray/60">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-ultra-gray/60">
                             <div class="flex items-center gap-3">
-                                <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-devo-gray bg-devo-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/devo.png'">
+                                <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-ultra-gray bg-ultra-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'">
                                 <div>
                                     <div class="flex flex-wrap items-center gap-2">
                                         <h4 class="text-white font-black text-sm sm:text-base">${escapeHtml(group.modelName)}</h4>
-                                        ${group.code ? `<span class="bg-devo-gray/70 border border-devo-gray text-devo-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${escapeHtml(group.code)}</span>` : ''}
-                                        <span class="bg-devo-gray/70 border border-devo-gray text-devo-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
+                                        ${group.code ? `<span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${escapeHtml(group.code)}</span>` : ''}
+                                        <span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
                                         <span class="bg-sky-500/15 border border-sky-500/30 text-sky-400 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">ق: ${(group.piecePrice || 0).toLocaleString()} ج</span>
                                         <span class="bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono">سيريه: ${(group.seriesPrice || 0).toLocaleString()} ج</span>
                                     </div>
-                                    <div class="text-xs text-devo-muted flex items-center gap-1.5 mt-1.5 font-medium">
-                                        <i class="ph ph-palette text-devo-orange"></i>
+                                    <div class="text-xs text-ultra-muted flex items-center gap-1.5 mt-1.5 font-medium">
+                                        <i class="ph ph-palette text-ultra-orange"></i>
                                         <span>الألوان المسجلة لهذا الموديل (${group.items.length}):</span>
                                     </div>
                                 </div>
@@ -2936,18 +2936,18 @@ window.openVisitorOrderDetails = (orderId) => {
                         <!-- صفوف ألوان الموديل -->
                         <div class="space-y-2">
                             ${group.items.map(item => `
-                                <div class="flex items-center justify-between p-2.5 sm:p-3 bg-devo-dark/60 border border-devo-gray/50 hover:border-devo-gray rounded-xl transition-colors vo-detail-color-row" data-color-search="${escapeHtml(group.modelName)} ${escapeHtml(group.code)} ${escapeHtml(item.colorName)}">
+                                <div class="flex items-center justify-between p-2.5 sm:p-3 bg-ultra-dark/60 border border-ultra-gray/50 hover:border-ultra-gray rounded-xl transition-colors vo-detail-color-row" data-color-search="${escapeHtml(group.modelName)} ${escapeHtml(group.code)} ${escapeHtml(item.colorName)}">
                                     <div class="flex items-center gap-2.5">
                                         <span class="w-3.5 h-3.5 rounded-full shrink-0 border border-white/20 shadow-sm" style="background-color: ${item.colorCode || '#38BDF8'}"></span>
                                         <span class="text-white text-xs sm:text-sm font-bold">${escapeHtml(item.colorName)}</span>
                                     </div>
                                     <div class="flex items-center gap-3 sm:gap-5">
-                                        <span class="bg-devo-black/80 border border-devo-gray/60 px-3 py-1.5 rounded-xl text-devo-text text-xs font-bold shadow-inner">
-                                            ${item.quantity} سيريه <span class="text-[11px] text-devo-muted font-normal">(${item.pieces} قطعة)</span>
+                                        <span class="bg-ultra-black/80 border border-ultra-gray/60 px-3 py-1.5 rounded-xl text-ultra-text text-xs font-bold shadow-inner">
+                                            ${item.quantity} سيريه <span class="text-[11px] text-ultra-muted font-normal">(${item.pieces} قطعة)</span>
                                         </span>
                                         <div class="text-left min-w-[90px] sm:min-w-[110px]">
-                                            <span class="text-devo-orange font-black font-mono text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
-                                            <span class="text-[10px] text-devo-muted font-mono block">سعر السيريه: ${(item.price_per_series || 0).toLocaleString()} ج</span>
+                                            <span class="text-ultra-orange font-black font-mono text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
+                                            <span class="text-[10px] text-ultra-muted font-mono block">سعر السيريه: ${(item.price_per_series || 0).toLocaleString()} ج</span>
                                         </div>
                                     </div>
                                 </div>
@@ -2955,9 +2955,9 @@ window.openVisitorOrderDetails = (orderId) => {
                         </div>
 
                         <!-- فوتر إجمالي الموديل -->
-                        <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-devo-gray/50 text-xs">
-                            <span class="text-devo-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.totalSeries} سيريه</span> (${group.totalPieces} قطعة)</span>
-                            <span class="text-devo-orange font-black font-mono text-sm sm:text-base">${group.totalPrice.toLocaleString()} ج.م</span>
+                        <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-ultra-gray/50 text-xs">
+                            <span class="text-ultra-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.totalSeries} سيريه</span> (${group.totalPieces} قطعة)</span>
+                            <span class="text-ultra-orange font-black font-mono text-sm sm:text-base">${group.totalPrice.toLocaleString()} ج.م</span>
                         </div>
                     </div>
                 `;
@@ -3116,7 +3116,7 @@ function renderVisitorOrderEditingItems() {
                 modelId: item.model_id,
                 modelName: item.model_name || 'موديل',
                 code: item.factory_code || '',
-                imageUrl: item.image_url || item.image || './src/assets/icons/devo.png',
+                imageUrl: item.image_url || item.image || './src/assets/icons/ultrasoft_transparent.png',
                 sizesCount: sizesCount,
                 seriesPrice: price,
                 piecePrice: piecePrice,
@@ -3146,28 +3146,28 @@ function renderVisitorOrderEditingItems() {
 
     if (modelGroups.length === 0) {
         container.innerHTML = `
-            <div class="p-8 text-center bg-devo-black/60 border border-devo-gray rounded-2xl">
-                <i class="ph ph-trash text-3xl text-devo-muted mb-2 block"></i>
-                <p class="text-devo-muted text-sm font-bold">تم حذف جميع الأصناف من الطلب.</p>
+            <div class="p-8 text-center bg-ultra-black/60 border border-ultra-gray rounded-2xl">
+                <i class="ph ph-trash text-3xl text-ultra-muted mb-2 block"></i>
+                <p class="text-ultra-muted text-sm font-bold">تم حذف جميع الأصناف من الطلب.</p>
             </div>
         `;
     } else {
         container.innerHTML = modelGroups.map(group => `
-            <div class="bg-devo-black/50 border border-devo-gray/70 hover:border-devo-orange/40 rounded-2xl p-4 transition-all shadow-sm">
+            <div class="bg-ultra-black/50 border border-ultra-gray/70 hover:border-ultra-orange/40 rounded-2xl p-4 transition-all shadow-sm">
                 <!-- هيدر الموديل -->
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-devo-gray/60">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-ultra-gray/60">
                     <div class="flex items-center gap-3">
-                        <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-devo-gray bg-devo-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/devo.png'">
+                        <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-ultra-gray bg-ultra-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'">
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <h4 class="text-white font-black text-sm sm:text-base">${escapeHtml(group.modelName)}</h4>
-                                ${group.code ? `<span class="bg-devo-gray/70 border border-devo-gray text-devo-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${escapeHtml(group.code)}</span>` : ''}
-                                <span class="bg-devo-gray/70 border border-devo-gray text-devo-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
+                                ${group.code ? `<span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${escapeHtml(group.code)}</span>` : ''}
+                                <span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
                                 <span class="bg-sky-500/15 border border-sky-500/30 text-sky-400 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">ق: ${(group.piecePrice || 0).toLocaleString()} ج</span>
                                 <span class="bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono">سيريه: ${(group.seriesPrice || 0).toLocaleString()} ج</span>
                             </div>
-                            <div class="text-xs text-devo-muted flex items-center gap-1.5 mt-1.5 font-medium">
-                                <i class="ph ph-palette text-devo-orange"></i>
+                            <div class="text-xs text-ultra-muted flex items-center gap-1.5 mt-1.5 font-medium">
+                                <i class="ph ph-palette text-ultra-orange"></i>
                                 <span>الألوان المحددة لهذا الموديل (${group.items.length}):</span>
                             </div>
                         </div>
@@ -3183,23 +3183,23 @@ function renderVisitorOrderEditingItems() {
                 <!-- صفوف ألوان الموديل -->
                 <div class="space-y-2">
                     ${group.items.map(item => `
-                        <div class="flex items-center justify-between p-2.5 sm:p-3 bg-devo-dark/60 border border-devo-gray/50 hover:border-devo-gray rounded-xl transition-colors">
+                        <div class="flex items-center justify-between p-2.5 sm:p-3 bg-ultra-dark/60 border border-ultra-gray/50 hover:border-ultra-gray rounded-xl transition-colors">
                             <div class="flex items-center gap-2.5">
                                 <span class="w-3.5 h-3.5 rounded-full shrink-0 border border-white/20 shadow-sm" style="background-color: ${item.color_code || '#38BDF8'}"></span>
                                 <span class="text-white text-xs sm:text-sm font-bold">${escapeHtml(item.color_name || '')}</span>
                             </div>
                             <div class="flex items-center gap-3 sm:gap-4">
                                 <!-- عداد الكميات -->
-                                <div class="flex items-center bg-devo-black border border-devo-gray rounded-xl overflow-hidden h-8 w-26 sm:w-28 shadow-inner">
-                                    <button type="button" onclick="window.changeVisitorEditItemQty(${item.originalIndex}, -1)" class="px-2 sm:px-2.5 text-devo-muted hover:text-white transition-colors h-full flex items-center justify-center cursor-pointer ${item.qty <= 1 ? 'opacity-40 cursor-not-allowed' : ''}"><i class="ph ph-minus text-xs"></i></button>
-                                    <input type="text" inputmode="numeric" pattern="[0-9]*" onchange="window.updateVisitorEditItemQty(${item.originalIndex}, parseInt(this.value) || 1)" value="${item.qty}" class="w-10 sm:w-12 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-devo-gray leading-none font-mono">
-                                    <button type="button" onclick="window.changeVisitorEditItemQty(${item.originalIndex}, 1)" class="px-2 sm:px-2.5 text-devo-muted hover:text-white transition-colors h-full flex items-center justify-center cursor-pointer"><i class="ph ph-plus text-xs"></i></button>
+                                <div class="flex items-center bg-ultra-black border border-ultra-gray rounded-xl overflow-hidden h-8 w-26 sm:w-28 shadow-inner">
+                                    <button type="button" onclick="window.changeVisitorEditItemQty(${item.originalIndex}, -1)" class="px-2 sm:px-2.5 text-ultra-muted hover:text-white transition-colors h-full flex items-center justify-center cursor-pointer ${item.qty <= 1 ? 'opacity-40 cursor-not-allowed' : ''}"><i class="ph ph-minus text-xs"></i></button>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" onchange="window.updateVisitorEditItemQty(${item.originalIndex}, parseInt(this.value) || 1)" value="${item.qty}" class="w-10 sm:w-12 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-ultra-gray leading-none font-mono">
+                                    <button type="button" onclick="window.changeVisitorEditItemQty(${item.originalIndex}, 1)" class="px-2 sm:px-2.5 text-ultra-muted hover:text-white transition-colors h-full flex items-center justify-center cursor-pointer"><i class="ph ph-plus text-xs"></i></button>
                                 </div>
 
                                 <!-- إجمالي السعر وعدد القطع -->
                                 <div class="text-left min-w-[80px] sm:min-w-[100px]">
-                                    <span class="text-devo-orange font-black font-mono text-xs sm:text-sm block">${(item.lineTotal || 0).toLocaleString()} ج.م</span>
-                                    <span class="text-[10px] text-devo-muted font-normal block">(${item.pieces} قطعة)</span>
+                                    <span class="text-ultra-orange font-black font-mono text-xs sm:text-sm block">${(item.lineTotal || 0).toLocaleString()} ج.م</span>
+                                    <span class="text-[10px] text-ultra-muted font-normal block">(${item.pieces} قطعة)</span>
                                 </div>
 
                                 <!-- زر حذف اللون المنفرد -->
@@ -3210,9 +3210,9 @@ function renderVisitorOrderEditingItems() {
                 </div>
 
                 <!-- فوتر إجمالي الموديل -->
-                <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-devo-gray/50 text-xs">
-                    <span class="text-devo-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.totalSeries} سيريه</span> (${group.totalPieces} قطعة)</span>
-                    <span class="text-devo-orange font-black font-mono text-sm sm:text-base">${group.totalPrice.toLocaleString()} ج.م</span>
+                <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-ultra-gray/50 text-xs">
+                    <span class="text-ultra-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.totalSeries} سيريه</span> (${group.totalPieces} قطعة)</span>
+                    <span class="text-ultra-orange font-black font-mono text-sm sm:text-base">${group.totalPrice.toLocaleString()} ج.م</span>
                 </div>
             </div>
         `).join('');
@@ -3548,7 +3548,7 @@ function openVisitorOrderShortageModal(order, errorMsg) {
                 <td class="p-3 font-bold text-white">${escapeHtml(item.model_name || '')} (${escapeHtml(item.factory_code || '')})</td>
                 <td class="p-3 text-white">${escapeHtml(item.color_name || '')}</td>
                 <td class="p-3 text-center font-bold text-amber-400 font-mono">${item.qty || 0}</td>
-                <td class="p-3 text-center font-mono text-devo-muted">غير كافٍ</td>
+                <td class="p-3 text-center font-mono text-ultra-muted">غير كافٍ</td>
                 <td class="p-3 text-center font-black text-rose-400 font-mono">عجز</td>
             </tr>
         `).join('');

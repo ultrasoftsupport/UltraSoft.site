@@ -37,8 +37,8 @@ export async function fetchAuditLogs() {
     tbody.innerHTML = `
         <tr>
             <td colspan="6" class="p-12 text-center">
-                <i class="ph ph-spinner animate-spin text-3xl text-devo-orange mb-2"></i>
-                <p class="text-xs text-devo-muted">جاري تحميل سجلات النظام لجميع الفعاليات والعمليات...</p>
+                <i class="ph ph-spinner animate-spin text-3xl text-ultra-orange mb-2"></i>
+                <p class="text-xs text-ultra-muted">جاري تحميل سجلات النظام لجميع الفعاليات والعمليات...</p>
             </td>
         </tr>
     `;
@@ -66,7 +66,7 @@ export async function fetchAuditLogs() {
         console.error('Error fetching system audit logs:', err);
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="p-8 text-center text-devo-error">
+                <td colspan="6" class="p-8 text-center text-ultra-error">
                     <i class="ph ph-warning-circle text-2xl mb-1 block"></i>
                     تعذر تحميل سجلات النظام: ${err.message || err}
                 </td>
@@ -147,7 +147,7 @@ function renderAuditLogsTable() {
     if (filteredAuditLogs.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="p-12 text-center text-devo-muted italic">
+                <td colspan="6" class="p-12 text-center text-ultra-muted italic">
                     <i class="ph ph-clock-counter-clockwise text-3xl mb-2 block opacity-40"></i>
                     لا توجد سجلات مطابقة للفلاتر المحددة.
                 </td>
@@ -173,24 +173,24 @@ function renderAuditLogsTable() {
         const detailsText = formatDetailsPreview(log.details);
 
         return `
-            <tr class="hover:bg-devo-black/40 transition-colors border-b border-devo-gray/30">
-                <td class="p-3.5 text-xs font-mono text-devo-muted font-bold">${dateStr}</td>
+            <tr class="hover:bg-ultra-black/40 transition-colors border-b border-ultra-gray/30">
+                <td class="p-3.5 text-xs font-mono text-ultra-muted font-bold">${dateStr}</td>
                 <td class="p-3.5">
                     <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-devo-orange/10 border border-devo-orange/20 flex items-center justify-center text-devo-orange font-bold text-xs">
+                        <div class="w-8 h-8 rounded-full bg-ultra-orange/10 border border-ultra-orange/20 flex items-center justify-center text-ultra-orange font-bold text-xs">
                             ${escapeHtml((log.user_name || 'م')[0])}
                         </div>
                         <div>
                             <span class="font-bold text-white text-xs block">${escapeHtml(log.user_name || 'مستخدم النظام')}</span>
-                            <span class="text-[10px] text-devo-muted uppercase">${escapeHtml(log.user_role || 'staff')}</span>
+                            <span class="text-[10px] text-ultra-muted uppercase">${escapeHtml(log.user_role || 'staff')}</span>
                         </div>
                     </div>
                 </td>
                 <td class="p-3.5">${moduleBadge}</td>
                 <td class="p-3.5">${actionBadge}</td>
-                <td class="p-3.5 text-xs text-devo-muted max-w-xs truncate font-mono">${escapeHtml(detailsText)}</td>
+                <td class="p-3.5 text-xs text-ultra-muted max-w-xs truncate font-mono">${escapeHtml(detailsText)}</td>
                 <td class="p-3.5 text-center">
-                    <button onclick="window.showAuditLogDetails('${escapeHtml(log.id)}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs border border-devo-gray/50 transition-colors flex items-center gap-1 mx-auto">
+                    <button onclick="window.showAuditLogDetails('${escapeHtml(log.id)}')" class="px-2.5 py-1 rounded bg-ultra-gray/40 hover:bg-ultra-orange/20 hover:text-ultra-orange text-white text-xs border border-ultra-gray/50 transition-colors flex items-center gap-1 mx-auto">
                         <i class="ph ph-eye"></i> التفاصيل
                     </button>
                 </td>
@@ -213,14 +213,14 @@ function getModuleBadge(mod) {
         accounts: '<span class="px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-users"></i> إدارة المستخدمين</span>',
         credits: '<span class="px-2.5 py-1 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs font-bold inline-flex items-center gap-1"><i class="ph ph-lightning"></i> الكريديت والاشتراكات</span>'
     };
-    return map[mod] || `<span class="px-2 py-0.5 rounded bg-devo-gray text-white text-xs">${mod}</span>`;
+    return map[mod] || `<span class="px-2 py-0.5 rounded bg-ultra-gray text-white text-xs">${mod}</span>`;
 }
 
 function getActionBadge(act) {
     const map = {
-        create: '<span class="text-devo-success font-bold text-xs"><i class="ph ph-plus-circle"></i> إنشاء جديد</span>',
+        create: '<span class="text-ultra-success font-bold text-xs"><i class="ph ph-plus-circle"></i> إنشاء جديد</span>',
         update: '<span class="text-sky-400 font-bold text-xs"><i class="ph ph-pencil-simple"></i> تعديل</span>',
-        delete: '<span class="text-devo-error font-bold text-xs"><i class="ph ph-trash"></i> حذف</span>',
+        delete: '<span class="text-ultra-error font-bold text-xs"><i class="ph ph-trash"></i> حذف</span>',
         bulk_edit: '<span class="text-amber-400 font-bold text-xs"><i class="ph ph-lightning"></i> تعديل مجمع</span>',
         excel_import: '<span class="text-emerald-400 font-bold text-xs"><i class="ph ph-upload-simple"></i> رفع إكسيل</span>',
         status_change: '<span class="text-purple-400 font-bold text-xs"><i class="ph ph-arrows-clockwise"></i> تغيير حالة</span>',
@@ -252,10 +252,10 @@ function renderPaginationControls(totalPages) {
 
     container.innerHTML = `
         <div class="flex items-center justify-between mt-4 px-2">
-            <span class="text-xs text-devo-muted">صفحة ${currentPage} من ${totalPages}</span>
+            <span class="text-xs text-ultra-muted">صفحة ${currentPage} من ${totalPages}</span>
             <div class="flex items-center gap-2">
-                <button onclick="window.changeAuditPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-devo-gray bg-devo-dark text-white hover:bg-devo-gray transition-colors disabled:opacity-40 text-xs">السابق</button>
-                <button onclick="window.changeAuditPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-devo-gray bg-devo-dark text-white hover:bg-devo-gray transition-colors disabled:opacity-40 text-xs">التالي</button>
+                <button onclick="window.changeAuditPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-ultra-gray bg-ultra-dark text-white hover:bg-ultra-gray transition-colors disabled:opacity-40 text-xs">السابق</button>
+                <button onclick="window.changeAuditPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-ultra-gray bg-ultra-dark text-white hover:bg-ultra-gray transition-colors disabled:opacity-40 text-xs">التالي</button>
             </div>
         </div>
     `;

@@ -30,7 +30,7 @@ const DEFAULT_FILTER_PREFERENCES = {
 
 function getFilterPrefsKey() {
     const tenantId = getCurrentTenantId() || 'default';
-    return `devo_gallery_filter_prefs_${tenantId}`;
+    return `ultra_gallery_filter_prefs_${tenantId}`;
 }
 
 function getFilterPreferences() {
@@ -79,7 +79,7 @@ export async function loadTenantFilterPreferences() {
 
 export async function loadTenantDefaultModelImage() {
     const tenantId = getCurrentTenantId();
-    const cacheKey = `devo_default_model_img_${tenantId || 'default'}`;
+    const cacheKey = `ultra_default_model_img_${tenantId || 'default'}`;
     
     // Fast-path: read from localStorage immediately
     const cached = localStorage.getItem(cacheKey);
@@ -185,7 +185,7 @@ async function fetchGalleryModels() {
     if(!container) return;
     
     const currentTenantId = getCurrentTenantId();
-    const cacheKey = `devo_cached_gallery_models_${currentTenantId || 'default'}`;
+    const cacheKey = `ultra_cached_gallery_models_${currentTenantId || 'default'}`;
 
     // ⚡ 1. التحميل الفوري السريع من الـ LocalStorage إذا وجد ⚡
     const cachedData = localStorage.getItem(cacheKey);
@@ -201,7 +201,7 @@ async function fetchGalleryModels() {
     }
 
     if (allModels.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-20 text-center"><i class="ph ph-spinner animate-spin text-5xl text-devo-orange"></i></div>`;
+        container.innerHTML = `<div class="col-span-full py-20 text-center"><i class="ph ph-spinner animate-spin text-5xl text-ultra-orange"></i></div>`;
     }
 
     // 🔄 2. التحديث الصامت من Supabase مقترناً بالمصنع النشط 🔄
@@ -377,7 +377,7 @@ function setupGalleryRealtime() {
                 window.allGalleryModels = allModels;
 
                 // ⚡ تحديث الكاش المحلي فوراً ⚡
-                const cacheKey = `devo_cached_gallery_models_${currentTenantId || 'default'}`;
+                const cacheKey = `ultra_cached_gallery_models_${currentTenantId || 'default'}`;
                 try { localStorage.setItem(cacheKey, JSON.stringify(allModels)); } catch(e) {}
 
                 // ⚡ رسم وتحديث الكارت والنافذة المفتوحة لحظياً ⚡
@@ -430,9 +430,9 @@ function updateModelViewerDOM(id) {
             const sizesContainer = document.getElementById('viewer-sizes-container');
             if (sizesContainer) {
                 const renderSizesTags = classSizes.length > 0 
-                    ? classSizes.map(cs => `<span class="bg-devo-gray/30 border border-devo-gray text-white text-xs px-3 py-1.5 rounded font-medium"><i class="ph ph-link text-devo-muted"></i> ${cs.sizes?.name}</span>`).join('')
-                    : model.model_sizes?.map(s => `<span class="bg-devo-gray/30 border border-devo-gray text-white text-xs px-3 py-1.5 rounded font-medium">${s.sizes?.name}</span>`).join('');
-                sizesContainer.innerHTML = renderSizesTags || '<span class="text-devo-muted text-xs">غير محدد</span>';
+                    ? classSizes.map(cs => `<span class="bg-ultra-gray/30 border border-ultra-gray text-white text-xs px-3 py-1.5 rounded font-medium"><i class="ph ph-link text-ultra-muted"></i> ${cs.sizes?.name}</span>`).join('')
+                    : model.model_sizes?.map(s => `<span class="bg-ultra-gray/30 border border-ultra-gray text-white text-xs px-3 py-1.5 rounded font-medium">${s.sizes?.name}</span>`).join('');
+                sizesContainer.innerHTML = renderSizesTags || '<span class="text-ultra-muted text-xs">غير محدد</span>';
             }
 
             // تحديث الألوان والمخزون
@@ -449,7 +449,7 @@ function updateModelViewerDOM(id) {
 // ==========================================
 function resolveImageUrl(url) {
     if (!url || url.trim() === "" || url === "null" || url === "undefined") {
-        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+        return window.tenantDefaultModelImage || localStorage.getItem(`ultra_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/ultrasoft_transparent.png';
     }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
@@ -470,7 +470,7 @@ window.toggleGalleryFilters = () => {
         advFilters.classList.remove('hidden');
         advFilters.classList.add('flex');
         if (btnIcon) {
-            btnIcon.className = 'ph ph-x text-lg text-devo-orange';
+            btnIcon.className = 'ph ph-x text-lg text-ultra-orange';
         }
     } else {
         advFilters.classList.add('hidden');
@@ -496,7 +496,7 @@ window.toggleDiscountOnlyFilter = () => {
         if (filterOnlyDiscounts) {
             btn.className = 'bg-rose-600 text-white border border-rose-400 shadow-md ring-2 ring-rose-500/30 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 h-[34px] sm:h-[38px] select-none';
         } else {
-            btn.className = 'bg-devo-dark border border-devo-gray text-devo-muted hover:border-rose-500/50 hover:text-rose-400 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 h-[34px] sm:h-[38px] select-none';
+            btn.className = 'bg-ultra-dark border border-ultra-gray text-ultra-muted hover:border-rose-500/50 hover:text-rose-400 px-2 sm:px-3 py-1 rounded-lg sm:rounded-xl transition-all text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 h-[34px] sm:h-[38px] select-none';
         }
     }
     applyGalleryFilters();
@@ -679,7 +679,7 @@ function renderGalleryPage() {
     if (!container) return;
 
     if (currentFilteredModels.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-20 text-center text-devo-muted flex flex-col items-center"><i class="ph ph-magnifying-glass text-6xl mb-4 opacity-50"></i><p>لا توجد موديلات تطابق بحثك حالياً.</p></div>`;
+        container.innerHTML = `<div class="col-span-full py-20 text-center text-ultra-muted flex flex-col items-center"><i class="ph ph-magnifying-glass text-6xl mb-4 opacity-50"></i><p>لا توجد موديلات تطابق بحثك حالياً.</p></div>`;
         if (topPagination) topPagination.innerHTML = '';
         if (bottomPagination) bottomPagination.innerHTML = '';
         return;
@@ -705,12 +705,12 @@ function generateGalleryCardHTML(m) {
     
     let stockBadge = '';
     if (isWorker) {
-        if (isOut) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-error text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold flex items-center gap-1"><i class="ph ph-warning-circle"></i> نفذت</span>`;
-        else if (totalSeries <= 5) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-orange text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متبقي ${totalSeries} سيريه</span>`;
-        else stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-success text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متبقي ${totalSeries} سيريه</span>`;
+        if (isOut) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-ultra-error text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold flex items-center gap-1"><i class="ph ph-warning-circle"></i> نفذت</span>`;
+        else if (totalSeries <= 5) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-ultra-orange text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متبقي ${totalSeries} سيريه</span>`;
+        else stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-ultra-success text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متبقي ${totalSeries} سيريه</span>`;
     } else {
-        if (isOut) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-black/80 backdrop-blur-sm text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold border border-devo-gray">نفذت الكمية</span>`;
-        else stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-devo-success/20 text-devo-success backdrop-blur-sm border border-devo-success/50 text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متوفر</span>`;
+        if (isOut) stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-ultra-black/80 backdrop-blur-sm text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold border border-ultra-gray">نفذت الكمية</span>`;
+        else stockBadge = `<span style="position:absolute; top:8px; right:8px; z-index:30;" class="bg-ultra-success/20 text-ultra-success backdrop-blur-sm border border-ultra-success/50 text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-md shadow-lg font-bold">متوفر</span>`;
     }
 
     const hasDiscount = m.discount_price != null && Number(m.discount_price) > 0 && Number(m.discount_price) < Number(m.price);
@@ -723,27 +723,27 @@ function generateGalleryCardHTML(m) {
     const cardStyle = isOut ? 'grayscale opacity-80' : 'card-hover cursor-pointer';
 
     return `
-    <div id="gallery-card-${m.id}" class="product-card bg-devo-dark border border-devo-gray rounded-xl sm:rounded-2xl overflow-hidden flex flex-col relative group transition-all duration-300 shadow-md ${cardStyle}" onclick="openModelViewer('${m.id}')">
+    <div id="gallery-card-${m.id}" class="product-card bg-ultra-dark border border-ultra-gray rounded-xl sm:rounded-2xl overflow-hidden flex flex-col relative group transition-all duration-300 shadow-md ${cardStyle}" onclick="openModelViewer('${m.id}')">
         ${stockBadge}
         ${discountTag}
-        <div class="h-44 sm:h-64 md:h-72 bg-devo-black relative overflow-hidden flex items-center justify-center p-3 border-b border-devo-gray/50">
+        <div class="h-44 sm:h-64 md:h-72 bg-ultra-black relative overflow-hidden flex items-center justify-center p-3 border-b border-ultra-gray/50">
             <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-30 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
-            <div class="absolute inset-0 bg-devo-black/10 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-500 group-hover:scale-[1.03]" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">
+            <div class="absolute inset-0 bg-ultra-black/10 backdrop-blur-sm pointer-events-none"></div>
+            <img src="${mainImg}" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-ultra-gray/50 shadow-md transition-transform duration-500 group-hover:scale-[1.03]" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/ultrasoft_transparent.png')" loading="lazy" decoding="async">
         </div>
-        <div class="p-2.5 sm:p-4 flex flex-col flex-1 justify-between z-10 relative bg-devo-dark">
+        <div class="p-2.5 sm:p-4 flex flex-col flex-1 justify-between z-10 relative bg-ultra-dark">
             <div>
-                <p class="text-devo-muted text-[9px] sm:text-[10px] font-mono tracking-wider mb-0.5">${m.factory_code || m.system_code}</p>
-                <h3 class="text-devo-text font-black text-xs sm:text-base md:text-lg mb-0.5 sm:mb-1 truncate" title="${m.name}">${m.name}</h3>
+                <p class="text-ultra-muted text-[9px] sm:text-[10px] font-mono tracking-wider mb-0.5">${m.factory_code || m.system_code}</p>
+                <h3 class="text-ultra-text font-black text-xs sm:text-base md:text-lg mb-0.5 sm:mb-1 truncate" title="${m.name}">${m.name}</h3>
             </div>
             <div class="flex justify-between items-end mt-1 sm:mt-2">
-                <span class="text-devo-muted text-[10px] sm:text-xs flex items-center gap-1 truncate max-w-[55%]"><i class="ph ph-tag text-devo-orange"></i> ${m.categories?.name || 'بدون تصنيف'}</span>
+                <span class="text-ultra-muted text-[10px] sm:text-xs flex items-center gap-1 truncate max-w-[55%]"><i class="ph ph-tag text-ultra-orange"></i> ${m.categories?.name || 'بدون تصنيف'}</span>
                 ${hasDiscount 
                     ? `<div class="text-left">
-                           <span class="line-through text-devo-muted text-[10px] sm:text-xs font-normal block leading-none mb-0.5">${m.price} ج.م</span>
-                           <p class="text-devo-orange font-black text-sm sm:text-lg md:text-xl leading-none">${m.discount_price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>
+                           <span class="line-through text-ultra-muted text-[10px] sm:text-xs font-normal block leading-none mb-0.5">${m.price} ج.م</span>
+                           <p class="text-ultra-orange font-black text-sm sm:text-lg md:text-xl leading-none">${m.discount_price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>
                        </div>`
-                    : `<p class="text-devo-orange font-black text-sm sm:text-lg md:text-xl">${m.price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>`
+                    : `<p class="text-ultra-orange font-black text-sm sm:text-lg md:text-xl">${m.price} <span class="text-[9px] sm:text-[10px] font-normal">ج.م</span></p>`
                 }
             </div>
         </div>
@@ -757,16 +757,16 @@ function renderGalleryPaginationControls(totalPages) {
     if (totalPages <= 1) { topContainer.innerHTML = ''; bottomContainer.innerHTML = ''; return; }
 
     let html = `
-        <button onclick="changeGalleryPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3.5 md:px-5 py-2 md:py-2.5 rounded-xl border border-devo-gray bg-devo-dark/80 text-white disabled:text-neutral-600 disabled:border-neutral-800/40 disabled:opacity-40 disabled:pointer-events-none hover:border-devo-orange hover:text-devo-orange transition-all duration-300 flex items-center gap-1.5 text-xs md:text-sm font-medium group">
-            <i class="ph ph-caret-right text-devo-orange group-disabled:text-inherit text-sm md:text-base transition-colors"></i>
+        <button onclick="changeGalleryPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3.5 md:px-5 py-2 md:py-2.5 rounded-xl border border-ultra-gray bg-ultra-dark/80 text-white disabled:text-neutral-600 disabled:border-neutral-800/40 disabled:opacity-40 disabled:pointer-events-none hover:border-ultra-orange hover:text-ultra-orange transition-all duration-300 flex items-center gap-1.5 text-xs md:text-sm font-medium group">
+            <i class="ph ph-caret-right text-ultra-orange group-disabled:text-inherit text-sm md:text-base transition-colors"></i>
             <span class="text-inherit">السابق</span>
         </button>
-        <span class="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-devo-dark/80 text-white font-bold border border-devo-gray text-xs md:text-sm whitespace-nowrap">
-            صفحة <span class="text-devo-orange font-bold">${currentPage} من ${totalPages}</span>
+        <span class="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-ultra-dark/80 text-white font-bold border border-ultra-gray text-xs md:text-sm whitespace-nowrap">
+            صفحة <span class="text-ultra-orange font-bold">${currentPage} من ${totalPages}</span>
         </span>
-        <button onclick="changeGalleryPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3.5 md:px-5 py-2 md:py-2.5 rounded-xl border border-devo-gray bg-devo-dark/80 text-white disabled:text-neutral-600 disabled:border-neutral-800/40 disabled:opacity-40 disabled:pointer-events-none hover:border-devo-orange hover:text-devo-orange transition-all duration-300 flex items-center gap-1.5 text-xs md:text-sm font-medium group">
+        <button onclick="changeGalleryPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3.5 md:px-5 py-2 md:py-2.5 rounded-xl border border-ultra-gray bg-ultra-dark/80 text-white disabled:text-neutral-600 disabled:border-neutral-800/40 disabled:opacity-40 disabled:pointer-events-none hover:border-ultra-orange hover:text-ultra-orange transition-all duration-300 flex items-center gap-1.5 text-xs md:text-sm font-medium group">
             <span class="text-inherit">التالي</span>
-            <i class="ph ph-caret-left text-devo-orange group-disabled:text-inherit text-sm md:text-base transition-colors"></i>
+            <i class="ph ph-caret-left text-ultra-orange group-disabled:text-inherit text-sm md:text-base transition-colors"></i>
         </button>
     `;
     topContainer.innerHTML = html; bottomContainer.innerHTML = html;
@@ -810,25 +810,25 @@ window.openModelViewer = (id, skipHistory = false) => {
     const mainImg = resolveImageUrl(imgs[0].image_url);
     
     let imagesGalleryHtml = `
-        <div class="bg-devo-black rounded-xl overflow-hidden border border-devo-gray h-56 sm:h-72 md:h-[380px] mb-2 sm:mb-3 flex items-center justify-center p-4 relative">
+        <div class="bg-ultra-black rounded-xl overflow-hidden border border-ultra-gray h-56 sm:h-72 md:h-[380px] mb-2 sm:mb-3 flex items-center justify-center p-4 relative">
             <img src="${mainImg}" id="viewer-blur-bg" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
-            <div class="absolute inset-0 bg-devo-black/20 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" id="viewer-main-img" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-xl border border-devo-gray/50 shadow-lg" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" decoding="async">
+            <div class="absolute inset-0 bg-ultra-black/20 backdrop-blur-sm pointer-events-none"></div>
+            <img src="${mainImg}" id="viewer-main-img" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-xl border border-ultra-gray/50 shadow-lg" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/ultrasoft_transparent.png')" decoding="async">
         </div>
-        ${imgs.length > 1 ? `<div class="flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">${imgs.map(img => `<img src="${resolveImageUrl(img.image_url)}" onclick="document.getElementById('viewer-main-img').src=this.src; if(document.getElementById('viewer-blur-bg')) document.getElementById('viewer-blur-bg').src=this.src" class="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover cursor-pointer border border-devo-gray hover:border-devo-orange transition-colors shrink-0" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">`).join('')}</div>` : ''}
+        ${imgs.length > 1 ? `<div class="flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">${imgs.map(img => `<img src="${resolveImageUrl(img.image_url)}" onclick="document.getElementById('viewer-main-img').src=this.src; if(document.getElementById('viewer-blur-bg')) document.getElementById('viewer-blur-bg').src=this.src" class="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover cursor-pointer border border-ultra-gray hover:border-ultra-orange transition-colors shrink-0" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/ultrasoft_transparent.png')" loading="lazy" decoding="async">`).join('')}</div>` : ''}
     `;
 
     const renderSizesTags = classSizes.length > 0 
-        ? classSizes.map(cs => `<span class="bg-devo-gray/30 border border-devo-gray text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-medium"><i class="ph ph-link text-devo-muted"></i> ${cs.sizes?.name}</span>`).join('')
-        : model.model_sizes?.map(s => `<span class="bg-devo-gray/30 border border-devo-gray text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-medium">${s.sizes?.name}</span>`).join('');
+        ? classSizes.map(cs => `<span class="bg-ultra-gray/30 border border-ultra-gray text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-medium"><i class="ph ph-link text-ultra-muted"></i> ${cs.sizes?.name}</span>`).join('')
+        : model.model_sizes?.map(s => `<span class="bg-ultra-gray/30 border border-ultra-gray text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-medium">${s.sizes?.name}</span>`).join('');
     
-    const sizesHtml = renderSizesTags || '<span class="text-devo-muted text-xs">غير محدد</span>';
+    const sizesHtml = renderSizesTags || '<span class="text-ultra-muted text-xs">غير محدد</span>';
 
     // قسم إضافة طقم كامل للسلة (متاح للجميع)
     const setHtml = `
-    <div class="bg-gradient-to-r from-devo-orange/15 via-devo-dark to-devo-black border border-devo-orange/40 rounded-xl p-2.5 sm:p-3 mb-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shadow-md">
+    <div class="bg-gradient-to-r from-ultra-orange/15 via-ultra-dark to-ultra-black border border-ultra-orange/40 rounded-xl p-2.5 sm:p-3 mb-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shadow-md">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-devo-orange/20 border border-devo-orange/50 flex items-center justify-center text-devo-orange shrink-0">
+            <div class="w-8 h-8 rounded-lg bg-ultra-orange/20 border border-ultra-orange/50 flex items-center justify-center text-ultra-orange shrink-0">
                 <i class="ph ph-package text-lg font-bold"></i>
             </div>
             <div>
@@ -839,17 +839,17 @@ window.openModelViewer = (id, skipHistory = false) => {
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <div class="flex items-center bg-devo-dark border border-devo-orange/50 rounded-lg overflow-hidden h-8 sm:h-9 shadow-inner">
-                <button type="button" onclick="decrementQty('set-qty-${model.id}')" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-devo-orange/15 transition-all shrink-0 cursor-pointer select-none" title="تقليل">
+            <div class="flex items-center bg-ultra-dark border border-ultra-orange/50 rounded-lg overflow-hidden h-8 sm:h-9 shadow-inner">
+                <button type="button" onclick="decrementQty('set-qty-${model.id}')" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-ultra-orange hover:bg-ultra-orange/15 transition-all shrink-0 cursor-pointer select-none" title="تقليل">
                     <i class="ph-bold ph-minus text-xs sm:text-sm"></i>
                 </button>
-                <input type="number" id="set-qty-${model.id}" value="1" min="1" max="99" readonly class="w-9 sm:w-10 h-full bg-transparent text-center text-devo-orange text-xs sm:text-sm font-black outline-none border-x border-devo-gray/70 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none select-none">
-                <button type="button" onclick="incrementQty('set-qty-${model.id}', 99)" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-devo-orange/15 transition-all shrink-0 cursor-pointer select-none" title="زيادة">
+                <input type="number" id="set-qty-${model.id}" value="1" min="1" max="99" readonly class="w-9 sm:w-10 h-full bg-transparent text-center text-ultra-orange text-xs sm:text-sm font-black outline-none border-x border-ultra-gray/70 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none select-none">
+                <button type="button" onclick="incrementQty('set-qty-${model.id}', 99)" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-ultra-orange hover:bg-ultra-orange/15 transition-all shrink-0 cursor-pointer select-none" title="زيادة">
                     <i class="ph-bold ph-plus text-xs sm:text-sm"></i>
                 </button>
             </div>
             
-            <button id="add-set-btn-${model.id}" onclick="addSetToCart(event, '${model.id}')" class="flex-1 sm:flex-none px-3.5 py-1.5 sm:py-2 bg-gradient-to-r from-devo-orange to-orange-600 hover:from-devo-orangeHover hover:to-orange-700 text-white rounded-lg text-xs sm:text-sm font-black transition-all shadow-lg flex items-center justify-center gap-1.5 active:scale-95">
+            <button id="add-set-btn-${model.id}" onclick="addSetToCart(event, '${model.id}')" class="flex-1 sm:flex-none px-3.5 py-1.5 sm:py-2 bg-gradient-to-r from-ultra-orange to-orange-600 hover:from-ultra-orangeHover hover:to-orange-700 text-white rounded-lg text-xs sm:text-sm font-black transition-all shadow-lg flex items-center justify-center gap-1.5 active:scale-95">
                 <i class="ph ph-plus-circle text-base sm:text-lg"></i>
                 <span>إضافة طقم</span>
             </button>
@@ -861,35 +861,35 @@ window.openModelViewer = (id, skipHistory = false) => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-1 sm:p-2 md:p-0">
                 <div>${imagesGalleryHtml}</div>
                 <div class="flex flex-col">
-                    <div class="mb-3 pb-3 border-b border-devo-gray flex justify-between items-center gap-2">
+                    <div class="mb-3 pb-3 border-b border-ultra-gray flex justify-between items-center gap-2">
                         <div>
-                            <p class="text-devo-muted text-[10px] sm:text-xs font-mono mb-0.5">كود: ${model.factory_code || model.system_code}</p>
+                            <p class="text-ultra-muted text-[10px] sm:text-xs font-mono mb-0.5">كود: ${model.factory_code || model.system_code}</p>
                             <h2 id="viewer-name" class="text-lg sm:text-2xl font-black text-white leading-tight">${model.name}</h2>
                             ${model.discount_price != null && Number(model.discount_price) > 0 && Number(model.discount_price) < Number(model.price)
                                 ? `<div class="flex items-center gap-2 mt-1 flex-wrap">
-                                       <span class="line-through text-devo-muted text-sm sm:text-lg font-normal">${model.price} ج.م</span>
-                                       <p class="text-xl sm:text-3xl text-devo-orange font-black"><span id="viewer-price">${model.discount_price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>
+                                       <span class="line-through text-ultra-muted text-sm sm:text-lg font-normal">${model.price} ج.م</span>
+                                       <p class="text-xl sm:text-3xl text-ultra-orange font-black"><span id="viewer-price">${model.discount_price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>
                                        <span class="bg-gradient-to-r from-red-600 to-rose-500 text-white text-xs px-2.5 py-0.5 rounded-md font-bold shadow-sm flex items-center gap-1">
                                            <i class="ph-bold ph-tag"></i> وفرت ${(Number(model.price) - Number(model.discount_price)).toFixed(0)} ج.م (${Math.round(((Number(model.price) - Number(model.discount_price)) / Number(model.price)) * 100)}%)
                                        </span>
                                    </div>`
-                                : `<p class="text-xl sm:text-3xl text-devo-orange font-black mt-1"><span id="viewer-price">${model.price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>`
+                                : `<p class="text-xl sm:text-3xl text-ultra-orange font-black mt-1"><span id="viewer-price">${model.price}</span> <span class="text-xs sm:text-base font-normal">ج.م</span></p>`
                             }
                         </div>
-                        <button onclick="shareModel('${model.id}')" class="flex items-center justify-center gap-1.5 bg-devo-dark border border-devo-gray hover:border-devo-info hover:text-devo-info text-white px-3 py-1.5 rounded-lg transition-colors text-xs sm:text-sm font-bold shrink-0 shadow-sm">
+                        <button onclick="shareModel('${model.id}')" class="flex items-center justify-center gap-1.5 bg-ultra-dark border border-ultra-gray hover:border-ultra-info hover:text-ultra-info text-white px-3 py-1.5 rounded-lg transition-colors text-xs sm:text-sm font-bold shrink-0 shadow-sm">
                             <i class="ph ph-share-network text-base"></i> مشاركة
                         </button>
                     </div>
 
                     <div class="mb-3">
-                        <h4 id="viewer-sizes-title" class="text-xs sm:text-sm font-bold text-white mb-1.5 flex items-center gap-1.5"><i class="ph ph-ruler text-devo-orange"></i> المقاسات داخل السيريه (${sizesCount} قطع)</h4>
+                        <h4 id="viewer-sizes-title" class="text-xs sm:text-sm font-bold text-white mb-1.5 flex items-center gap-1.5"><i class="ph ph-ruler text-ultra-orange"></i> المقاسات داخل السيريه (${sizesCount} قطع)</h4>
                         <div id="viewer-sizes-container" class="flex flex-wrap gap-1.5">${sizesHtml}</div>
                     </div>
 
                     ${setHtml}
 
                     <div class="flex-1">
-                        <h4 class="text-xs sm:text-sm font-bold text-white mb-2 flex items-center gap-1.5"><i class="ph ph-palette text-devo-orange"></i> الألوان المتاحة للطلب</h4>
+                        <h4 class="text-xs sm:text-sm font-bold text-white mb-2 flex items-center gap-1.5"><i class="ph ph-palette text-ultra-orange"></i> الألوان المتاحة للطلب</h4>
                         <div id="viewer-colors-container" class="space-y-1.5">
                             ${generateColorsHTML(model, sizesCount)}
                         </div>
@@ -904,8 +904,8 @@ window.openModelViewer = (id, skipHistory = false) => {
 
 function getOwnedQtyForColor(modelId, colorId) {
     const tenantId = getCurrentTenantId() || 'default';
-    const editKey = getTenantStorageKey('devo_edit_order_data');
-    const savedOrderData = localStorage.getItem(editKey) || localStorage.getItem(`devo_edit_order_data_${tenantId}`);
+    const editKey = getTenantStorageKey('ultra_edit_order_data');
+    const savedOrderData = localStorage.getItem(editKey) || localStorage.getItem(`ultra_edit_order_data_${tenantId}`);
     if (!savedOrderData) return 0;
     try {
         const orderData = JSON.parse(savedOrderData);
@@ -934,7 +934,7 @@ function refreshColorsContainer(modelId) {
 
 function generateColorsHTML(model, sizesCount) {
     if (!model.model_inventory || model.model_inventory.length === 0) {
-        return `<div class="text-center p-3 text-devo-error bg-devo-error/10 rounded-xl text-xs sm:text-sm border border-devo-error/20">لا توجد ألوان مسجلة.</div>`;
+        return `<div class="text-center p-3 text-ultra-error bg-ultra-error/10 rounded-xl text-xs sm:text-sm border border-ultra-error/20">لا توجد ألوان مسجلة.</div>`;
     }
 
     const mainImg = resolveImageUrl(model.model_images?.[0]?.image_url);
@@ -950,36 +950,36 @@ function generateColorsHTML(model, sizesCount) {
         const isDisplayOut = displayAvailable === 0;
 
         const cartBadge = cartQty > 0
-            ? `<span class="inline-flex items-center gap-0.5 text-[10px] font-black text-devo-orange bg-devo-orange/15 border border-devo-orange/40 px-1.5 py-0.5 rounded-md whitespace-nowrap"><i class="ph ph-shopping-cart-simple text-[10px]"></i>${cartQty} في السلة</span>`
+            ? `<span class="inline-flex items-center gap-0.5 text-[10px] font-black text-ultra-orange bg-ultra-orange/15 border border-ultra-orange/40 px-1.5 py-0.5 rounded-md whitespace-nowrap"><i class="ph ph-shopping-cart-simple text-[10px]"></i>${cartQty} في السلة</span>`
             : '';
 
         // للموظف: إظهار الرصيد الفعلي. للزائر: إخفاء الأرقام تماماً والاكتفاء بحالة التوفر فقط
         const stockStatusLabel = isWorker
-            ? `<span class="text-[10px] sm:text-xs ${isOut ? 'text-devo-error' : isDisplayOut ? 'text-devo-orange' : 'text-devo-muted'} font-mono whitespace-nowrap">${isOut ? '(نفذت)' : `(متبقي ${displayAvailable})`}</span>`
-            : (isOut ? `<span class="text-[10px] sm:text-xs text-devo-error font-bold whitespace-nowrap">(نفذت)</span>` : isDisplayOut ? `<span class="text-[10px] sm:text-xs text-devo-orange font-bold whitespace-nowrap">(بالسلة)</span>` : '');
+            ? `<span class="text-[10px] sm:text-xs ${isOut ? 'text-ultra-error' : isDisplayOut ? 'text-ultra-orange' : 'text-ultra-muted'} font-mono whitespace-nowrap">${isOut ? '(نفذت)' : `(متبقي ${displayAvailable})`}</span>`
+            : (isOut ? `<span class="text-[10px] sm:text-xs text-ultra-error font-bold whitespace-nowrap">(نفذت)</span>` : isDisplayOut ? `<span class="text-[10px] sm:text-xs text-ultra-orange font-bold whitespace-nowrap">(بالسلة)</span>` : '');
 
         return `
-        <div class="flex items-center justify-between p-2 sm:p-2.5 bg-devo-black border ${isDisplayOut && !isOut ? 'border-devo-orange/30' : isOut ? 'border-devo-error/30 opacity-70' : 'border-devo-gray'} rounded-xl mb-1.5 gap-2 transition-all duration-300">
+        <div class="flex items-center justify-between p-2 sm:p-2.5 bg-ultra-black border ${isDisplayOut && !isOut ? 'border-ultra-orange/30' : isOut ? 'border-ultra-error/30 opacity-70' : 'border-ultra-gray'} rounded-xl mb-1.5 gap-2 transition-all duration-300">
             <div class="flex items-center gap-2 min-w-0 flex-1">
-                <span class="w-2.5 h-2.5 rounded-full shrink-0 ${isOut ? 'bg-devo-error' : isDisplayOut ? 'bg-devo-orange' : 'bg-devo-success'}"></span>
+                <span class="w-2.5 h-2.5 rounded-full shrink-0 ${isOut ? 'bg-ultra-error' : isDisplayOut ? 'bg-ultra-orange' : 'bg-ultra-success'}"></span>
                 <div class="flex items-center gap-1.5 flex-wrap min-w-0">
                     <span class="text-white font-bold text-xs sm:text-sm truncate">${inv.colors?.name}</span>
                     ${stockStatusLabel}
                     ${cartBadge}
                 </div>
             </div>
-            ${isOut ? `<span class="text-[11px] font-bold text-devo-error px-2 py-1 bg-devo-error/10 border border-devo-error/20 rounded-lg shrink-0">غير متوفر</span>` : isDisplayOut ? `<span class="text-[11px] font-bold text-devo-orange px-2 py-1 bg-devo-orange/10 border border-devo-orange/20 rounded-lg shrink-0">مضافة كلها</span>` : `
+            ${isOut ? `<span class="text-[11px] font-bold text-ultra-error px-2 py-1 bg-ultra-error/10 border border-ultra-error/20 rounded-lg shrink-0">غير متوفر</span>` : isDisplayOut ? `<span class="text-[11px] font-bold text-ultra-orange px-2 py-1 bg-ultra-orange/10 border border-ultra-orange/20 rounded-lg shrink-0">مضافة كلها</span>` : `
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <div class="flex items-center bg-devo-dark border border-devo-gray rounded-lg overflow-hidden h-8 sm:h-9">
-                        <button type="button" onclick="decrementQty('qty-${inv.color_id}')" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="تقليل">
+                    <div class="flex items-center bg-ultra-dark border border-ultra-gray rounded-lg overflow-hidden h-8 sm:h-9">
+                        <button type="button" onclick="decrementQty('qty-${inv.color_id}')" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-ultra-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="تقليل">
                             <i class="ph-bold ph-minus text-xs sm:text-sm"></i>
                         </button>
-                        <input type="number" id="qty-${inv.color_id}" value="1" min="1" max="${displayAvailable}" readonly class="w-9 sm:w-10 h-full bg-transparent text-center text-white text-xs sm:text-sm font-bold outline-none border-x border-devo-gray appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none select-none">
-                        <button type="button" onclick="incrementQty('qty-${inv.color_id}', ${displayAvailable})" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="زيادة">
+                        <input type="number" id="qty-${inv.color_id}" value="1" min="1" max="${displayAvailable}" readonly class="w-9 sm:w-10 h-full bg-transparent text-center text-white text-xs sm:text-sm font-bold outline-none border-x border-ultra-gray appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none leading-none select-none">
+                        <button type="button" onclick="incrementQty('qty-${inv.color_id}', ${displayAvailable})" class="w-8 sm:w-9 h-full flex items-center justify-center text-white hover:text-ultra-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="زيادة">
                             <i class="ph-bold ph-plus text-xs sm:text-sm"></i>
                         </button>
                     </div>
-                    <button onclick="addToCart(event, '${model.id}', '${inv.color_id}', '${model.name.replace(/'/g, "\\'")}', '${inv.colors?.name}', ${model.price}, '${mainImg}', ${dbAvailable}, ${sizesCount}, '${inv.color_system_code || inv.color_factory_code || model.factory_code || model.system_code}', '${inv.color_system_code || ''}', '${inv.color_factory_code || ''}')" class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-devo-orange hover:bg-devo-orangeHover text-white rounded-lg text-xs sm:text-sm font-bold transition-all shadow-md flex justify-center items-center gap-1 active:scale-95">
+                    <button onclick="addToCart(event, '${model.id}', '${inv.color_id}', '${model.name.replace(/'/g, "\\'")}', '${inv.colors?.name}', ${model.price}, '${mainImg}', ${dbAvailable}, ${sizesCount}, '${inv.color_system_code || inv.color_factory_code || model.factory_code || model.system_code}', '${inv.color_system_code || ''}', '${inv.color_factory_code || ''}')" class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-ultra-orange hover:bg-ultra-orangeHover text-white rounded-lg text-xs sm:text-sm font-bold transition-all shadow-md flex justify-center items-center gap-1 active:scale-95">
                         <i class="ph ph-shopping-cart-simple text-sm sm:text-base"></i> <span class="hidden xs:inline">إضافة</span>
                     </button>
                 </div>
@@ -1134,12 +1134,12 @@ window.addSetToCart = (event, modelId) => {
     if (btn) {
         const originalHtml = btn.innerHTML;
         btn.innerHTML = `<i class="ph ph-check text-base"></i> تمت إضافة الطقم`;
-        btn.classList.replace('from-devo-orange', 'from-devo-success');
+        btn.classList.replace('from-ultra-orange', 'from-ultra-success');
         btn.classList.replace('to-orange-600', 'to-green-600');
         
         setTimeout(() => {
             btn.innerHTML = originalHtml;
-            btn.classList.replace('from-devo-success', 'from-devo-orange');
+            btn.classList.replace('from-ultra-success', 'from-ultra-orange');
             btn.classList.replace('to-green-600', 'to-orange-600');
             btn.disabled = false;
             delete btn.dataset.locked;
@@ -1195,12 +1195,12 @@ window.addToCart = (event, modelId, colorId, modelName, colorName, price, image,
     if (btn) {
         const originalHtml = btn.innerHTML;
         btn.innerHTML = `<i class="ph ph-check text-base"></i> تمت الإضافة`;
-        btn.classList.replace('bg-devo-orange', 'bg-devo-success');
-        btn.classList.replace('hover:bg-devo-orangeHover', 'hover:bg-green-600');
+        btn.classList.replace('bg-ultra-orange', 'bg-ultra-success');
+        btn.classList.replace('hover:bg-ultra-orangeHover', 'hover:bg-green-600');
         setTimeout(() => {
             btn.innerHTML = originalHtml;
-            btn.classList.replace('bg-devo-success', 'bg-devo-orange');
-            btn.classList.replace('hover:bg-green-600', 'hover:bg-devo-orangeHover');
+            btn.classList.replace('bg-ultra-success', 'bg-ultra-orange');
+            btn.classList.replace('hover:bg-green-600', 'hover:bg-ultra-orangeHover');
             unlockBtn();
         }, 1000);
     } else {
@@ -1210,7 +1210,7 @@ window.addToCart = (event, modelId, colorId, modelName, colorName, price, image,
 };
 
 function getTenantCartKey() {
-    return getTenantStorageKey('devo_cart');
+    return getTenantStorageKey('ultra_cart');
 }
 
 function loadLocalCart() {
@@ -1225,15 +1225,15 @@ function loadLocalCart() {
 
     let saved = localStorage.getItem(key);
     if (!saved && slug && slug !== 'default') {
-        saved = localStorage.getItem(`devo_cart_${slug}`);
+        saved = localStorage.getItem(`ultra_cart_${slug}`);
     }
     if (!saved && currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
-        saved = localStorage.getItem(`devo_cart_${currentTenantId}`);
+        saved = localStorage.getItem(`ultra_cart_${currentTenantId}`);
     }
     if (!saved && !isExplicitCustom) {
-        saved = localStorage.getItem('devo_cart_default')
-            || localStorage.getItem('devo_cart_00000000-0000-0000-0000-000000000001')
-            || localStorage.getItem('devo_cart');
+        saved = localStorage.getItem('ultra_cart_default')
+            || localStorage.getItem('ultra_cart_00000000-0000-0000-0000-000000000001')
+            || localStorage.getItem('ultra_cart');
     }
 
     if (saved) {
@@ -1251,16 +1251,16 @@ function saveLocalCart() {
     const cartStr = JSON.stringify(localCart);
     localStorage.setItem(key, cartStr);
     if (slug && slug !== 'default') {
-        localStorage.setItem(`devo_cart_${slug}`, cartStr);
+        localStorage.setItem(`ultra_cart_${slug}`, cartStr);
     }
     if (currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
-        localStorage.setItem(`devo_cart_${currentTenantId}`, cartStr);
+        localStorage.setItem(`ultra_cart_${currentTenantId}`, cartStr);
     }
     const tenant = getCurrentTenant();
     const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
     if (isMain) {
-        localStorage.setItem('devo_cart_default', cartStr);
-        localStorage.setItem('devo_cart', cartStr);
+        localStorage.setItem('ultra_cart_default', cartStr);
+        localStorage.setItem('ultra_cart', cartStr);
     }
     updateFloatingCart();
 }

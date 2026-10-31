@@ -25,7 +25,7 @@ export async function initUsersView() {
 // --- Data Fetching ---
 export async function loadUsers() {
     const container = document.getElementById('users-container');
-    container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i></div>`;
+    container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i></div>`;
 
     const currentTenantId = getCurrentTenantId();
 
@@ -101,17 +101,17 @@ function applyUserFilters() {
 function renderUsersGrid(users) {
     const container = document.getElementById('users-container');
     if (users.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-10 text-center text-devo-muted">لا يوجد مستخدمين يطابقون البحث</div>`;
+        container.innerHTML = `<div class="col-span-full py-10 text-center text-ultra-muted">لا يوجد مستخدمين يطابقون البحث</div>`;
         return;
     }
 
     container.innerHTML = users.map(u => {
         let roleIcon, roleName, roleColor;
-        if (u.role === 'owner') { roleIcon = 'ph-shield-check'; roleName = 'مالك (Owner)'; roleColor = 'text-devo-orange'; }
-        else if (u.role === 'admin') { roleIcon = 'ph-wrench'; roleName = 'مشرف (Admin)'; roleColor = 'text-devo-info'; }
+        if (u.role === 'owner') { roleIcon = 'ph-shield-check'; roleName = 'مالك (Owner)'; roleColor = 'text-ultra-orange'; }
+        else if (u.role === 'admin') { roleIcon = 'ph-wrench'; roleName = 'مشرف (Admin)'; roleColor = 'text-ultra-info'; }
         else {
             roleIcon = 'ph-hard-hat';
-            roleColor = 'text-devo-success';
+            roleColor = 'text-ultra-success';
             let jobText = 'عامل (مبيعات)';
             if (u.worker_job === 'warehouse') jobText = 'عامل (مخزن)';
             else if (u.worker_job === 'both') jobText = 'عامل (مبيعات + مخزن)';
@@ -123,31 +123,31 @@ function renderUsersGrid(users) {
 
         // زر الحذف (محمي للأونر)
         const deleteBtn = isOwner 
-            ? `<button disabled class="col-span-1 py-1.5 bg-devo-gray/20 text-devo-muted rounded text-xs cursor-not-allowed flex items-center justify-center gap-1" title="لا يمكن حذف المالك"><i class="ph ph-lock"></i></button>`
-            : `<button onclick="handleDeleteUser('${u.id}')" class="col-span-1 py-1.5 bg-devo-error/10 hover:bg-devo-error text-devo-error hover:text-white rounded text-xs transition-colors flex items-center justify-center gap-1" title="حذف الحساب"><i class="ph ph-trash"></i></button>`;
+            ? `<button disabled class="col-span-1 py-1.5 bg-ultra-gray/20 text-ultra-muted rounded text-xs cursor-not-allowed flex items-center justify-center gap-1" title="لا يمكن حذف المالك"><i class="ph ph-lock"></i></button>`
+            : `<button onclick="handleDeleteUser('${u.id}')" class="col-span-1 py-1.5 bg-ultra-error/10 hover:bg-ultra-error text-ultra-error hover:text-white rounded text-xs transition-colors flex items-center justify-center gap-1" title="حذف الحساب"><i class="ph ph-trash"></i></button>`;
 
         return `
-        <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 flex flex-col gap-3 transition-all hover:border-devo-grayHover ${cardClass}">
+        <div class="bg-ultra-dark border border-ultra-gray rounded-xl p-4 flex flex-col gap-3 transition-all hover:border-ultra-grayHover ${cardClass}">
             <div class="flex justify-between items-start">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-devo-black border border-devo-gray flex items-center justify-center ${roleColor}">
+                    <div class="w-12 h-12 rounded-full bg-ultra-black border border-ultra-gray flex items-center justify-center ${roleColor}">
                         <i class="ph ${roleIcon} text-2xl"></i>
                     </div>
                     <div>
                         <h4 class="text-white font-bold text-sm truncate w-28" title="${u.full_name}">${u.full_name}</h4>
-                        <p class="text-devo-muted text-xs dir-ltr text-left mt-0.5">@${u.username}</p>
+                        <p class="text-ultra-muted text-xs dir-ltr text-left mt-0.5">@${u.username}</p>
                     </div>
                 </div>
-                ${u.is_active ? `<span class="w-2.5 h-2.5 rounded-full bg-devo-success shadow-[0_0_8px_rgba(16,185,129,0.6)]" title="نشط"></span>` : `<span class="w-2.5 h-2.5 rounded-full bg-devo-error" title="معطل"></span>`}
+                ${u.is_active ? `<span class="w-2.5 h-2.5 rounded-full bg-ultra-success shadow-[0_0_8px_rgba(16,185,129,0.6)]" title="نشط"></span>` : `<span class="w-2.5 h-2.5 rounded-full bg-ultra-error" title="معطل"></span>`}
             </div>
             
-            <div class="bg-devo-black rounded-lg p-2 flex justify-center border border-devo-gray text-xs font-bold ${roleColor}">
+            <div class="bg-ultra-black rounded-lg p-2 flex justify-center border border-ultra-gray text-xs font-bold ${roleColor}">
                 ${roleName}
             </div>
 
-            <div class="grid grid-cols-3 gap-2 mt-auto pt-2 border-t border-devo-gray">
-                <button onclick="viewUserDetails('${u.id}')" class="col-span-1 py-1.5 bg-devo-black hover:bg-devo-gray text-white border border-devo-gray rounded text-xs transition-colors flex items-center justify-center gap-1" title="عرض التفاصيل"><i class="ph ph-eye"></i></button>
-                <button onclick="openUserModal('${u.id}')" class="col-span-1 py-1.5 bg-devo-info/10 hover:bg-devo-info text-devo-info hover:text-white rounded text-xs transition-colors flex items-center justify-center gap-1" title="تعديل الحساب"><i class="ph ph-pencil"></i></button>
+            <div class="grid grid-cols-3 gap-2 mt-auto pt-2 border-t border-ultra-gray">
+                <button onclick="viewUserDetails('${u.id}')" class="col-span-1 py-1.5 bg-ultra-black hover:bg-ultra-gray text-white border border-ultra-gray rounded text-xs transition-colors flex items-center justify-center gap-1" title="عرض التفاصيل"><i class="ph ph-eye"></i></button>
+                <button onclick="openUserModal('${u.id}')" class="col-span-1 py-1.5 bg-ultra-info/10 hover:bg-ultra-info text-ultra-info hover:text-white rounded text-xs transition-colors flex items-center justify-center gap-1" title="تعديل الحساب"><i class="ph ph-pencil"></i></button>
                 ${deleteBtn}
             </div>
         </div>`;
@@ -160,51 +160,51 @@ window.viewUserDetails = (id) => {
     if (!user) return;
 
     let roleName, roleColor;
-    if (user.role === 'owner') { roleName = 'مالك (Owner)'; roleColor = 'text-devo-orange'; }
-    else if (user.role === 'admin') { roleName = 'مشرف (Admin)'; roleColor = 'text-devo-info'; }
-    else { roleName = 'عامل (Worker)'; roleColor = 'text-devo-success'; }
+    if (user.role === 'owner') { roleName = 'مالك (Owner)'; roleColor = 'text-ultra-orange'; }
+    else if (user.role === 'admin') { roleName = 'مشرف (Admin)'; roleColor = 'text-ultra-info'; }
+    else { roleName = 'عامل (Worker)'; roleColor = 'text-ultra-success'; }
 
     const content = document.getElementById('user-details-content');
     
     // تصميم محتوى النافذة المنبثقة
     content.innerHTML = `
         <div class="flex items-center gap-4 mb-4">
-            <div class="w-16 h-16 rounded-full bg-devo-black border border-devo-gray flex items-center justify-center text-2xl font-bold ${roleColor}">
+            <div class="w-16 h-16 rounded-full bg-ultra-black border border-ultra-gray flex items-center justify-center text-2xl font-bold ${roleColor}">
                 ${user.full_name.substring(0, 2).toUpperCase()}
             </div>
             <div>
                 <h4 class="text-white font-bold text-lg">${user.full_name}</h4>
-                <p class="text-devo-muted font-mono mt-1">@${user.username}</p>
+                <p class="text-ultra-muted font-mono mt-1">@${user.username}</p>
             </div>
         </div>
 
-        <div class="bg-devo-black/50 rounded-xl border border-devo-gray overflow-hidden">
+        <div class="bg-ultra-black/50 rounded-xl border border-ultra-gray overflow-hidden">
             <table class="w-full text-right text-sm">
-                <tbody class="divide-y divide-devo-gray">
-                    <tr><td class="p-3 text-devo-muted w-1/3">الصلاحية</td><td class="p-3 font-bold ${roleColor}">${roleName}</td></tr>
+                <tbody class="divide-y divide-ultra-gray">
+                    <tr><td class="p-3 text-ultra-muted w-1/3">الصلاحية</td><td class="p-3 font-bold ${roleColor}">${roleName}</td></tr>
                     ${user.role === 'worker' ? `
                     <tr>
-                        <td class="p-3 text-devo-muted">وظيفة العامل</td>
+                        <td class="p-3 text-ultra-muted">وظيفة العامل</td>
                         <td class="p-3 text-white font-bold">
                             ${user.worker_job === 'warehouse' ? 'عامل بالمخزن' : (user.worker_job === 'both' ? 'بائع بالمعرض وعامل بالمخزن معاً' : 'بائع بالمعرض')}
                         </td>
                     </tr>` : ''}
-                    <tr><td class="p-3 text-devo-muted">حالة الحساب</td><td class="p-3 ${user.is_active ? 'text-devo-success' : 'text-devo-error'} font-bold">${user.is_active ? 'نشط' : 'معطل'}</td></tr>
-                    <tr><td class="p-3 text-devo-muted">تاريخ الإنشاء</td><td class="p-3 text-white">${new Date(user.created_at).toLocaleDateString('ar-EG')}</td></tr>
+                    <tr><td class="p-3 text-ultra-muted">حالة الحساب</td><td class="p-3 ${user.is_active ? 'text-ultra-success' : 'text-ultra-error'} font-bold">${user.is_active ? 'نشط' : 'معطل'}</td></tr>
+                    <tr><td class="p-3 text-ultra-muted">تاريخ الإنشاء</td><td class="p-3 text-white">${new Date(user.created_at).toLocaleDateString('ar-EG')}</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <h4 class="text-devo-orange font-bold text-sm border-b border-devo-gray pb-2"><i class="ph ph-chart-bar"></i> إحصائيات النشاط</h4>
+        <h4 class="text-ultra-orange font-bold text-sm border-b border-ultra-gray pb-2"><i class="ph ph-chart-bar"></i> إحصائيات النشاط</h4>
         <div class="grid grid-cols-2 gap-4">
-            <div class="bg-devo-black border border-devo-gray p-4 rounded-xl text-center flex flex-col gap-1 shadow-sm">
-                <i class="ph ph-sign-in text-2xl text-devo-info mb-1"></i>
-                <span class="text-devo-muted text-xs">مرات الدخول</span>
+            <div class="bg-ultra-black border border-ultra-gray p-4 rounded-xl text-center flex flex-col gap-1 shadow-sm">
+                <i class="ph ph-sign-in text-2xl text-ultra-info mb-1"></i>
+                <span class="text-ultra-muted text-xs">مرات الدخول</span>
                 <span class="text-2xl font-bold text-white">${user.login_count || 0}</span>
             </div>
-            <div class="bg-devo-black border border-devo-gray p-4 rounded-xl text-center flex flex-col gap-1 shadow-sm">
-                <i class="ph ph-receipt text-2xl text-devo-success mb-1"></i>
-                <span class="text-devo-muted text-xs">الفواتير المنشأة</span>
+            <div class="bg-ultra-black border border-ultra-gray p-4 rounded-xl text-center flex flex-col gap-1 shadow-sm">
+                <i class="ph ph-receipt text-2xl text-ultra-success mb-1"></i>
+                <span class="text-ultra-muted text-xs">الفواتير المنشأة</span>
                 <span class="text-2xl font-bold text-white">${user.invoice_count || 0}</span>
             </div>
         </div>
@@ -250,7 +250,7 @@ window.openUserModal = async (id = null) => {
         const user = allUsers.find(u => u.id === id);
         if (!user) return;
 
-        title.innerHTML = `<i class="ph ph-pencil-simple text-devo-orange text-xl"></i> تعديل بيانات المستخدم`;
+        title.innerHTML = `<i class="ph ph-pencil-simple text-ultra-orange text-xl"></i> تعديل بيانات المستخدم`;
         document.getElementById('u-name').value = user.full_name;
         document.getElementById('u-username').value = user.username;
         roleSelect.value = user.role;
@@ -279,7 +279,7 @@ window.openUserModal = async (id = null) => {
         }
 
     } else {
-        title.innerHTML = `<i class="ph ph-user-plus text-devo-orange text-xl"></i> إضافة مستخدم جديد`;
+        title.innerHTML = `<i class="ph ph-user-plus text-ultra-orange text-xl"></i> إضافة مستخدم جديد`;
         document.getElementById('u-status').checked = true;
         roleSelect.disabled = false;
         

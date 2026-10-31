@@ -231,19 +231,19 @@ function renderBackupRestoreView() {
         <div class="animate-fade-in relative pb-16 space-y-6 max-w-6xl mx-auto">
 
             <!-- Header -->
-            <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-devo-dark border border-devo-gray p-5 rounded-2xl shadow-sm">
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-ultra-dark border border-ultra-gray p-5 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-xl bg-devo-orange/10 border border-devo-orange/20 flex items-center justify-center text-devo-orange">
+                    <div class="w-12 h-12 rounded-xl bg-ultra-orange/10 border border-ultra-orange/20 flex items-center justify-center text-ultra-orange">
                         <i class="ph ph-database text-2xl"></i>
                     </div>
                     <div>
                         <h2 class="text-xl font-bold text-white flex items-center gap-2">
                             النسخ الاحتياطي واستعادة البيانات
                         </h2>
-                        <p class="text-devo-muted text-xs mt-1">تصدير واستعادة دقيقة مع قراءة أسماء المقاسات والفئات وتأمين الروابط المباشرة للسحابة</p>
+                        <p class="text-ultra-muted text-xs mt-1">تصدير واستعادة دقيقة مع قراءة أسماء المقاسات والفئات وتأمين الروابط المباشرة للسحابة</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-devo-success bg-devo-success/10 border border-devo-success/20 px-3.5 py-2 rounded-xl font-bold">
+                <div class="flex items-center gap-2 text-xs text-ultra-success bg-ultra-success/10 border border-ultra-success/20 px-3.5 py-2 rounded-xl font-bold">
                     <i class="ph ph-shield-check text-base"></i>
                     النظام جاهز ومحمي بالكامل
                 </div>
@@ -253,34 +253,34 @@ function renderBackupRestoreView() {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 <!-- 📤 كارت تصدير النسخ الاحتياطية -->
-                <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-5 flex flex-col justify-between shadow-md">
+                <div class="bg-ultra-dark border border-ultra-gray rounded-2xl p-6 space-y-5 flex flex-col justify-between shadow-md">
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                        <div class="flex items-center justify-between border-b border-ultra-gray pb-4">
                             <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="ph ph-export text-devo-orange text-xl"></i>
+                                <i class="ph ph-export text-ultra-orange text-xl"></i>
                                 تصدير نسخة احتياطية محلية
                             </h3>
-                            <span class="text-xs text-devo-muted bg-devo-black px-2.5 py-1 rounded-lg border border-devo-gray">تنسيق JSON</span>
+                            <span class="text-xs text-ultra-muted bg-ultra-black px-2.5 py-1 rounded-lg border border-ultra-gray">تنسيق JSON</span>
                         </div>
 
-                        <p class="text-xs text-devo-muted leading-relaxed">
+                        <p class="text-xs text-ultra-muted leading-relaxed">
                             اختر درجة التفاصيل المطلوبة للنسخة الاحتياطية وتصديرها وتحميلها على جهازك الشخصي:
                         </p>
 
                         <!-- خيارات المستويات -->
                         <div class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
                             ${Object.values(EXPORT_PRESETS).map(preset => `
-                                <label class="export-preset-card flex items-start gap-3 p-3.5 rounded-xl border border-devo-gray bg-devo-black/40 hover:border-devo-orange/50 transition-all cursor-pointer ${preset.id === selectedExportPreset ? 'border-devo-orange bg-devo-orange/5 shadow-sm' : ''}">
-                                    <input type="radio" name="export-preset" value="${preset.id}" ${preset.id === selectedExportPreset ? 'checked' : ''} class="mt-1 accent-devo-orange">
+                                <label class="export-preset-card flex items-start gap-3 p-3.5 rounded-xl border border-ultra-gray bg-ultra-black/40 hover:border-ultra-orange/50 transition-all cursor-pointer ${preset.id === selectedExportPreset ? 'border-ultra-orange bg-ultra-orange/5 shadow-sm' : ''}">
+                                    <input type="radio" name="export-preset" value="${preset.id}" ${preset.id === selectedExportPreset ? 'checked' : ''} class="mt-1 accent-ultra-orange">
                                     <div class="flex-1 space-y-1">
                                         <div class="flex items-center justify-between">
                                             <span class="text-sm font-bold text-white flex items-center gap-2">
-                                                <i class="ph ${preset.icon} text-devo-orange"></i>
+                                                <i class="ph ${preset.icon} text-ultra-orange"></i>
                                                 ${preset.label}
                                             </span>
-                                            <span class="text-[10px] text-devo-muted bg-devo-gray/50 px-2 py-0.5 rounded font-mono">${preset.tables.length} جداول</span>
+                                            <span class="text-[10px] text-ultra-muted bg-ultra-gray/50 px-2 py-0.5 rounded font-mono">${preset.tables.length} جداول</span>
                                         </div>
-                                        <p class="text-xs text-devo-muted">${preset.desc}</p>
+                                        <p class="text-xs text-ultra-muted">${preset.desc}</p>
                                     </div>
                                 </label>
                             `).join('')}
@@ -289,7 +289,7 @@ function renderBackupRestoreView() {
 
                     <button
                         id="btn-trigger-export"
-                        class="w-full py-3.5 px-4 bg-devo-orange hover:bg-devo-orange-hover text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-devo-orange/10 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
+                        class="w-full py-3.5 px-4 bg-ultra-orange hover:bg-ultra-orange-hover text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-ultra-orange/10 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
                     >
                         <i class="ph ph-download-simple text-lg"></i>
                         <span>تصدير وتحميل النسخة الآن</span>
@@ -297,50 +297,50 @@ function renderBackupRestoreView() {
                 </div>
 
                 <!-- 📥 كارت استعادة البيانات من ملف مع معاينة الفروقات -->
-                <div class="bg-devo-dark border border-devo-gray rounded-2xl p-6 space-y-5 flex flex-col justify-between shadow-md">
+                <div class="bg-ultra-dark border border-ultra-gray rounded-2xl p-6 space-y-5 flex flex-col justify-between shadow-md">
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between border-b border-devo-gray pb-4">
+                        <div class="flex items-center justify-between border-b border-ultra-gray pb-4">
                             <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="ph ph-arrow-counter-clockwise text-devo-success text-xl"></i>
+                                <i class="ph ph-arrow-counter-clockwise text-ultra-success text-xl"></i>
                                 استعادة البيانات ومعاينة الفروقات
                             </h3>
-                            <span class="text-xs text-devo-muted bg-devo-black px-2.5 py-1 rounded-lg border border-devo-gray">فحص واستعادة جزئية</span>
+                            <span class="text-xs text-ultra-muted bg-ultra-black px-2.5 py-1 rounded-lg border border-ultra-gray">فحص واستعادة جزئية</span>
                         </div>
 
-                        <p class="text-xs text-devo-muted leading-relaxed">
+                        <p class="text-xs text-ultra-muted leading-relaxed">
                             قم بسحب وإسقاط ملف النسخة الاحتياطية (.json) لتقييم الفروقات وتحديد عناصر معينة للاستعادة:
                         </p>
 
                         <!-- منطقة رفع الملف Dropzone -->
-                        <div id="restore-dropzone" class="border-2 border-dashed border-devo-gray hover:border-devo-success/60 bg-devo-black/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3 cursor-pointer transition-all duration-200 group relative">
+                        <div id="restore-dropzone" class="border-2 border-dashed border-ultra-gray hover:border-ultra-success/60 bg-ultra-black/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3 cursor-pointer transition-all duration-200 group relative">
                             <input type="file" id="restore-file-input" accept=".json" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-                            <div class="w-14 h-14 rounded-2xl bg-devo-gray/50 group-hover:bg-devo-success/10 group-hover:text-devo-success text-devo-muted flex items-center justify-center transition-all duration-200">
+                            <div class="w-14 h-14 rounded-2xl bg-ultra-gray/50 group-hover:bg-ultra-success/10 group-hover:text-ultra-success text-ultra-muted flex items-center justify-center transition-all duration-200">
                                 <i class="ph ph-file-arrow-down text-3xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-white group-hover:text-devo-success transition-colors">اضغط هنا لاختيار الملف أو اسحبه إلى هنا</p>
-                                <p class="text-xs text-devo-muted mt-1">يدعم فقط ملفات النسخ الاحتياطي الخاصة بنظام DEVO (.json)</p>
+                                <p class="text-sm font-bold text-white group-hover:text-ultra-success transition-colors">اضغط هنا لاختيار الملف أو اسحبه إلى هنا</p>
+                                <p class="text-xs text-ultra-muted mt-1">يدعم فقط ملفات النسخ الاحتياطي الخاصة بنظام UltraSoft (.json)</p>
                             </div>
                         </div>
 
                         <!-- كارت معاينة ومعلومات الملف المرفوع (مخفي افتراضياً) -->
-                        <div id="file-inspection-card" class="hidden bg-devo-black/60 border border-devo-gray rounded-xl p-4 space-y-3 animate-fade-in">
-                            <div class="flex items-center justify-between border-b border-devo-gray/60 pb-2.5">
+                        <div id="file-inspection-card" class="hidden bg-ultra-black/60 border border-ultra-gray rounded-xl p-4 space-y-3 animate-fade-in">
+                            <div class="flex items-center justify-between border-b border-ultra-gray/60 pb-2.5">
                                 <div class="flex items-center gap-2 truncate max-w-[70%]">
-                                    <i class="ph ph-file-js text-devo-orange text-xl shrink-0"></i>
+                                    <i class="ph ph-file-js text-ultra-orange text-xl shrink-0"></i>
                                     <span id="inspect-filename" class="text-xs font-bold text-white truncate">backup.json</span>
                                 </div>
-                                <span id="inspect-backup-type" class="text-[11px] font-bold text-devo-success bg-devo-success/10 border border-devo-success/20 px-2.5 py-0.5 rounded-lg">نوع النسخة: كاملة</span>
+                                <span id="inspect-backup-type" class="text-[11px] font-bold text-ultra-success bg-ultra-success/10 border border-ultra-success/20 px-2.5 py-0.5 rounded-lg">نوع النسخة: كاملة</span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2 text-xs">
                                 <div>
-                                    <span class="text-devo-muted">تاريخ النسخة:</span>
+                                    <span class="text-ultra-muted">تاريخ النسخة:</span>
                                     <p id="inspect-date" class="text-white font-mono font-medium mt-0.5">-</p>
                                 </div>
                                 <div>
-                                    <span class="text-devo-muted">إجمالي السجلات:</span>
-                                    <p id="inspect-total-records" class="text-devo-orange font-bold font-mono mt-0.5">0 سجل</p>
+                                    <span class="text-ultra-muted">إجمالي السجلات:</span>
+                                    <p id="inspect-total-records" class="text-ultra-orange font-bold font-mono mt-0.5">0 سجل</p>
                                 </div>
                             </div>
 
@@ -348,7 +348,7 @@ function renderBackupRestoreView() {
                             <div class="pt-1">
                                 <button
                                     id="btn-open-diff-modal"
-                                    class="w-full py-2.5 px-3 bg-devo-orange/15 hover:bg-devo-orange text-devo-orange hover:text-white border border-devo-orange/30 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                                    class="w-full py-2.5 px-3 bg-ultra-orange/15 hover:bg-ultra-orange text-ultra-orange hover:text-white border border-ultra-orange/30 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                                 >
                                     <i class="ph ph-git-diff text-base"></i>
                                     <span>🔍 معاينة الفروقات وتحديد عناصر مخصصة للاستعادة</span>
@@ -356,23 +356,23 @@ function renderBackupRestoreView() {
                             </div>
 
                             <!-- اختيار طريقة الاستعادة -->
-                            <div class="border-t border-devo-gray/60 pt-3 space-y-2">
+                            <div class="border-t border-ultra-gray/60 pt-3 space-y-2">
                                 <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i class="ph ph-sliders text-devo-orange"></i> طريقة معالجة البيانات:
+                                    <i class="ph ph-sliders text-ultra-orange"></i> طريقة معالجة البيانات:
                                 </span>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-devo-gray bg-devo-dark hover:border-devo-success/50 cursor-pointer">
-                                        <input type="radio" name="restore-mode" value="upsert" checked class="accent-devo-success">
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-ultra-gray bg-ultra-dark hover:border-ultra-success/50 cursor-pointer">
+                                        <input type="radio" name="restore-mode" value="upsert" checked class="accent-ultra-success">
                                         <div>
                                             <p class="text-white font-bold">دمج وتحديث (آمن)</p>
-                                            <p class="text-[10px] text-devo-muted">إضافة الجديد وتحديث الموجود</p>
+                                            <p class="text-[10px] text-ultra-muted">إضافة الجديد وتحديث الموجود</p>
                                         </div>
                                     </label>
-                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-devo-gray bg-devo-dark hover:border-devo-error/50 cursor-pointer">
-                                        <input type="radio" name="restore-mode" value="replace" class="accent-devo-error">
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-ultra-gray bg-ultra-dark hover:border-ultra-error/50 cursor-pointer">
+                                        <input type="radio" name="restore-mode" value="replace" class="accent-ultra-error">
                                         <div>
-                                            <p class="text-devo-error font-bold">إعادة استبدال كاملة</p>
-                                            <p class="text-[10px] text-devo-muted">حذف الجداول المعنية واستبدالها</p>
+                                            <p class="text-ultra-error font-bold">إعادة استبدال كاملة</p>
+                                            <p class="text-[10px] text-ultra-muted">حذف الجداول المعنية واستبدالها</p>
                                         </div>
                                     </label>
                                 </div>
@@ -384,7 +384,7 @@ function renderBackupRestoreView() {
                     <button
                         id="btn-trigger-restore"
                         disabled
-                        class="w-full py-3.5 px-4 bg-devo-gray text-devo-muted rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-not-allowed opacity-60"
+                        class="w-full py-3.5 px-4 bg-ultra-gray text-ultra-muted rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-not-allowed opacity-60"
                     >
                         <i class="ph ph-play-circle text-lg"></i>
                         <span>بدء عملية استعادة كافة البيانات</span>
@@ -397,20 +397,20 @@ function renderBackupRestoreView() {
 
         <!-- ===== MODAL معاينة الفروقات واستعادة العناصر المخصصة ===== -->
         <div id="diff-selective-modal" class="fixed inset-0 z-[9999] items-center justify-center bg-black/80 backdrop-blur-md" style="display:none">
-            <div class="w-full max-w-4xl mx-4 bg-devo-dark border border-devo-gray rounded-2xl shadow-2xl overflow-hidden animate-fade-in flex flex-col max-h-[90vh]">
+            <div class="w-full max-w-4xl mx-4 bg-ultra-dark border border-ultra-gray rounded-2xl shadow-2xl overflow-hidden animate-fade-in flex flex-col max-h-[90vh]">
 
                 <!-- رأس الـ Modal -->
-                <div class="flex items-center justify-between p-5 border-b border-devo-gray bg-devo-black/40 shrink-0">
+                <div class="flex items-center justify-between p-5 border-b border-ultra-gray bg-ultra-black/40 shrink-0">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-devo-orange/15 flex items-center justify-center text-devo-orange">
+                        <div class="w-10 h-10 rounded-xl bg-ultra-orange/15 flex items-center justify-center text-ultra-orange">
                             <i class="ph ph-git-diff text-2xl"></i>
                         </div>
                         <div>
                             <p class="text-base font-bold text-white">معاينة الفروقات والاستعادة المخصصة للعناصر</p>
-                            <p class="text-xs text-devo-muted">قارن بين بيانات الملف وبيانات السيرفر الحالية وحدد عناصر معينة فقط لاستعادتها</p>
+                            <p class="text-xs text-ultra-muted">قارن بين بيانات الملف وبيانات السيرفر الحالية وحدد عناصر معينة فقط لاستعادتها</p>
                         </div>
                     </div>
-                    <button id="btn-close-diff-modal" class="w-8 h-8 rounded-lg bg-devo-gray hover:bg-devo-grayHover flex items-center justify-center text-devo-muted hover:text-white transition-colors cursor-pointer">
+                    <button id="btn-close-diff-modal" class="w-8 h-8 rounded-lg bg-ultra-gray hover:bg-ultra-grayHover flex items-center justify-center text-ultra-muted hover:text-white transition-colors cursor-pointer">
                         <i class="ph ph-x text-sm"></i>
                     </button>
                 </div>
@@ -420,28 +420,28 @@ function renderBackupRestoreView() {
 
                     <!-- 1. شريط إحصائيات المقارنة (Diff Stats Bar) -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-devo-success/10 border border-devo-success/30 rounded-xl p-4 flex items-center justify-between">
+                        <div class="bg-ultra-success/10 border border-ultra-success/30 rounded-xl p-4 flex items-center justify-between">
                             <div>
-                                <span class="block text-devo-muted text-xs mb-1">سجلات جديدة ستُضاف</span>
-                                <span class="text-2xl font-black text-devo-success font-mono" id="diff-stat-new">0</span>
+                                <span class="block text-ultra-muted text-xs mb-1">سجلات جديدة ستُضاف</span>
+                                <span class="text-2xl font-black text-ultra-success font-mono" id="diff-stat-new">0</span>
                             </div>
-                            <i class="ph ph-plus-circle text-3xl text-devo-success opacity-80"></i>
+                            <i class="ph ph-plus-circle text-3xl text-ultra-success opacity-80"></i>
                         </div>
 
-                        <div class="bg-devo-warning/10 border border-devo-warning/30 rounded-xl p-4 flex items-center justify-between">
+                        <div class="bg-ultra-warning/10 border border-ultra-warning/30 rounded-xl p-4 flex items-center justify-between">
                             <div>
-                                <span class="block text-devo-muted text-xs mb-1">سجلات سيتعدل محتواها</span>
-                                <span class="text-2xl font-black text-devo-warning font-mono" id="diff-stat-modified">0</span>
+                                <span class="block text-ultra-muted text-xs mb-1">سجلات سيتعدل محتواها</span>
+                                <span class="text-2xl font-black text-ultra-warning font-mono" id="diff-stat-modified">0</span>
                             </div>
-                            <i class="ph ph-pencil-simple-line text-3xl text-devo-warning opacity-80"></i>
+                            <i class="ph ph-pencil-simple-line text-3xl text-ultra-warning opacity-80"></i>
                         </div>
 
-                        <div class="bg-devo-black/60 border border-devo-gray rounded-xl p-4 flex items-center justify-between">
+                        <div class="bg-ultra-black/60 border border-ultra-gray rounded-xl p-4 flex items-center justify-between">
                             <div>
-                                <span class="text-devo-muted text-xs block mb-1">سجلات متطابقة بالضبط</span>
-                                <span class="text-2xl font-black text-devo-muted font-mono" id="diff-stat-identical">0</span>
+                                <span class="text-ultra-muted text-xs block mb-1">سجلات متطابقة بالضبط</span>
+                                <span class="text-2xl font-black text-ultra-muted font-mono" id="diff-stat-identical">0</span>
                             </div>
-                            <i class="ph ph-equals text-3xl text-devo-muted opacity-50"></i>
+                            <i class="ph ph-equals text-3xl text-ultra-muted opacity-50"></i>
                         </div>
                     </div>
 
@@ -449,19 +449,19 @@ function renderBackupRestoreView() {
                     <div class="space-y-3">
                         <div class="flex items-center justify-between pb-1">
                             <span class="text-xs font-bold text-white flex items-center gap-2">
-                                <i class="ph ph-list-checks text-devo-orange text-base"></i>
+                                <i class="ph ph-list-checks text-ultra-orange text-base"></i>
                                 تحديد الجداول والعناصر المراد استعادتها:
                             </span>
                             <div class="flex items-center gap-2 text-xs">
-                                <button id="btn-diff-select-all" class="text-devo-orange hover:underline font-bold">تحديد الكل</button>
-                                <span class="text-devo-muted">•</span>
-                                <button id="btn-diff-deselect-all" class="text-devo-muted hover:text-white">إلغاء الكل</button>
+                                <button id="btn-diff-select-all" class="text-ultra-orange hover:underline font-bold">تحديد الكل</button>
+                                <span class="text-ultra-muted">•</span>
+                                <button id="btn-diff-deselect-all" class="text-ultra-muted hover:text-white">إلغاء الكل</button>
                             </div>
                         </div>
 
                         <div id="diff-tables-accordion-container" class="space-y-3">
-                            <div class="p-8 text-center text-devo-muted text-xs flex flex-col items-center gap-2">
-                                <i class="ph ph-spinner animate-spin text-2xl text-devo-orange"></i>
+                            <div class="p-8 text-center text-ultra-muted text-xs flex flex-col items-center gap-2">
+                                <i class="ph ph-spinner animate-spin text-2xl text-ultra-orange"></i>
                                 <span>جاري حساب المقارنة مع قاعدة البيانات الحية...</span>
                             </div>
                         </div>
@@ -470,13 +470,13 @@ function renderBackupRestoreView() {
                 </div>
 
                 <!-- أسفل الـ Modal مع زر الاستعادة الجزئية -->
-                <div class="p-5 border-t border-devo-gray bg-devo-black/60 flex items-center justify-between shrink-0">
-                    <span class="text-xs text-devo-muted">سيتم استعادة العناصر المفحوصة والمحددة فقط</span>
+                <div class="p-5 border-t border-ultra-gray bg-ultra-black/60 flex items-center justify-between shrink-0">
+                    <span class="text-xs text-ultra-muted">سيتم استعادة العناصر المفحوصة والمحددة فقط</span>
                     <div class="flex items-center gap-3">
-                        <button id="btn-diff-cancel" class="px-5 py-2.5 rounded-xl border border-devo-gray text-devo-muted hover:bg-devo-gray hover:text-white transition-colors text-xs font-medium cursor-pointer">
+                        <button id="btn-diff-cancel" class="px-5 py-2.5 rounded-xl border border-ultra-gray text-ultra-muted hover:bg-ultra-gray hover:text-white transition-colors text-xs font-medium cursor-pointer">
                             إلغاء
                         </button>
-                        <button id="btn-execute-selective-restore" class="px-6 py-2.5 rounded-xl bg-devo-success hover:bg-emerald-600 text-white transition-colors text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg active:scale-95">
+                        <button id="btn-execute-selective-restore" class="px-6 py-2.5 rounded-xl bg-ultra-success hover:bg-emerald-600 text-white transition-colors text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg active:scale-95">
                             <i class="ph ph-check-square-offset text-base"></i>
                             <span>استعادة العناصر المحددة فقط</span>
                         </button>
@@ -488,45 +488,45 @@ function renderBackupRestoreView() {
 
         <!-- ===== MODAL تقدم عملية التصدير أوالاستعادة ===== -->
         <div id="backup-progress-modal" class="fixed inset-0 z-[9999] items-center justify-center bg-black/80 backdrop-blur-md" style="display:none">
-            <div class="w-full max-w-xl mx-4 bg-devo-dark border border-devo-gray rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+            <div class="w-full max-w-xl mx-4 bg-ultra-dark border border-ultra-gray rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
 
                 <!-- شريط التقدم المئوي الأعلى -->
-                <div class="h-1.5 bg-devo-gray">
-                    <div id="progress-bar-fill" class="h-full bg-devo-orange transition-all duration-300" style="width: 0%"></div>
+                <div class="h-1.5 bg-ultra-gray">
+                    <div id="progress-bar-fill" class="h-full bg-ultra-orange transition-all duration-300" style="width: 0%"></div>
                 </div>
 
                 <!-- رأس الـ Modal -->
-                <div class="flex items-center justify-between p-5 border-b border-devo-gray">
+                <div class="flex items-center justify-between p-5 border-b border-ultra-gray">
                     <div class="flex items-center gap-3">
-                        <div id="progress-modal-icon-container" class="w-10 h-10 rounded-xl bg-devo-orange/15 flex items-center justify-center text-devo-orange">
+                        <div id="progress-modal-icon-container" class="w-10 h-10 rounded-xl bg-ultra-orange/15 flex items-center justify-center text-ultra-orange">
                             <i id="progress-modal-icon" class="ph ph-spinner animate-spin text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm font-bold text-white" id="progress-modal-title">جاري تنفيذ العملية...</p>
-                            <p class="text-xs text-devo-muted" id="progress-modal-subtitle">يرجى الانتظار ولا تغلق الشاشة</p>
+                            <p class="text-xs text-ultra-muted" id="progress-modal-subtitle">يرجى الانتظار ولا تغلق الشاشة</p>
                         </div>
                     </div>
-                    <span id="progress-modal-percentage" class="text-base font-black text-devo-orange font-mono">0%</span>
+                    <span id="progress-modal-percentage" class="text-base font-black text-ultra-orange font-mono">0%</span>
                 </div>
 
                 <!-- المحتوى الداخلي -->
                 <div class="p-6 space-y-5">
 
                     <!-- الإحصائية السريعة الحالية -->
-                    <div class="bg-devo-black/60 border border-devo-gray rounded-xl p-4 flex items-center justify-between text-xs">
+                    <div class="bg-ultra-black/60 border border-ultra-gray rounded-xl p-4 flex items-center justify-between text-xs">
                         <div>
-                            <span class="text-devo-muted">الجدول الحالي:</span>
+                            <span class="text-ultra-muted">الجدول الحالي:</span>
                             <p id="progress-current-table" class="text-white font-bold text-sm mt-0.5">-</p>
                         </div>
                         <div class="text-left">
-                            <span class="text-devo-muted">السجلات المعالجة:</span>
-                            <p id="progress-records-counter" class="text-devo-orange font-bold font-mono text-sm mt-0.5">0 / 0</p>
+                            <span class="text-ultra-muted">السجلات المعالجة:</span>
+                            <p id="progress-records-counter" class="text-ultra-orange font-bold font-mono text-sm mt-0.5">0 / 0</p>
                         </div>
                     </div>
 
                     <!-- قائمة خطوات وسجلات الجداول الحية -->
                     <div class="space-y-1">
-                        <p class="text-xs font-bold text-devo-muted mb-2 flex items-center justify-between">
+                        <p class="text-xs font-bold text-ultra-muted mb-2 flex items-center justify-between">
                             <span>تفاصيل الجداول:</span>
                             <span id="progress-time-elapsed" class="font-mono text-[11px]">00:00</span>
                         </p>
@@ -536,18 +536,18 @@ function renderBackupRestoreView() {
                     </div>
 
                     <!-- سجل التنبيهات والأخطاء (إن وُجد) -->
-                    <div id="progress-errors-container" class="hidden bg-devo-error/10 border border-devo-error/30 rounded-xl p-3 text-xs space-y-1.5">
-                        <p class="font-bold text-devo-error flex items-center gap-1.5">
+                    <div id="progress-errors-container" class="hidden bg-ultra-error/10 border border-ultra-error/30 rounded-xl p-3 text-xs space-y-1.5">
+                        <p class="font-bold text-ultra-error flex items-center gap-1.5">
                             <i class="ph ph-warning"></i> تنبيهات أثناء العملية:
                         </p>
-                        <div id="progress-errors-list" class="text-devo-muted max-h-20 overflow-y-auto custom-scrollbar space-y-1"></div>
+                        <div id="progress-errors-list" class="text-ultra-muted max-h-20 overflow-y-auto custom-scrollbar space-y-1"></div>
                     </div>
 
                     <!-- زر الإغلاق والإنهاء -->
                     <div id="progress-modal-footer" class="hidden pt-2">
                         <button
                             id="btn-close-progress-modal"
-                            class="w-full py-3 bg-devo-orange hover:bg-devo-orange-hover text-white font-bold text-sm rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+                            class="w-full py-3 bg-ultra-orange hover:bg-ultra-orange-hover text-white font-bold text-sm rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
                         >
                             تم إكمال العملية بنجاح — إغلاق
                         </button>
@@ -568,9 +568,9 @@ function attachBackupRestoreEvents() {
         radio.addEventListener('change', (e) => {
             selectedExportPreset = e.target.value;
             document.querySelectorAll('.export-preset-card').forEach(card => {
-                card.classList.remove('border-devo-orange', 'bg-devo-orange/5');
+                card.classList.remove('border-ultra-orange', 'bg-ultra-orange/5');
             });
-            e.target.closest('.export-preset-card')?.classList.add('border-devo-orange', 'bg-devo-orange/5');
+            e.target.closest('.export-preset-card')?.classList.add('border-ultra-orange', 'bg-ultra-orange/5');
         });
     });
 
@@ -591,13 +591,13 @@ function attachBackupRestoreEvents() {
         ['dragenter', 'dragover'].forEach(eventName => {
             dropzone.addEventListener(eventName, (e) => {
                 e.preventDefault();
-                dropzone.classList.add('border-devo-success', 'bg-devo-success/5');
+                dropzone.classList.add('border-ultra-success', 'bg-ultra-success/5');
             });
         });
         ['dragleave', 'drop'].forEach(eventName => {
             dropzone.addEventListener(eventName, (e) => {
                 e.preventDefault();
-                dropzone.classList.remove('border-devo-success', 'bg-devo-success/5');
+                dropzone.classList.remove('border-ultra-success', 'bg-ultra-success/5');
             });
         });
         dropzone.addEventListener('drop', (e) => {
@@ -641,8 +641,8 @@ async function openDiffAndSelectiveModal() {
     document.getElementById('diff-stat-modified').textContent = '...';
     document.getElementById('diff-stat-identical').textContent = '...';
     document.getElementById('diff-tables-accordion-container').innerHTML = `
-        <div class="p-8 text-center text-devo-muted text-xs flex flex-col items-center gap-2">
-            <i class="ph ph-spinner animate-spin text-2xl text-devo-orange"></i>
+        <div class="p-8 text-center text-ultra-muted text-xs flex flex-col items-center gap-2">
+            <i class="ph ph-spinner animate-spin text-2xl text-ultra-orange"></i>
             <span>جاري مقارنة ملف النسخة الاحتياطية وقراءة أسماء المنتجات والمقاسات من السيرفر...</span>
         </div>
     `;
@@ -765,7 +765,7 @@ function renderDiffModalContent(diffData) {
 
     const tableNames = Object.keys(diffData.tables);
     if (tableNames.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-devo-muted text-xs">لا توجد جداول قابلة للمقارنة</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-ultra-muted text-xs">لا توجد جداول قابلة للمقارنة</div>`;
         return;
     }
 
@@ -775,48 +775,48 @@ function renderDiffModalContent(diffData) {
         const totalItemsCount = tableDiff.newItems.length + tableDiff.modifiedItems.length + tableDiff.identicalItems.length;
 
         return `
-            <div class="border border-devo-gray bg-devo-black/40 rounded-xl overflow-hidden">
+            <div class="border border-ultra-gray bg-ultra-black/40 rounded-xl overflow-hidden">
                 <!-- رأس الجدول بالشجرة -->
-                <div class="flex items-center justify-between p-3.5 bg-devo-black/70 border-b border-devo-gray/50 cursor-pointer">
+                <div class="flex items-center justify-between p-3.5 bg-ultra-black/70 border-b border-ultra-gray/50 cursor-pointer">
                     <label class="flex items-center gap-3 cursor-pointer select-none">
-                        <input type="checkbox" data-table-checkbox="${tableName}" checked class="accent-devo-orange w-4 h-4 rounded">
+                        <input type="checkbox" data-table-checkbox="${tableName}" checked class="accent-ultra-orange w-4 h-4 rounded">
                         <span class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="ph ph-table text-devo-orange"></i>
+                            <i class="ph ph-table text-ultra-orange"></i>
                             ${arabicName} (${tableName})
                         </span>
                     </label>
 
                     <div class="flex items-center gap-2 text-[11px]">
-                        ${tableDiff.newItems.length > 0 ? `<span class="bg-devo-success/10 text-devo-success border border-devo-success/20 px-2 py-0.5 rounded font-mono font-bold">+${tableDiff.newItems.length} جديد</span>` : ''}
-                        ${tableDiff.modifiedItems.length > 0 ? `<span class="bg-devo-warning/10 text-devo-warning border border-devo-warning/20 px-2 py-0.5 rounded font-mono font-bold">~${tableDiff.modifiedItems.length} معدّل</span>` : ''}
-                        <span class="text-devo-muted font-mono">(${totalItemsCount} سجل)</span>
+                        ${tableDiff.newItems.length > 0 ? `<span class="bg-ultra-success/10 text-ultra-success border border-ultra-success/20 px-2 py-0.5 rounded font-mono font-bold">+${tableDiff.newItems.length} جديد</span>` : ''}
+                        ${tableDiff.modifiedItems.length > 0 ? `<span class="bg-ultra-warning/10 text-ultra-warning border border-ultra-warning/20 px-2 py-0.5 rounded font-mono font-bold">~${tableDiff.modifiedItems.length} معدّل</span>` : ''}
+                        <span class="text-ultra-muted font-mono">(${totalItemsCount} سجل)</span>
                     </div>
                 </div>
 
                 <!-- قائمة العناصر للتحديد الفردي مع إظهار الأسماء الواضحة والمقاسات -->
-                <div class="p-3 space-y-1.5 bg-devo-dark/50 max-h-48 overflow-y-auto custom-scrollbar">
+                <div class="p-3 space-y-1.5 bg-ultra-dark/50 max-h-48 overflow-y-auto custom-scrollbar">
                     ${tableDiff.newItems.map((item, idx) => `
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-devo-black/50 border border-devo-gray/40 hover:border-devo-success/40 text-xs cursor-pointer">
+                        <label class="flex items-center justify-between p-2 rounded-lg bg-ultra-black/50 border border-ultra-gray/40 hover:border-ultra-success/40 text-xs cursor-pointer">
                             <div class="flex items-center gap-2 truncate">
-                                <input type="checkbox" data-record-table="${tableName}" data-record-index="new_${idx}" checked class="accent-devo-success">
+                                <input type="checkbox" data-record-table="${tableName}" data-record-index="new_${idx}" checked class="accent-ultra-success">
                                 <span class="text-white truncate font-medium">${getItemDisplayLabel(tableName, item, diffData.lookups)}</span>
                             </div>
-                            <span class="text-[10px] bg-devo-success/10 text-devo-success px-2 py-0.5 rounded font-bold shrink-0">سجل جديد</span>
+                            <span class="text-[10px] bg-ultra-success/10 text-ultra-success px-2 py-0.5 rounded font-bold shrink-0">سجل جديد</span>
                         </label>
                     `).join('')}
 
                     ${tableDiff.modifiedItems.map((mod, idx) => `
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-devo-black/50 border border-devo-gray/40 hover:border-devo-warning/40 text-xs cursor-pointer">
+                        <label class="flex items-center justify-between p-2 rounded-lg bg-ultra-black/50 border border-ultra-gray/40 hover:border-ultra-warning/40 text-xs cursor-pointer">
                             <div class="flex items-center gap-2 truncate">
-                                <input type="checkbox" data-record-table="${tableName}" data-record-index="mod_${idx}" checked class="accent-devo-warning">
+                                <input type="checkbox" data-record-table="${tableName}" data-record-index="mod_${idx}" checked class="accent-ultra-warning">
                                 <span class="text-white truncate font-medium">${getItemDisplayLabel(tableName, mod.backupRow, diffData.lookups)}</span>
                             </div>
-                            <span class="text-[10px] bg-devo-warning/10 text-devo-warning px-2 py-0.5 rounded font-bold shrink-0">سيتم التحديث</span>
+                            <span class="text-[10px] bg-ultra-warning/10 text-ultra-warning px-2 py-0.5 rounded font-bold shrink-0">سيتم التحديث</span>
                         </label>
                     `).join('')}
 
                     ${tableDiff.newItems.length === 0 && tableDiff.modifiedItems.length === 0 ? `
-                        <p class="text-[11px] text-devo-muted text-center py-2">جميع السجلات متطابقة كلياً مع الحية بالسيستم</p>
+                        <p class="text-[11px] text-ultra-muted text-center py-2">جميع السجلات متطابقة كلياً مع الحية بالسيستم</p>
                     ` : ''}
                 </div>
             </div>
@@ -1192,7 +1192,7 @@ async function generateBackupPayload(preset) {
             preset_id: preset.id,
             preset_name: preset.label,
             created_at: new Date().toISOString(),
-            exported_by: localStorage.getItem('devo_current_username') || 'admin',
+            exported_by: localStorage.getItem('ultra_current_username') || 'admin',
             tenant_id: currentTenantId,
             tenant_name: tenantName,
             total_records: 0,
@@ -1440,7 +1440,7 @@ async function executeCloudAutoBackup(isManualClick = false) {
                 total_records: backupPayload.meta.total_records,
                 file_size_bytes: fileSize,
                 storage_path: filename,
-                exported_by: isManualClick ? (localStorage.getItem('devo_current_username') || 'admin') : 'system_auto',
+                exported_by: isManualClick ? (localStorage.getItem('ultra_current_username') || 'admin') : 'system_auto',
                 metadata: { ...backupPayload.meta, tenant_name: tenantName }
             }]);
 
@@ -1462,7 +1462,7 @@ async function executeCloudAutoBackup(isManualClick = false) {
             showToast('تم رفع النسخة السحابية وإرسال رابط التنزيل للتليجرام بنجاح ☁️✅', 'success');
         }
 
-        localStorage.setItem('devo_last_auto_backup_date', new Date().toISOString().split('T')[0]);
+        localStorage.setItem('ultra_last_auto_backup_date', new Date().toISOString().split('T')[0]);
 
     } catch (err) {
         console.error('Cloud backup error:', err);
@@ -1473,7 +1473,7 @@ async function executeCloudAutoBackup(isManualClick = false) {
 // فحص الجدولة التلقائية لمنتصف الليل عند فتح الصفحة
 async function checkAutoCloudBackupMidnight() {
     try {
-        const lastBackupDate = localStorage.getItem('devo_last_auto_backup_date');
+        const lastBackupDate = localStorage.getItem('ultra_last_auto_backup_date');
         const todayDate = new Date().toISOString().split('T')[0];
 
         if (lastBackupDate !== todayDate) {
@@ -1616,10 +1616,10 @@ async function fetchCloudBackups() {
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="6" class="p-6 text-center">
-                            <div class="flex flex-col items-center gap-2 bg-devo-black/60 p-4 rounded-xl border border-devo-warning/30">
-                                <i class="ph ph-warning-circle text-3xl text-devo-warning"></i>
+                            <div class="flex flex-col items-center gap-2 bg-ultra-black/60 p-4 rounded-xl border border-ultra-warning/30">
+                                <i class="ph ph-warning-circle text-3xl text-ultra-warning"></i>
                                 <p class="font-bold text-white text-sm">جدول النسخ السحابية غير مفعّل في قواعد البيانات بعد</p>
-                                <p class="text-xs text-devo-muted max-w-md">يرجى تشغيل أمر الهجرة SQL (v11_automated_cloud_backups_and_logs.sql) في لوحة متحكم Supabase لتفعيل السجل والتخزين السحابي.</p>
+                                <p class="text-xs text-ultra-muted max-w-md">يرجى تشغيل أمر الهجرة SQL (v11_automated_cloud_backups_and_logs.sql) في لوحة متحكم Supabase لتفعيل السجل والتخزين السحابي.</p>
                             </div>
                         </td>
                     </tr>
@@ -1636,7 +1636,7 @@ async function fetchCloudBackups() {
         console.error('Error fetching cloud backups:', e);
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="p-4 text-center text-devo-muted">
+                <td colspan="6" class="p-4 text-center text-ultra-muted">
                     حدث خطأ أثناء تحميل سجل النسخ السحابية: ${e.message}
                 </td>
             </tr>
@@ -1651,7 +1651,7 @@ function renderCloudBackupsTable() {
     if (cloudBackupsList.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="p-6 text-center text-devo-muted">
+                <td colspan="6" class="p-6 text-center text-ultra-muted">
                     لا توجد نسخ احتياطية سحابية محفوظة حالياً في السجل
                 </td>
             </tr>
@@ -1665,24 +1665,24 @@ function renderCloudBackupsTable() {
         const presetName = EXPORT_PRESETS[item.backup_type]?.label || item.backup_type || 'كاملة';
 
         return `
-            <tr class="hover:bg-devo-black/30 transition-colors">
+            <tr class="hover:bg-ultra-black/30 transition-colors">
                 <td class="p-3 font-mono font-bold text-white truncate max-w-[180px]" title="${item.filename}">
                     ${item.filename}
                 </td>
-                <td class="p-3 text-devo-muted">${dateStr}</td>
+                <td class="p-3 text-ultra-muted">${dateStr}</td>
                 <td class="p-3">
-                    <span class="bg-devo-orange/10 text-devo-orange border border-devo-orange/20 px-2 py-0.5 rounded text-[11px] font-bold">
+                    <span class="bg-ultra-orange/10 text-ultra-orange border border-ultra-orange/20 px-2 py-0.5 rounded text-[11px] font-bold">
                         ${presetName}
                     </span>
                 </td>
-                <td class="p-3 font-mono font-bold text-devo-success">${item.total_records.toLocaleString('ar-EG')} سجل</td>
-                <td class="p-3 text-devo-muted font-mono">${sizeStr}</td>
+                <td class="p-3 font-mono font-bold text-ultra-success">${item.total_records.toLocaleString('ar-EG')} سجل</td>
+                <td class="p-3 text-ultra-muted font-mono">${sizeStr}</td>
                 <td class="p-3 text-center">
                     <div class="flex items-center justify-center gap-1.5">
                         <button
                             onclick="restoreDirectFromCloud('${item.filename}')"
                             title="استعادة فورية بنقرة واحدة"
-                            class="px-2.5 py-1 bg-devo-success/15 hover:bg-devo-success text-devo-success hover:text-white border border-devo-success/30 rounded-lg font-bold text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
+                            class="px-2.5 py-1 bg-ultra-success/15 hover:bg-ultra-success text-ultra-success hover:text-white border border-ultra-success/30 rounded-lg font-bold text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
                         >
                             <i class="ph ph-lightning text-sm"></i>
                             <span>استعادة 1-Click</span>
@@ -1690,14 +1690,14 @@ function renderCloudBackupsTable() {
                         <button
                             onclick="downloadCloudBackup('${item.filename}')"
                             title="تحميل الملف"
-                            class="p-1.5 bg-devo-gray hover:bg-devo-grayHover text-white rounded-lg transition-colors cursor-pointer"
+                            class="p-1.5 bg-ultra-gray hover:bg-ultra-grayHover text-white rounded-lg transition-colors cursor-pointer"
                         >
                             <i class="ph ph-download-simple text-base"></i>
                         </button>
                         <button
                             onclick="deleteCloudBackup('${item.id}', '${item.filename}')"
                             title="حذف من السحابة"
-                            class="p-1.5 bg-devo-error/10 hover:bg-devo-error text-devo-error hover:text-white rounded-lg transition-colors cursor-pointer"
+                            class="p-1.5 bg-ultra-error/10 hover:bg-ultra-error text-ultra-error hover:text-white rounded-lg transition-colors cursor-pointer"
                         >
                             <i class="ph ph-trash text-base"></i>
                         </button>
@@ -1879,7 +1879,7 @@ function validateAndInspectBackupContent(fileName, data) {
     const meta = data.meta || {};
 
     // 🔒 1. التحقق من تنسيق ومصدر النظام الأصلي
-    if (meta.format !== BACKUP_FORMAT_IDENTIFIER && meta.format !== 'DEVO_SYSTEM_BACKUP') {
+    if (meta.format !== BACKUP_FORMAT_IDENTIFIER && meta.format !== 'ULTRA_SYSTEM_BACKUP') {
         showToast('🚫 تنبيه أمني: الملف المرفوع غير معتمد أو صادر من نظام خارجي غير معروف.', 'error', 7000);
         resetFileInspection();
         return;
@@ -1923,7 +1923,7 @@ function validateAndInspectBackupContent(fileName, data) {
     const triggerBtn = document.getElementById('btn-trigger-restore');
     if (triggerBtn) {
         triggerBtn.disabled = false;
-        triggerBtn.className = 'w-full py-3.5 px-4 bg-devo-success hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-devo-success/10 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]';
+        triggerBtn.className = 'w-full py-3.5 px-4 bg-ultra-success hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-ultra-success/10 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]';
     }
 
     showToast('تم فحص وتقييم ملف النسخة الاحتياطية بنجاح ✅', 'success');
@@ -1935,7 +1935,7 @@ function resetFileInspection() {
     const triggerBtn = document.getElementById('btn-trigger-restore');
     if (triggerBtn) {
         triggerBtn.disabled = true;
-        triggerBtn.className = 'w-full py-3.5 px-4 bg-devo-gray text-devo-muted rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-not-allowed opacity-60';
+        triggerBtn.className = 'w-full py-3.5 px-4 bg-ultra-gray text-ultra-muted rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-not-allowed opacity-60';
     }
 }
 
@@ -2269,7 +2269,7 @@ function openProgressModal(title, subtitle) {
 
     const iconContainer = document.getElementById('progress-modal-icon-container');
     if (iconContainer) {
-        iconContainer.className = 'w-10 h-10 rounded-xl bg-devo-orange/15 flex items-center justify-center text-devo-orange';
+        iconContainer.className = 'w-10 h-10 rounded-xl bg-ultra-orange/15 flex items-center justify-center text-ultra-orange';
         iconContainer.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i>';
     }
 
@@ -2296,26 +2296,26 @@ function addOrUpdateStepItem(tableId, arabicName, status, statusText) {
     if (!stepItem) {
         stepItem = document.createElement('div');
         stepItem.id = `step-${tableId}`;
-        stepItem.className = 'flex items-center justify-between p-2.5 rounded-xl border border-devo-gray bg-devo-black/40 text-xs transition-all';
+        stepItem.className = 'flex items-center justify-between p-2.5 rounded-xl border border-ultra-gray bg-ultra-black/40 text-xs transition-all';
         list.appendChild(stepItem);
     }
 
     let statusBadge = '';
     if (status === 'loading') {
         statusBadge = `
-            <span class="flex items-center gap-1 text-devo-orange font-medium">
+            <span class="flex items-center gap-1 text-ultra-orange font-medium">
                 <i class="ph ph-spinner animate-spin"></i> ${statusText}
             </span>
         `;
     } else if (status === 'success') {
         statusBadge = `
-            <span class="flex items-center gap-1 text-devo-success font-medium">
+            <span class="flex items-center gap-1 text-ultra-success font-medium">
                 <i class="ph ph-check-circle text-base"></i> ${statusText}
             </span>
         `;
     } else if (status === 'error') {
         statusBadge = `
-            <span class="flex items-center gap-1 text-devo-error font-medium">
+            <span class="flex items-center gap-1 text-ultra-error font-medium">
                 <i class="ph ph-x-circle text-base"></i> ${statusText}
             </span>
         `;
@@ -2323,7 +2323,7 @@ function addOrUpdateStepItem(tableId, arabicName, status, statusText) {
 
     stepItem.innerHTML = `
         <span class="font-bold text-white flex items-center gap-2">
-            <i class="ph ph-table text-devo-muted"></i> ${arabicName}
+            <i class="ph ph-table text-ultra-muted"></i> ${arabicName}
         </span>
         ${statusBadge}
     `;
@@ -2338,7 +2338,7 @@ function showProgressCompletion(title, subtitle) {
 
     const iconContainer = document.getElementById('progress-modal-icon-container');
     if (iconContainer) {
-        iconContainer.className = 'w-10 h-10 rounded-xl bg-devo-success/15 flex items-center justify-center text-devo-success';
+        iconContainer.className = 'w-10 h-10 rounded-xl bg-ultra-success/15 flex items-center justify-center text-ultra-success';
         iconContainer.innerHTML = '<i class="ph ph-check-circle text-2xl"></i>';
     }
 }

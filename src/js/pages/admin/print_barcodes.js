@@ -91,7 +91,7 @@ window.updateBarcodeMultiSelectLabel = (key) => {
     
     if (count === 0) {
         labelEl.textContent = isExclude ? `استثناء: لا شيء (الكل)` : defaultLabel;
-        labelEl.classList.remove('text-devo-orange');
+        labelEl.classList.remove('text-ultra-orange');
     } else {
         const names = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
         if (isExclude) {
@@ -100,14 +100,14 @@ window.updateBarcodeMultiSelectLabel = (key) => {
             } else {
                 labelEl.textContent = `الكل عدا ${count}`;
             }
-            labelEl.classList.add('text-devo-orange');
+            labelEl.classList.add('text-ultra-orange');
         } else {
             if (count <= 2) {
                 labelEl.textContent = names.join('， ');
             } else {
                 labelEl.textContent = `${count} محددة`;
             }
-            labelEl.classList.add('text-devo-orange');
+            labelEl.classList.add('text-ultra-orange');
         }
     }
 };
@@ -139,8 +139,8 @@ export async function fetchBarcodeFilterOptions() {
             const container = document.getElementById(containerId);
             if (container && data) {
                 container.innerHTML = data.map(item => `
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-devo-black/40 rounded cursor-pointer text-xs text-white select-none" onclick="event.stopPropagation()">
-                        <input type="checkbox" value="${item.id}" name="barcode-filter-${key}" class="accent-devo-orange w-3.5 h-3.5 rounded cursor-pointer" onchange="updateBarcodeMultiSelectLabel('${key}')">
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-ultra-black/40 rounded cursor-pointer text-xs text-white select-none" onclick="event.stopPropagation()">
+                        <input type="checkbox" value="${item.id}" name="barcode-filter-${key}" class="accent-ultra-orange w-3.5 h-3.5 rounded cursor-pointer" onchange="updateBarcodeMultiSelectLabel('${key}')">
                         <span class="truncate">${item.name}</span>
                     </label>
                 `).join('');
@@ -177,7 +177,7 @@ export async function fetchBarcodeFilterOptions() {
 
 export async function fetchBarcodeModels() {
     const tbody = document.getElementById('barcode-table-body');
-    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i> جاري تحميل كل الموديلات...</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i> جاري تحميل كل الموديلات...</td></tr>`;
 
     let allFetchedData = [];
     let from = 0;
@@ -393,7 +393,7 @@ function renderBarcodePage() {
 
     if (filteredBarcodeModels.length === 0) {
         if(masterCb) { masterCb.checked = false; masterCb.disabled = true; }
-        if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-devo-muted">لا توجد نتائج مطابقة للبحث</td></tr>`;
+        if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-ultra-muted">لا توجد نتائج مطابقة للبحث</td></tr>`;
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -417,21 +417,21 @@ function renderBarcodePage() {
         tbody.innerHTML = pageData.map(m => {
             const totalQty = m.model_inventory?.reduce((sum, inv) => sum + (inv.available_series || 0), 0) || 0;
             return `
-            <tr class="hover:bg-devo-black/50 transition-colors border-b border-devo-gray/50">
-                <td class="p-3 text-center border-l border-devo-gray/30">
-                    <input type="checkbox" value="${m.id}" onchange="toggleSingleBarcodeCheck(this)" class="barcode-item-cb accent-devo-orange w-4 h-4 cursor-pointer" ${selectedBarcodeModelIds.has(m.id) ? 'checked' : ''}>
+            <tr class="hover:bg-ultra-black/50 transition-colors border-b border-ultra-gray/50">
+                <td class="p-3 text-center border-l border-ultra-gray/30">
+                    <input type="checkbox" value="${m.id}" onchange="toggleSingleBarcodeCheck(this)" class="barcode-item-cb accent-ultra-orange w-4 h-4 cursor-pointer" ${selectedBarcodeModelIds.has(m.id) ? 'checked' : ''}>
                 </td>
                 <td class="p-3">
-                    <p class="text-[10px] text-devo-muted font-mono tracking-wider">${m.factory_code || m.system_code}</p>
+                    <p class="text-[10px] text-ultra-muted font-mono tracking-wider">${m.factory_code || m.system_code}</p>
                     <p class="font-bold text-white text-xs mt-0.5">${m.name}</p>
                 </td>
-                <td class="p-3 text-center font-black text-devo-orange text-sm">${m.price}</td>
-                <td class="p-3 text-center text-xs text-devo-muted">
+                <td class="p-3 text-center font-black text-ultra-orange text-sm">${m.price}</td>
+                <td class="p-3 text-center text-xs text-ultra-muted">
                     <span class="block mb-1">${m.categories?.name || '-'} / ${m.classes?.name || '-'}</span>
-                    <span class="${totalQty === 0 ? 'text-devo-error' : 'text-devo-success'} font-bold text-[10px] bg-devo-black px-2 py-0.5 rounded border border-devo-gray">${totalQty === 0 ? 'نفذت الكمية' : `متبقي: ${totalQty}`}</span>
+                    <span class="${totalQty === 0 ? 'text-ultra-error' : 'text-ultra-success'} font-bold text-[10px] bg-ultra-black px-2 py-0.5 rounded border border-ultra-gray">${totalQty === 0 ? 'نفذت الكمية' : `متبقي: ${totalQty}`}</span>
                 </td>
                 <td class="p-3 text-center">
-                    ${m.is_active ? `<span class="bg-devo-success/10 border border-devo-success/20 text-devo-success text-[10px] font-bold px-2 py-1 rounded">نشط</span>` : `<span class="bg-devo-gray/30 border border-devo-gray text-white text-[10px] font-bold px-2 py-1 rounded">معطل</span>`}
+                    ${m.is_active ? `<span class="bg-ultra-success/10 border border-ultra-success/20 text-ultra-success text-[10px] font-bold px-2 py-1 rounded">نشط</span>` : `<span class="bg-ultra-gray/30 border border-ultra-gray text-white text-[10px] font-bold px-2 py-1 rounded">معطل</span>`}
                 </td>
             </tr>
         `}).join('');
@@ -450,9 +450,9 @@ function renderBarcodePaginationControls(totalPages) {
     }
 
     let html = '';
-    html += `<button onclick="changeBarcodePage(${barcodeCurrentPage - 1})" ${barcodeCurrentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-devo-gray bg-devo-black text-white hover:bg-devo-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs"><i class="ph ph-caret-right"></i> السابق</button>`;
-    html += `<span class="px-4 py-1.5 rounded bg-devo-dark text-devo-orange font-bold border border-devo-gray text-xs">صفحة ${barcodeCurrentPage} من ${totalPages}</span>`;
-    html += `<button onclick="changeBarcodePage(${barcodeCurrentPage + 1})" ${barcodeCurrentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-devo-gray bg-devo-black text-white hover:bg-devo-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs">التالي <i class="ph ph-caret-left"></i></button>`;
+    html += `<button onclick="changeBarcodePage(${barcodeCurrentPage - 1})" ${barcodeCurrentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-ultra-gray bg-ultra-black text-white hover:bg-ultra-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs"><i class="ph ph-caret-right"></i> السابق</button>`;
+    html += `<span class="px-4 py-1.5 rounded bg-ultra-dark text-ultra-orange font-bold border border-ultra-gray text-xs">صفحة ${barcodeCurrentPage} من ${totalPages}</span>`;
+    html += `<button onclick="changeBarcodePage(${barcodeCurrentPage + 1})" ${barcodeCurrentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-ultra-gray bg-ultra-black text-white hover:bg-ultra-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs">التالي <i class="ph ph-caret-left"></i></button>`;
 
     container.innerHTML = html;
 }
@@ -1180,12 +1180,12 @@ const DEFAULT_BARCODE_TEMPLATES = {
 window.initBarcodeTemplates = () => {
     let saved = {};
     try {
-        const localData = localStorage.getItem('devo_barcode_templates');
+        const localData = localStorage.getItem('ultra_barcode_templates');
         if (localData) {
             saved = JSON.parse(localData);
         } else {
             // Save defaults first time
-            localStorage.setItem('devo_barcode_templates', JSON.stringify(DEFAULT_BARCODE_TEMPLATES));
+            localStorage.setItem('ultra_barcode_templates', JSON.stringify(DEFAULT_BARCODE_TEMPLATES));
             saved = DEFAULT_BARCODE_TEMPLATES;
         }
     } catch (e) {
@@ -1228,7 +1228,7 @@ window.loadBarcodeTemplate = () => {
 
     let templates = {};
     try {
-        templates = JSON.parse(localStorage.getItem('devo_barcode_templates')) || DEFAULT_BARCODE_TEMPLATES;
+        templates = JSON.parse(localStorage.getItem('ultra_barcode_templates')) || DEFAULT_BARCODE_TEMPLATES;
     } catch(e) {
         templates = DEFAULT_BARCODE_TEMPLATES;
     }
@@ -1279,7 +1279,7 @@ window.saveBarcodeTemplate = () => {
 
     let saved = {};
     try {
-        saved = JSON.parse(localStorage.getItem('devo_barcode_templates')) || {};
+        saved = JSON.parse(localStorage.getItem('ultra_barcode_templates')) || {};
     } catch(e) {
         saved = {};
     }
@@ -1311,7 +1311,7 @@ window.saveBarcodeTemplate = () => {
         skipZeroStockColors: document.getElementById('bulk-barcode-skip-zero-stock-colors')?.checked !== false
     };
 
-    localStorage.setItem('devo_barcode_templates', JSON.stringify(saved));
+    localStorage.setItem('ultra_barcode_templates', JSON.stringify(saved));
     nameInput.value = ''; // clear input
 
     // Reinitialize select dropdown
@@ -1338,7 +1338,7 @@ window.deleteBarcodeTemplate = () => {
 
     let saved = {};
     try {
-        saved = JSON.parse(localStorage.getItem('devo_barcode_templates')) || {};
+        saved = JSON.parse(localStorage.getItem('ultra_barcode_templates')) || {};
     } catch(e) {
         saved = {};
     }
@@ -1346,7 +1346,7 @@ window.deleteBarcodeTemplate = () => {
     const templateName = saved[selectedKey]?.name || '';
     delete saved[selectedKey];
 
-    localStorage.setItem('devo_barcode_templates', JSON.stringify(saved));
+    localStorage.setItem('ultra_barcode_templates', JSON.stringify(saved));
 
     // Reset dropdown and select custom
     window.initBarcodeTemplates();
@@ -1381,10 +1381,10 @@ window.switchBarcodeSubTab = (tab) => {
         if (subtabGen) subtabGen.classList.remove('hidden');
 
         if (btnBulk) {
-            btnBulk.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-black text-devo-muted hover:text-white border border-transparent";
+            btnBulk.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-ultra-black text-ultra-muted hover:text-white border border-transparent";
         }
         if (btnGen) {
-            btnGen.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md";
+            btnGen.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-ultra-orange text-white shadow-md";
         }
 
         window.initStandaloneGenerator();
@@ -1393,10 +1393,10 @@ window.switchBarcodeSubTab = (tab) => {
         if (subtabBulk) subtabBulk.classList.remove('hidden');
 
         if (btnGen) {
-            btnGen.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-black text-devo-muted hover:text-white border border-transparent";
+            btnGen.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-ultra-black text-ultra-muted hover:text-white border border-transparent";
         }
         if (btnBulk) {
-            btnBulk.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md";
+            btnBulk.className = "flex-1 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-ultra-orange text-white shadow-md";
         }
     }
 };
@@ -1439,15 +1439,15 @@ window.onGeneratorModelSearchInput = (field) => {
     }).slice(0, 10);
 
     if (matches.length === 0) {
-        suggestionsEl.innerHTML = `<div class="p-2 text-center text-xs text-devo-muted">لا يوجد موديل مطابق</div>`;
+        suggestionsEl.innerHTML = `<div class="p-2 text-center text-xs text-ultra-muted">لا يوجد موديل مطابق</div>`;
         suggestionsEl.classList.remove('hidden');
         return;
     }
 
     suggestionsEl.innerHTML = matches.map(m => `
-        <div onclick="selectGeneratorModel('${m.id}')" class="p-2 hover:bg-devo-black rounded cursor-pointer transition-colors flex justify-between items-center text-xs">
+        <div onclick="selectGeneratorModel('${m.id}')" class="p-2 hover:bg-ultra-black rounded cursor-pointer transition-colors flex justify-between items-center text-xs">
             <span class="font-bold text-white">${m.name}</span>
-            <div class="flex items-center gap-2 text-[11px] font-mono text-devo-orange">
+            <div class="flex items-center gap-2 text-[11px] font-mono text-ultra-orange">
                 ${m.factory_code ? `<span>مصنع: F${m.factory_code}</span>` : ''}
                 ${m.system_code ? `<span>سيستم: S${m.system_code}</span>` : ''}
             </div>
@@ -1508,9 +1508,9 @@ window.setGeneratorSource = (source) => {
         const btn = document.getElementById(`gen-src-btn-${src}`);
         if (!btn) return;
         if (src === source) {
-            btn.className = "gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-orange/20 border-devo-orange text-devo-orange";
+            btn.className = "gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-ultra-orange/20 border-ultra-orange text-ultra-orange";
         } else {
-            btn.className = "gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-devo-black border-devo-gray text-devo-muted hover:text-white";
+            btn.className = "gen-src-btn py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-ultra-black border-ultra-gray text-ultra-muted hover:text-white";
         }
     });
 
@@ -1553,12 +1553,12 @@ window.setGeneratorType = (type) => {
     const logoLabel = document.getElementById('gen-logo-checkbox-label');
 
     if (type === 'qrcode') {
-        if (btnQrcode) btnQrcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-orange border-devo-orange text-white shadow-md";
-        if (btnBarcode) btnBarcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-black border-devo-gray text-devo-muted hover:text-white";
+        if (btnQrcode) btnQrcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-ultra-orange border-ultra-orange text-white shadow-md";
+        if (btnBarcode) btnBarcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-ultra-black border-ultra-gray text-ultra-muted hover:text-white";
         if (logoLabel) logoLabel.classList.remove('opacity-50', 'pointer-events-none');
     } else {
-        if (btnBarcode) btnBarcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-orange border-devo-orange text-white shadow-md";
-        if (btnQrcode) btnQrcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-devo-black border-devo-gray text-devo-muted hover:text-white";
+        if (btnBarcode) btnBarcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-ultra-orange border-ultra-orange text-white shadow-md";
+        if (btnQrcode) btnQrcode.className = "gen-type-btn py-3 px-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2 bg-ultra-black border-ultra-gray text-ultra-muted hover:text-white";
         if (logoLabel) logoLabel.classList.add('opacity-50', 'pointer-events-none');
     }
 
@@ -1599,7 +1599,7 @@ window.updateStandaloneGenerator = () => {
 
     if (previewCard) {
         if (isTransparent) {
-            previewCard.className = "bg-transparent p-6 rounded-xl shadow-2xl max-w-full flex flex-col items-center justify-center transition-all duration-300 border border-dashed border-devo-gray/50";
+            previewCard.className = "bg-transparent p-6 rounded-xl shadow-2xl max-w-full flex flex-col items-center justify-center transition-all duration-300 border border-dashed border-ultra-gray/50";
         } else {
             previewCard.className = "bg-white p-6 rounded-xl shadow-2xl max-w-full flex flex-col items-center justify-center transition-all duration-300";
         }

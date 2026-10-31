@@ -153,11 +153,11 @@ export async function initNavbar() {
         document.querySelectorAll('[data-nav-view]').forEach(btn => {
             const viewId = btn.getAttribute('data-nav-view');
             if (viewId === targetId) {
-                btn.classList.add('text-devo-orange', 'font-black', 'bg-devo-orange/15', 'border-devo-orange/40', 'shadow-sm');
-                btn.classList.remove('text-devo-muted', 'border-transparent');
+                btn.classList.add('text-ultra-orange', 'font-black', 'bg-ultra-orange/15', 'border-ultra-orange/40', 'shadow-sm');
+                btn.classList.remove('text-ultra-muted', 'border-transparent');
             } else {
-                btn.classList.remove('text-devo-orange', 'font-black', 'bg-devo-orange/15', 'border-devo-orange/40', 'shadow-sm');
-                btn.classList.add('text-devo-muted', 'border-transparent');
+                btn.classList.remove('text-ultra-orange', 'font-black', 'bg-ultra-orange/15', 'border-ultra-orange/40', 'shadow-sm');
+                btn.classList.add('text-ultra-muted', 'border-transparent');
             }
         });
 
@@ -261,8 +261,8 @@ export async function initNavbar() {
     // التنشيط الأولي للشاشة مع استعادة موقع الوقوف المحفوظ لكل مصنع وحماية الرجوع للخلف (exit-trap)
     const viewStorageKey = getTenantStorageKey('ultrasoft_site_view');
     const tenantId = getCurrentTenantId();
-    const editOrderKey = getTenantStorageKey('devo_edit_order_data');
-    const hasEditOrder = localStorage.getItem(editOrderKey) || (tenantId ? localStorage.getItem(`devo_edit_order_data_${tenantId}`) : null);
+    const editOrderKey = getTenantStorageKey('ultra_edit_order_data');
+    const hasEditOrder = localStorage.getItem(editOrderKey) || (tenantId ? localStorage.getItem(`ultra_edit_order_data_${tenantId}`) : null);
 
     const slug = getTenantSlugFromURL();
     const urlParams = new URLSearchParams(window.location.search);

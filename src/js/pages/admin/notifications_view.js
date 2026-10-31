@@ -14,7 +14,7 @@ export async function initNotificationsView() {
     await loadTelegramSettings();
     
     // الاستماع لحدث تلقي إشعار جديد لتحديث القائمة تلقائياً
-    window.addEventListener('devo:notifications-received', handleRealtimeRefresh);
+    window.addEventListener('ultrasoft:notifications-received', handleRealtimeRefresh);
 }
 
 // إلغاء الاستماع عند الحاجة لتجنب تسريب الذاكرة
@@ -97,7 +97,7 @@ function renderNotifications() {
 
     if (filtered.length === 0) {
         listContainer.innerHTML = `
-            <div class="p-16 text-center bg-devo-dark border border-devo-gray rounded-xl text-devo-muted flex flex-col items-center gap-3">
+            <div class="p-16 text-center bg-ultra-dark border border-ultra-gray rounded-xl text-ultra-muted flex flex-col items-center gap-3">
                 <i class="ph ph-bell-slash text-4xl opacity-40"></i>
                 <span>لا توجد إشعارات تطابق التصفية الحالية</span>
             </div>
@@ -112,35 +112,35 @@ function renderNotifications() {
         });
 
         // تحديد الأيقونة وكلاسات الألوان حسب نوع الإشعار
-        let iconClass = 'ph ph-info bg-devo-info/10 text-devo-info';
-        if (n.type === 'order_created') iconClass = 'ph ph-shopping-cart bg-devo-success/10 text-devo-success';
-        else if (n.type === 'order_updated') iconClass = 'ph ph-pencil-simple bg-devo-warning/10 text-devo-warning';
-        else if (n.type === 'out_of_stock') iconClass = 'ph ph-warning bg-devo-error/10 text-devo-error';
+        let iconClass = 'ph ph-info bg-ultra-info/10 text-ultra-info';
+        if (n.type === 'order_created') iconClass = 'ph ph-shopping-cart bg-ultra-success/10 text-ultra-success';
+        else if (n.type === 'order_updated') iconClass = 'ph ph-pencil-simple bg-ultra-warning/10 text-ultra-warning';
+        else if (n.type === 'out_of_stock') iconClass = 'ph ph-warning bg-ultra-error/10 text-ultra-error';
         else if (n.type === 'order_assigned') iconClass = 'ph ph-user-gear bg-blue-500/10 text-blue-400';
-        else if (n.type === 'custom_broadcast') iconClass = 'ph ph-broadcast bg-devo-orange/10 text-devo-orange';
+        else if (n.type === 'custom_broadcast') iconClass = 'ph ph-broadcast bg-ultra-orange/10 text-ultra-orange';
 
         // تنسيق الخلفية ونقاط الحالة بناء على المقروئية
-        const cardBg = n.is_read ? 'bg-devo-dark/40 opacity-70 border-devo-gray/50' : 'bg-devo-dark border-devo-orange/30';
-        const unreadIndicator = n.is_read ? '' : '<span class="w-2.5 h-2.5 bg-devo-orange rounded-full animate-pulse shrink-0"></span>';
+        const cardBg = n.is_read ? 'bg-ultra-dark/40 opacity-70 border-ultra-gray/50' : 'bg-ultra-dark border-ultra-orange/30';
+        const unreadIndicator = n.is_read ? '' : '<span class="w-2.5 h-2.5 bg-ultra-orange rounded-full animate-pulse shrink-0"></span>';
 
         // أزرار التحكم بالمقروئية
         const readBtnHtml = n.is_read 
-            ? `<button onclick="toggleNotificationRead('${n.id}', false)" class="p-1.5 hover:bg-white/10 rounded text-devo-muted hover:text-white transition-colors" title="تحديد كغير مقروء"><i class="ph ph-envelope-open text-base"></i></button>`
-            : `<button onclick="toggleNotificationRead('${n.id}', true)" class="p-1.5 hover:bg-white/10 rounded text-devo-orange hover:text-devo-orangeHover transition-colors" title="تحديد كمقروء"><i class="ph ph-envelope text-base"></i></button>`;
+            ? `<button onclick="toggleNotificationRead('${n.id}', false)" class="p-1.5 hover:bg-white/10 rounded text-ultra-muted hover:text-white transition-colors" title="تحديد كغير مقروء"><i class="ph ph-envelope-open text-base"></i></button>`
+            : `<button onclick="toggleNotificationRead('${n.id}', true)" class="p-1.5 hover:bg-white/10 rounded text-ultra-orange hover:text-ultra-orangeHover transition-colors" title="تحديد كمقروء"><i class="ph ph-envelope text-base"></i></button>`;
 
         // أزرار التحكم بالأرشفة
         const archiveBtnHtml = n.is_archived
-            ? `<button onclick="toggleNotificationArchive('${n.id}', false)" class="p-1.5 hover:bg-white/10 rounded text-devo-orange transition-colors" title="إلغاء الأرشفة"><i class="ph ph-archive-box text-base"></i></button>`
-            : `<button onclick="toggleNotificationArchive('${n.id}', true)" class="p-1.5 hover:bg-white/10 rounded text-devo-muted hover:text-white transition-colors" title="أرشفة الإشعار"><i class="ph ph-archive text-base"></i></button>`;
+            ? `<button onclick="toggleNotificationArchive('${n.id}', false)" class="p-1.5 hover:bg-white/10 rounded text-ultra-orange transition-colors" title="إلغاء الأرشفة"><i class="ph ph-archive-box text-base"></i></button>`
+            : `<button onclick="toggleNotificationArchive('${n.id}', true)" class="p-1.5 hover:bg-white/10 rounded text-ultra-muted hover:text-white transition-colors" title="أرشفة الإشعار"><i class="ph ph-archive text-base"></i></button>`;
 
         // زر الانتقال للمحتوى المرتبط
         let linkBtnHtml = '';
         if (n.metadata && n.metadata.order_id) {
-            linkBtnHtml = `<button onclick="viewNotificationTarget('${n.metadata.order_id}')" class="px-2.5 py-1 bg-devo-orange/10 hover:bg-devo-orange text-devo-orange hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1">
+            linkBtnHtml = `<button onclick="viewNotificationTarget('${n.metadata.order_id}')" class="px-2.5 py-1 bg-ultra-orange/10 hover:bg-ultra-orange text-ultra-orange hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1">
                 <i class="ph ph-eye text-sm"></i> عرض الطلب
             </button>`;
         } else if (n.metadata && n.metadata.model_id) {
-            linkBtnHtml = `<a href="admin.html?admin_model=${n.metadata.model_id}" class="px-2.5 py-1 bg-devo-orange/10 hover:bg-devo-orange text-devo-orange hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1">
+            linkBtnHtml = `<a href="admin.html?admin_model=${n.metadata.model_id}" class="px-2.5 py-1 bg-ultra-orange/10 hover:bg-ultra-orange text-ultra-orange hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1">
                 <i class="ph ph-eye text-sm"></i> عرض الموديل
             </a>`;
         }
@@ -155,11 +155,11 @@ function renderNotifications() {
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-bold text-sm text-white">${n.title}</span>
                         ${unreadIndicator}
-                        <span class="text-[10px] text-devo-muted mr-auto font-mono">${dateStr}</span>
+                        <span class="text-[10px] text-ultra-muted mr-auto font-mono">${dateStr}</span>
                     </div>
-                    <p class="text-xs text-devo-muted leading-relaxed whitespace-pre-wrap">${n.body}</p>
+                    <p class="text-xs text-ultra-muted leading-relaxed whitespace-pre-wrap">${n.body}</p>
                     
-                    <div class="flex items-center justify-between pt-2 border-t border-devo-gray/20 mt-2">
+                    <div class="flex items-center justify-between pt-2 border-t border-ultra-gray/20 mt-2">
                         <!-- رابط الانتقال السريع -->
                         <div>${linkBtnHtml}</div>
                         
@@ -167,7 +167,7 @@ function renderNotifications() {
                         <div class="flex items-center gap-1">
                             ${readBtnHtml}
                             ${archiveBtnHtml}
-                            <button onclick="deleteNotification('${n.id}')" class="p-1.5 hover:bg-devo-error/10 rounded text-devo-muted hover:text-devo-error transition-colors" title="حذف الإشعار">
+                            <button onclick="deleteNotification('${n.id}')" class="p-1.5 hover:bg-ultra-error/10 rounded text-ultra-muted hover:text-ultra-error transition-colors" title="حذف الإشعار">
                                 <i class="ph ph-trash text-base"></i>
                             </button>
                         </div>
@@ -185,9 +185,9 @@ export function changeNotificationFilter(filter) {
         const btn = document.getElementById(`filter-notify-${f}`);
         if (btn) {
             if (f === filter) {
-                btn.className = "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-white bg-devo-orange shadow-md";
+                btn.className = "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-white bg-ultra-orange shadow-md";
             } else {
-                btn.className = "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-devo-muted hover:text-white";
+                btn.className = "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-ultra-muted hover:text-white";
             }
         }
     });
@@ -210,7 +210,7 @@ export async function toggleNotificationRead(id, isRead) {
             updateStats();
             renderNotifications();
             // إرسال حدث لتحديث جرس الهيدر تلقائياً
-            window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+            window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
         }
     } catch (e) {
         showToast('خطأ أثناء تعديل حالة الإشعار', 'error');
@@ -232,7 +232,7 @@ export async function toggleNotificationArchive(id, isArchived) {
             allNotifications[idx].is_archived = isArchived;
             updateStats();
             renderNotifications();
-            window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+            window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
         }
     } catch (e) {
         showToast('خطأ أثناء أرشفة الإشعار', 'error');
@@ -260,7 +260,7 @@ export async function deleteNotification(id) {
         allNotifications = allNotifications.filter(n => n.id !== id);
         updateStats();
         renderNotifications();
-        window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+        window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
         showToast('تم حذف الإشعار بنجاح', 'success');
     } catch (e) {
         showToast('خطأ أثناء حذف الإشعار', 'error');
@@ -294,7 +294,7 @@ export async function bulkMarkNotificationsRead() {
         allNotifications.forEach(n => n.is_read = true);
         updateStats();
         renderNotifications();
-        window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+        window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
         showToast('تم تحديد جميع الإشعارات كمقروءة', 'success');
     } catch (e) {
         showToast('حدث خطأ أثناء تحديث الإشعارات', 'error');
@@ -327,7 +327,7 @@ export async function bulkArchiveNotifications() {
         allNotifications.forEach(n => n.is_archived = true);
         updateStats();
         renderNotifications();
-        window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+        window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
         showToast('تم أرشفة جميع الإشعارات بنجاح', 'success');
     } catch (e) {
         showToast('حدث خطأ أثناء أرشفة الإشعارات', 'error');
@@ -369,7 +369,7 @@ export async function bulkDeleteNotifications() {
         allNotifications = [];
         updateStats();
         renderNotifications();
-        window.dispatchEvent(new CustomEvent('devo:notifications-updated'));
+        window.dispatchEvent(new CustomEvent('ultrasoft:notifications-updated'));
         showToast('تم تفريغ كافة الإشعارات بنجاح', 'success');
     } catch (e) {
         showToast('حدث خطأ أثناء مسح الإشعارات', 'error');
@@ -447,8 +447,8 @@ export function viewNotificationTarget(orderId) {
             const row = document.getElementById(`admin-order-row-${orderId}`);
             if (row) {
                 row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                row.classList.add('bg-devo-orange/30', 'transition-all', 'duration-500');
-                setTimeout(() => row.classList.remove('bg-devo-orange/30'), 3000);
+                row.classList.add('bg-ultra-orange/30', 'transition-all', 'duration-500');
+                setTimeout(() => row.classList.remove('bg-ultra-orange/30'), 3000);
             }
         }, 500);
     }
@@ -758,7 +758,7 @@ export function togglePasswordVisibility(inputId, btnEl) {
     if (btnEl) {
         const icon = btnEl.querySelector('i');
         if (icon) {
-            icon.className = isPass ? 'ph ph-eye-slash text-base text-devo-orange' : 'ph ph-eye text-base';
+            icon.className = isPass ? 'ph ph-eye-slash text-base text-ultra-orange' : 'ph ph-eye text-base';
         }
     }
 }
@@ -1191,7 +1191,7 @@ export async function sendAutomatedReport(reportType = 'daily') {
         if (reportType === 'weekly') {
             reportTitle = 'التقرير التنفيذي الشامل للأسبوع';
             headerBlock = 
-                `Devo Bot:\n` +
+                `UltraSoft Bot:\n` +
                 `📅 <b>${reportTitle}</b>\n` +
                 `━━━━━━━━━━━━\n` +
                 `🗓️ <b>الفترة:</b> ${periodDescription}\n` +
@@ -1201,7 +1201,7 @@ export async function sendAutomatedReport(reportType = 'daily') {
         } else if (reportType === 'daily') {
             reportTitle = 'تقرير المبيعات والعمليات اليومي';
             headerBlock = 
-                `Devo Bot:\n` +
+                `UltraSoft Bot:\n` +
                 `📊 <b>${reportTitle}</b>\n` +
                 `━━━━━━━━━━━━\n` +
                 `🗓️ <b>التاريخ:</b> ${periodDescription}\n` +
@@ -1211,7 +1211,7 @@ export async function sendAutomatedReport(reportType = 'daily') {
         } else if (reportType === 'monthly') {
             reportTitle = `التقرير المالي والإداري الشامل لشهر ${months[now.getMonth()]}`;
             headerBlock = 
-                `Devo Bot:\n` +
+                `UltraSoft Bot:\n` +
                 `🗓️ <b>${reportTitle}</b>\n` +
                 `━━━━━━━━━━━━\n` +
                 `📅 <b>الشهر والسنة:</b> ${periodDescription}\n` +
@@ -1221,7 +1221,7 @@ export async function sendAutomatedReport(reportType = 'daily') {
         } else {
             reportTitle = `التقرير السنوي الشامل والختامي لسنة ${now.getFullYear()}`;
             headerBlock = 
-                `Devo Bot:\n` +
+                `UltraSoft Bot:\n` +
                 `🏆 <b>${reportTitle}</b>\n` +
                 `━━━━━━━━━━━━\n` +
                 `📅 <b>السنة المالية:</b> ${periodDescription}\n` +

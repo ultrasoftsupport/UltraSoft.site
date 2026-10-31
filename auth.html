@@ -36,7 +36,7 @@
             try {
                 let savedTheme = null;
                 try {
-                    const sessionStr = localStorage.getItem('devo_session');
+                    const sessionStr = localStorage.getItem('ultra_session');
                     if (sessionStr) {
                         const sess = JSON.parse(sessionStr);
                         if (sess && sess.tenant_id) {
@@ -45,39 +45,48 @@
                     }
                 } catch(e) {}
                 if (!savedTheme) {
-                    savedTheme = localStorage.getItem('devo_active_theme') || localStorage.getItem('ultrasoft_active_theme');
+                    savedTheme = localStorage.getItem('ultra_active_theme') || localStorage.getItem('ultrasoft_active_theme');
                 }
                 if (savedTheme) {
                     const theme = JSON.parse(savedTheme);
                     const colors = theme.colors;
                     if (colors) {
                         const styleEl = document.createElement('style');
-                        styleEl.id = 'devo-theme-styles-early';
+                        styleEl.id = 'ultra-theme-styles-early';
                         const bgHex = colors.page?.bg || '#0b1329';
                         const isLight = bgHex !== '#0b1329' && bgHex !== '#0f172a' && bgHex !== '#0a0a0a' && bgHex !== '#171717';
                         document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
                         const defaultGray = isLight ? (colors.brand?.secondary || '#e1effe') : '#1e293b';
                         const defaultGrayHover = isLight ? (colors.brand?.secondary_hover || '#bae6fd') : '#334155';
-                        const devoGray = colors.borders?.color || defaultGray;
-                        const devoGrayHover = colors.brand?.secondary_hover || defaultGrayHover;
+                        const ultraGray = colors.borders?.color || defaultGray;
+                        const ultraGrayHover = colors.brand?.secondary_hover || defaultGrayHover;
 
                         let cssText = `
                             :root {
-                                --devo-black: ${colors.page?.bg || '#0b1329'};
-                                --devo-dark: ${colors.page?.bg_secondary || colors.page?.surface || '#0f172a'};
-                                --devo-gray: ${devoGray};
-                                --devo-gray-hover: ${devoGrayHover};
-                                --devo-orange: ${colors.brand?.primary || '#0284c7'};
-                                --devo-orange-hover: ${colors.brand?.primary_hover || '#0369a1'};
-                                --devo-text: ${colors.page?.text || '#f8fafc'};
-                                --devo-muted: ${colors.page?.text_muted || '#cbd5e1'};
-                                --devo-success: ${colors.alerts?.success?.text || '#10b981'};
-                                --devo-error: ${colors.alerts?.error?.text || '#ef4444'};
-                                --devo-warning: ${colors.alerts?.warning?.text || '#f59e0b'};
-                                --devo-info: ${colors.alerts?.info?.text || '#38bdf8'};
+                                --ultra-black: ${colors.page?.bg || '#0b1329'};
+                                --ultra-dark: ${colors.page?.bg_secondary || colors.page?.surface || '#0f172a'};
+                                --ultra-gray: ${ultraGray};
+                                --ultra-gray-hover: ${ultraGrayHover};
+                                --ultra-orange: ${colors.brand?.primary || '#0284c7'};
+                                --ultra-orange-hover: ${colors.brand?.primary_hover || '#0369a1'};
+                                --ultra-text: ${colors.page?.text || '#f8fafc'};
+                                --ultra-muted: ${colors.page?.text_muted || '#cbd5e1'};
+                                --ultra-success: ${colors.alerts?.success?.text || '#10b981'};
+                                --ultra-error: ${colors.alerts?.error?.text || '#ef4444'};
+                                --ultra-warning: ${colors.alerts?.warning?.text || '#f59e0b'};
+                                --ultra-info: ${colors.alerts?.info?.text || (isLight && bgHex.includes('fd') ? (colors.brand?.primary || '#f97316') : '#38bdf8')};
+                                --us-bg: ${colors.page?.bg || '#0b1329'};
+                                --us-surface: ${colors.page?.bg_secondary || colors.page?.surface || '#0f172a'};
+                                --us-border: ${ultraGray};
+                                --us-text-primary: ${colors.page?.text || '#f8fafc'};
+                                --us-text-muted: ${colors.page?.text_muted || '#cbd5e1'};
+                                --us-brand-primary: ${colors.brand?.primary || '#0284c7'};
+                                --us-brand-hover: ${colors.brand?.primary_hover || '#0369a1'};
+                                --us-btn-gradient: linear-gradient(135deg, ${colors.brand?.primary || '#0284c7'} 0%, ${colors.brand?.primary_hover || '#0369a1'} 100%);
+                                --us-btn-gradient-hover: linear-gradient(135deg, ${colors.brand?.primary_hover || '#0369a1'} 0%, ${colors.brand?.primary || '#0284c7'} 100%);
                                 --selection-bg: ${colors.page?.selection_bg || '#0284c7'};
                                 --selection-text: ${colors.page?.selection_text || '#ffffff'};
-                                --border-color: ${devoGray};
+                                --border-color: ${ultraGray};
                                 --border-width: ${colors.borders?.width || '1px'};
                                 --border-radius-base: ${colors.borders?.radius || '12px'};
                                 --shadow-color: ${colors.shadows?.color || 'rgba(0,0,0,0.8)'};
@@ -99,18 +108,18 @@
     
     <style> body { font-family: 'Cairo', 'Tajawal', sans-serif; } </style>
 </head>
-<body class="bg-devo-black min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+<body class="bg-ultra-black min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-ultra-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-    <div id="login-container" class="w-full max-w-md bg-devo-dark border border-devo-gray rounded-2xl p-8 shadow-2xl relative z-10">
+    <div id="login-container" class="w-full max-w-md bg-ultra-dark border border-ultra-gray rounded-2xl p-8 shadow-2xl relative z-10">
         
         <div class="text-center mb-8">
             <img src="./logo_transparnt.png" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'" alt="UltraSoft Logo" class="h-14 w-auto object-contain mx-auto mb-3 drop-shadow-[0_0_15px_rgba(2,132,199,0.5)]">
             <h1 class="text-3xl font-black tracking-wider text-white mb-1">
                 Ultra<span class="text-ultra-400">Soft</span>
             </h1>
-            <p class="text-devo-muted text-sm font-medium" id="login-subheading">نظام إدارة المبيعات والمخازن</p>
+            <p class="text-ultra-muted text-sm font-medium" id="login-subheading">نظام إدارة المبيعات والمخازن</p>
             <div id="login-tenant-badge" class="mt-3 inline-flex items-center gap-2 px-3.5 py-1 bg-ultra-500/15 border border-ultra-500/30 rounded-full text-ultra-400 text-xs font-bold hidden shadow-sm">
                 <i class="ph ph-factory text-sm"></i>
                 <span id="login-tenant-name">--</span>
@@ -119,26 +128,26 @@
 
         <form id="auth-form" class="space-y-6">
             <div>
-                <label class="block text-sm font-medium text-devo-muted mb-2">اسم المستخدم</label>
+                <label class="block text-sm font-medium text-ultra-muted mb-2">اسم المستخدم</label>
                 <div class="relative">
-                    <i class="ph ph-user absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-muted"></i>
+                    <i class="ph ph-user absolute right-4 top-1/2 -translate-y-1/2 text-xl text-ultra-muted"></i>
                     <input type="text" id="username" required autocomplete="off"
-                        class="w-full bg-devo-black border border-devo-gray rounded-lg pr-12 pl-4 py-3 text-white focus:outline-none focus:border-devo-orange transition-colors"
+                        class="w-full bg-ultra-black border border-ultra-gray rounded-lg pr-12 pl-4 py-3 text-white focus:outline-none focus:border-ultra-orange transition-colors"
                         placeholder="أدخل اسم المستخدم" dir="ltr" style="text-align: right;">
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-devo-muted mb-2">كلمة المرور</label>
+                <label class="block text-sm font-medium text-ultra-muted mb-2">كلمة المرور</label>
                 <div class="relative">
-                    <i class="ph ph-lock-key absolute right-4 top-1/2 -translate-y-1/2 text-xl text-devo-muted"></i>
+                    <i class="ph ph-lock-key absolute right-4 top-1/2 -translate-y-1/2 text-xl text-ultra-muted"></i>
                     <input type="password" id="password" required autocomplete="current-password"
-                        class="w-full bg-devo-black border border-devo-gray rounded-lg pr-12 pl-4 py-3 text-white focus:outline-none focus:border-devo-orange transition-colors"
+                        class="w-full bg-ultra-black border border-ultra-gray rounded-lg pr-12 pl-4 py-3 text-white focus:outline-none focus:border-ultra-orange transition-colors"
                         placeholder="أدخل كلمة المرور" dir="ltr" style="text-align: right;">
                 </div>
             </div>
 
-            <button type="submit" id="submit-btn" class="w-full bg-devo-orange hover:bg-devo-orangeHover text-white font-bold py-3.5 rounded-lg transition-colors flex justify-center items-center gap-2 mt-4 shadow-lg shadow-devo-orange/20">
+            <button type="submit" id="submit-btn" class="w-full bg-ultra-orange hover:bg-ultra-orangeHover text-white font-bold py-3.5 rounded-lg transition-colors flex justify-center items-center gap-2 mt-4 shadow-lg shadow-ultra-orange/20">
                 <span id="btn-text">تسجيل الدخول</span>
                 <i id="btn-icon" class="ph ph-sign-in text-xl"></i>
             </button>
@@ -146,17 +155,17 @@
     </div>
 
     <!-- بوابة اختيار الوجهة بعد تسجيل الدخول -->
-    <div id="destination-container" class="w-full max-w-md bg-devo-dark border border-devo-gray rounded-2xl p-8 shadow-2xl relative z-10 hidden opacity-0 transition-all duration-300">
+    <div id="destination-container" class="w-full max-w-md bg-ultra-dark border border-ultra-gray rounded-2xl p-8 shadow-2xl relative z-10 hidden opacity-0 transition-all duration-300">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-black text-white mb-2">اختر <span class="text-devo-orange">وجهتك</span></h1>
-            <p class="text-devo-muted text-xs font-medium">مرحباً بك، يرجى اختيار الوجهة المطلوبة للدخول</p>
+            <h1 class="text-3xl font-black text-white mb-2">اختر <span class="text-ultra-orange">وجهتك</span></h1>
+            <p class="text-ultra-muted text-xs font-medium">مرحباً بك، يرجى اختيار الوجهة المطلوبة للدخول</p>
         </div>
         
         <div class="space-y-4" id="destination-buttons">
             <!-- سيتم توليد الأزرار ديناميكياً هنا -->
         </div>
         
-        <button id="portal-logout-btn" onclick="handleLogout()" class="w-full bg-devo-gray/50 hover:bg-devo-error/20 hover:text-devo-error text-devo-muted font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mt-6 border border-devo-gray cursor-pointer">
+        <button id="portal-logout-btn" onclick="handleLogout()" class="w-full bg-ultra-gray/50 hover:bg-ultra-error/20 hover:text-ultra-error text-ultra-muted font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 mt-6 border border-ultra-gray cursor-pointer">
             <span>تسجيل الخروج</span>
             <i class="ph ph-sign-out text-lg"></i>
         </button>
@@ -314,11 +323,11 @@
                         tenant_slug: activeSlug
                     };
 
-                    localStorage.setItem(`devo_session_${activeSlug}`, JSON.stringify(freshSession));
+                    localStorage.setItem(`ultra_session_${activeSlug}`, JSON.stringify(freshSession));
                     if (user.tenant_id) {
-                        localStorage.setItem(`devo_session_${user.tenant_id}`, JSON.stringify(freshSession));
+                        localStorage.setItem(`ultra_session_${user.tenant_id}`, JSON.stringify(freshSession));
                     }
-                    localStorage.setItem('devo_session', JSON.stringify(freshSession));
+                    localStorage.setItem('ultra_session', JSON.stringify(freshSession));
 
                     handleUserRedirection(freshSession);
                 } catch (e) {

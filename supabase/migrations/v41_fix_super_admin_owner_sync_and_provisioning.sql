@@ -40,7 +40,7 @@ BEGIN
         RAISE EXCEPTION 'غير مسموح برفع صلاحيات المستخدم إلى مالك.';
     END IF;
 
-    v_new_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_new_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
 
     -- Update system_users
     UPDATE public.system_users SET

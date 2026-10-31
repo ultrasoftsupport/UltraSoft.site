@@ -38,7 +38,7 @@ BEGIN
         RAISE EXCEPTION 'غير مسموح برفع صلاحيات المستخدم إلى مالك.';
     END IF;
 
-    v_new_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_new_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
 
     -- Update system_users
     UPDATE public.system_users SET
@@ -128,7 +128,7 @@ BEGIN
     END IF;
 
     v_user_id := gen_random_uuid();
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
     v_hashed_password := crypt(p_password, gen_salt('bf', 10));
 
     INSERT INTO auth.users (

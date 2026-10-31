@@ -255,7 +255,7 @@ BEGIN
 
     -- ح) تكوين نص الرسالة النهائي المطابق للنموذج التنفيذي
     v_message := 
-        'Devo Bot:' || E'\n' ||
+        'UltraSoft Bot:' || E'\n' ||
         '📅 <b>' || v_report_title || '</b>' || E'\n' ||
         '━━━━━━━━━━━━' || E'\n' ||
         '🗓️ <b>الفترة:</b> ' || v_period_desc || E'\n' ||

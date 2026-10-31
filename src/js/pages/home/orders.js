@@ -145,16 +145,16 @@ window.switchOrdersTab = (tab) => {
     const tabAssigned = document.getElementById('tab-orders-assigned-visitors');
 
     if (tabActive) tabActive.className = tab === 'active' 
-        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all cursor-pointer' 
-        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all cursor-pointer';
+        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-ultra-orange border-b-2 border-ultra-orange transition-all cursor-pointer' 
+        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-ultra-muted hover:text-white border-b-2 border-transparent transition-all cursor-pointer';
         
     if (tabArchived) tabArchived.className = tab === 'archived' 
-        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all cursor-pointer' 
-        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all cursor-pointer';
+        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-ultra-orange border-b-2 border-ultra-orange transition-all cursor-pointer' 
+        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-ultra-muted hover:text-white border-b-2 border-transparent transition-all cursor-pointer';
         
     if (tabAssigned) tabAssigned.className = tab === 'assigned_visitors' 
-        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-orange border-b-2 border-devo-orange transition-all flex items-center gap-1.5 cursor-pointer' 
-        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-devo-muted hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 cursor-pointer';
+        ? 'px-3 py-1.5 text-xs sm:text-sm font-bold text-ultra-orange border-b-2 border-ultra-orange transition-all flex items-center gap-1.5 cursor-pointer' 
+        : 'px-3 py-1.5 text-xs sm:text-sm font-bold text-ultra-muted hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 cursor-pointer';
 
     renderOrders();
 };
@@ -236,7 +236,7 @@ function setupAssignedVisitorOrdersRealtime() {
 
 async function fetchMyOrders() {
     const tBody = document.getElementById('orders-table-body');
-    if(tBody) tBody.innerHTML = `<tr><td colspan="6" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i> جاري التحميل...</td></tr>`;
+    if(tBody) tBody.innerHTML = `<tr><td colspan="6" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i> جاري التحميل...</td></tr>`;
 
     const currentTenantId = getCurrentTenantId();
     let query = supabase
@@ -278,13 +278,13 @@ async function fetchMyOrders() {
 }
 
 const statusConfig = {
-    'created': { text: 'تم إنشاء الأوردر', color: 'bg-devo-gray text-white border-devo-gray' },
-    'in_progress': { text: 'جاري العمل', color: 'bg-devo-orange/20 text-devo-orange border-devo-orange/50' },
+    'created': { text: 'تم إنشاء الأوردر', color: 'bg-ultra-gray text-white border-ultra-gray' },
+    'in_progress': { text: 'جاري العمل', color: 'bg-ultra-orange/20 text-ultra-orange border-ultra-orange/50' },
     'editing': { text: 'جاري التعديل', color: 'bg-amber-500/20 text-amber-400 border-amber-500/50' },
     'registered': { text: 'تم التسجيل', color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' },
     'preparing': { text: 'جاري التجهيز', color: 'bg-purple-500/20 text-purple-400 border-purple-500/50' },
     'shipped': { text: 'تم الشحن', color: 'bg-green-500/20 text-green-400 border-green-500/50' },
-    'delivered': { text: 'تم التسليم', color: 'bg-devo-success/20 text-devo-success border-devo-success/50' }
+    'delivered': { text: 'تم التسليم', color: 'bg-ultra-success/20 text-ultra-success border-ultra-success/50' }
 };
 
 function renderOrders() {
@@ -307,7 +307,7 @@ function renderOrders() {
         });
 
         if (filteredVO.length === 0) {
-            const emptyMsg = `<div class="p-10 text-center text-devo-muted">لا توجد طلبات زوار مسندة إليك حالياً.</div>`;
+            const emptyMsg = `<div class="p-10 text-center text-ultra-muted">لا توجد طلبات زوار مسندة إليك حالياً.</div>`;
             if (tbody) tbody.innerHTML = `<tr><td colspan="6">${emptyMsg}</td></tr>`;
             if (cardsBody) cardsBody.innerHTML = emptyMsg;
             return;
@@ -324,15 +324,15 @@ function renderOrders() {
 
             if (tbody) {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-devo-gray/10 transition-colors border-b border-devo-gray/40">
+                    <tr class="hover:bg-ultra-gray/10 transition-colors border-b border-ultra-gray/40">
                         <td class="p-3">
                             <span class="font-mono font-bold text-amber-400 text-xs">#${o.order_code}</span>
                             <span class="text-[10px] bg-amber-500/15 text-amber-300 px-1.5 py-0.5 rounded mr-1 font-sans">طلب زائر</span>
                         </td>
-                        <td class="p-3 text-xs text-devo-muted">${dateStr}</td>
+                        <td class="p-3 text-xs text-ultra-muted">${dateStr}</td>
                         <td class="p-3">
                             <div class="text-white font-bold text-xs">${o.customer_name}</div>
-                            <div class="text-[11px] font-mono text-devo-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+                            <div class="text-[11px] font-mono text-ultra-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
                                 <span>${o.customer_phone_1 || '-'}</span>
                                 ${o.customer_phone_1 ? `
                                     <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppVisitorOrderMsg(o))}" target="_blank" class="w-5 h-5 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 inline-flex items-center justify-center transition-all cursor-pointer" title="مراسلة العميل واتساب">
@@ -342,13 +342,13 @@ function renderOrders() {
                             </div>
                         </td>
                         <td class="p-3 text-center text-xs font-bold text-blue-400 font-mono">${o.total_series} سيريه (${o.total_models || (o.items?.length || 0)} أصناف)</td>
-                        <td class="p-3 text-center text-xs font-black text-devo-orange font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</td>
+                        <td class="p-3 text-center text-xs font-black text-ultra-orange font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</td>
                         <td class="p-3 text-center">${statusBadge}</td>
                         <td class="p-3 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <button type="button" onclick="window.viewAssignedVisitorOrder('${o.id}')" class="p-2 bg-devo-black border border-devo-gray hover:bg-devo-gray rounded-lg text-white transition-colors cursor-pointer" title="معاينة الأصناف"><i class="ph ph-eye"></i></button>
+                                <button type="button" onclick="window.viewAssignedVisitorOrder('${o.id}')" class="p-2 bg-ultra-black border border-ultra-gray hover:bg-ultra-gray rounded-lg text-white transition-colors cursor-pointer" title="معاينة الأصناف"><i class="ph ph-eye"></i></button>
                                 ${o.status === 'pending' ? `
-                                    <button type="button" onclick="window.editVisitorOrder('${o.id}')" class="p-2 bg-devo-orange/10 text-devo-orange hover:bg-devo-orange hover:text-white rounded-lg transition-colors cursor-pointer" title="تعديل الطلب في السلة"><i class="ph ph-pencil-simple"></i></button>
+                                    <button type="button" onclick="window.editVisitorOrder('${o.id}')" class="p-2 bg-ultra-orange/10 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded-lg transition-colors cursor-pointer" title="تعديل الطلب في السلة"><i class="ph ph-pencil-simple"></i></button>
                                 ` : ''}
                             </div>
                         </td>
@@ -358,7 +358,7 @@ function renderOrders() {
 
             if (cardsBody) {
                 cardsBody.innerHTML += `
-                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-4 space-y-2.5 relative shadow-sm">
+                    <div class="bg-ultra-dark border border-ultra-gray rounded-2xl p-4 space-y-2.5 relative shadow-sm">
                         <div class="flex justify-between items-center">
                             <div>
                                 <span class="font-mono font-bold text-amber-400 text-xs">#${o.order_code}</span>
@@ -367,7 +367,7 @@ function renderOrders() {
                             ${statusBadge}
                         </div>
                         <div class="text-white font-bold text-sm">${o.customer_name}</div>
-                        <div class="text-xs text-devo-muted font-mono flex items-center gap-2">
+                        <div class="text-xs text-ultra-muted font-mono flex items-center gap-2">
                             <span>${o.customer_phone_1 || '-'}</span>
                             ${o.customer_phone_1 ? `
                                 <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppVisitorOrderMsg(o))}" target="_blank" class="px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1 text-[10px] font-bold transition-all cursor-pointer" title="مراسلة العميل واتساب">
@@ -375,16 +375,16 @@ function renderOrders() {
                                 </a>
                             ` : ''}
                         </div>
-                        <div class="flex justify-between items-center text-xs pt-2 border-t border-devo-gray/50">
+                        <div class="flex justify-between items-center text-xs pt-2 border-t border-ultra-gray/50">
                             <span class="text-blue-400 font-mono font-bold">${o.total_series} سيريه</span>
-                            <span class="text-devo-orange font-black font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</span>
+                            <span class="text-ultra-orange font-black font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</span>
                         </div>
-                        <div class="pt-2 border-t border-devo-gray/60 flex items-center justify-end gap-2">
-                            <button type="button" onclick="window.viewAssignedVisitorOrder('${o.id}')" class="px-3 py-1.5 bg-devo-black border border-devo-gray text-white text-xs rounded-xl flex items-center gap-1 cursor-pointer">
+                        <div class="pt-2 border-t border-ultra-gray/60 flex items-center justify-end gap-2">
+                            <button type="button" onclick="window.viewAssignedVisitorOrder('${o.id}')" class="px-3 py-1.5 bg-ultra-black border border-ultra-gray text-white text-xs rounded-xl flex items-center gap-1 cursor-pointer">
                                 <i class="ph ph-eye"></i> معاينة
                             </button>
                             ${o.status === 'pending' ? `
-                                <button type="button" onclick="window.editVisitorOrder('${o.id}')" class="px-3.5 py-1.5 bg-devo-orange text-white text-xs font-bold rounded-xl flex items-center gap-1 cursor-pointer shadow">
+                                <button type="button" onclick="window.editVisitorOrder('${o.id}')" class="px-3.5 py-1.5 bg-ultra-orange text-white text-xs font-bold rounded-xl flex items-center gap-1 cursor-pointer shadow">
                                     <i class="ph ph-pencil-simple"></i> تعديل بالسلة
                                 </button>
                             ` : ''}
@@ -414,7 +414,7 @@ function renderOrders() {
     });
 
     if (filtered.length === 0) {
-        const emptyMsg = `<div class="p-10 text-center text-devo-muted">لا توجد أوردرات تطابق بحثك في هذا القسم.</div>`;
+        const emptyMsg = `<div class="p-10 text-center text-ultra-muted">لا توجد أوردرات تطابق بحثك في هذا القسم.</div>`;
         if (tbody) tbody.innerHTML = `<tr><td colspan="6">${emptyMsg}</td></tr>`;
         if (cardsBody) cardsBody.innerHTML = emptyMsg;
         return;
@@ -427,39 +427,39 @@ function renderOrders() {
         const config = statusConfig[o.status] || statusConfig['created'];
         const dateStr = new Date(o.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
         
-        const lockIcon = o.is_locked ? `<i class="ph ph-lock text-devo-error" title="مقفل بواسطة الإدارة"></i>` : '';
+        const lockIcon = o.is_locked ? `<i class="ph ph-lock text-ultra-error" title="مقفل بواسطة الإدارة"></i>` : '';
         const isEditable = o.status === 'created' && !o.is_locked;
         let actionButtons = `
             <div class="flex items-center justify-center gap-2">
-                <button onclick="viewOrderDetails('${o.id}')" class="p-2 bg-devo-black border border-devo-gray hover:bg-devo-gray rounded text-white transition-colors" title="عرض"><i class="ph ph-eye"></i></button>
-                <button onclick="reprintOrder('${o.id}')" class="p-2 bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white rounded transition-colors" title="طباعة"><i class="ph ph-printer"></i></button>
+                <button onclick="viewOrderDetails('${o.id}')" class="p-2 bg-ultra-black border border-ultra-gray hover:bg-ultra-gray rounded text-white transition-colors" title="عرض"><i class="ph ph-eye"></i></button>
+                <button onclick="reprintOrder('${o.id}')" class="p-2 bg-ultra-info/10 text-ultra-info hover:bg-ultra-info hover:text-white rounded transition-colors" title="طباعة"><i class="ph ph-printer"></i></button>
                 ${isEditable 
-                    ? `<button onclick="confirmEditOrder('${o.id}')" class="p-2 bg-devo-orange/10 text-devo-orange hover:bg-devo-orange hover:text-white rounded transition-colors" title="تعديل الأوردر"><i class="ph ph-pencil-simple"></i></button>` 
-                    : `<button disabled class="p-2 bg-devo-gray/20 text-devo-muted rounded cursor-not-allowed" title="${o.is_locked ? 'هذا الأوردر قيد العمل من قبل الإدارة حالياً' : 'يجب إعادة حالة الأوردر إلى تم إنشاء الأوردر لتعديله'}"><i class="ph ph-lock text-devo-muted"></i></button>`
+                    ? `<button onclick="confirmEditOrder('${o.id}')" class="p-2 bg-ultra-orange/10 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded transition-colors" title="تعديل الأوردر"><i class="ph ph-pencil-simple"></i></button>` 
+                    : `<button disabled class="p-2 bg-ultra-gray/20 text-ultra-muted rounded cursor-not-allowed" title="${o.is_locked ? 'هذا الأوردر قيد العمل من قبل الإدارة حالياً' : 'يجب إعادة حالة الأوردر إلى تم إنشاء الأوردر لتعديله'}"><i class="ph ph-lock text-ultra-muted"></i></button>`
                 }
-                <button onclick="toggleArchive('${o.id}', ${!o.is_archived})" class="p-2 bg-devo-black border border-devo-gray hover:border-devo-orange rounded text-devo-muted hover:text-white transition-colors" title="${o.is_archived ? 'استعادة' : 'أرشفة'}"><i class="ph ${o.is_archived ? 'ph-tray-arrow-up' : 'ph-archive'}"></i></button>
+                <button onclick="toggleArchive('${o.id}', ${!o.is_archived})" class="p-2 bg-ultra-black border border-ultra-gray hover:border-ultra-orange rounded text-ultra-muted hover:text-white transition-colors" title="${o.is_archived ? 'استعادة' : 'أرشفة'}"><i class="ph ${o.is_archived ? 'ph-tray-arrow-up' : 'ph-archive'}"></i></button>
             </div>
         `;
 
         let cardActionButtons = `
-            <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-devo-gray/60 mt-3">
-                <button onclick="viewOrderDetails('${o.id}')" class="h-9 bg-devo-black border border-devo-gray hover:bg-devo-gray rounded-lg text-white text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="عرض الفاتورة"><i class="ph ph-eye text-sm"></i> <span>عرض</span></button>
-                <button onclick="reprintOrder('${o.id}')" class="h-9 bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="طباعة"><i class="ph ph-printer text-sm"></i> <span>طباعة</span></button>
+            <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-ultra-gray/60 mt-3">
+                <button onclick="viewOrderDetails('${o.id}')" class="h-9 bg-ultra-black border border-ultra-gray hover:bg-ultra-gray rounded-lg text-white text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="عرض الفاتورة"><i class="ph ph-eye text-sm"></i> <span>عرض</span></button>
+                <button onclick="reprintOrder('${o.id}')" class="h-9 bg-ultra-info/10 text-ultra-info hover:bg-ultra-info hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="طباعة"><i class="ph ph-printer text-sm"></i> <span>طباعة</span></button>
                 ${isEditable 
-                    ? `<button onclick="confirmEditOrder('${o.id}')" class="h-9 bg-devo-orange/10 text-devo-orange hover:bg-devo-orange hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="تعديل"><i class="ph ph-pencil-simple text-sm"></i> <span>تعديل</span></button>` 
-                    : `<button disabled class="h-9 bg-devo-gray/20 text-devo-muted rounded-lg text-xs font-medium flex items-center justify-center gap-1 opacity-50 cursor-not-allowed" title="${o.is_locked ? 'الأوردر قيد العمل من الإدارة' : 'لا يمكن التعديل'}"><i class="ph ph-lock text-sm"></i> <span>مقفل</span></button>`
+                    ? `<button onclick="confirmEditOrder('${o.id}')" class="h-9 bg-ultra-orange/10 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="تعديل"><i class="ph ph-pencil-simple text-sm"></i> <span>تعديل</span></button>` 
+                    : `<button disabled class="h-9 bg-ultra-gray/20 text-ultra-muted rounded-lg text-xs font-medium flex items-center justify-center gap-1 opacity-50 cursor-not-allowed" title="${o.is_locked ? 'الأوردر قيد العمل من الإدارة' : 'لا يمكن التعديل'}"><i class="ph ph-lock text-sm"></i> <span>مقفل</span></button>`
                 }
-                <button onclick="toggleArchive('${o.id}', ${!o.is_archived})" class="h-9 bg-devo-black border border-devo-gray text-devo-muted hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="${o.is_archived ? 'استعادة' : 'أرشفة'}"><i class="ph ${o.is_archived ? 'ph-tray-arrow-up' : 'ph-archive'} text-sm"></i> <span>${o.is_archived ? 'استعادة' : 'أرشيف'}</span></button>
+                <button onclick="toggleArchive('${o.id}', ${!o.is_archived})" class="h-9 bg-ultra-black border border-ultra-gray text-ultra-muted hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors" title="${o.is_archived ? 'استعادة' : 'أرشفة'}"><i class="ph ${o.is_archived ? 'ph-tray-arrow-up' : 'ph-archive'} text-sm"></i> <span>${o.is_archived ? 'استعادة' : 'أرشيف'}</span></button>
             </div>
         `;
 
         if (tbody) {
             tbody.innerHTML += `
-                <tr class="hover:bg-devo-black/40 transition-colors">
-                    <td class="p-4 font-mono text-devo-orange font-bold text-xs">${o.invoice_number} ${lockIcon}</td>
+                <tr class="hover:bg-ultra-black/40 transition-colors">
+                    <td class="p-4 font-mono text-ultra-orange font-bold text-xs">${o.invoice_number} ${lockIcon}</td>
                     <td class="p-4 font-bold text-white">${o.customer_name}</td>
-                    <td class="p-4 text-devo-muted">${o.total_series} سيريه</td>
-                    <td class="p-4 text-devo-muted text-xs">${dateStr}</td>
+                    <td class="p-4 text-ultra-muted">${o.total_series} سيريه</td>
+                    <td class="p-4 text-ultra-muted text-xs">${dateStr}</td>
                     <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold border ${config.color}">${config.text}</span></td>
                     <td class="p-4">${actionButtons}</td>
                 </tr>
@@ -468,10 +468,10 @@ function renderOrders() {
 
         if (cardsBody) {
             cardsBody.innerHTML += `
-                <div class="bg-devo-dark border border-devo-gray p-3.5 rounded-xl shadow-sm relative space-y-2.5">
-                    <div class="flex justify-between items-center border-b border-devo-gray/60 pb-2.5">
+                <div class="bg-ultra-dark border border-ultra-gray p-3.5 rounded-xl shadow-sm relative space-y-2.5">
+                    <div class="flex justify-between items-center border-b border-ultra-gray/60 pb-2.5">
                         <div class="flex items-center gap-1.5">
-                            <span class="bg-devo-orange/15 text-devo-orange px-2.5 py-0.5 rounded-md font-mono font-bold text-xs border border-devo-orange/30">#${o.invoice_number}</span>
+                            <span class="bg-ultra-orange/15 text-ultra-orange px-2.5 py-0.5 rounded-md font-mono font-bold text-xs border border-ultra-orange/30">#${o.invoice_number}</span>
                             ${lockIcon}
                         </div>
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${config.color}">${config.text}</span>
@@ -480,15 +480,15 @@ function renderOrders() {
                     <div class="flex justify-between items-start pt-0.5">
                         <div>
                             <h4 class="font-bold text-white text-sm">${o.customer_name}</h4>
-                            ${o.phone_1 ? `<p class="text-[11px] text-devo-muted font-mono mt-0.5" dir="ltr">${o.phone_1}</p>` : ''}
+                            ${o.phone_1 ? `<p class="text-[11px] text-ultra-muted font-mono mt-0.5" dir="ltr">${o.phone_1}</p>` : ''}
                         </div>
                         <div class="text-left">
-                            <div class="text-devo-orange font-black text-sm">${(o.total_price || 0).toLocaleString()} ج.م</div>
-                            <div class="text-[10px] text-devo-muted">${o.total_series} سيريه</div>
+                            <div class="text-ultra-orange font-black text-sm">${(o.total_price || 0).toLocaleString()} ج.م</div>
+                            <div class="text-[10px] text-ultra-muted">${o.total_series} سيريه</div>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center text-[10px] text-devo-muted pt-1">
+                    <div class="flex justify-between items-center text-[10px] text-ultra-muted pt-1">
                         <span><i class="ph ph-calendar-blank"></i> ${dateStr}</span>
                     </div>
 
@@ -538,15 +538,15 @@ window.viewOrderDetails = async (id) => {
     });
 
     let itemsHtml = Object.values(groupedItems).map(item => `
-        <tr class="border-b border-devo-gray last:border-0">
+        <tr class="border-b border-ultra-gray last:border-0">
             <td class="py-3 text-white text-sm font-bold">${item.modelName}</td>
-            <td class="py-3 text-devo-info text-xs leading-relaxed max-w-[120px]">${item.colorsList.join('، ')}</td>
+            <td class="py-3 text-ultra-info text-xs leading-relaxed max-w-[120px]">${item.colorsList.join('، ')}</td>
             <td class="py-3 text-white font-black text-center">
                 <span class="text-lg">${item.totalQty} سيريه</span><br>
-                <span class="text-[11px] text-devo-muted font-normal">(${item.totalPieces} قطعة)</span>
+                <span class="text-[11px] text-ultra-muted font-normal">(${item.totalPieces} قطعة)</span>
             </td>
-            <td class="py-3 text-devo-muted text-center">${item.price}</td>
-            <td class="py-3 text-devo-orange font-black text-left text-lg">${item.totalPrice}</td>
+            <td class="py-3 text-ultra-muted text-center">${item.price}</td>
+            <td class="py-3 text-ultra-orange font-black text-left text-lg">${item.totalPrice}</td>
         </tr>
     `).join('');
 
@@ -563,17 +563,17 @@ window.viewOrderDetails = async (id) => {
 
         if (logs && logs.length > 0) {
             logsHtml = `
-                <div class="mt-6 border-t border-devo-gray pt-4">
-                    <h5 class="text-xs text-devo-orange font-bold mb-3 flex items-center gap-1.5"><i class="ph ph-clock-counter-clockwise"></i> سجل حركات وتعديلات الأوردر</h5>
+                <div class="mt-6 border-t border-ultra-gray pt-4">
+                    <h5 class="text-xs text-ultra-orange font-bold mb-3 flex items-center gap-1.5"><i class="ph ph-clock-counter-clockwise"></i> سجل حركات وتعديلات الأوردر</h5>
                     <div class="space-y-2.5 max-h-[140px] overflow-y-auto custom-scrollbar text-xs">
                         ${logs.map(log => {
                             const logDate = new Date(log.created_at).toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                             return `
                                 <div class="flex gap-2.5 items-start">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-devo-orange mt-1.5 shrink-0 shadow-sm shadow-devo-orange/50"></div>
-                                    <div class="flex-1 text-devo-text font-medium">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-ultra-orange mt-1.5 shrink-0 shadow-sm shadow-ultra-orange/50"></div>
+                                    <div class="flex-1 text-ultra-text font-medium">
                                         <span class="font-normal">${log.notes}</span>
-                                        <span class="text-[10px] text-devo-muted mr-1.5 font-mono">(${logDate})</span>
+                                        <span class="text-[10px] text-ultra-muted mr-1.5 font-mono">(${logDate})</span>
                                     </div>
                                 </div>
                             `;
@@ -583,7 +583,7 @@ window.viewOrderDetails = async (id) => {
             `;
         } else {
             logsHtml = `
-                <div class="mt-4 border-t border-devo-gray pt-3 text-xs text-devo-muted">
+                <div class="mt-4 border-t border-ultra-gray pt-3 text-xs text-ultra-muted">
                     <i class="ph ph-info mr-1"></i> لا توجد حركات مسجلة لهذا الأوردر بعد.
                 </div>
             `;
@@ -593,22 +593,22 @@ window.viewOrderDetails = async (id) => {
     }
 
     document.getElementById('order-details-content').innerHTML = `
-        <div class="bg-devo-black p-4 rounded-xl border border-devo-gray mb-6 flex justify-between items-center">
+        <div class="bg-ultra-black p-4 rounded-xl border border-ultra-gray mb-6 flex justify-between items-center">
             <div>
-                <p class="text-xs text-devo-muted">العميل</p>
+                <p class="text-xs text-ultra-muted">العميل</p>
                 <h4 class="text-white font-bold text-lg">${o.customer_name}</h4>
-                <p class="text-sm text-devo-muted" dir="ltr">${o.phone_1}</p>
+                <p class="text-sm text-ultra-muted" dir="ltr">${o.phone_1}</p>
             </div>
             <div class="text-left">
-                <p class="text-xs text-devo-muted">رقم الفاتورة</p>
-                <p class="text-devo-orange font-mono font-bold text-lg">${o.invoice_number}</p>
+                <p class="text-xs text-ultra-muted">رقم الفاتورة</p>
+                <p class="text-ultra-orange font-mono font-bold text-lg">${o.invoice_number}</p>
             </div>
         </div>
 
-        <h4 class="text-white font-bold mb-3 border-b border-devo-gray pb-2">المنتجات المختارة</h4>
+        <h4 class="text-white font-bold mb-3 border-b border-ultra-gray pb-2">المنتجات المختارة</h4>
         <div class="overflow-x-auto">
             <table class="w-full text-right mb-6">
-                <thead class="text-xs text-devo-muted bg-devo-black">
+                <thead class="text-xs text-ultra-muted bg-ultra-black">
                     <tr>
                         <th class="py-2 px-1">الموديل</th>
                         <th class="py-2 px-1">الألوان والكميات</th>
@@ -621,12 +621,12 @@ window.viewOrderDetails = async (id) => {
             </table>
         </div>
 
-        <div class="bg-devo-black p-4 rounded-xl border border-devo-gray space-y-2 text-sm">
-            <div class="flex justify-between text-devo-muted"><span>الإجمالي الكلي:</span> <span class="text-white font-bold">${o.total_price} ج.م</span></div>
-            <div class="flex justify-between text-devo-muted"><span>العربون المدفوع:</span> <span class="text-devo-success font-bold">${o.deposit} ج.م</span></div>
-            <div class="flex justify-between border-t border-devo-gray pt-2 mt-2">
+        <div class="bg-ultra-black p-4 rounded-xl border border-ultra-gray space-y-2 text-sm">
+            <div class="flex justify-between text-ultra-muted"><span>الإجمالي الكلي:</span> <span class="text-white font-bold">${o.total_price} ج.م</span></div>
+            <div class="flex justify-between text-ultra-muted"><span>العربون المدفوع:</span> <span class="text-ultra-success font-bold">${o.deposit} ج.م</span></div>
+            <div class="flex justify-between border-t border-ultra-gray pt-2 mt-2">
                 <span class="text-white font-bold">المتبقي للدفع:</span> 
-                <span class="text-devo-orange font-black text-lg">${remaining} ج.م</span>
+                <span class="text-ultra-orange font-black text-lg">${remaining} ج.م</span>
             </div>
         </div>
 
@@ -683,7 +683,7 @@ window.toggleArchive = async (id, archiveStatus) => {
 // 🌟 دالة مساعدة لفك روابط الصور لكي تظهر في السلة بعد التعديل 🌟
 function resolveImageUrl(url) {
     if (!url || url.trim() === "" || url === "null" || url === "undefined") {
-        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+        return window.tenantDefaultModelImage || localStorage.getItem(`ultra_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/ultrasoft_transparent.png';
     }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
@@ -742,7 +742,7 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
 
     // 🌟 الإصلاح الجذري لمعادلة الأسعار والصور عند إرسالها للسلة 🌟
     const newCart = (targetOrder.order_items || []).map(item => {
-        let imgUrl = './src/assets/icons/devo.png';
+        let imgUrl = './src/assets/icons/ultrasoft_transparent.png';
         if (item.models?.model_images && item.models.model_images.length > 0) {
             imgUrl = resolveImageUrl(item.models.model_images[0].image_url);
         }
@@ -768,13 +768,13 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
     const isMain = tenantId === 'default' || tenantId === '00000000-0000-0000-0000-000000000001';
     const cartJson = JSON.stringify(newCart);
     try {
-        localStorage.setItem(getTenantStorageKey('devo_cart'), cartJson);
+        localStorage.setItem(getTenantStorageKey('ultra_cart'), cartJson);
     } catch(e) {}
-    localStorage.setItem(`devo_cart_${tenantId}`, cartJson);
+    localStorage.setItem(`ultra_cart_${tenantId}`, cartJson);
     if (isMain) {
-        localStorage.setItem('devo_cart_default', cartJson);
-        localStorage.setItem('devo_cart_00000000-0000-0000-0000-000000000001', cartJson);
-        localStorage.setItem('devo_cart', cartJson);
+        localStorage.setItem('ultra_cart_default', cartJson);
+        localStorage.setItem('ultra_cart_00000000-0000-0000-0000-000000000001', cartJson);
+        localStorage.setItem('ultra_cart', cartJson);
     }
     
     const orderData = {
@@ -788,13 +788,13 @@ document.getElementById('btn-confirm-edit')?.addEventListener('click', async () 
     };
     const orderDataJson = JSON.stringify(orderData);
     try {
-        localStorage.setItem(getTenantStorageKey('devo_edit_order_data'), orderDataJson);
+        localStorage.setItem(getTenantStorageKey('ultra_edit_order_data'), orderDataJson);
     } catch(e) {}
-    localStorage.setItem(`devo_edit_order_data_${tenantId}`, orderDataJson);
+    localStorage.setItem(`ultra_edit_order_data_${tenantId}`, orderDataJson);
     if (isMain) {
-        localStorage.setItem('devo_edit_order_data_default', orderDataJson);
-        localStorage.setItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001', orderDataJson);
-        localStorage.setItem('devo_edit_order_data', orderDataJson);
+        localStorage.setItem('ultra_edit_order_data_default', orderDataJson);
+        localStorage.setItem('ultra_edit_order_data_00000000-0000-0000-0000-000000000001', orderDataJson);
+        localStorage.setItem('ultra_edit_order_data', orderDataJson);
     }
     
     btn.innerHTML = originalText;
@@ -895,14 +895,14 @@ window.viewAssignedVisitorOrder = (orderId) => {
 
     const items = Array.isArray(o.items) ? o.items : [];
     let itemsHtml = items.map(item => `
-        <tr class="border-b border-devo-gray last:border-0">
-            <td class="py-3 text-white text-sm font-bold">${item.model_name || '-'} <span class="text-xs text-devo-muted font-mono">(${item.factory_code || '-'})</span></td>
-            <td class="py-3 text-devo-info text-xs leading-relaxed">${item.color_name || '-'}</td>
+        <tr class="border-b border-ultra-gray last:border-0">
+            <td class="py-3 text-white text-sm font-bold">${item.model_name || '-'} <span class="text-xs text-ultra-muted font-mono">(${item.factory_code || '-'})</span></td>
+            <td class="py-3 text-ultra-info text-xs leading-relaxed">${item.color_name || '-'}</td>
             <td class="py-3 text-white font-black text-center">
                 <span class="text-base text-blue-400 font-mono">${item.qty || 0} سيريه</span>
             </td>
-            <td class="py-3 text-devo-muted text-center font-mono">${Number(item.price || 0).toLocaleString()} ج.م</td>
-            <td class="py-3 text-devo-orange font-black text-left text-base font-mono">${(Number(item.qty || 0) * Number(item.price || 0)).toLocaleString()} ج.م</td>
+            <td class="py-3 text-ultra-muted text-center font-mono">${Number(item.price || 0).toLocaleString()} ج.م</td>
+            <td class="py-3 text-ultra-orange font-black text-left text-base font-mono">${(Number(item.qty || 0) * Number(item.price || 0)).toLocaleString()} ج.م</td>
         </tr>
     `).join('');
 
@@ -910,33 +910,33 @@ window.viewAssignedVisitorOrder = (orderId) => {
     if (!modalContent) return;
 
     modalContent.innerHTML = `
-        <div class="bg-devo-black p-4 rounded-xl border border-devo-gray mb-6 flex justify-between items-center">
+        <div class="bg-ultra-black p-4 rounded-xl border border-ultra-gray mb-6 flex justify-between items-center">
             <div>
                 <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold">طلب زائر معلق</span>
                 <h4 class="text-white font-bold text-lg mt-1">${o.customer_name || 'عميل بدون اسم'}</h4>
                 <div class="flex items-center gap-2 mt-1 flex-wrap">
-                    <p class="text-sm text-devo-muted font-mono" dir="ltr">${o.customer_phone_1 || '-'}</p>
+                    <p class="text-sm text-ultra-muted font-mono" dir="ltr">${o.customer_phone_1 || '-'}</p>
                     ${o.customer_phone_1 ? `
                         <a href="${formatWhatsAppUrl(o.customer_phone_1, getWhatsAppVisitorOrderMsg(o))}" target="_blank" class="px-2 py-0.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 text-xs font-bold inline-flex items-center gap-1 transition-all cursor-pointer" title="مراسلة العميل واتساب">
                             <i class="ph ph-whatsapp-logo text-sm"></i> محادثة واتساب
                         </a>
                     ` : ''}
                 </div>
-                ${o.customer_address ? `<p class="text-xs text-devo-muted mt-1"><i class="ph ph-map-pin"></i> ${o.customer_address}</p>` : ''}
+                ${o.customer_address ? `<p class="text-xs text-ultra-muted mt-1"><i class="ph ph-map-pin"></i> ${o.customer_address}</p>` : ''}
             </div>
             <div class="text-left">
-                <p class="text-xs text-devo-muted">كود طلب الزائر</p>
+                <p class="text-xs text-ultra-muted">كود طلب الزائر</p>
                 <p class="text-amber-400 font-mono font-black text-xl tracking-wider">#${o.order_code}</p>
             </div>
         </div>
 
-        <h4 class="text-white font-bold mb-3 border-b border-devo-gray pb-2 flex items-center justify-between">
+        <h4 class="text-white font-bold mb-3 border-b border-ultra-gray pb-2 flex items-center justify-between">
             <span>المنتجات المطلوبة</span>
-            <span class="text-xs text-devo-muted">إجمالي السريات: ${o.total_series || 0}</span>
+            <span class="text-xs text-ultra-muted">إجمالي السريات: ${o.total_series || 0}</span>
         </h4>
         <div class="overflow-x-auto">
             <table class="w-full text-right mb-6">
-                <thead class="text-xs text-devo-muted bg-devo-black">
+                <thead class="text-xs text-ultra-muted bg-ultra-black">
                     <tr>
                         <th class="py-2 px-1">الموديل</th>
                         <th class="py-2 px-1">اللون</th>
@@ -949,11 +949,11 @@ window.viewAssignedVisitorOrder = (orderId) => {
             </table>
         </div>
 
-        <div class="bg-devo-black p-4 rounded-xl border border-devo-gray space-y-2 text-sm">
-            <div class="flex justify-between text-devo-muted"><span>عدد الموديلات:</span> <span class="text-white font-bold">${o.total_models || items.length}</span></div>
-            <div class="flex justify-between border-t border-devo-gray pt-2 mt-2">
+        <div class="bg-ultra-black p-4 rounded-xl border border-ultra-gray space-y-2 text-sm">
+            <div class="flex justify-between text-ultra-muted"><span>عدد الموديلات:</span> <span class="text-white font-bold">${o.total_models || items.length}</span></div>
+            <div class="flex justify-between border-t border-ultra-gray pt-2 mt-2">
                 <span class="text-white font-bold">الإجمالي المطلوب:</span> 
-                <span class="text-devo-orange font-black text-lg font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</span>
+                <span class="text-ultra-orange font-black text-lg font-mono">${Number(o.total_amount || 0).toLocaleString()} ج.م</span>
             </div>
         </div>
 
@@ -963,10 +963,10 @@ window.viewAssignedVisitorOrder = (orderId) => {
             </div>
         ` : ''}
 
-        <div class="mt-6 pt-4 border-t border-devo-gray flex justify-end gap-2">
-            <button type="button" onclick="window.closeOrderDetailsModal()" class="px-4 py-2 bg-devo-gray text-white text-xs rounded-xl font-bold cursor-pointer">إغلاق</button>
+        <div class="mt-6 pt-4 border-t border-ultra-gray flex justify-end gap-2">
+            <button type="button" onclick="window.closeOrderDetailsModal()" class="px-4 py-2 bg-ultra-gray text-white text-xs rounded-xl font-bold cursor-pointer">إغلاق</button>
             ${o.status === 'pending' ? `
-                <button type="button" onclick="window.closeOrderDetailsModal(); window.editVisitorOrder('${o.id}');" class="px-5 py-2 bg-devo-orange text-white text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg shadow-devo-orange/20">
+                <button type="button" onclick="window.closeOrderDetailsModal(); window.editVisitorOrder('${o.id}');" class="px-5 py-2 bg-ultra-orange text-white text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg shadow-ultra-orange/20">
                     <i class="ph ph-pencil-simple text-sm"></i>
                     <span>تعديل الطلب في السلة</span>
                 </button>

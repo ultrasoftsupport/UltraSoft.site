@@ -1,6 +1,6 @@
 /**
- * DEVO Custom Confirm & Prompt Dialogs System
- * Replaces native window.confirm() and window.prompt() with sleek, custom DEVO styled dialogs using Promises.
+ * UltraSoft Custom Confirm & Prompt Dialogs System
+ * Replaces native window.confirm() and window.prompt() with sleek, custom UltraSoft styled dialogs using Promises.
  */
 
 export function confirmDialog(options = {}) {
@@ -26,30 +26,30 @@ export function confirmDialog(options = {}) {
         backdrop.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[999999] flex items-center justify-center opacity-0 transition-opacity duration-300 p-4';
         
         // 2. Define colors based on action type
-        const iconColor = isDestructive ? 'text-devo-error bg-devo-error/10' : 'text-devo-orange bg-devo-orange/10';
+        const iconColor = isDestructive ? 'text-ultra-error bg-ultra-error/10' : 'text-ultra-orange bg-ultra-orange/10';
         const iconClass = isDestructive ? 'ph-warning-circle' : 'ph-question';
         const btnClass = isDestructive 
-            ? 'bg-devo-error hover:bg-red-700 text-white shadow-lg shadow-red-500/20' 
-            : 'bg-devo-orange hover:bg-devo-orangeHover text-white shadow-lg shadow-amber-500/20';
+            ? 'bg-ultra-error hover:bg-red-700 text-white shadow-lg shadow-red-500/20' 
+            : 'bg-ultra-orange hover:bg-ultra-orangeHover text-white shadow-lg shadow-amber-500/20';
 
         // 3. Formatted Message with line breaks
         const formattedMessage = message.replace(/\n/g, '<br>');
 
         // 4. Create Modal Content
         const modal = document.createElement('div');
-        modal.className = 'bg-devo-dark border border-devo-gray rounded-xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 shadow-devo-float';
+        modal.className = 'bg-ultra-dark border border-ultra-gray rounded-xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 shadow-ultra-float';
         
         modal.innerHTML = `
             <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${iconColor}">
                 <i class="ph ${iconClass} text-3xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-devo-text mb-2 leading-tight">${title}</h3>
-            <p class="text-devo-muted mb-6 text-sm leading-relaxed">${formattedMessage}</p>
+            <h3 class="text-xl font-bold text-ultra-text mb-2 leading-tight">${title}</h3>
+            <p class="text-ultra-muted mb-6 text-sm leading-relaxed">${formattedMessage}</p>
             <div class="flex justify-center gap-3">
-                <button id="devo-cancel-btn" class="px-4 py-2.5 rounded-lg border border-devo-gray text-devo-text hover:bg-devo-gray transition-colors font-medium w-1/2 text-sm">
+                <button id="ultra-cancel-btn" class="px-4 py-2.5 rounded-lg border border-ultra-gray text-ultra-text hover:bg-ultra-gray transition-colors font-medium w-1/2 text-sm">
                     ${cancelText}
                 </button>
-                <button id="devo-confirm-btn" class="px-4 py-2.5 rounded-lg transition-colors font-medium w-1/2 text-sm ${btnClass}">
+                <button id="ultra-confirm-btn" class="px-4 py-2.5 rounded-lg transition-colors font-medium w-1/2 text-sm ${btnClass}">
                     ${confirmText}
                 </button>
             </div>
@@ -78,8 +78,8 @@ export function confirmDialog(options = {}) {
         };
 
         // 7. Event Listeners
-        const confirmBtn = modal.querySelector('#devo-confirm-btn');
-        const cancelBtn = modal.querySelector('#devo-cancel-btn');
+        const confirmBtn = modal.querySelector('#ultra-confirm-btn');
+        const cancelBtn = modal.querySelector('#ultra-cancel-btn');
 
         confirmBtn.addEventListener('click', () => closeAndResolve(true));
         cancelBtn.addEventListener('click', () => closeAndResolve(false));
@@ -132,22 +132,22 @@ export function promptDialog(options = {}) {
         const formattedMessage = message ? message.replace(/\n/g, '<br>') : '';
 
         const modal = document.createElement('div');
-        modal.className = 'bg-devo-dark border border-devo-gray rounded-xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 shadow-devo-float';
+        modal.className = 'bg-ultra-dark border border-ultra-gray rounded-xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 shadow-ultra-float';
 
         modal.innerHTML = `
-            <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-devo-orange bg-devo-orange/10">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-ultra-orange bg-ultra-orange/10">
                 <i class="ph ph-note-pencil text-3xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-devo-text mb-2 text-center leading-tight">${title}</h3>
-            ${formattedMessage ? `<p class="text-devo-muted mb-4 text-sm leading-relaxed text-center">${formattedMessage}</p>` : ''}
+            <h3 class="text-xl font-bold text-ultra-text mb-2 text-center leading-tight">${title}</h3>
+            ${formattedMessage ? `<p class="text-ultra-muted mb-4 text-sm leading-relaxed text-center">${formattedMessage}</p>` : ''}
             <div class="mb-6">
-                <input type="text" id="devo-prompt-input" value="${defaultValue}" placeholder="${placeholder}" class="w-full px-4 py-2.5 bg-devo-card border border-devo-gray rounded-lg text-devo-text focus:outline-none focus:border-devo-orange text-sm dir-auto" />
+                <input type="text" id="ultra-prompt-input" value="${defaultValue}" placeholder="${placeholder}" class="w-full px-4 py-2.5 bg-ultra-card border border-ultra-gray rounded-lg text-ultra-text focus:outline-none focus:border-ultra-orange text-sm dir-auto" />
             </div>
             <div class="flex justify-center gap-3">
-                <button id="devo-prompt-cancel-btn" class="px-4 py-2.5 rounded-lg border border-devo-gray text-devo-text hover:bg-devo-gray transition-colors font-medium w-1/2 text-sm">
+                <button id="ultra-prompt-cancel-btn" class="px-4 py-2.5 rounded-lg border border-ultra-gray text-ultra-text hover:bg-ultra-gray transition-colors font-medium w-1/2 text-sm">
                     ${cancelText}
                 </button>
-                <button id="devo-prompt-confirm-btn" class="px-4 py-2.5 rounded-lg bg-devo-orange hover:bg-devo-orangeHover text-white transition-colors font-medium w-1/2 text-sm shadow-lg shadow-amber-500/20">
+                <button id="ultra-prompt-confirm-btn" class="px-4 py-2.5 rounded-lg bg-ultra-orange hover:bg-ultra-orangeHover text-white transition-colors font-medium w-1/2 text-sm shadow-lg shadow-amber-500/20">
                     ${confirmText}
                 </button>
             </div>
@@ -156,7 +156,7 @@ export function promptDialog(options = {}) {
         backdrop.appendChild(modal);
         document.body.appendChild(backdrop);
 
-        const inputEl = modal.querySelector('#devo-prompt-input');
+        const inputEl = modal.querySelector('#ultra-prompt-input');
 
         requestAnimationFrame(() => {
             setTimeout(() => {
@@ -176,8 +176,8 @@ export function promptDialog(options = {}) {
             }, 300);
         };
 
-        const confirmBtn = modal.querySelector('#devo-prompt-confirm-btn');
-        const cancelBtn = modal.querySelector('#devo-prompt-cancel-btn');
+        const confirmBtn = modal.querySelector('#ultra-prompt-confirm-btn');
+        const cancelBtn = modal.querySelector('#ultra-prompt-cancel-btn');
 
         confirmBtn.addEventListener('click', () => closeAndResolve(inputEl.value));
         cancelBtn.addEventListener('click', () => closeAndResolve(null));
@@ -199,7 +199,7 @@ export function promptDialog(options = {}) {
 }
 
 /**
- * DEVO Subscription Quota Limit & Upgrade Modal
+ * UltraSoft Subscription Quota Limit & Upgrade Modal
  * Renders a rich, styled dialog when subscription limits (models, users, orders) are hit.
  */
 export function showSubscriptionUpgradeModal(options = {}) {
@@ -212,11 +212,11 @@ export function showSubscriptionUpgradeModal(options = {}) {
     let supportBtnText = '';
     let waPreFilledMsg = '';
 
-    const tenantName = window.activeTenant?.name || localStorage.getItem('devo_active_tenant_name') || 'المصنع';
-    const userName = window.currentUser?.full_name || localStorage.getItem('devo_user_fullname') || 'المالك';
+    const tenantName = window.activeTenant?.name || localStorage.getItem('ultra_active_tenant_name') || 'المصنع';
+    const userName = window.currentUser?.full_name || localStorage.getItem('ultra_user_fullname') || 'المالك';
     
     // Check if user is Owner or Admin vs Worker
-    const userRole = window.currentUserRole || window.currentUser?.role || localStorage.getItem('devo_user_role') || '';
+    const userRole = window.currentUserRole || window.currentUser?.role || localStorage.getItem('ultra_user_role') || '';
     const isOwnerOrAdmin = userRole === 'owner' || userRole === 'admin' || window.location.pathname.includes('admin.html');
 
     if (quotaType === 'users') {
@@ -256,15 +256,15 @@ export function showSubscriptionUpgradeModal(options = {}) {
 
     const message = options.message || defaultMsg;
 
-    const existing = document.getElementById('devo-subscription-quota-modal');
+    const existing = document.getElementById('ultra-subscription-quota-modal');
     if (existing) existing.remove();
 
     const backdrop = document.createElement('div');
-    backdrop.id = 'devo-subscription-quota-modal';
+    backdrop.id = 'ultra-subscription-quota-modal';
     backdrop.className = 'fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex items-center justify-center opacity-0 transition-opacity duration-300 p-4';
 
     const modal = document.createElement('div');
-    modal.className = 'bg-devo-dark border border-amber-500/30 rounded-2xl w-full max-w-md p-6 text-center transform scale-95 transition-transform duration-300 shadow-2xl relative overflow-hidden';
+    modal.className = 'bg-ultra-dark border border-amber-500/30 rounded-2xl w-full max-w-md p-6 text-center transform scale-95 transition-transform duration-300 shadow-2xl relative overflow-hidden';
 
     let extraCallToAction = '';
     if (isOwnerOrAdmin) {
@@ -294,25 +294,25 @@ export function showSubscriptionUpgradeModal(options = {}) {
             <span class="text-amber-200 font-extrabold">${badgeText}</span>
         </div>
 
-        <p class="text-devo-muted text-sm leading-relaxed mb-6">
+        <p class="text-ultra-muted text-sm leading-relaxed mb-6">
             ${message}
             ${extraCallToAction ? `<br><br>${extraCallToAction}` : ''}
         </p>
 
         <div class="space-y-3">
             ${isOwnerOrAdmin ? `
-            <button id="devo-quota-upgrade-btn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 group">
+            <button id="ultra-quota-upgrade-btn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 group">
                 <i class="ph ph-sparkle text-lg group-hover:rotate-12 transition-transform"></i>
                 <span>ترقية الباقة واختيار خطة أعلى</span>
             </button>
 
-            <button id="devo-quota-support-btn" class="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <button id="ultra-quota-support-btn" class="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-sm transition-all flex items-center justify-center gap-2">
                 <i class="ph ph-whatsapp-logo text-lg text-emerald-400"></i>
                 <span>${supportBtnText}</span>
             </button>
             ` : ''}
 
-            <button id="devo-quota-close-btn" class="w-full py-2 px-4 text-xs font-medium text-devo-muted hover:text-white transition-colors">
+            <button id="ultra-quota-close-btn" class="w-full py-2 px-4 text-xs font-medium text-ultra-muted hover:text-white transition-colors">
                 إغلاق النافذة
             </button>
         </div>
@@ -334,14 +334,14 @@ export function showSubscriptionUpgradeModal(options = {}) {
         setTimeout(() => backdrop.remove(), 300);
     };
 
-    modal.querySelector('#devo-quota-close-btn')?.addEventListener('click', closeModal);
+    modal.querySelector('#ultra-quota-close-btn')?.addEventListener('click', closeModal);
     
-    modal.querySelector('#devo-quota-upgrade-btn')?.addEventListener('click', () => {
+    modal.querySelector('#ultra-quota-upgrade-btn')?.addEventListener('click', () => {
         closeModal();
         window.location.href = 'landing.html#pricing';
     });
 
-    modal.querySelector('#devo-quota-support-btn')?.addEventListener('click', () => {
+    modal.querySelector('#ultra-quota-support-btn')?.addEventListener('click', () => {
         closeModal();
         const waUrl = `https://wa.me/201000000000?text=${encodeURIComponent(waPreFilledMsg)}`;
         window.open(waUrl, '_blank');

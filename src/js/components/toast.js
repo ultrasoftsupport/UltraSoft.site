@@ -1,5 +1,5 @@
 /**
- * DEVO Toast Notification System
+ * UltraSoft Toast Notification System
  * Premium UI component replacing native window.alert()
  */
 
@@ -19,20 +19,20 @@ export function showToast(message, type = 'success') {
     
     // 3. Define styles and Phosphor icons based on notification type
     const config = {
-        success: { icon: 'ph-check-circle', color: 'text-devo-success', border: 'border-devo-success/20' },
-        error:   { icon: 'ph-warning-circle', color: 'text-devo-error', border: 'border-devo-error/20' },
-        warning: { icon: 'ph-warning', color: 'text-devo-warning', border: 'border-devo-warning/20' },
-        info:    { icon: 'ph-info', color: 'text-devo-info', border: 'border-devo-info/20' }
+        success: { icon: 'ph-check-circle', color: 'text-ultra-success', border: 'border-ultra-success/20' },
+        error:   { icon: 'ph-warning-circle', color: 'text-ultra-error', border: 'border-ultra-error/20' },
+        warning: { icon: 'ph-warning', color: 'text-ultra-warning', border: 'border-ultra-warning/20' },
+        info:    { icon: 'ph-info', color: 'text-ultra-info', border: 'border-ultra-info/20' }
     };
 
     const style = config[type] || config.success;
 
-    // 4. Apply DEVO Brand Styling (Dark mode, elegant float shadow)
-    toast.className = `flex items-center gap-3 px-4 py-3 bg-devo-dark border ${style.border} rounded-lg shadow-devo-float transform translate-y-10 opacity-0 transition-all duration-300 min-w-[250px] max-w-sm pointer-events-auto`;
+    // 4. Apply UltraSoft Brand Styling (Dark mode, elegant float shadow)
+    toast.className = `flex items-center gap-3 px-4 py-3 bg-ultra-dark border ${style.border} rounded-lg shadow-ultra-float transform translate-y-10 opacity-0 transition-all duration-300 min-w-[250px] max-w-sm pointer-events-auto`;
     
     toast.innerHTML = `
         <i class="ph ${style.icon} text-xl ${style.color}"></i>
-        <span class="text-devo-text text-sm font-medium leading-relaxed whitespace-pre-line">${message}</span>
+        <span class="text-ultra-text text-sm font-medium leading-relaxed whitespace-pre-line">${message}</span>
     `;
     
     container.appendChild(toast);

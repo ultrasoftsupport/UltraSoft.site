@@ -8,23 +8,23 @@ import { logAuditEvent } from '../../services/audit_service.js';
 import { escapeHtml } from '../../utils/sanitize.js';
 
 function getTenantCartKey() {
-    return getTenantStorageKey('devo_cart');
+    return getTenantStorageKey('ultra_cart');
 }
 
 function getTenantEditOrderKey() {
-    return getTenantStorageKey('devo_edit_order_data');
+    return getTenantStorageKey('ultra_edit_order_data');
 }
 
 function getTenantEditOrderCacheKey() {
-    return getTenantStorageKey('devo_edit_order_data_cache');
+    return getTenantStorageKey('ultra_edit_order_data_cache');
 }
 
 function getVisitorSavedCodesKey() {
-    return getTenantStorageKey('devo_visitor_saved_codes');
+    return getTenantStorageKey('ultra_visitor_saved_codes');
 }
 
 function getVisitorLastPhoneKey() {
-    return getTenantStorageKey('devo_visitor_last_phone');
+    return getTenantStorageKey('ultra_visitor_last_phone');
 }
 
 function getTenantCustomerDraftKey() {
@@ -323,28 +323,28 @@ async function loadAndRenderCart() {
 
     let saved = localStorage.getItem(tenantCartKey);
     if (!saved && slug && slug !== 'default') {
-        saved = localStorage.getItem(`devo_cart_${slug}`);
+        saved = localStorage.getItem(`ultra_cart_${slug}`);
     }
     if (!saved && currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
-        saved = localStorage.getItem(`devo_cart_${currentTenantId}`);
+        saved = localStorage.getItem(`ultra_cart_${currentTenantId}`);
     }
     if (!saved && !isExplicitCustom) {
-        saved = localStorage.getItem('devo_cart_default')
-            || localStorage.getItem('devo_cart_00000000-0000-0000-0000-000000000001')
-            || localStorage.getItem('devo_cart');
+        saved = localStorage.getItem('ultra_cart_default')
+            || localStorage.getItem('ultra_cart_00000000-0000-0000-0000-000000000001')
+            || localStorage.getItem('ultra_cart');
     }
 
     let savedOrderData = localStorage.getItem(tenantEditKey);
     if (!savedOrderData && slug && slug !== 'default') {
-        savedOrderData = localStorage.getItem(`devo_edit_order_data_${slug}`);
+        savedOrderData = localStorage.getItem(`ultra_edit_order_data_${slug}`);
     }
     if (!savedOrderData && currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
-        savedOrderData = localStorage.getItem(`devo_edit_order_data_${currentTenantId}`);
+        savedOrderData = localStorage.getItem(`ultra_edit_order_data_${currentTenantId}`);
     }
     if (!savedOrderData && !isExplicitCustom) {
-        savedOrderData = localStorage.getItem('devo_edit_order_data_default')
-            || localStorage.getItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001')
-            || localStorage.getItem('devo_edit_order_data');
+        savedOrderData = localStorage.getItem('ultra_edit_order_data_default')
+            || localStorage.getItem('ultra_edit_order_data_00000000-0000-0000-0000-000000000001')
+            || localStorage.getItem('ultra_edit_order_data');
     }
 
     if (saved) { 
@@ -386,7 +386,7 @@ async function loadAndRenderCart() {
     const sumSeriesEl = document.getElementById('sum-series');
 
     if (cartItems.length === 0) {
-        if (container) container.innerHTML = `<div class="text-center py-10 text-devo-muted"><i class="ph ph-shopping-cart-simple text-5xl mb-3 opacity-50"></i><p>السلة فارغة حالياً</p></div>`;
+        if (container) container.innerHTML = `<div class="text-center py-10 text-ultra-muted"><i class="ph ph-shopping-cart-simple text-5xl mb-3 opacity-50"></i><p>السلة فارغة حالياً</p></div>`;
         if (sumPriceEl) sumPriceEl.textContent = '0'; 
         if (sumModelsEl) sumModelsEl.textContent = '0';
         if (sumSeriesEl) sumSeriesEl.textContent = '0';
@@ -394,13 +394,13 @@ async function loadAndRenderCart() {
         if (checkoutBtn) { 
             checkoutBtn.disabled = true; 
             checkoutBtn.innerHTML = editingOrderId ? `حفظ التعديلات` : `تأكيد وإصدار الفاتورة`; 
-            checkoutBtn.classList.replace('bg-devo-orange', 'bg-devo-gray'); 
+            checkoutBtn.classList.replace('bg-ultra-orange', 'bg-ultra-gray'); 
         }
         updateFloatingCart();
         return;
     }
 
-    if (container) container.innerHTML = `<div class="text-center py-10"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i><p class="text-xs text-devo-muted mt-2">جاري مطابقة المخزون مع السيرفر...</p></div>`;
+    if (container) container.innerHTML = `<div class="text-center py-10"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i><p class="text-xs text-ultra-muted mt-2">جاري مطابقة المخزون مع السيرفر...</p></div>`;
 
     const modelIds = [...new Set(cartItems.map(i => i.modelId))];
 
@@ -514,25 +514,25 @@ window.clearEntireCart = async () => {
         const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
 
         localStorage.removeItem(getTenantCartKey());
-        if (slug) localStorage.removeItem(`devo_cart_${slug}`);
-        if (currentTenantId) localStorage.removeItem(`devo_cart_${currentTenantId}`);
+        if (slug) localStorage.removeItem(`ultra_cart_${slug}`);
+        if (currentTenantId) localStorage.removeItem(`ultra_cart_${currentTenantId}`);
 
         localStorage.removeItem(getTenantEditOrderKey());
-        if (slug) localStorage.removeItem(`devo_edit_order_data_${slug}`);
-        if (currentTenantId) localStorage.removeItem(`devo_edit_order_data_${currentTenantId}`);
+        if (slug) localStorage.removeItem(`ultra_edit_order_data_${slug}`);
+        if (currentTenantId) localStorage.removeItem(`ultra_edit_order_data_${currentTenantId}`);
 
         localStorage.removeItem(getTenantEditOrderCacheKey());
-        if (slug) localStorage.removeItem(`devo_edit_order_data_cache_${slug}`);
-        if (currentTenantId) localStorage.removeItem(`devo_edit_order_data_cache_${currentTenantId}`);
+        if (slug) localStorage.removeItem(`ultra_edit_order_data_cache_${slug}`);
+        if (currentTenantId) localStorage.removeItem(`ultra_edit_order_data_cache_${currentTenantId}`);
 
         if (isMain) {
-            localStorage.removeItem('devo_cart_default');
-            localStorage.removeItem('devo_cart_00000000-0000-0000-0000-000000000001');
-            localStorage.removeItem('devo_cart');
-            localStorage.removeItem('devo_edit_order_data_default');
-            localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
-            localStorage.removeItem('devo_edit_order_data');
-            localStorage.removeItem('devo_edit_order_data_cache');
+            localStorage.removeItem('ultra_cart_default');
+            localStorage.removeItem('ultra_cart_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('ultra_cart');
+            localStorage.removeItem('ultra_edit_order_data_default');
+            localStorage.removeItem('ultra_edit_order_data_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('ultra_edit_order_data');
+            localStorage.removeItem('ultra_edit_order_data_cache');
         }
         
         clearCustomerDraft();
@@ -622,39 +622,39 @@ function renderCartItems(dbInventory, dbModels, originalOrderData) {
                 modelTotalSeries += item.qty;
             }
 
-            const colorRowClass = errorMsg ? 'bg-devo-error/20 border-devo-error/40' : 'bg-devo-black border-devo-gray/70';
+            const colorRowClass = errorMsg ? 'bg-ultra-error/20 border-ultra-error/40' : 'bg-ultra-black border-ultra-gray/70';
 
             colorsHtml += `
                 <div class="p-2.5 ${colorRowClass} border rounded-lg transition-all mb-2">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="w-3 h-3 rounded-full ${errorMsg ? 'bg-devo-error' : 'bg-devo-info'} shrink-0"></span>
-                            <span class="text-white font-bold text-xs sm:text-sm"><i class="ph-fill ph-palette text-devo-info"></i> ${item.colorName}</span>
+                            <span class="w-3 h-3 rounded-full ${errorMsg ? 'bg-ultra-error' : 'bg-ultra-info'} shrink-0"></span>
+                            <span class="text-white font-bold text-xs sm:text-sm"><i class="ph-fill ph-palette text-ultra-info"></i> ${item.colorName}</span>
                             ${(item.colorSystemCode || dbInv?.color_system_code) ? `<span class="text-[9px] font-mono text-purple-400 bg-purple-500/10 border border-purple-500/30 px-1.5 py-0.5 rounded">كود: ${item.colorSystemCode || dbInv?.color_system_code}</span>` : ''}
                             ${(item.colorFactoryCode || dbInv?.color_factory_code) ? `<span class="text-[9px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-1.5 py-0.5 rounded">مصنع: ${item.colorFactoryCode || dbInv?.color_factory_code}</span>` : ''}
                         </div>
 
                         ${errorMsg ? `
                             <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto justify-between">
-                                <span class="text-devo-error text-[11px] font-bold flex items-center gap-1"><i class="ph ph-warning-circle text-sm"></i> ${errorMsg}</span>
+                                <span class="text-ultra-error text-[11px] font-bold flex items-center gap-1"><i class="ph ph-warning-circle text-sm"></i> ${errorMsg}</span>
                                 <div class="flex items-center gap-2">
-                                    ${trueAvailable > 0 ? `<button type="button" onclick="updateCartItemQty(${item.originalIndex}, ${trueAvailable}, ${trueAvailable})" class="text-[10px] bg-devo-orange text-white px-2.5 py-1 rounded shadow whitespace-nowrap hover:bg-devo-orangeHover transition-colors font-bold">تصحيح لـ ${trueAvailable}</button>` : ''}
-                                    <button type="button" onclick="confirmRemoveFromCart(${item.originalIndex})" class="text-devo-error hover:bg-devo-error/20 p-1 rounded transition-colors" title="إزالة هذا اللون"><i class="ph ph-trash text-base"></i></button>
+                                    ${trueAvailable > 0 ? `<button type="button" onclick="updateCartItemQty(${item.originalIndex}, ${trueAvailable}, ${trueAvailable})" class="text-[10px] bg-ultra-orange text-white px-2.5 py-1 rounded shadow whitespace-nowrap hover:bg-ultra-orangeHover transition-colors font-bold">تصحيح لـ ${trueAvailable}</button>` : ''}
+                                    <button type="button" onclick="confirmRemoveFromCart(${item.originalIndex})" class="text-ultra-error hover:bg-ultra-error/20 p-1 rounded transition-colors" title="إزالة هذا اللون"><i class="ph ph-trash text-base"></i></button>
                                 </div>
                             </div>
                         ` : `
                             <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
-                                <div class="flex items-center bg-devo-dark border border-devo-gray rounded-lg overflow-hidden h-8">
-                                    <button type="button" onclick="updateCartItemQty(${item.originalIndex}, ${item.qty - 1})" class="w-8 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="تقليل"><i class="ph-bold ph-minus text-xs"></i></button>
-                                    <input type="number" readonly value="${item.qty}" class="w-9 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-devo-gray select-none">
-                                    <button type="button" onclick="updateCartItemQty(${item.originalIndex}, ${item.qty + 1}, ${trueAvailable})" class="w-8 h-full flex items-center justify-center text-white hover:text-devo-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="زيادة"><i class="ph-bold ph-plus text-xs"></i></button>
+                                <div class="flex items-center bg-ultra-dark border border-ultra-gray rounded-lg overflow-hidden h-8">
+                                    <button type="button" onclick="updateCartItemQty(${item.originalIndex}, ${item.qty - 1})" class="w-8 h-full flex items-center justify-center text-white hover:text-ultra-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="تقليل"><i class="ph-bold ph-minus text-xs"></i></button>
+                                    <input type="number" readonly value="${item.qty}" class="w-9 h-full bg-transparent text-center text-white text-xs font-bold outline-none border-x border-ultra-gray select-none">
+                                    <button type="button" onclick="updateCartItemQty(${item.originalIndex}, ${item.qty + 1}, ${trueAvailable})" class="w-8 h-full flex items-center justify-center text-white hover:text-ultra-orange hover:bg-white/5 transition-all shrink-0 cursor-pointer select-none" title="زيادة"><i class="ph-bold ph-plus text-xs"></i></button>
                                 </div>
                                 <div class="text-left flex items-center gap-2">
                                     <div>
-                                        <p class="text-devo-orange font-black text-xs sm:text-sm">${itemTotalPrice.toLocaleString()} ج.م</p>
-                                        <p class="text-devo-muted text-[9px]">(${item.qty * piecesPerSeries} قطعة)</p>
+                                        <p class="text-ultra-orange font-black text-xs sm:text-sm">${itemTotalPrice.toLocaleString()} ج.م</p>
+                                        <p class="text-ultra-muted text-[9px]">(${item.qty * piecesPerSeries} قطعة)</p>
                                     </div>
-                                    <button type="button" onclick="confirmRemoveFromCart(${item.originalIndex})" class="text-devo-error hover:bg-devo-error/20 p-1.5 rounded transition-colors" title="إزالة هذا اللون"><i class="ph ph-trash text-base md:text-lg"></i></button>
+                                    <button type="button" onclick="confirmRemoveFromCart(${item.originalIndex})" class="text-ultra-error hover:bg-ultra-error/20 p-1.5 rounded transition-colors" title="إزالة هذا اللون"><i class="ph ph-trash text-base md:text-lg"></i></button>
                                 </div>
                             </div>
                         `}
@@ -667,14 +667,14 @@ function renderCartItems(dbInventory, dbModels, originalOrderData) {
             errorModelsCount++;
         }
 
-        const cardClass = modelHasErrors ? 'bg-devo-error/10 border-devo-error shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'bg-devo-dark border-devo-gray';
+        const cardClass = modelHasErrors ? 'bg-ultra-error/10 border-ultra-error shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'bg-ultra-dark border-ultra-gray';
         const imgClass = modelHasErrors ? 'grayscale opacity-60' : '';
 
         const allCardSearchText = `${modelGroup.modelName} ${modelGroup.factoryCode || ''} ${modelGroup.colors.map(c => `${c.colorName} ${c.colorSystemCode || ''} ${c.colorFactoryCode || ''}`).join(' ')}`;
         html += `
             <div class="cart-item-card flex flex-col sm:flex-row gap-3 md:gap-4 p-3.5 ${cardClass} border rounded-xl relative transition-all duration-300 mb-4 shadow-sm" data-search="${allCardSearchText}" data-has-errors="${modelHasErrors}">
                 <div class="flex gap-3 md:gap-4 items-start">
-                    <img src="${modelGroup.image}" class="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover bg-devo-black shrink-0 ${imgClass}" onerror="this.src='./src/assets/icons/devo.png'">
+                    <img src="${modelGroup.image}" class="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover bg-ultra-black shrink-0 ${imgClass}" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'">
                 </div>
 
                 <div class="flex flex-col flex-1 justify-between">
@@ -682,27 +682,27 @@ function renderCartItems(dbInventory, dbModels, originalOrderData) {
                         <div>
                             <h4 class="text-white font-bold text-base line-clamp-1">${modelGroup.modelName}</h4>
                             <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                                <span class="text-devo-muted text-[10px] font-mono bg-devo-black px-2 py-0.5 rounded border border-devo-gray" title="كود الموديل"><i class="ph ph-barcode"></i> ${modelGroup.factoryCode || 'بدون كود'}</span>
-                                <span class="text-devo-muted text-[10px] bg-devo-black px-2 py-0.5 rounded border border-devo-gray" title="عدد القطع في السيريه الواحد"><i class="ph ph-ruler"></i> ${piecesPerSeries} قطع</span>
-                                <span class="text-devo-info text-[10px] bg-devo-info/10 px-2 py-0.5 rounded border border-devo-info/20" title="سعر القطعة الواحدة"><i class="ph ph-tag"></i> ق: ${pricePerPiece} ج</span>
-                                <span class="text-devo-orange text-[10px] bg-devo-orange/10 px-2 py-0.5 rounded border border-devo-orange/20" title="سعر السيريه الكامل"><i class="ph ph-stack"></i> سيريه: ${pricePerSeries} ج</span>
+                                <span class="text-ultra-muted text-[10px] font-mono bg-ultra-black px-2 py-0.5 rounded border border-ultra-gray" title="كود الموديل"><i class="ph ph-barcode"></i> ${modelGroup.factoryCode || 'بدون كود'}</span>
+                                <span class="text-ultra-muted text-[10px] bg-ultra-black px-2 py-0.5 rounded border border-ultra-gray" title="عدد القطع في السيريه الواحد"><i class="ph ph-ruler"></i> ${piecesPerSeries} قطع</span>
+                                <span class="text-ultra-info text-[10px] bg-ultra-info/10 px-2 py-0.5 rounded border border-ultra-info/20" title="سعر القطعة الواحدة"><i class="ph ph-tag"></i> ق: ${pricePerPiece} ج</span>
+                                <span class="text-ultra-orange text-[10px] bg-ultra-orange/10 px-2 py-0.5 rounded border border-ultra-orange/20" title="سعر السيريه الكامل"><i class="ph ph-stack"></i> سيريه: ${pricePerSeries} ج</span>
                             </div>
                         </div>
-                        <button type="button" onclick="confirmRemoveModelFromCart('${modelId}')" class="text-devo-error hover:bg-devo-error/20 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 flex items-center gap-1 text-xs font-bold border border-devo-error/20" title="إزالة الموديل بالكامل بجميع ألوانه">
+                        <button type="button" onclick="confirmRemoveModelFromCart('${modelId}')" class="text-ultra-error hover:bg-ultra-error/20 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 flex items-center gap-1 text-xs font-bold border border-ultra-error/20" title="إزالة الموديل بالكامل بجميع ألوانه">
                             <i class="ph ph-trash text-base"></i> <span class="hidden sm:inline">حذف الموديل</span>
                         </button>
                     </div>
 
                     <div class="mt-2">
-                        <p class="text-devo-muted text-xs font-bold mb-2 flex items-center gap-1"><i class="ph ph-palette text-devo-orange"></i> الألوان المحددة لهذا الموديل (${modelGroup.colors.length}):</p>
+                        <p class="text-ultra-muted text-xs font-bold mb-2 flex items-center gap-1"><i class="ph ph-palette text-ultra-orange"></i> الألوان المحددة لهذا الموديل (${modelGroup.colors.length}):</p>
                         <div class="space-y-1.5">
                             ${colorsHtml}
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center mt-3 pt-2 border-t border-devo-gray/50 text-xs">
-                        <span class="text-devo-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${modelTotalSeries} سيريه</span> (${modelTotalSeries * piecesPerSeries} قطعة)</span>
-                        <span class="text-devo-orange font-black text-base">${modelTotalPrice.toLocaleString()} ج.م</span>
+                    <div class="flex justify-between items-center mt-3 pt-2 border-t border-ultra-gray/50 text-xs">
+                        <span class="text-ultra-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${modelTotalSeries} سيريه</span> (${modelTotalSeries * piecesPerSeries} قطعة)</span>
+                        <span class="text-ultra-orange font-black text-base">${modelTotalPrice.toLocaleString()} ج.م</span>
                     </div>
                 </div>
             </div>
@@ -735,13 +735,13 @@ function renderCartItems(dbInventory, dbModels, originalOrderData) {
         if (hasErrors) {
             checkoutBtn.disabled = true;
             checkoutBtn.innerHTML = `<i class="ph ph-prohibit"></i> يرجى تصحيح الأخطاء أولاً`;
-            checkoutBtn.classList.add('bg-devo-gray', 'cursor-not-allowed');
-            checkoutBtn.classList.remove('bg-devo-orange', 'hover:bg-devo-orangeHover');
+            checkoutBtn.classList.add('bg-ultra-gray', 'cursor-not-allowed');
+            checkoutBtn.classList.remove('bg-ultra-orange', 'hover:bg-ultra-orangeHover');
         } else {
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = editingOrderId ? `حفظ التعديلات وإصدار الفاتورة` : `تأكيد وإصدار الفاتورة`;
-            checkoutBtn.classList.remove('bg-devo-gray', 'cursor-not-allowed');
-            checkoutBtn.classList.add('bg-devo-orange', 'hover:bg-devo-orangeHover');
+            checkoutBtn.classList.remove('bg-ultra-gray', 'cursor-not-allowed');
+            checkoutBtn.classList.add('bg-ultra-orange', 'hover:bg-ultra-orangeHover');
         }
     }
 }
@@ -771,16 +771,16 @@ window.confirmRemoveModelFromCart = async (modelId) => {
 function updateFilterButtonsUI() {
     const filters = {
         all: {
-            activeClass: "px-4 py-2 rounded-lg font-bold transition-all bg-devo-orange text-white flex items-center gap-1.5 shadow-sm",
-            inactiveClass: "px-4 py-2 rounded-lg font-bold transition-all text-devo-muted hover:text-white hover:bg-devo-gray/20 flex items-center gap-1.5"
+            activeClass: "px-4 py-2 rounded-lg font-bold transition-all bg-ultra-orange text-white flex items-center gap-1.5 shadow-sm",
+            inactiveClass: "px-4 py-2 rounded-lg font-bold transition-all text-ultra-muted hover:text-white hover:bg-ultra-gray/20 flex items-center gap-1.5"
         },
         ok: {
-            activeClass: "px-4 py-2 rounded-lg font-bold transition-all bg-devo-orange text-white flex items-center gap-1.5 shadow-sm",
-            inactiveClass: "px-4 py-2 rounded-lg font-bold transition-all text-devo-muted hover:text-white hover:bg-devo-gray/20 flex items-center gap-1.5"
+            activeClass: "px-4 py-2 rounded-lg font-bold transition-all bg-ultra-orange text-white flex items-center gap-1.5 shadow-sm",
+            inactiveClass: "px-4 py-2 rounded-lg font-bold transition-all text-ultra-muted hover:text-white hover:bg-ultra-gray/20 flex items-center gap-1.5"
         },
         error: {
-            activeClass: "px-4 py-2 rounded-lg font-bold transition-all bg-devo-error text-white flex items-center gap-1.5 shadow-sm",
-            inactiveClass: "px-4 py-2 rounded-lg font-bold transition-all text-devo-muted hover:text-white hover:bg-devo-gray/20 flex items-center gap-1.5"
+            activeClass: "px-4 py-2 rounded-lg font-bold transition-all bg-ultra-error text-white flex items-center gap-1.5 shadow-sm",
+            inactiveClass: "px-4 py-2 rounded-lg font-bold transition-all text-ultra-muted hover:text-white hover:bg-ultra-gray/20 flex items-center gap-1.5"
         }
     };
 
@@ -1022,15 +1022,15 @@ async function handleCheckout(e) {
         const isMainT = (!activeSlug || activeSlug === 'default') && (!tenantObj || tenantObj.slug === 'default');
 
         localStorage.removeItem(getTenantEditOrderKey());
-        if (activeSlug) localStorage.removeItem(`devo_edit_order_data_${activeSlug}`);
-        if (activeTenantId) localStorage.removeItem(`devo_edit_order_data_${activeTenantId}`);
+        if (activeSlug) localStorage.removeItem(`ultra_edit_order_data_${activeSlug}`);
+        if (activeTenantId) localStorage.removeItem(`ultra_edit_order_data_${activeTenantId}`);
         localStorage.removeItem(getTenantEditOrderCacheKey());
 
         if (isMainT) {
-            localStorage.removeItem('devo_edit_order_data_default');
-            localStorage.removeItem('devo_edit_order_data_00000000-0000-0000-0000-000000000001');
-            localStorage.removeItem('devo_edit_order_data');
-            localStorage.removeItem('devo_edit_order_data_cache');
+            localStorage.removeItem('ultra_edit_order_data_default');
+            localStorage.removeItem('ultra_edit_order_data_00000000-0000-0000-0000-000000000001');
+            localStorage.removeItem('ultra_edit_order_data');
+            localStorage.removeItem('ultra_edit_order_data_cache');
         }
 
         const userName = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || 'موظف';
@@ -1120,16 +1120,16 @@ function saveCart() {
         localStorage.setItem(getTenantCartKey(), cartJson);
     } catch(e) {}
     if (slug && slug !== 'default') {
-        localStorage.setItem(`devo_cart_${slug}`, cartJson);
+        localStorage.setItem(`ultra_cart_${slug}`, cartJson);
     }
     if (currentTenantId && currentTenantId !== '00000000-0000-0000-0000-000000000001') {
-        localStorage.setItem(`devo_cart_${currentTenantId}`, cartJson);
+        localStorage.setItem(`ultra_cart_${currentTenantId}`, cartJson);
     }
     const tenant = getCurrentTenant();
     const isMain = (!slug || slug === 'default') && (!tenant || tenant.slug === 'default');
     if (isMain) {
-        localStorage.setItem('devo_cart_default', cartJson);
-        localStorage.setItem('devo_cart', cartJson);
+        localStorage.setItem('ultra_cart_default', cartJson);
+        localStorage.setItem('ultra_cart', cartJson);
     }
     updateFloatingCart();
 }
@@ -1484,7 +1484,7 @@ function setupCartUserInterface() {
 
     if (!currentUser || editingVisitorOrderId) {
         // واجهة الزائر أو تعديل طلب زائر معلق
-        if (checkoutTitle) checkoutTitle.innerHTML = `<i class="ph ph-user text-devo-info"></i><span>بيانات التواصل</span>`;
+        if (checkoutTitle) checkoutTitle.innerHTML = `<i class="ph ph-user text-ultra-info"></i><span>بيانات التواصل</span>`;
         if (checkoutSubtext) {
             checkoutSubtext.classList.remove('hidden');
             checkoutSubtext.textContent = 'لن يتم خصم أي مخزون حتى يوافق فريقنا على طلبك';
@@ -1497,7 +1497,7 @@ function setupCartUserInterface() {
         if (cartPageTitle) cartPageTitle.textContent = 'طلبك';
     } else {
         // واجهة الموظف/الإدارة
-        if (checkoutTitle) checkoutTitle.innerHTML = `<i class="ph ph-user text-devo-info"></i><span>بيانات العميل</span>`;
+        if (checkoutTitle) checkoutTitle.innerHTML = `<i class="ph ph-user text-ultra-info"></i><span>بيانات العميل</span>`;
         if (checkoutSubtext) checkoutSubtext.classList.add('hidden');
         if (workerPaymentFields) workerPaymentFields.classList.remove('hidden');
         if (visitorHint) visitorHint.classList.add('hidden');
@@ -1521,19 +1521,19 @@ function switchCartMainTab(tab) {
 
     if (tab === 'current') {
         if (tabCurrentBtn) {
-            tabCurrentBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer";
+            tabCurrentBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 bg-ultra-orange text-white shadow-md cursor-pointer";
         }
         if (tabHistoryBtn) {
-            tabHistoryBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 text-devo-muted hover:text-white border border-transparent hover:bg-devo-gray/30 cursor-pointer";
+            tabHistoryBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 text-ultra-muted hover:text-white border border-transparent hover:bg-ultra-gray/30 cursor-pointer";
         }
         if (tabCurrentSection) tabCurrentSection.classList.remove('hidden');
         if (tabHistorySection) tabHistorySection.classList.add('hidden');
     } else {
         if (tabHistoryBtn) {
-            tabHistoryBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer";
+            tabHistoryBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 bg-ultra-orange text-white shadow-md cursor-pointer";
         }
         if (tabCurrentBtn) {
-            tabCurrentBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 text-devo-muted hover:text-white border border-transparent hover:bg-devo-gray/30 cursor-pointer";
+            tabCurrentBtn.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 text-ultra-muted hover:text-white border border-transparent hover:bg-ultra-gray/30 cursor-pointer";
         }
         if (tabCurrentSection) tabCurrentSection.classList.add('hidden');
         if (tabHistorySection) tabHistorySection.classList.remove('hidden');
@@ -1597,17 +1597,17 @@ function renderVisitorSavedCodesChips() {
 
     if (codes.length === 0) {
         wrap.classList.add('hidden');
-        container.innerHTML = `<span class="text-devo-muted font-bold flex items-center gap-1"><i class="ph ph-clock-counter-clockwise"></i> سجل الأكواد المستعلم عنها:</span> <span class="text-devo-muted/60">لا توجد أكواد مسجلة</span>`;
+        container.innerHTML = `<span class="text-ultra-muted font-bold flex items-center gap-1"><i class="ph ph-clock-counter-clockwise"></i> سجل الأكواد المستعلم عنها:</span> <span class="text-ultra-muted/60">لا توجد أكواد مسجلة</span>`;
         return;
     }
 
     wrap.classList.remove('hidden');
     container.innerHTML = `
-        <span class="text-devo-muted font-bold flex items-center gap-1"><i class="ph ph-clock-counter-clockwise"></i> سجل الأكواد المستعلم عنها:</span>
+        <span class="text-ultra-muted font-bold flex items-center gap-1"><i class="ph ph-clock-counter-clockwise"></i> سجل الأكواد المستعلم عنها:</span>
         ${codes.map(code => `
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-devo-orange/15 border border-devo-orange/30 text-devo-orange font-mono font-bold text-xs">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-ultra-orange/15 border border-ultra-orange/30 text-ultra-orange font-mono font-bold text-xs">
                 <span class="cursor-pointer hover:underline" onclick="document.getElementById('visitor-track-input').value='${code}'; handleVisitorTrackSearch();"># ${code}</span>
-                <button type="button" onclick="window.removeSingleVisitorCode('${code}')" class="text-devo-muted hover:text-devo-error p-0.5 rounded transition-colors" title="إزالة من السجل">
+                <button type="button" onclick="window.removeSingleVisitorCode('${code}')" class="text-ultra-muted hover:text-ultra-error p-0.5 rounded transition-colors" title="إزالة من السجل">
                     <i class="ph ph-x text-xs"></i>
                 </button>
             </span>
@@ -1997,7 +1997,7 @@ async function refreshVisitorOrdersList(searchTerm = null) {
     const tenantId = getCurrentTenantId() || 'default';
 
     container.innerHTML = `
-        <div class="flex items-center justify-center py-12 text-devo-orange gap-2">
+        <div class="flex items-center justify-center py-12 text-ultra-orange gap-2">
             <i class="ph ph-spinner animate-spin text-2xl"></i>
             <span class="text-sm font-bold">جاري جلب الطلبات من النظام الحي...</span>
         </div>
@@ -2069,20 +2069,20 @@ async function refreshVisitorOrdersList(searchTerm = null) {
             const isPending = order.status === 'pending' || order.status === 'assigned';
 
             return `
-                <div class="bg-devo-dark border border-devo-gray rounded-2xl p-5 shadow-sm transition-all hover:border-devo-orange/40 space-y-3" id="vorder-card-${order.id}">
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-devo-gray/50 pb-3">
+                <div class="bg-ultra-dark border border-ultra-gray rounded-2xl p-5 shadow-sm transition-all hover:border-ultra-orange/40 space-y-3" id="vorder-card-${order.id}">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ultra-gray/50 pb-3">
                         <div class="flex items-center gap-2.5">
-                            <span class="w-8 h-8 rounded-xl bg-devo-orange/15 border border-devo-orange/30 text-devo-orange flex items-center justify-center font-bold text-sm">
+                            <span class="w-8 h-8 rounded-xl bg-ultra-orange/15 border border-ultra-orange/30 text-ultra-orange flex items-center justify-center font-bold text-sm">
                                 <i class="ph ph-receipt"></i>
                             </span>
                             <div>
                                 <div class="flex items-center gap-1.5">
                                     <span class="text-white font-mono font-black text-sm sm:text-base tracking-wider">#${order.order_code}</span>
-                                    <button type="button" onclick="navigator.clipboard.writeText('${order.order_code}'); showToast('تم نسخ الكود!', 'success');" class="text-devo-muted hover:text-white p-0.5 rounded transition-colors" title="نسخ الكود">
+                                    <button type="button" onclick="navigator.clipboard.writeText('${order.order_code}'); showToast('تم نسخ الكود!', 'success');" class="text-ultra-muted hover:text-white p-0.5 rounded transition-colors" title="نسخ الكود">
                                         <i class="ph ph-copy text-sm"></i>
                                     </button>
                                 </div>
-                                <span class="text-[11px] text-devo-muted font-medium">${dateStr}</span>
+                                <span class="text-[11px] text-ultra-muted font-medium">${dateStr}</span>
                             </div>
                         </div>
                         <div>
@@ -2094,29 +2094,29 @@ async function refreshVisitorOrdersList(searchTerm = null) {
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
                         <div>
-                            <span class="text-devo-muted block mb-0.5">العميل:</span>
+                            <span class="text-ultra-muted block mb-0.5">العميل:</span>
                             <span class="text-white font-bold">${order.customer_name}</span>
                         </div>
                         <div>
-                            <span class="text-devo-muted block mb-0.5">الهاتف:</span>
+                            <span class="text-ultra-muted block mb-0.5">الهاتف:</span>
                             <span class="text-white font-mono font-bold" dir="ltr">${order.customer_phone_1}</span>
                         </div>
                         <div>
-                            <span class="text-devo-muted block mb-0.5">إجمالي السريات:</span>
-                            <span class="text-devo-orange font-bold">${order.total_series} سيريه</span>
+                            <span class="text-ultra-muted block mb-0.5">إجمالي السريات:</span>
+                            <span class="text-ultra-orange font-bold">${order.total_series} سيريه</span>
                         </div>
                         <div>
-                            <span class="text-devo-muted block mb-0.5">إجمالي القيمة:</span>
-                            <span class="text-devo-orange font-black">${Number(order.total_amount).toLocaleString()} ج.م</span>
+                            <span class="text-ultra-muted block mb-0.5">إجمالي القيمة:</span>
+                            <span class="text-ultra-orange font-black">${Number(order.total_amount).toLocaleString()} ج.م</span>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-devo-gray/40">
-                        <button type="button" onclick="window.openVisitorOrderDetails('${order.id}')" class="px-3.5 py-2 bg-devo-orange/15 hover:bg-devo-orange/25 border border-devo-orange/40 text-devo-orange rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-ultra-gray/40">
+                        <button type="button" onclick="window.openVisitorOrderDetails('${order.id}')" class="px-3.5 py-2 bg-ultra-orange/15 hover:bg-ultra-orange/25 border border-ultra-orange/40 text-ultra-orange rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
                             <i class="ph ph-eye text-sm"></i>
                             <span>عرض التفاصيل</span>
                         </button>
-                        <button type="button" onclick="window.printVisitorOrderById('${order.id}')" class="px-3.5 py-2 bg-devo-gray/30 hover:bg-devo-gray/50 border border-devo-gray text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+                        <button type="button" onclick="window.printVisitorOrderById('${order.id}')" class="px-3.5 py-2 bg-ultra-gray/30 hover:bg-ultra-gray/50 border border-ultra-gray text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
                             <i class="ph ph-printer text-sm"></i>
                             <span>طباعة</span>
                         </button>
@@ -2133,7 +2133,7 @@ async function refreshVisitorOrdersList(searchTerm = null) {
 
     } catch(err) {
         console.error('Error querying visitor orders:', err);
-        container.innerHTML = `<div class="p-4 text-center text-devo-error bg-devo-error/10 border border-devo-error/20 rounded-xl text-xs font-bold">حدث خطأ أثناء جلب الطلبات، يرجى المحاولة مرة أخرى.</div>`;
+        container.innerHTML = `<div class="p-4 text-center text-ultra-error bg-ultra-error/10 border border-ultra-error/20 rounded-xl text-xs font-bold">حدث خطأ أثناء جلب الطلبات، يرجى المحاولة مرة أخرى.</div>`;
     }
 }
 
@@ -2198,7 +2198,7 @@ async function openVisitorOrderDetails(orderId) {
                 modelId,
                 modelName: item.model_name || 'موديل',
                 code: item.factory_code || '',
-                imageUrl: item.image || item.image_url || './src/assets/icons/devo.png',
+                imageUrl: item.image || item.image_url || './src/assets/icons/ultrasoft_transparent.png',
                 sizesCount: sizesCount,
                 seriesPrice: seriesPrice,
                 piecePrice: piecePrice,
@@ -2232,29 +2232,29 @@ async function openVisitorOrderDetails(orderId) {
 
     if (modelGroups.length === 0) {
         modelsCardsHtml = `
-            <div class="p-8 text-center bg-devo-black/60 border border-devo-gray rounded-2xl">
-                <i class="ph ph-package text-3xl text-devo-muted mb-2 block"></i>
-                <p class="text-devo-muted text-sm font-bold">لا توجد أصناف مسجلة في هذا الطلب.</p>
+            <div class="p-8 text-center bg-ultra-black/60 border border-ultra-gray rounded-2xl">
+                <i class="ph ph-package text-3xl text-ultra-muted mb-2 block"></i>
+                <p class="text-ultra-muted text-sm font-bold">لا توجد أصناف مسجلة في هذا الطلب.</p>
             </div>
         `;
     } else {
         modelsCardsHtml = modelGroups.map(group => {
             return `
-                <div class="bg-devo-black/50 border border-devo-gray/70 hover:border-devo-orange/40 rounded-2xl p-4 transition-all shadow-sm mb-3">
+                <div class="bg-ultra-black/50 border border-ultra-gray/70 hover:border-ultra-orange/40 rounded-2xl p-4 transition-all shadow-sm mb-3">
                     <!-- هيدر الموديل -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-devo-gray/60">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-ultra-gray/60">
                         <div class="flex items-center gap-3">
-                            <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-devo-gray bg-devo-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/devo.png'">
+                            <img src="${group.imageUrl}" alt="${escapeHtml(group.modelName)}" class="w-14 h-14 rounded-xl object-cover border border-ultra-gray bg-ultra-black shrink-0 shadow-sm" onerror="this.src='./src/assets/icons/ultrasoft_transparent.png'">
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h4 class="text-white font-black text-sm sm:text-base">${escapeHtml(group.modelName)}</h4>
-                                    ${group.code ? `<span class="bg-devo-gray/70 border border-devo-gray text-devo-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${group.code}</span>` : ''}
-                                    <span class="bg-devo-gray/70 border border-devo-gray text-devo-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
+                                    ${group.code ? `<span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-text px-2 py-0.5 rounded-lg text-xs font-mono font-bold">${group.code}</span>` : ''}
+                                    <span class="bg-ultra-gray/70 border border-ultra-gray text-ultra-muted px-2 py-0.5 rounded-lg text-xs font-medium">${group.sizesCount} قطع</span>
                                     <span class="bg-sky-500/15 border border-sky-500/30 text-sky-400 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">ق: ${(group.piecePrice || 0).toLocaleString()} ج</span>
                                     <span class="bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono">سيريه: ${(group.seriesPrice || 0).toLocaleString()} ج</span>
                                 </div>
-                                <div class="text-xs text-devo-muted flex items-center gap-1.5 mt-1.5 font-medium">
-                                    <i class="ph ph-palette text-devo-orange"></i>
+                                <div class="text-xs text-ultra-muted flex items-center gap-1.5 mt-1.5 font-medium">
+                                    <i class="ph ph-palette text-ultra-orange"></i>
                                     <span>الألوان المسجلة لهذا الموديل (${group.items.length}):</span>
                                 </div>
                             </div>
@@ -2264,18 +2264,18 @@ async function openVisitorOrderDetails(orderId) {
                     <!-- صفوف ألوان الموديل -->
                     <div class="space-y-2">
                         ${group.items.map(item => `
-                            <div class="flex items-center justify-between p-2.5 sm:p-3 bg-devo-dark/60 border border-devo-gray/50 hover:border-devo-gray rounded-xl transition-colors">
+                            <div class="flex items-center justify-between p-2.5 sm:p-3 bg-ultra-dark/60 border border-ultra-gray/50 hover:border-ultra-gray rounded-xl transition-colors">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-3.5 h-3.5 rounded-full shrink-0 border border-white/20 shadow-sm" style="background-color: ${item.colorCode || '#38BDF8'}"></span>
                                     <span class="text-white text-xs sm:text-sm font-bold">${escapeHtml(item.colorName)}</span>
                                 </div>
                                 <div class="flex items-center gap-3 sm:gap-5">
-                                    <span class="bg-devo-black/80 border border-devo-gray/60 px-3 py-1.5 rounded-xl text-devo-text text-xs font-bold shadow-inner">
-                                        ${item.quantity} سيريه <span class="text-[11px] text-devo-muted font-normal">(${item.pieces} قطعة)</span>
+                                    <span class="bg-ultra-black/80 border border-ultra-gray/60 px-3 py-1.5 rounded-xl text-ultra-text text-xs font-bold shadow-inner">
+                                        ${item.quantity} سيريه <span class="text-[11px] text-ultra-muted font-normal">(${item.pieces} قطعة)</span>
                                     </span>
                                     <div class="text-left min-w-[90px] sm:min-w-[110px]">
-                                        <span class="text-devo-orange font-black font-mono text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
-                                        <span class="text-[10px] text-devo-muted font-mono block">سعر السيريه: ${(item.price_per_series || 0).toLocaleString()} ج</span>
+                                        <span class="text-ultra-orange font-black font-mono text-sm block">${(item.itemTotal || 0).toLocaleString()} ج.م</span>
+                                        <span class="text-[10px] text-ultra-muted font-mono block">سعر السيريه: ${(item.price_per_series || 0).toLocaleString()} ج</span>
                                     </div>
                                 </div>
                             </div>
@@ -2283,9 +2283,9 @@ async function openVisitorOrderDetails(orderId) {
                     </div>
 
                     <!-- فوتر إجمالي الموديل -->
-                    <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-devo-gray/50 text-xs">
-                        <span class="text-devo-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.totalSeries} سيريه</span> (${group.totalPieces} قطعة)</span>
-                        <span class="text-devo-orange font-black font-mono text-sm sm:text-base">${group.totalPrice.toLocaleString()} ج.م</span>
+                    <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-ultra-gray/50 text-xs">
+                        <span class="text-ultra-muted font-bold">إجمالي الموديل: <span class="text-white font-bold">${group.totalSeries} سيريه</span> (${group.totalPieces} قطعة)</span>
+                        <span class="text-ultra-orange font-black font-mono text-sm sm:text-base">${group.totalPrice.toLocaleString()} ج.م</span>
                     </div>
                 </div>
             `;
@@ -2299,34 +2299,34 @@ async function openVisitorOrderDetails(orderId) {
 
         contentEl.innerHTML = `
             <!-- بيانات العميل -->
-            <div class="bg-devo-black/60 p-3.5 sm:p-4 rounded-xl border border-devo-gray/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-3">
-                <div><span class="text-devo-muted block mb-0.5 font-bold">اسم العميل:</span> <strong class="text-white text-sm">${order.customer_name}</strong></div>
-                <div><span class="text-devo-muted block mb-0.5 font-bold">الهاتف:</span> <strong class="text-white font-mono text-sm" dir="ltr">${order.customer_phone_1}</strong></div>
-                <div><span class="text-devo-muted block mb-0.5 font-bold">العنوان:</span> <strong class="text-white">${order.customer_address || '-'}</strong></div>
+            <div class="bg-ultra-black/60 p-3.5 sm:p-4 rounded-xl border border-ultra-gray/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-3">
+                <div><span class="text-ultra-muted block mb-0.5 font-bold">اسم العميل:</span> <strong class="text-white text-sm">${order.customer_name}</strong></div>
+                <div><span class="text-ultra-muted block mb-0.5 font-bold">الهاتف:</span> <strong class="text-white font-mono text-sm" dir="ltr">${order.customer_phone_1}</strong></div>
+                <div><span class="text-ultra-muted block mb-0.5 font-bold">العنوان:</span> <strong class="text-white">${order.customer_address || '-'}</strong></div>
             </div>
 
             <!-- ملخص الإحصائيات (الأصناف - السريات - القطع) -->
-            <div class="grid grid-cols-3 gap-2 bg-devo-black/50 border border-devo-gray/60 p-2.5 sm:p-3 rounded-xl text-center text-xs mb-3 shadow-sm">
-                <div class="border-l border-devo-gray/50 pl-2">
-                    <span class="text-devo-muted text-[11px] block mb-0.5 font-bold">إجمالي الأصناف:</span>
+            <div class="grid grid-cols-3 gap-2 bg-ultra-black/50 border border-ultra-gray/60 p-2.5 sm:p-3 rounded-xl text-center text-xs mb-3 shadow-sm">
+                <div class="border-l border-ultra-gray/50 pl-2">
+                    <span class="text-ultra-muted text-[11px] block mb-0.5 font-bold">إجمالي الأصناف:</span>
                     <strong class="text-white font-black text-xs sm:text-sm">${modelGroups.length} موديل</strong>
                 </div>
-                <div class="border-l border-devo-gray/50 px-2">
-                    <span class="text-devo-muted text-[11px] block mb-0.5 font-bold">إجمالي السريات:</span>
-                    <strong class="text-devo-orange font-black text-xs sm:text-sm">${totalSeries} سيريه</strong>
+                <div class="border-l border-ultra-gray/50 px-2">
+                    <span class="text-ultra-muted text-[11px] block mb-0.5 font-bold">إجمالي السريات:</span>
+                    <strong class="text-ultra-orange font-black text-xs sm:text-sm">${totalSeries} سيريه</strong>
                 </div>
                 <div class="pr-2">
-                    <span class="text-devo-muted text-[11px] block mb-0.5 font-bold">إجمالي القطع:</span>
+                    <span class="text-ultra-muted text-[11px] block mb-0.5 font-bold">إجمالي القطع:</span>
                     <strong class="text-emerald-400 font-black text-xs sm:text-sm">${totalPieces} قطعة</strong>
                 </div>
             </div>
 
-            ${order.notes ? `<div class="p-3 bg-devo-black/40 rounded-xl text-xs text-devo-muted mb-3 border border-devo-gray/40"><strong>ملاحظات:</strong> <span class="text-white">${order.notes}</span></div>` : ''}
+            ${order.notes ? `<div class="p-3 bg-ultra-black/40 rounded-xl text-xs text-ultra-muted mb-3 border border-ultra-gray/40"><strong>ملاحظات:</strong> <span class="text-white">${order.notes}</span></div>` : ''}
             
             <!-- كروت الموديلات المجمعة -->
             <div class="space-y-3">
                 <h6 class="text-xs sm:text-sm font-bold text-white mb-2 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5"><i class="ph ph-stack text-devo-orange"></i> قائمة الموديلات المطلوبة (${modelGroups.length}):</span>
+                    <span class="flex items-center gap-1.5"><i class="ph ph-stack text-ultra-orange"></i> قائمة الموديلات المطلوبة (${modelGroups.length}):</span>
                 </h6>
                 <div class="space-y-3">
                     ${modelsCardsHtml}
@@ -2334,14 +2334,14 @@ async function openVisitorOrderDetails(orderId) {
             </div>
 
             <!-- الشريط السفلي -->
-            <div class="mt-5 pt-4 border-t border-devo-gray/60 flex flex-wrap justify-between items-center gap-3 text-sm">
+            <div class="mt-5 pt-4 border-t border-ultra-gray/60 flex flex-wrap justify-between items-center gap-3 text-sm">
                 <a href="${waUrl}" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center gap-1.5 transition-all">
                     <i class="ph ph-whatsapp-logo text-base"></i>
                     <span>مراسلة المصنع عبر واتساب</span>
                 </a>
                 <div class="flex items-center gap-2">
-                    <span class="text-devo-muted font-bold text-xs sm:text-sm">إجمالي الطلب:</span>
-                    <span class="text-devo-orange font-black text-base sm:text-xl">${Number(order.total_amount).toLocaleString()} ج.م</span>
+                    <span class="text-ultra-muted font-bold text-xs sm:text-sm">إجمالي الطلب:</span>
+                    <span class="text-ultra-orange font-black text-base sm:text-xl">${Number(order.total_amount).toLocaleString()} ج.م</span>
                 </div>
             </div>
         `;

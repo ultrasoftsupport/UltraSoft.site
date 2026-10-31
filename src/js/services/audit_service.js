@@ -25,7 +25,7 @@ export async function logAuditEvent({
         let savedUser = null;
         try {
             const activeSlug = getTenantSlugFromURL() || 'default';
-            const localSession = localStorage.getItem(`devo_session_${activeSlug}`) || localStorage.getItem('devo_session');
+            const localSession = localStorage.getItem(`ultra_session_${activeSlug}`) || localStorage.getItem('ultra_session');
             if (localSession) savedUser = JSON.parse(localSession);
         } catch (e) {
             console.debug('Error parsing local session for audit:', e);
@@ -36,7 +36,7 @@ export async function logAuditEvent({
             || window.currentUser?.full_name 
             || savedUser?.full_name 
             || savedUser?.username 
-            || localStorage.getItem('devo_user_fullname') 
+            || localStorage.getItem('ultra_user_fullname') 
             || 'مستخدم النظام';
 
         const userRole = savedUser?.role || window.currentUser?.role || 'staff';
@@ -87,19 +87,19 @@ export async function logAuditEvent({
 }
 
 export function renderHumanReadableDetails(details) {
-    if (!details) return '<p class="text-devo-muted italic">لا توجد تفاصيل إضافية مسجلة.</p>';
+    if (!details) return '<p class="text-ultra-muted italic">لا توجد تفاصيل إضافية مسجلة.</p>';
     
     let parsedDetails = details;
     if (typeof details === 'string') {
         try {
             parsedDetails = JSON.parse(details);
         } catch (e) {
-            return `<div class="bg-devo-black/60 p-4 rounded-xl border border-devo-gray/40 text-white text-xs font-semibold leading-relaxed">${details}</div>`;
+            return `<div class="bg-ultra-black/60 p-4 rounded-xl border border-ultra-gray/40 text-white text-xs font-semibold leading-relaxed">${details}</div>`;
         }
     }
 
     if (typeof parsedDetails !== 'object' || parsedDetails === null) {
-        return `<div class="bg-devo-black/60 p-4 rounded-xl border border-devo-gray/40 text-white text-xs font-semibold leading-relaxed">${parsedDetails}</div>`;
+        return `<div class="bg-ultra-black/60 p-4 rounded-xl border border-ultra-gray/40 text-white text-xs font-semibold leading-relaxed">${parsedDetails}</div>`;
     }
 
     const keyTranslations = {
@@ -180,8 +180,8 @@ export function renderHumanReadableDetails(details) {
         }
 
         items.push(`
-            <div class="flex items-center justify-between p-3 rounded-lg bg-devo-black/50 border border-devo-gray/30 hover:border-devo-orange/30 transition-colors">
-                <span class="text-devo-muted font-bold text-xs">${escapeHtml(label)}:</span>
+            <div class="flex items-center justify-between p-3 rounded-lg bg-ultra-black/50 border border-ultra-gray/30 hover:border-ultra-orange/30 transition-colors">
+                <span class="text-ultra-muted font-bold text-xs">${escapeHtml(label)}:</span>
                 <span class="text-white font-extrabold text-xs dir-rtl text-right font-mono">${escapeHtml(String(displayVal))}</span>
             </div>
         `);
@@ -190,12 +190,12 @@ export function renderHumanReadableDetails(details) {
     return `
         <div class="space-y-3.5">
             ${mainNotes ? `
-                <div class="p-4 rounded-xl bg-gradient-to-r from-devo-orange/15 to-amber-500/10 border border-devo-orange/30 text-xs font-medium flex items-start gap-3 shadow-inner">
-                    <div class="w-8 h-8 rounded-lg bg-devo-orange/20 border border-devo-orange/40 flex items-center justify-center text-devo-orange shrink-0">
+                <div class="p-4 rounded-xl bg-gradient-to-r from-ultra-orange/15 to-amber-500/10 border border-ultra-orange/30 text-xs font-medium flex items-start gap-3 shadow-inner">
+                    <div class="w-8 h-8 rounded-lg bg-ultra-orange/20 border border-ultra-orange/40 flex items-center justify-center text-ultra-orange shrink-0">
                         <i class="ph ph-receipt-text text-lg"></i>
                     </div>
                     <div class="space-y-1">
-                        <span class="text-devo-orange font-black block text-[11px] uppercase tracking-wider">البيان الرسمي للعملية:</span>
+                        <span class="text-ultra-orange font-black block text-[11px] uppercase tracking-wider">البيان الرسمي للعملية:</span>
                         <p class="text-white leading-relaxed font-bold text-xs">${escapeHtml(mainNotes)}</p>
                     </div>
                 </div>
@@ -225,41 +225,41 @@ export async function showAuditLogDetails(id, fallbackObj = null) {
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 
     modal.innerHTML = `
-        <div class="bg-devo-dark border border-devo-gray rounded-xl w-full max-w-xl p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
-            <div class="flex items-center justify-between border-b border-devo-gray/50 pb-4 mb-4">
+        <div class="bg-ultra-dark border border-ultra-gray rounded-xl w-full max-w-xl p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b border-ultra-gray/50 pb-4 mb-4">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="ph ph-receipt-text text-devo-orange text-xl"></i>
+                    <i class="ph ph-receipt-text text-ultra-orange text-xl"></i>
                     تفاصيل سجل الفعالية
                 </h3>
-                <button onclick="this.closest('.fixed').remove()" class="text-devo-muted hover:text-white text-xl"><i class="ph ph-x"></i></button>
+                <button onclick="this.closest('.fixed').remove()" class="text-ultra-muted hover:text-white text-xl"><i class="ph ph-x"></i></button>
             </div>
 
             <div class="space-y-4 text-xs">
-                <div class="grid grid-cols-2 gap-3 bg-devo-black/50 p-3.5 rounded-lg border border-devo-gray/30">
-                    <div><span class="text-devo-muted block text-[11px] mb-0.5">التاريخ والوقت:</span> <span class="text-white font-mono font-bold">${log.created_at ? new Date(log.created_at).toLocaleString('ar-EG') : 'غير محدد'}</span></div>
-                    <div><span class="text-devo-muted block text-[11px] mb-0.5">المستخدم المسؤول:</span> <span class="text-devo-orange font-bold">${escapeHtml(log.user_name || 'مستخدم النظام')} (${escapeHtml(log.user_role || 'staff')})</span></div>
-                    <div><span class="text-devo-muted block text-[11px] mb-0.5">القسم / الموديول:</span> <span class="text-white font-bold">${escapeHtml(log.module || 'نظامي')}</span></div>
-                    <div><span class="text-devo-muted block text-[11px] mb-0.5">نوع الإجراء:</span> <span class="text-white font-bold">${escapeHtml(log.action_type || 'فعالية')}</span></div>
+                <div class="grid grid-cols-2 gap-3 bg-ultra-black/50 p-3.5 rounded-lg border border-ultra-gray/30">
+                    <div><span class="text-ultra-muted block text-[11px] mb-0.5">التاريخ والوقت:</span> <span class="text-white font-mono font-bold">${log.created_at ? new Date(log.created_at).toLocaleString('ar-EG') : 'غير محدد'}</span></div>
+                    <div><span class="text-ultra-muted block text-[11px] mb-0.5">المستخدم المسؤول:</span> <span class="text-ultra-orange font-bold">${escapeHtml(log.user_name || 'مستخدم النظام')} (${escapeHtml(log.user_role || 'staff')})</span></div>
+                    <div><span class="text-ultra-muted block text-[11px] mb-0.5">القسم / الموديول:</span> <span class="text-white font-bold">${escapeHtml(log.module || 'نظامي')}</span></div>
+                    <div><span class="text-ultra-muted block text-[11px] mb-0.5">نوع الإجراء:</span> <span class="text-white font-bold">${escapeHtml(log.action_type || 'فعالية')}</span></div>
                 </div>
 
                 <div>
                     <label class="text-white font-bold mb-2 text-xs flex items-center gap-1.5">
-                        <i class="ph ph-list-bullets text-devo-orange"></i>
+                        <i class="ph ph-list-bullets text-ultra-orange"></i>
                         تفاصيل وتوضيح العملية:
                     </label>
                     ${renderHumanReadableDetails(log.details)}
                 </div>
 
                 <details class="group mt-3">
-                    <summary class="cursor-pointer text-[11px] text-devo-muted hover:text-white flex items-center gap-1 font-mono select-none">
+                    <summary class="cursor-pointer text-[11px] text-ultra-muted hover:text-white flex items-center gap-1 font-mono select-none">
                         <i class="ph ph-code"></i> عرض البيانات البرمجية الدقيقة (JSON Data)
                     </summary>
-                    <pre class="mt-2 bg-devo-black p-3.5 rounded-lg border border-devo-gray/50 font-mono text-[10px] text-emerald-400 overflow-x-auto max-h-48 dir-ltr text-left">${escapeHtml(JSON.stringify(log.details || {}, null, 2))}</pre>
+                    <pre class="mt-2 bg-ultra-black p-3.5 rounded-lg border border-ultra-gray/50 font-mono text-[10px] text-emerald-400 overflow-x-auto max-h-48 dir-ltr text-left">${escapeHtml(JSON.stringify(log.details || {}, null, 2))}</pre>
                 </details>
             </div>
 
-            <div class="mt-6 text-left border-t border-devo-gray/30 pt-4">
-                <button onclick="this.closest('.fixed').remove()" class="px-5 py-2 rounded-lg bg-devo-gray/50 hover:bg-devo-gray text-white text-xs font-bold transition-colors">إغلاق</button>
+            <div class="mt-6 text-left border-t border-ultra-gray/30 pt-4">
+                <button onclick="this.closest('.fixed').remove()" class="px-5 py-2 rounded-lg bg-ultra-gray/50 hover:bg-ultra-gray text-white text-xs font-bold transition-colors">إغلاق</button>
             </div>
         </div>
     `;

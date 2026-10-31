@@ -58,7 +58,7 @@ function setupEventListeners() {
 export async function fetchStockAlertsData() {
     const tbody = document.getElementById('sa-table-body');
     if (tbody && allActiveModels.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange block mx-auto mb-2"></i><span class="text-devo-muted text-xs">جاري فحص وتحديث تنبيهات المخزون...</span></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange block mx-auto mb-2"></i><span class="text-ultra-muted text-xs">جاري فحص وتحديث تنبيهات المخزون...</span></td></tr>`;
     }
 
     const currentTenantId = getCurrentTenantId();
@@ -101,7 +101,7 @@ export async function fetchStockAlertsData() {
         console.error('Error fetching stock alerts:', err);
         showToast('حدث خطأ أثناء جلب تنبيهات المخزون', 'error');
         if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-devo-error text-sm">فشل تحميل البيانات. يرجى الضغط على زر التحديث.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-ultra-error text-sm">فشل تحميل البيانات. يرجى الضغط على زر التحديث.</td></tr>`;
         }
     }
 }
@@ -271,14 +271,14 @@ function renderStockAlertsTable(items) {
             ? 'لا توجد تنبيهات مخزون تطابق معايير البحث والفلترة المحددة.' 
             : 'رائع! جميع الموديلات النشطة بها مخزون كافي (5 سيريه أو أكثر).';
         const icon = (searchTerm || currentFilter !== 'all') ? 'ph-magnifying-glass' : 'ph-check-circle';
-        const color = (searchTerm || currentFilter !== 'all') ? 'text-devo-muted' : 'text-devo-success';
+        const color = (searchTerm || currentFilter !== 'all') ? 'text-ultra-muted' : 'text-ultra-success';
 
         tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="p-12 text-center border-none">
                     <i class="ph ${icon} ${color} text-5xl block mx-auto mb-3"></i>
                     <p class="text-white font-bold text-sm mb-1">${msg}</p>
-                    <span class="text-xs text-devo-muted">سيتم رصد أي صنف ينخفض رصيده تلقائياً ولحظياً هنا</span>
+                    <span class="text-xs text-ultra-muted">سيتم رصد أي صنف ينخفض رصيده تلقائياً ولحظياً هنا</span>
                 </td>
             </tr>
         `;
@@ -289,7 +289,7 @@ function renderStockAlertsTable(items) {
         const qty = item.available_series;
         const isOut = qty === 0;
         const statusClass = isOut 
-            ? 'bg-devo-error/15 text-devo-error border-devo-error/40' 
+            ? 'bg-ultra-error/15 text-ultra-error border-ultra-error/40' 
             : 'bg-amber-500/15 text-amber-400 border-amber-500/40';
         const statusText = isOut ? 'نفذت الكمية تماماً' : 'كمية حرجة (أوشك على النفاد)';
         const statusIcon = isOut ? 'ph-x-circle' : 'ph-warning';
@@ -302,14 +302,14 @@ function renderStockAlertsTable(items) {
         const imgSrc = item.image_url ? resolveImageUrl(item.image_url) : fallbackImg;
 
         return `
-            <tr class="hover:bg-devo-black/60 transition-colors border-b border-devo-gray/50">
+            <tr class="hover:bg-ultra-black/60 transition-colors border-b border-ultra-gray/50">
                 <td class="p-3">
                     <div class="flex items-center gap-3">
-                        <img src="${imgSrc}" alt="${item.model_name}" onerror="this.src='${fallbackImg}'" class="w-11 h-11 rounded-lg object-cover bg-devo-black border border-devo-gray/80 shrink-0">
+                        <img src="${imgSrc}" alt="${item.model_name}" onerror="this.src='${fallbackImg}'" class="w-11 h-11 rounded-lg object-cover bg-ultra-black border border-ultra-gray/80 shrink-0">
                         <div class="overflow-hidden">
                             <span class="text-white font-bold text-sm block truncate" title="${item.model_name}">${item.model_name}</span>
-                            <div class="flex items-center gap-2 mt-0.5 text-[11px] text-devo-muted font-mono">
-                                ${item.factory_code ? `<span class="bg-devo-gray/40 px-1.5 py-0.5 rounded text-devo-orange font-bold">مصنع: ${item.factory_code}</span>` : ''}
+                            <div class="flex items-center gap-2 mt-0.5 text-[11px] text-ultra-muted font-mono">
+                                ${item.factory_code ? `<span class="bg-ultra-gray/40 px-1.5 py-0.5 rounded text-ultra-orange font-bold">مصنع: ${item.factory_code}</span>` : ''}
                                 ${item.system_code ? `<span>كود: ${item.system_code}</span>` : ''}
                             </div>
                         </div>
@@ -317,17 +317,17 @@ function renderStockAlertsTable(items) {
                 </td>
                 <td class="p-3">
                     <div class="text-xs text-white">${item.category_name}</div>
-                    <div class="text-[10px] text-devo-muted">${item.class_name}</div>
+                    <div class="text-[10px] text-ultra-muted">${item.class_name}</div>
                 </td>
                 <td class="p-3">
-                    <div class="inline-flex items-center gap-1.5 px-2 py-1 bg-devo-black/70 border border-devo-gray/60 rounded-lg text-xs text-white">
+                    <div class="inline-flex items-center gap-1.5 px-2 py-1 bg-ultra-black/70 border border-ultra-gray/60 rounded-lg text-xs text-white">
                         ${colorDot}
                         <span>${item.color_name}</span>
                     </div>
                 </td>
                 <td class="p-3 text-center">
-                    <span class="text-base font-black font-mono ${isOut ? 'text-devo-error' : 'text-amber-400'}">${qty}</span>
-                    <span class="text-[10px] text-devo-muted block">سيريه</span>
+                    <span class="text-base font-black font-mono ${isOut ? 'text-ultra-error' : 'text-amber-400'}">${qty}</span>
+                    <span class="text-[10px] text-ultra-muted block">سيريه</span>
                 </td>
                 <td class="p-3 text-center">
                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusClass}">
@@ -336,11 +336,11 @@ function renderStockAlertsTable(items) {
                 </td>
                 <td class="p-3">
                     <div class="flex items-center justify-center gap-1.5">
-                        <button onclick="goToAddBatchForModel('${item.model_id}')" class="p-2 bg-devo-orange/15 text-devo-orange hover:bg-devo-orange hover:text-white rounded-lg transition-colors text-xs font-bold flex items-center gap-1 cursor-pointer" title="شحن رصيد جديد">
+                        <button onclick="goToAddBatchForModel('${item.model_id}')" class="p-2 bg-ultra-orange/15 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded-lg transition-colors text-xs font-bold flex items-center gap-1 cursor-pointer" title="شحن رصيد جديد">
                             <i class="ph ph-truck text-base"></i>
                             <span class="hidden md:inline">شحن رصيد</span>
                         </button>
-                        <button onclick="goToModelEdit('${item.model_id}')" class="p-2 bg-devo-gray hover:bg-white hover:text-black rounded-lg transition-colors text-devo-muted text-xs cursor-pointer" title="عرض في الموديلات">
+                        <button onclick="goToModelEdit('${item.model_id}')" class="p-2 bg-ultra-gray hover:bg-white hover:text-black rounded-lg transition-colors text-ultra-muted text-xs cursor-pointer" title="عرض في الموديلات">
                             <i class="ph ph-t-shirt text-base"></i>
                         </button>
                     </div>

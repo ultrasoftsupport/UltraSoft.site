@@ -126,7 +126,7 @@ function wrapSelect(select) {
     textSpan.className = 'select-text truncate pr-1';
     
     const caretIcon = document.createElement('i');
-    caretIcon.className = 'ph ph-caret-down text-devo-muted text-xs select-none transition-transform duration-200';
+    caretIcon.className = 'ph ph-caret-down text-ultra-muted text-xs select-none transition-transform duration-200';
     
     customButton.appendChild(textSpan);
     customButton.appendChild(caretIcon);
@@ -134,16 +134,16 @@ function wrapSelect(select) {
     
     // 5. Create dropdown menu
     const dropdownMenu = document.createElement('div');
-    dropdownMenu.className = 'absolute left-0 right-0 z-[150] mt-1 bg-devo-dark border border-devo-gray rounded-lg shadow-devo-float overflow-hidden flex flex-col hidden';
+    dropdownMenu.className = 'absolute left-0 right-0 z-[150] mt-1 bg-ultra-dark border border-ultra-gray rounded-lg shadow-ultra-float overflow-hidden flex flex-col hidden';
     
     // Search input wrapper
     const searchWrapper = document.createElement('div');
-    searchWrapper.className = 'p-2 border-b border-devo-gray bg-devo-dark sticky top-0 z-10';
+    searchWrapper.className = 'p-2 border-b border-ultra-gray bg-ultra-dark sticky top-0 z-10';
     
     const searchInput = document.createElement('input');
     searchInput.type = 'text';
     searchInput.placeholder = 'بحث...';
-    searchInput.className = 'w-full bg-devo-black border border-devo-gray focus:border-devo-orange outline-none rounded px-2.5 py-1.5 text-white text-xs';
+    searchInput.className = 'w-full bg-ultra-black border border-ultra-gray focus:border-ultra-orange outline-none rounded px-2.5 py-1.5 text-white text-xs';
     
     searchWrapper.appendChild(searchInput);
     dropdownMenu.appendChild(searchWrapper);
@@ -155,7 +155,7 @@ function wrapSelect(select) {
     
     // "No matching results" item
     const noResults = document.createElement('div');
-    noResults.className = 'px-3 py-2 text-xs text-devo-muted hidden text-center';
+    noResults.className = 'px-3 py-2 text-xs text-ultra-muted hidden text-center';
     noResults.textContent = 'لا توجد نتائج مطابقة';
     optionsContainer.appendChild(noResults);
     
@@ -173,12 +173,12 @@ function wrapSelect(select) {
         Array.from(select.options).forEach(opt => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'w-full text-right px-3 py-2 text-xs hover:bg-devo-orange hover:text-white transition-colors cursor-pointer text-white flex items-center justify-between';
+            btn.className = 'w-full text-right px-3 py-2 text-xs hover:bg-ultra-orange hover:text-white transition-colors cursor-pointer text-white flex items-center justify-between';
             btn.setAttribute('data-option-value', opt.value);
             btn.textContent = opt.text;
             
             if (opt.value === selectedVal) {
-                btn.classList.add('bg-devo-orange/10', 'text-devo-orange', 'font-bold');
+                btn.classList.add('bg-ultra-orange/10', 'text-ultra-orange', 'font-bold');
                 selectedText = opt.text;
             }
             
@@ -232,11 +232,11 @@ function wrapSelect(select) {
         items.forEach(item => {
             const itemVal = item.getAttribute('data-option-value');
             if (itemVal === selectedVal) {
-                item.classList.add('bg-devo-orange/10', 'text-devo-orange', 'font-bold');
+                item.classList.add('bg-ultra-orange/10', 'text-ultra-orange', 'font-bold');
                 item.classList.remove('text-white');
                 selectedText = item.textContent;
             } else {
-                item.classList.remove('bg-devo-orange/10', 'text-devo-orange', 'font-bold');
+                item.classList.remove('bg-ultra-orange/10', 'text-ultra-orange', 'font-bold');
                 item.classList.add('text-white');
             }
         });
@@ -369,12 +369,12 @@ function wrapMultiSelectDropdown(dropdown) {
 
     // Create search wrapper
     const searchWrapper = document.createElement('div');
-    searchWrapper.className = 'px-2 pb-2 border-b border-devo-gray/30 mb-1';
+    searchWrapper.className = 'px-2 pb-2 border-b border-ultra-gray/30 mb-1';
     
     const searchInput = document.createElement('input');
     searchInput.type = 'text';
     searchInput.placeholder = 'بحث...';
-    searchInput.className = 'w-full bg-devo-black border border-devo-gray focus:border-devo-orange outline-none rounded px-2.5 py-1.5 text-white text-xs';
+    searchInput.className = 'w-full bg-ultra-black border border-ultra-gray focus:border-ultra-orange outline-none rounded px-2.5 py-1.5 text-white text-xs';
     
     searchWrapper.appendChild(searchInput);
 
@@ -383,7 +383,7 @@ function wrapMultiSelectDropdown(dropdown) {
 
     // Create "No matching results" container
     const noResults = document.createElement('div');
-    noResults.className = 'px-2 py-1.5 text-xs text-devo-muted hidden text-center';
+    noResults.className = 'px-2 py-1.5 text-xs text-ultra-muted hidden text-center';
     noResults.textContent = 'لا توجد نتائج مطابقة';
     menu.appendChild(noResults);
 

@@ -399,6 +399,25 @@ export const DEFAULT_THEMES = {
         "badge_bg": "#f97316",
         "badge_text": "#ffffff"
       },
+      "cards": {
+        "product": { "bg": "#f4ebd0", "border": "#ebdcb9", "radius": "16px" },
+        "statistics": { "bg": "#f4ebd0", "border": "#ebdcb9", "radius": "16px" },
+        "dashboard": { "bg": "#f4ebd0", "border": "#ebdcb9", "radius": "16px" },
+        "order": { "bg": "#f4ebd0", "border": "#ebdcb9", "radius": "16px" }
+      },
+      "alerts": {
+        "success": { "bg": "rgba(16, 185, 129, 0.12)", "text": "#10b981", "border": "rgba(16, 185, 129, 0.25)" },
+        "error": { "bg": "rgba(239, 68, 68, 0.12)", "text": "#ef4444", "border": "rgba(239, 68, 68, 0.25)" },
+        "warning": { "bg": "rgba(245, 158, 11, 0.12)", "text": "#f59e0b", "border": "rgba(245, 158, 11, 0.25)" },
+        "info": { "bg": "rgba(249, 115, 22, 0.12)", "text": "#f97316", "border": "rgba(249, 115, 22, 0.25)" }
+      },
+      "badges": {
+        "orange": { "bg": "#f97316", "text": "#ffffff" },
+        "success": { "bg": "#10b981", "text": "#ffffff" },
+        "error": { "bg": "#ef4444", "text": "#ffffff" },
+        "warning": { "bg": "#f59e0b", "text": "#ffffff" },
+        "info": { "bg": "#ea580c", "text": "#ffffff" }
+      },
       "modal": {
         "bg": "#f4ebd0",
         "border": "#e6d5b8",
@@ -648,24 +667,12 @@ export const DEFAULT_THEMES = {
       "buttons": { "style_preset": "rounded-lg" },
       "product_cards": { "style_preset": "modern-glass" }
     }
-  },
-  "Midnight Theme": {
-    "name": "Midnight Theme",
-    "description": "مظهر غامق بلون كحلي جذاب وتفاصيل فاخرة.",
-    "is_system": true,
-    "colors": {
-      "page": { "bg": "#090d16", "bg_secondary": "#0d1322", "surface": "#0d1322", "text": "#f1f5f9", "text_muted": "#94a3b8" },
-      "brand": { "primary": "#38bdf8" },
-      "buttons": { "style_preset": "rounded-lg" },
-      "product_cards": { "style_preset": "modern-glass" }
-    }
   }
 };
 
 // Aliases for system themes matching catalog names
 DEFAULT_THEMES["Light Theme"].colors = DEFAULT_THEMES["UltraSoft Light Theme"].colors;
 DEFAULT_THEMES["Dark Theme"].colors = DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
-DEFAULT_THEMES["Midnight Theme"].colors = DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
 
 /**
  * Extract complete theme variables robustly regardless of structure wrapper
@@ -707,6 +714,7 @@ export function extractThemeVariables(themeObj) {
   const strName = String(name || '');
   if (strName.includes('Light')) return DEFAULT_THEMES["UltraSoft Light Theme"].colors;
   if (strName.includes('Warm')) return DEFAULT_THEMES["Warm Theme"].colors;
+  if (strName.includes('Midnight')) return DEFAULT_THEMES["Midnight Theme"].colors;
 
   return DEFAULT_THEMES["UltraSoft Dark Theme"].colors;
 }
@@ -723,9 +731,15 @@ export function parseThemeColors(theme) {
     if (sysDef && sysDef.colors && sysDef.colors.page) {
       let dbColors = theme.colors;
       if (dbColors && dbColors.colors && dbColors.colors.page) {
+        if (themeName === 'Warm Theme' && dbColors.colors.page.bg !== '#fdf6e2') {
+          return sysDef.colors;
+        }
         return dbColors.colors;
       }
       if (dbColors && dbColors.page) {
+        if (themeName === 'Warm Theme' && dbColors.page.bg !== '#fdf6e2') {
+          return sysDef.colors;
+        }
         return dbColors;
       }
       return sysDef.colors;
@@ -735,11 +749,14 @@ export function parseThemeColors(theme) {
   if (themeName === 'Light Theme' && DEFAULT_THEMES['UltraSoft Light Theme']) {
     return DEFAULT_THEMES['UltraSoft Light Theme'].colors;
   }
-  if (themeName === 'Dark Theme' || themeName === 'Midnight Theme') {
+  if (themeName === 'Dark Theme' && DEFAULT_THEMES['UltraSoft Dark Theme']) {
     return DEFAULT_THEMES['UltraSoft Dark Theme'].colors;
   }
-  if (themeName === 'Warm Theme') {
-    return DEFAULT_THEMES['UltraSoft Light Theme'].colors;
+  if (themeName === 'Midnight Theme' && DEFAULT_THEMES['Midnight Theme']) {
+    return DEFAULT_THEMES['Midnight Theme'].colors;
+  }
+  if (themeName === 'Warm Theme' && DEFAULT_THEMES['Warm Theme']) {
+    return DEFAULT_THEMES['Warm Theme'].colors;
   }
 
   let raw = theme;
@@ -787,10 +804,10 @@ export function applyTheme(theme) {
   const visuals = config.visuals || theme.visuals || colors.visuals || {};
 
   // 1. Get or create stylesheet
-  let styleEl = document.getElementById('devo-theme-styles-dynamic');
+  let styleEl = document.getElementById('ultra-theme-styles-dynamic');
   if (!styleEl) {
     styleEl = document.createElement('style');
-    styleEl.id = 'devo-theme-styles-dynamic';
+    styleEl.id = 'ultra-theme-styles-dynamic';
     document.head.appendChild(styleEl);
   }
 
@@ -818,18 +835,18 @@ export function applyTheme(theme) {
   let cssText = `
     :root {
       /* Page Level Backgrounds & Texts */
-      --devo-black: ${pageBg} !important;
-      --devo-dark: ${pageSurface} !important;
-      --devo-gray: ${grayColor} !important;
-      --devo-gray-hover: ${grayHoverColor} !important;
-      --devo-orange: ${brandPrimary} !important;
-      --devo-orange-hover: ${brandPrimaryHover} !important;
-      --devo-text: ${pageText} !important;
-      --devo-muted: ${pageMuted} !important;
-      --devo-success: ${colors.alerts?.success?.text || '#10b981'} !important;
-      --devo-error: ${colors.alerts?.error?.text || '#ef4444'} !important;
-      --devo-warning: ${colors.alerts?.warning?.text || '#f59e0b'} !important;
-      --devo-info: ${colors.alerts?.info?.text || '#3b82f6'} !important;
+      --ultra-black: ${pageBg} !important;
+      --ultra-dark: ${pageSurface} !important;
+      --ultra-gray: ${grayColor} !important;
+      --ultra-gray-hover: ${grayHoverColor} !important;
+      --ultra-orange: ${brandPrimary} !important;
+      --ultra-orange-hover: ${brandPrimaryHover} !important;
+      --ultra-text: ${pageText} !important;
+      --ultra-muted: ${pageMuted} !important;
+      --ultra-success: ${colors.alerts?.success?.text || '#10b981'} !important;
+      --ultra-error: ${colors.alerts?.error?.text || '#ef4444'} !important;
+      --ultra-warning: ${colors.alerts?.warning?.text || '#f59e0b'} !important;
+      --ultra-info: ${colors.alerts?.info?.text || (isLightPageBg && pageBg.includes('fd') ? brandPrimary : '#38bdf8')} !important;
 
       /* Selection Color */
       --selection-bg: ${colors.page.selection_bg || '#f97316'} !important;
@@ -839,12 +856,23 @@ export function applyTheme(theme) {
       --shadow-color: ${colors.shadows?.color || 'rgba(0,0,0,0.8)'} !important;
       --shadow-size: ${colors.shadows?.size || '10px'} !important;
       --shadow-blur: ${colors.shadows?.blur || '40px'} !important;
-      --shadow-devo-float: 0 var(--shadow-size) var(--shadow-blur) -10px var(--shadow-color) !important;
+      --shadow-ultra-float: 0 var(--shadow-size) var(--shadow-blur) -10px var(--shadow-color) !important;
 
       /* Borders */
       --border-color: ${grayColor} !important;
       --border-width: ${colors.borders?.width || '1px'} !important;
       --border-radius-base: ${colors.borders?.radius || '12px'} !important;
+
+      /* UltraSoft Global Brand & Surface Alignment */
+      --us-bg: ${pageBg} !important;
+      --us-surface: ${pageSurface} !important;
+      --us-border: ${grayColor} !important;
+      --us-text-primary: ${pageText} !important;
+      --us-text-muted: ${pageMuted} !important;
+      --us-brand-primary: ${brandPrimary} !important;
+      --us-brand-hover: ${brandPrimaryHover} !important;
+      --us-btn-gradient: linear-gradient(135deg, ${brandPrimary} 0%, ${brandPrimaryHover} 100%) !important;
+      --us-btn-gradient-hover: linear-gradient(135deg, ${brandPrimaryHover} 0%, ${brandPrimary} 100%) !important;
 
       /* Scrollbar */
       --scrollbar-track: ${colors.scrollbar?.track || '#0a0a0a'} !important;
@@ -864,8 +892,8 @@ export function applyTheme(theme) {
     }
 
     body {
-      background-color: var(--devo-black) !important;
-      color: var(--devo-text) !important;
+      background-color: var(--ultra-black) !important;
+      color: var(--ultra-text) !important;
       font-family: var(--font-family) !important;
       font-size: var(--font-size-base) !important;
     }
@@ -902,37 +930,37 @@ export function applyTheme(theme) {
 
     /* Coordinated Text Fixes for Light/Warm Themes */
     .text-neutral-400, .text-gray-400, .text-zinc-400, .text-neutral-500, .text-gray-500, .text-zinc-500 {
-      color: var(--devo-muted) !important;
+      color: var(--ultra-muted) !important;
     }
 
     /* Nested text-white inside light backgrounds should adapt color to match primary text under light themes */
-    .bg-devo-black .text-white, .bg-devo-dark .text-white, .bg-devo-gray .text-white,
-    .bg-devo-black .text-white\\/90, .bg-devo-dark .text-white\\/90, .bg-devo-gray .text-white\\/90,
-    .bg-devo-black .text-white\\/80, .bg-devo-dark .text-white\\/80, .bg-devo-gray .text-white\\/80,
-    .bg-devo-black\\/80 .text-white, .bg-devo-dark\\/80 .text-white, .bg-devo-gray\\/80 .text-white,
-    .bg-devo-black\\/90 .text-white, .bg-devo-dark\\/90 .text-white, .bg-devo-gray\\/90 .text-white,
-    .bg-devo-black\\/95 .text-white, .bg-devo-dark\\/95 .text-white, .bg-devo-gray\\/95 .text-white,
-    .bg-devo-black\\/50 .text-white, .bg-devo-dark\\/50 .text-white, .bg-devo-gray\\/50 .text-white,
-    .bg-devo-black\\/30 .text-white, .bg-devo-dark\\/30 .text-white, .bg-devo-gray\\/30 .text-white {
-      color: ${isLightPageBg ? 'var(--devo-text)' : '#ffffff'} !important;
+    .bg-ultra-black .text-white, .bg-ultra-dark .text-white, .bg-ultra-gray .text-white,
+    .bg-ultra-black .text-white\\/90, .bg-ultra-dark .text-white\\/90, .bg-ultra-gray .text-white\\/90,
+    .bg-ultra-black .text-white\\/80, .bg-ultra-dark .text-white\\/80, .bg-ultra-gray .text-white\\/80,
+    .bg-ultra-black\\/80 .text-white, .bg-ultra-dark\\/80 .text-white, .bg-ultra-gray\\/80 .text-white,
+    .bg-ultra-black\\/90 .text-white, .bg-ultra-dark\\/90 .text-white, .bg-ultra-gray\\/90 .text-white,
+    .bg-ultra-black\\/95 .text-white, .bg-ultra-dark\\/95 .text-white, .bg-ultra-gray\\/95 .text-white,
+    .bg-ultra-black\\/50 .text-white, .bg-ultra-dark\\/50 .text-white, .bg-ultra-gray\\/50 .text-white,
+    .bg-ultra-black\\/30 .text-white, .bg-ultra-dark\\/30 .text-white, .bg-ultra-gray\\/30 .text-white {
+      color: ${isLightPageBg ? 'var(--ultra-text)' : '#ffffff'} !important;
     }
 
     ${isLightPageBg ? `
-      .bg-devo-gray, .bg-devo-gray\\/80, .bg-devo-gray\\/50 {
-        color: var(--devo-text);
+      .bg-ultra-gray, .bg-ultra-gray\\/80, .bg-ultra-gray\\/50 {
+        color: var(--ultra-text);
       }
     ` : ''}
   `;
 
   // 3. Modals & Shadows Overrides
   cssText += `
-    .shadow-devo-float, .shadow-2xl {
-      box-shadow: var(--shadow-devo-float) !important;
+    .shadow-ultra-float, .shadow-2xl {
+      box-shadow: var(--shadow-ultra-float) !important;
     }
 
     /* Universal Modal and Dialog Theme Consistency Across Platform */
     .modal, [id$="-modal"], [id$="-dialog"], div[role="dialog"] {
-      color: var(--devo-text) !important;
+      color: var(--ultra-text) !important;
     }
     .modal > div:not(#barcode-preview-card), 
     [id$="-modal"] > div:not(#barcode-preview-card), 
@@ -940,9 +968,9 @@ export function applyTheme(theme) {
     .dialog-content, 
     div[role="dialog"] > div, 
     .swal2-popup {
-      background-color: var(--devo-dark) !important;
-      border-color: var(--devo-gray) !important;
-      color: var(--devo-text) !important;
+      background-color: var(--ultra-dark) !important;
+      border-color: var(--ultra-gray) !important;
+      color: var(--ultra-text) !important;
     }
 
     /* Form Controls inside Modals */
@@ -952,28 +980,28 @@ export function applyTheme(theme) {
     [id$="-modal"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([data-keep-style]),
     [id$="-modal"] select:not([data-keep-style]),
     [id$="-modal"] textarea:not([data-keep-style]) {
-      background-color: var(--devo-dark) !important;
-      border-color: var(--devo-gray) !important;
-      color: var(--devo-text) !important;
+      background-color: var(--ultra-dark) !important;
+      border-color: var(--ultra-gray) !important;
+      color: var(--ultra-text) !important;
     }
 
     /* Modal Labels */
     .modal label, [id$="-modal"] label {
-      color: var(--devo-text);
+      color: var(--ultra-text);
     }
   `;
 
   // 3.5. Inactive Navigation Links Readability Overrides
   cssText += `
-    header [data-nav-view].text-devo-muted,
-    .top-navigation [data-nav-view].text-devo-muted,
-    #mobile-nav-links [data-nav-view].text-devo-muted {
+    header [data-nav-view].text-ultra-muted,
+    .top-navigation [data-nav-view].text-ultra-muted,
+    #mobile-nav-links [data-nav-view].text-ultra-muted {
       color: ${isLightPageBg ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.75)'} !important;
     }
-    header [data-nav-view].text-devo-muted:hover,
-    .top-navigation [data-nav-view].text-devo-muted:hover,
-    #mobile-nav-links [data-nav-view].text-devo-muted:hover {
-      color: ${isLightPageBg ? 'var(--devo-text)' : '#ffffff'} !important;
+    header [data-nav-view].text-ultra-muted:hover,
+    .top-navigation [data-nav-view].text-ultra-muted:hover,
+    #mobile-nav-links [data-nav-view].text-ultra-muted:hover {
+      color: ${isLightPageBg ? 'var(--ultra-text)' : '#ffffff'} !important;
     }
   `;
 
@@ -981,7 +1009,7 @@ export function applyTheme(theme) {
   if (colors.top_nav) {
     cssText += `
       /* Header & Topnav Elements */
-      header, .top-navigation, #admin-topbar, .bg-devo-dark.border-b.border-devo-gray {
+      header, .top-navigation, #admin-topbar, .bg-ultra-dark.border-b.border-ultra-gray {
         background-color: ${colors.top_nav.bg} !important;
         border-color: ${colors.top_nav.border} !important;
         color: ${colors.top_nav.text} !important;
@@ -1099,10 +1127,10 @@ export function applyTheme(theme) {
       table {
         border-color: ${colors.tables.border} !important;
       }
-      table border-devo-gray {
+      table border-ultra-gray {
         border-color: ${colors.tables.border} !important;
       }
-      thead, thead th, table th, tr.bg-devo-dark\\/50 {
+      thead, thead th, table th, tr.bg-ultra-dark\\/50 {
         background-color: ${colors.tables.header_bg} !important;
         color: ${colors.tables.header_text} !important;
       }
@@ -1137,14 +1165,14 @@ export function applyTheme(theme) {
         background-color: ${colors.sidebar.bg_hover} !important;
         color: ${colors.sidebar.text_hover} !important;
       }
-      #main-sidebar .nav-link.bg-devo-orange\\/10, #main-sidebar .nav-link.text-devo-orange, aside a.active, .sidebar-item.active {
+      #main-sidebar .nav-link.bg-ultra-orange\\/10, #main-sidebar .nav-link.text-ultra-orange, aside a.active, .sidebar-item.active {
         background-color: ${colors.sidebar.bg_active} !important;
         color: ${colors.sidebar.text_active} !important;
       }
       #main-sidebar .nav-link i, aside a i, .sidebar-item i {
         color: ${colors.sidebar.icons} !important;
       }
-      #main-sidebar .nav-link.bg-devo-orange\\/10 i, #main-sidebar .nav-link.text-devo-orange i, aside a.active i, .sidebar-item.active i {
+      #main-sidebar .nav-link.bg-ultra-orange\\/10 i, #main-sidebar .nav-link.text-ultra-orange i, aside a.active i, .sidebar-item.active i {
         color: ${colors.sidebar.icons_active} !important;
       }
     `;
@@ -1256,7 +1284,7 @@ export function applyTheme(theme) {
       }
       
       /* Order Cards */
-      .order-card, [data-card-type="order"], .bg-devo-dark.border.border-devo-gray.rounded-xl.p-4 {
+      .order-card, [data-card-type="order"], .bg-ultra-dark.border.border-ultra-gray.rounded-xl.p-4 {
         background-color: ${orderBg} !important;
         border-color: ${orderBorder} !important;
         border-radius: ${orderRadius} !important;
@@ -1284,10 +1312,10 @@ export function applyTheme(theme) {
     const infoBorder = colors.alerts.info?.border || 'rgba(59, 130, 246, 0.2)';
 
     cssText += `
-      .alert-success, .bg-devo-success\\/10 { background-color: ${successBg} !important; color: ${successText} !important; border-color: ${successBorder} !important; }
-      .alert-error, .alert-danger, .bg-devo-error\\/10 { background-color: ${errorBg} !important; color: ${errorText} !important; border-color: ${errorBorder} !important; }
-      .alert-warning, .bg-devo-warning\\/10 { background-color: ${warningBg} !important; color: ${warningText} !important; border-color: ${warningBorder} !important; }
-      .alert-info, .bg-devo-info\\/10 { background-color: ${infoBg} !important; color: ${infoText} !important; border-color: ${infoBorder} !important; }
+      .alert-success, .bg-ultra-success\\/10 { background-color: ${successBg} !important; color: ${successText} !important; border-color: ${successBorder} !important; }
+      .alert-error, .alert-danger, .bg-ultra-error\\/10 { background-color: ${errorBg} !important; color: ${errorText} !important; border-color: ${errorBorder} !important; }
+      .alert-warning, .bg-ultra-warning\\/10 { background-color: ${warningBg} !important; color: ${warningText} !important; border-color: ${warningBorder} !important; }
+      .alert-info, .bg-ultra-info\\/10 { background-color: ${infoBg} !important; color: ${infoText} !important; border-color: ${infoBorder} !important; }
     `;
   }
   if (colors.badges) {
@@ -1307,11 +1335,11 @@ export function applyTheme(theme) {
     const infoText = colors.badges.info?.text || '#ffffff';
 
     cssText += `
-      .badge-orange, .badge-primary, .bg-devo-orange { background-color: ${orangeBg} !important; color: ${orangeText} !important; }
-      .badge-success, .bg-devo-success { background-color: ${successBg} !important; color: ${successText} !important; }
-      .badge-error, .badge-danger, .bg-devo-error { background-color: ${errorBg} !important; color: ${errorText} !important; }
-      .badge-warning, .bg-devo-warning { background-color: ${warningBg} !important; color: ${warningText} !important; }
-      .badge-info, .bg-devo-info { background-color: ${infoBg} !important; color: ${infoText} !important; }
+      .badge-orange, .badge-primary, .bg-ultra-orange { background-color: ${orangeBg} !important; color: ${orangeText} !important; }
+      .badge-success, .bg-ultra-success { background-color: ${successBg} !important; color: ${successText} !important; }
+      .badge-error, .badge-danger, .bg-ultra-error { background-color: ${errorBg} !important; color: ${errorText} !important; }
+      .badge-warning, .bg-ultra-warning { background-color: ${warningBg} !important; color: ${warningText} !important; }
+      .badge-info, .bg-ultra-info { background-color: ${infoBg} !important; color: ${infoText} !important; }
     `;
   }
 
@@ -1325,7 +1353,7 @@ export function applyTheme(theme) {
       #order-details-modal img, #product-details-modal img {
         border-color: ${colors.modal.image_border} !important;
       }
-      .price-text, .text-devo-orange {
+      .price-text, .text-ultra-orange {
         color: ${colors.modal.price} !important;
       }
       #order-details-modal .text-white, #product-details-modal .text-white, [data-modal="details"] .text-white {
@@ -1450,7 +1478,7 @@ export async function syncActiveTheme() {
 
     if (theme) {
       const themeColors = theme.colors?.colors ? theme.colors : (theme.colors || {});
-      const cachedStr = localStorage.getItem(`ultrasoft_active_theme_${currentTenantId}`) || localStorage.getItem('devo_active_theme');
+      const cachedStr = localStorage.getItem(`ultrasoft_active_theme_${currentTenantId}`) || localStorage.getItem('ultra_active_theme');
       if (cachedStr) {
         const cached = JSON.parse(cachedStr);
         const cachedColors = cached.colors?.colors ? cached.colors.colors : (cached.colors || {});
@@ -1488,12 +1516,12 @@ function updateCacheAndApply(dbTheme, tenantId = '') {
     localStorage.setItem(`ultrasoft_active_theme_${tenantId}`, JSON.stringify(themeObj));
   }
   localStorage.setItem('ultrasoft_active_theme', JSON.stringify(themeObj));
-  localStorage.setItem('devo_active_theme', JSON.stringify(themeObj));
+  localStorage.setItem('ultra_active_theme', JSON.stringify(themeObj));
   applyTheme(themeObj);
 }
 
 function loadCachedOrFallback() {
-  const cachedStr = localStorage.getItem('devo_active_theme');
+  const cachedStr = localStorage.getItem('ultra_active_theme');
   if (cachedStr) {
     try {
       applyTheme(JSON.parse(cachedStr));
@@ -1732,8 +1760,11 @@ export async function activateTheme(themeId) {
   } catch (err) {
     console.warn('Database theme activation lookup notice:', err.message);
   }
-  const isLight = String(themeId).includes('light') || String(themeId).includes('2') || String(themeId).includes('sys-1');
-  const sysName = isLight ? "UltraSoft Light Theme" : "UltraSoft Dark Theme";
+  const strId = String(themeId).toLowerCase();
+  let sysName = "UltraSoft Dark Theme";
+  if (strId.includes('warm') || strId.includes('3')) sysName = "Warm Theme";
+  else if (strId.includes('midnight') || strId.includes('4')) sysName = "Midnight Theme";
+  else if (strId.includes('light') || strId.includes('2') || strId.includes('sys-1')) sysName = "UltraSoft Light Theme";
   const targetTheme = DEFAULT_THEMES[sysName] || DEFAULT_THEMES["UltraSoft Dark Theme"];
   const fullObj = {
     id: themeId,

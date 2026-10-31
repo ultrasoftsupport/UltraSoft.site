@@ -68,8 +68,8 @@ export async function loadInboundData() {
         if (tbody) {
             tbody.innerHTML = `
                 <tr class="no-data-row">
-                    <td colspan="7" class="p-8 text-center text-devo-muted">
-                        <i class="ph ph-spinner animate-spin text-2xl mb-2 block mx-auto text-devo-orange"></i>
+                    <td colspan="7" class="p-8 text-center text-ultra-muted">
+                        <i class="ph ph-spinner animate-spin text-2xl mb-2 block mx-auto text-ultra-orange"></i>
                         جاري تحميل فواتير الدخل...
                     </td>
                 </tr>
@@ -196,7 +196,7 @@ function renderInboundInvoicesList() {
     if (filteredInvoices.length === 0) {
         tbody.innerHTML = `
             <tr class="no-data-row">
-                <td colspan="5" class="p-8 text-center text-devo-muted">
+                <td colspan="5" class="p-8 text-center text-ultra-muted">
                     <i class="ph ph-warning text-2xl mb-1 block mx-auto"></i>
                     لا توجد فواتير دخل مطابقة لخيارات البحث
                 </td>
@@ -216,7 +216,7 @@ function renderInboundInvoicesList() {
         const viewBtn = `
             <button type="button" onclick="event.preventDefault(); viewInboundInvoiceDetails('${inv.id}')" 
                 title="عرض تفاصيل الفاتورة"
-                class="p-1.5 bg-devo-info/10 text-devo-info hover:bg-devo-info hover:text-white rounded transition-all cursor-pointer">
+                class="p-1.5 bg-ultra-info/10 text-ultra-info hover:bg-ultra-info hover:text-white rounded transition-all cursor-pointer">
                 <i class="ph ph-eye text-sm"></i>
             </button>
         `;
@@ -226,18 +226,18 @@ function renderInboundInvoicesList() {
                 ${viewBtn}
                 <button type="button" onclick="event.preventDefault(); exportInboundInvoiceToExcel('${inv.id}')" 
                     title="تصدير إلى إكسيل (Excel)"
-                    class="p-1.5 bg-devo-success/10 text-devo-success hover:bg-devo-success hover:text-white rounded transition-all cursor-pointer">
+                    class="p-1.5 bg-ultra-success/10 text-ultra-success hover:bg-ultra-success hover:text-white rounded transition-all cursor-pointer">
                     <i class="ph ph-file-xls text-sm"></i>
                 </button>
                 ${canModify ? `
                 <button type="button" onclick="event.preventDefault(); editInboundInvoice('${inv.id}')" 
                     title="تعديل الفاتورة"
-                    class="p-1.5 bg-devo-orange/10 text-devo-orange hover:bg-devo-orange hover:text-white rounded transition-all cursor-pointer">
+                    class="p-1.5 bg-ultra-orange/10 text-ultra-orange hover:bg-ultra-orange hover:text-white rounded transition-all cursor-pointer">
                     <i class="ph ph-pencil-simple text-sm"></i>
                 </button>
                 <button type="button" onclick="event.preventDefault(); deleteInboundInvoice('${inv.id}')" 
                     title="حذف الفاتورة"
-                    class="p-1.5 bg-devo-error/10 text-devo-error hover:bg-devo-error hover:text-white rounded transition-all cursor-pointer">
+                    class="p-1.5 bg-ultra-error/10 text-ultra-error hover:bg-ultra-error hover:text-white rounded transition-all cursor-pointer">
                     <i class="ph ph-trash text-sm"></i>
                 </button>
                 ` : ''}
@@ -245,11 +245,11 @@ function renderInboundInvoicesList() {
         `;
 
         return `
-            <tr class="hover:bg-devo-gray/25 transition-colors border-b border-devo-gray/30">
-                <td class="p-4 font-bold text-devo-orange">${inv.invoice_number}</td>
+            <tr class="hover:bg-ultra-gray/25 transition-colors border-b border-ultra-gray/30">
+                <td class="p-4 font-bold text-ultra-orange">${inv.invoice_number}</td>
                 <td class="p-4 font-black">${inv.total_series} سري</td>
-                <td class="p-4 text-devo-muted">${inv.system_users?.full_name || 'غير معروف'}</td>
-                <td class="p-4 text-xs text-devo-muted" dir="ltr">${dateStr}</td>
+                <td class="p-4 text-ultra-muted">${inv.system_users?.full_name || 'غير معروف'}</td>
+                <td class="p-4 text-xs text-ultra-muted" dir="ltr">${dateStr}</td>
                 <td class="p-4 text-center">${actions}</td>
             </tr>
         `;
@@ -305,7 +305,7 @@ function openNewInboundInvoiceForm() {
     };
 
     // Update UI elements
-    document.getElementById('inbound-form-title').innerHTML = `<i class="ph ph-plus-circle text-devo-orange text-lg"></i> إنشاء فاتورة دخل جديدة`;
+    document.getElementById('inbound-form-title').innerHTML = `<i class="ph ph-plus-circle text-ultra-orange text-lg"></i> إنشاء فاتورة دخل جديدة`;
     
     const filterSelect = document.getElementById('inbound-model-filter');
     if (filterSelect) filterSelect.value = 'all';
@@ -392,9 +392,9 @@ window.updateDraftItemQty = (modelId, colorId, val) => {
         if (cell) {
             cell.textContent = `${expectedStock} سري`;
             if (expectedStock > currentStock) {
-                cell.className = "py-2 font-bold text-devo-success";
+                cell.className = "py-2 font-bold text-ultra-success";
             } else {
-                cell.className = "py-2 font-bold text-devo-muted";
+                cell.className = "py-2 font-bold text-ultra-muted";
             }
         }
 
@@ -415,8 +415,8 @@ function renderDraftItems() {
 
     if (draftInvoice.items.length === 0) {
         container.innerHTML = `
-            <div class="bg-devo-dark border border-devo-gray/50 rounded-xl p-8 text-center text-devo-muted">
-                <i class="ph ph-shopping-bag-open text-4xl block mx-auto mb-2 text-devo-muted/60"></i>
+            <div class="bg-ultra-dark border border-ultra-gray/50 rounded-xl p-8 text-center text-ultra-muted">
+                <i class="ph ph-shopping-bag-open text-4xl block mx-auto mb-2 text-ultra-muted/60"></i>
                 لم يتم إضافة أي موديلات للفاتورة بعد. اختر موديل من القائمة أعلاه للبدء في تعبئة أعداده.
             </div>
         `;
@@ -442,14 +442,14 @@ function renderDraftItems() {
     let html = '';
     Object.values(grouped).forEach(m => {
         html += `
-            <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 shadow-sm space-y-3" id="draft-model-card-${m.model_id}">
-                <div class="flex justify-between items-center border-b border-devo-gray pb-2">
+            <div class="bg-ultra-dark border border-ultra-gray rounded-xl p-4 shadow-sm space-y-3" id="draft-model-card-${m.model_id}">
+                <div class="flex justify-between items-center border-b border-ultra-gray pb-2">
                     <div class="flex items-center gap-2">
-                        <span class="bg-devo-orange/10 text-devo-orange border border-devo-orange/20 px-2 py-0.5 rounded text-[10px] font-bold">كود: ${m.model_code}</span>
+                        <span class="bg-ultra-orange/10 text-ultra-orange border border-ultra-orange/20 px-2 py-0.5 rounded text-[10px] font-bold">كود: ${m.model_code}</span>
                         <h4 class="text-sm font-bold text-white">${m.model_name}</h4>
                     </div>
                     <button type="button" onclick="event.preventDefault(); removeModelFromInvoiceDraft('${m.model_id}')" 
-                        class="text-xs text-devo-error hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer">
+                        class="text-xs text-ultra-error hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer">
                         <i class="ph ph-trash"></i>
                         <span>حذف الموديل</span>
                     </button>
@@ -458,14 +458,14 @@ function renderDraftItems() {
                 <div class="overflow-x-auto">
                     <table class="w-full text-right text-xs">
                         <thead>
-                            <tr class="text-devo-muted font-bold">
+                            <tr class="text-ultra-muted font-bold">
                                 <th class="pb-2">اللون</th>
                                 <th class="pb-2">الرصيد الحالي بالمخزن</th>
                                 <th class="pb-2">الكمية المضافة للدفعة (سري)</th>
                                 <th class="pb-2">الرصيد بعد الإضافة (الرصيد المتوقع)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-devo-gray/30">
+                        <tbody class="divide-y divide-ultra-gray/30">
                             ${m.colors.map(c => {
                                 const currentStock = c.current_stock || 0;
                                 const addedQty = c.qty || 0;
@@ -479,14 +479,14 @@ function renderDraftItems() {
                                                 ${c.color_factory_code ? `<span class="text-[9px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-1 py-0.2 rounded">مصنع: ${c.color_factory_code}</span>` : ''}
                                             </div>
                                         </td>
-                                        <td class="py-2 text-devo-muted">${currentStock} سري</td>
+                                        <td class="py-2 text-ultra-muted">${currentStock} سري</td>
                                         <td class="py-2">
                                             <input type="number" min="0" value="${addedQty || ''}" placeholder="0"
                                                 oninput="updateDraftItemQty('${m.model_id}', '${c.color_id}', this.value)"
                                                 id="input-qty-${m.model_id}-${c.color_id}"
-                                                class="w-24 bg-devo-black border border-devo-gray rounded px-2.5 py-1.5 text-white text-xs outline-none focus:border-devo-orange transition-all text-center">
+                                                class="w-24 bg-ultra-black border border-ultra-gray rounded px-2.5 py-1.5 text-white text-xs outline-none focus:border-ultra-orange transition-all text-center">
                                         </td>
-                                        <td class="py-2 font-bold ${expectedStock > currentStock ? 'text-devo-success' : 'text-devo-muted'}" 
+                                        <td class="py-2 font-bold ${expectedStock > currentStock ? 'text-ultra-success' : 'text-ultra-muted'}" 
                                             id="expected-stock-${m.model_id}-${c.color_id}">
                                             ${expectedStock} سري
                                         </td>
@@ -654,7 +654,7 @@ async function editInboundInvoice(invoiceId) {
         };
 
         // Populate header fields
-        document.getElementById('inbound-form-title').innerHTML = `<i class="ph ph-pencil-simple-bold text-devo-orange text-lg"></i> تعديل فاتورة دخل: <span class="text-white">${inv.invoice_number}</span>`;
+        document.getElementById('inbound-form-title').innerHTML = `<i class="ph ph-pencil-simple-bold text-ultra-orange text-lg"></i> تعديل فاتورة دخل: <span class="text-white">${inv.invoice_number}</span>`;
         
         const filterSelect = document.getElementById('inbound-model-filter');
         if (filterSelect) filterSelect.value = 'all';
@@ -839,10 +839,10 @@ async function viewInboundInvoiceDetails(invoiceId) {
         });
 
         let itemsHtml = Object.values(groupedItems).map(item => `
-            <tr class="border-b border-devo-gray last:border-0 hover:bg-devo-black/50 transition-colors">
-                <td class="py-2.5 px-3 text-white text-sm font-bold search-target">${item.modelName} <span class="text-devo-muted text-[10px] font-mono mr-1">(${item.code})</span></td>
-                <td class="py-2.5 px-3 text-devo-info text-xs leading-relaxed">${item.colorsList.join('، ')}</td>
-                <td class="py-2.5 px-3 text-devo-orange font-black text-center text-base">${item.totalQty} سري</td>
+            <tr class="border-b border-ultra-gray last:border-0 hover:bg-ultra-black/50 transition-colors">
+                <td class="py-2.5 px-3 text-white text-sm font-bold search-target">${item.modelName} <span class="text-ultra-muted text-[10px] font-mono mr-1">(${item.code})</span></td>
+                <td class="py-2.5 px-3 text-ultra-info text-xs leading-relaxed">${item.colorsList.join('، ')}</td>
+                <td class="py-2.5 px-3 text-ultra-orange font-black text-center text-base">${item.totalQty} سري</td>
             </tr>
         `).join('');
 
@@ -854,34 +854,34 @@ async function viewInboundInvoiceDetails(invoiceId) {
         document.getElementById('inbound-details-content').innerHTML = `
             <div class="flex flex-col gap-4 h-full">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 shrink-0">
-                    <div class="bg-devo-black p-3 rounded-xl border border-devo-gray flex flex-col justify-center">
-                        <span class="text-[10px] text-devo-muted mb-1"><i class="ph ph-user"></i> المورد</span>
+                    <div class="bg-ultra-black p-3 rounded-xl border border-ultra-gray flex flex-col justify-center">
+                        <span class="text-[10px] text-ultra-muted mb-1"><i class="ph ph-user"></i> المورد</span>
                         <h4 class="text-white font-bold text-sm truncate">${inv.supplier_name || 'مستودع ألترا سوفت / تصنيع'}</h4>
                     </div>
-                    <div class="bg-devo-black p-3 rounded-xl border border-devo-gray flex flex-col justify-center">
-                        <span class="text-[10px] text-devo-muted mb-1"><i class="ph ph-receipt"></i> معلومات الفاتورة</span>
-                        <h4 class="text-devo-orange font-mono font-bold text-sm truncate">${inv.invoice_number}</h4>
-                        <span class="text-[11px] text-devo-muted mt-0.5">بواسطة: <span class="text-white">${inv.system_users?.full_name || 'غير معروف'}</span></span>
+                    <div class="bg-ultra-black p-3 rounded-xl border border-ultra-gray flex flex-col justify-center">
+                        <span class="text-[10px] text-ultra-muted mb-1"><i class="ph ph-receipt"></i> معلومات الفاتورة</span>
+                        <h4 class="text-ultra-orange font-mono font-bold text-sm truncate">${inv.invoice_number}</h4>
+                        <span class="text-[11px] text-ultra-muted mt-0.5">بواسطة: <span class="text-white">${inv.system_users?.full_name || 'غير معروف'}</span></span>
                     </div>
-                    <div class="bg-devo-black p-3 rounded-xl border border-devo-gray flex flex-col justify-center space-y-1">
-                        <div class="flex justify-between text-xs"><span class="text-devo-muted">تاريخ الإضافة:</span> <span class="text-white font-bold">${dateStr}</span></div>
-                        <div class="flex justify-between text-xs"><span class="text-devo-muted">إجمالي السرايات:</span> <span class="text-devo-orange font-black text-sm">${inv.total_series}</span></div>
+                    <div class="bg-ultra-black p-3 rounded-xl border border-ultra-gray flex flex-col justify-center space-y-1">
+                        <div class="flex justify-between text-xs"><span class="text-ultra-muted">تاريخ الإضافة:</span> <span class="text-white font-bold">${dateStr}</span></div>
+                        <div class="flex justify-between text-xs"><span class="text-ultra-muted">إجمالي السرايات:</span> <span class="text-ultra-orange font-black text-sm">${inv.total_series}</span></div>
                     </div>
                 </div>
 
                 <div class="relative shrink-0">
-                    <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-devo-muted"></i>
+                    <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-ultra-muted"></i>
                     <input type="text" oninput="window.filterInboundModalTable(this.value)" placeholder="بحث داخل الفاتورة باسم الموديل أو الكود..." 
-                        class="w-full bg-devo-black border border-devo-gray rounded-xl pr-10 pl-4 py-2.5 text-white focus:border-devo-orange outline-none text-sm transition-all shadow-sm">
+                        class="w-full bg-ultra-black border border-ultra-gray rounded-xl pr-10 pl-4 py-2.5 text-white focus:border-ultra-orange outline-none text-sm transition-all shadow-sm">
                 </div>
 
-                <div class="flex-1 overflow-hidden border border-devo-gray rounded-xl bg-devo-black flex flex-col max-h-[40vh]">
+                <div class="flex-1 overflow-hidden border border-ultra-gray rounded-xl bg-ultra-black flex flex-col max-h-[40vh]">
                     <div class="overflow-y-auto custom-scrollbar flex-1">
                         <table class="w-full text-right text-sm">
-                            <thead class="text-xs text-devo-muted bg-devo-dark sticky top-0 shadow-sm z-10">
+                            <thead class="text-xs text-ultra-muted bg-ultra-dark sticky top-0 shadow-sm z-10">
                                 <tr><th class="p-3">الموديل</th><th class="p-3">تفصيل الألوان المضافة</th><th class="p-3 text-center">الكمية</th></tr>
                             </thead>
-                            <tbody id="inbound-modal-items-tbody" class="divide-y divide-devo-gray">
+                            <tbody id="inbound-modal-items-tbody" class="divide-y divide-ultra-gray">
                                 ${itemsHtml}
                             </tbody>
                         </table>
@@ -889,8 +889,8 @@ async function viewInboundInvoiceDetails(invoiceId) {
                 </div>
                 
                 ${inv.notes ? `
-                <div class="bg-devo-black/40 border border-devo-gray p-3 rounded-xl shrink-0 text-xs text-devo-muted">
-                    <span class="font-bold text-devo-orange block mb-1">ملاحظات الفاتورة:</span>
+                <div class="bg-ultra-black/40 border border-ultra-gray p-3 rounded-xl shrink-0 text-xs text-ultra-muted">
+                    <span class="font-bold text-ultra-orange block mb-1">ملاحظات الفاتورة:</span>
                     <span>${inv.notes}</span>
                 </div>
                 ` : ''}

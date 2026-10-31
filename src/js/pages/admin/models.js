@@ -184,7 +184,7 @@ export async function loadDefinitionsCache() {
 
 export async function fetchAllModelsChunked() {
     const container = document.getElementById('models-container');
-    if(container) container.innerHTML = `<div class="col-span-full py-20 text-center"><i class="ph ph-spinner animate-spin text-4xl text-devo-orange"></i><p class="mt-2 text-devo-muted">جاري تحميل قاعدة بيانات الموديلات...</p></div>`;
+    if(container) container.innerHTML = `<div class="col-span-full py-20 text-center"><i class="ph ph-spinner animate-spin text-4xl text-ultra-orange"></i><p class="mt-2 text-ultra-muted">جاري تحميل قاعدة بيانات الموديلات...</p></div>`;
 
     let allFetchedData = [];
     let from = 0;
@@ -369,7 +369,7 @@ function setupAdminRealtimeTracker() {
 
 function resolveImageUrl(url) {
     if (!url || url.trim() === "" || url === "null" || url === "undefined") {
-        return window.tenantDefaultModelImage || localStorage.getItem(`devo_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/devo.png';
+        return window.tenantDefaultModelImage || localStorage.getItem(`ultra_default_model_img_${getCurrentTenantId() || 'default'}`) || './src/assets/icons/ultrasoft_transparent.png';
     }
     try {
         if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
@@ -489,7 +489,7 @@ function renderModelsPage() {
     const bottomContainer = document.getElementById('models-pagination-bottom');
     
     if (currentFilteredModels.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-10 text-center text-devo-muted">لا توجد موديلات مسجلة حالياً تطابق بحثك</div>`;
+        container.innerHTML = `<div class="col-span-full py-10 text-center text-ultra-muted">لا توجد موديلات مسجلة حالياً تطابق بحثك</div>`;
         if(topContainer) topContainer.innerHTML = '';
         if(bottomContainer) bottomContainer.innerHTML = '';
         return;
@@ -513,17 +513,17 @@ function generateModelCardHTML(m) {
     const isOut = totalSeries === 0;
     const mainImg = resolveImageUrl(m.model_images?.[0]?.image_url); 
     
-    const cardClass = isOut ? 'grayscale opacity-80 border-devo-gray' : 'hover:border-devo-orange hover:shadow-xl';
+    const cardClass = isOut ? 'grayscale opacity-80 border-ultra-gray' : 'hover:border-ultra-orange hover:shadow-xl';
     const badgeHTML = isOut 
         ? `<span class="bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm">نفذت الكمية</span>`
         : `<span class="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm">متوفر</span>`;
 
     return `
-    <div id="admin-model-card-${m.id}" class="product-card bg-devo-dark border border-devo-gray rounded-2xl transition-all duration-300 flex flex-col shadow-md overflow-hidden ${cardClass}">
-        <div class="h-48 bg-devo-black relative flex items-center justify-center overflow-hidden p-3 border-b border-devo-gray/60">
+    <div id="admin-model-card-${m.id}" class="product-card bg-ultra-dark border border-ultra-gray rounded-2xl transition-all duration-300 flex flex-col shadow-md overflow-hidden ${cardClass}">
+        <div class="h-48 bg-ultra-black relative flex items-center justify-center overflow-hidden p-3 border-b border-ultra-gray/60">
             <img src="${mainImg}" class="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-30 pointer-events-none" aria-hidden="true" onerror="this.style.display='none'" loading="lazy" decoding="async">
-            <div class="absolute inset-0 bg-devo-black/10 backdrop-blur-sm pointer-events-none"></div>
-            <img src="${mainImg}" referrerpolicy="no-referrer" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-devo-gray/50 shadow-md transition-transform duration-300 hover:scale-[1.03]" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">
+            <div class="absolute inset-0 bg-ultra-black/10 backdrop-blur-sm pointer-events-none"></div>
+            <img src="${mainImg}" referrerpolicy="no-referrer" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain rounded-lg border border-ultra-gray/50 shadow-md transition-transform duration-300 hover:scale-[1.03]" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/ultrasoft_transparent.png')" loading="lazy" decoding="async">
             <div class="absolute top-3 right-3 z-20 flex flex-col gap-1 items-end">
                 ${badgeHTML}
                 ${(m.discount_price && m.discount_price < m.price) ? `
@@ -536,7 +536,7 @@ function generateModelCardHTML(m) {
         </div>
         <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
             <div>
-                <p class="text-devo-muted text-[11px] font-bold tracking-wider mb-1">
+                <p class="text-ultra-muted text-[11px] font-bold tracking-wider mb-1">
                     ${m.code_assignment_mode === 'color_system_codes'
                         ? `<span title="كود المصنع (الموحد)">${m.factory_code || '-'}</span> <span class="text-[9px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded ml-1">🎨 كود اللون</span>`
                         : m.code_assignment_mode === 'color_factory_codes'
@@ -544,25 +544,25 @@ function generateModelCardHTML(m) {
                             : (m.factory_code || m.system_code)
                     }
                 </p>
-                <h4 class="text-devo-text font-black truncate text-base" title="${m.name}">${m.name}</h4>
+                <h4 class="text-ultra-text font-black truncate text-base" title="${m.name}">${m.name}</h4>
                 ${(m.discount_price && m.discount_price < m.price) ? `
                     <div class="flex items-baseline gap-2 mt-1">
                         <span class="text-emerald-400 text-base font-black">${m.discount_price} <span class="text-xs font-normal">ج.م</span></span>
-                        <span class="text-devo-muted line-through text-xs">${m.price} ج.م</span>
+                        <span class="text-ultra-muted line-through text-xs">${m.price} ج.م</span>
                         <span class="text-[10px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold">وفر ${m.price - m.discount_price} ج.م</span>
                     </div>
                 ` : `
-                    <p class="text-devo-orange text-base font-black mt-1">${m.price} <span class="text-xs font-normal">ج.م</span></p>
+                    <p class="text-ultra-orange text-base font-black mt-1">${m.price} <span class="text-xs font-normal">ج.م</span></p>
                 `}
             </div>
-            <div class="text-xs text-devo-muted border-t border-devo-gray/80 pt-2.5 space-y-1">
-                <span class="block text-devo-text font-medium"><i class="ph ph-tag text-devo-orange"></i> ${m.categories?.name || '-'}</span>
+            <div class="text-xs text-ultra-muted border-t border-ultra-gray/80 pt-2.5 space-y-1">
+                <span class="block text-ultra-text font-medium"><i class="ph ph-tag text-ultra-orange"></i> ${m.categories?.name || '-'}</span>
                 <div class="flex flex-wrap gap-1 pt-0.5">
                     ${m.classifications_1?.name ? `<span class="inline-block text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded">${m.classifications_1.name}</span>` : ''}
                     ${m.classifications_2?.name ? `<span class="inline-block text-[10px] bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded">${m.classifications_2.name}</span>` : ''}
                 </div>
                 <span class="block ${isOut ? 'text-rose-600 font-bold' : 'text-sky-600 dark:text-sky-400 font-bold'}">
-                    المتاح: ${totalSeries} سيريه <span class="font-normal text-devo-muted">(${totalPieces} قطعة)</span>
+                    المتاح: ${totalSeries} سيريه <span class="font-normal text-ultra-muted">(${totalPieces} قطعة)</span>
                 </span>
             </div>
             <div class="grid grid-cols-3 gap-2 pt-2">
@@ -585,9 +585,9 @@ function renderPaginationControls(totalPages) {
     }
 
     let html = `
-        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-4 py-2 rounded-lg border border-devo-gray bg-devo-black text-white hover:bg-devo-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"><i class="ph ph-caret-right"></i> السابق</button>
-        <span class="px-6 py-2 rounded-lg bg-devo-dark text-devo-orange font-bold border border-devo-gray">صفحة ${currentPage} من ${totalPages}</span>
-        <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-lg border border-devo-gray bg-devo-black text-white hover:bg-devo-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">التالي <i class="ph ph-caret-left"></i></button>
+        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-4 py-2 rounded-lg border border-ultra-gray bg-ultra-black text-white hover:bg-ultra-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"><i class="ph ph-caret-right"></i> السابق</button>
+        <span class="px-6 py-2 rounded-lg bg-ultra-dark text-ultra-orange font-bold border border-ultra-gray">صفحة ${currentPage} من ${totalPages}</span>
+        <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-lg border border-ultra-gray bg-ultra-black text-white hover:bg-ultra-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">التالي <i class="ph ph-caret-left"></i></button>
     `;
     topContainer.innerHTML = html; bottomContainer.innerHTML = html;
 }
@@ -655,7 +655,7 @@ window.viewDetails = async (id) => {
     const modal = document.getElementById('view-details-modal');
     const content = document.getElementById('details-content');
     
-    content.innerHTML = `<div class="py-20 text-center"><i class="ph ph-spinner animate-spin text-4xl text-devo-orange"></i><p class="mt-2 text-devo-muted">جاري تحميل السجل الزمني...</p></div>`;
+    content.innerHTML = `<div class="py-20 text-center"><i class="ph ph-spinner animate-spin text-4xl text-ultra-orange"></i><p class="mt-2 text-ultra-muted">جاري تحميل السجل الزمني...</p></div>`;
     modal.classList.remove('hidden');
     setTimeout(() => modal.classList.remove('opacity-0'), 10);
 
@@ -684,78 +684,78 @@ window.viewDetails = async (id) => {
     let imagesHtml = '';
     if (model.model_images && model.model_images.length > 0) {
         imagesHtml = `<div class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-            ${model.model_images.map(img => `<img src="${resolveImageUrl(img.image_url)}" referrerpolicy="no-referrer" class="h-40 w-40 flex-shrink-0 rounded-xl object-cover border border-devo-gray bg-devo-black shadow-sm" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/devo.png')" loading="lazy" decoding="async">`).join('')}
+            ${model.model_images.map(img => `<img src="${resolveImageUrl(img.image_url)}" referrerpolicy="no-referrer" class="h-40 w-40 flex-shrink-0 rounded-xl object-cover border border-ultra-gray bg-ultra-black shadow-sm" onerror="this.src=(window.tenantDefaultModelImage || './src/assets/icons/ultrasoft_transparent.png')" loading="lazy" decoding="async">`).join('')}
         </div>`;
     } else {
-        imagesHtml = `<div class="h-40 w-40 rounded-xl bg-devo-black border border-devo-gray flex items-center justify-center overflow-hidden shadow-sm"><img src="${resolveImageUrl('')}" class="w-full h-full object-cover" loading="lazy" decoding="async"></div>`;
+        imagesHtml = `<div class="h-40 w-40 rounded-xl bg-ultra-black border border-ultra-gray flex items-center justify-center overflow-hidden shadow-sm"><img src="${resolveImageUrl('')}" class="w-full h-full object-cover" loading="lazy" decoding="async"></div>`;
     }
 
     const renderSizesTags = classSizes.length > 0 
-        ? classSizes.map(cs => `<span class="bg-devo-black border border-devo-gray px-3 py-1 rounded text-white text-xs shadow-sm"><i class="ph ph-link text-devo-muted"></i> ${cs.sizes?.name}</span>`).join('')
-        : model.model_sizes?.map(s => `<span class="bg-devo-black border border-devo-gray px-3 py-1 rounded text-white text-xs shadow-sm">${s.sizes?.name}</span>`).join('');
+        ? classSizes.map(cs => `<span class="bg-ultra-black border border-ultra-gray px-3 py-1 rounded text-white text-xs shadow-sm"><i class="ph ph-link text-ultra-muted"></i> ${cs.sizes?.name}</span>`).join('')
+        : model.model_sizes?.map(s => `<span class="bg-ultra-black border border-ultra-gray px-3 py-1 rounded text-white text-xs shadow-sm">${s.sizes?.name}</span>`).join('');
 
     content.innerHTML = `
         <div class="flex justify-between items-start mb-6">
             <div class="max-w-[70%]">${imagesHtml}</div>
-            <button onclick="shareAdminModel('${model.id}')" class="bg-devo-dark hover:bg-devo-gray border border-devo-gray text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2">
+            <button onclick="shareAdminModel('${model.id}')" class="bg-ultra-dark hover:bg-ultra-gray border border-ultra-gray text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2">
                 <i class="ph ph-share-network text-base"></i> نسخ رابط الموديل
             </button>
         </div>
 
-        <div class="bg-devo-black/30 rounded-xl border border-devo-gray overflow-hidden mb-6">
+        <div class="bg-ultra-black/30 rounded-xl border border-ultra-gray overflow-hidden mb-6">
             <table class="w-full text-right text-sm">
-                <tbody class="divide-y divide-devo-gray">
-                    <tr><td class="p-3 text-devo-muted w-1/3">كود السيستم / المصنع</td><td class="p-3 text-white font-mono">${model.system_code} <span class="text-devo-muted">|</span> ${model.factory_code}</td></tr>
-                    <tr><td class="p-3 text-devo-muted">اسم الموديل</td><td class="p-3 text-white font-bold">${model.name}</td></tr>
-                    <tr><td class="p-3 text-devo-muted">السعر</td><td class="p-3 text-devo-orange font-bold">${model.price} ج.م</td></tr>
+                <tbody class="divide-y divide-ultra-gray">
+                    <tr><td class="p-3 text-ultra-muted w-1/3">كود السيستم / المصنع</td><td class="p-3 text-white font-mono">${model.system_code} <span class="text-ultra-muted">|</span> ${model.factory_code}</td></tr>
+                    <tr><td class="p-3 text-ultra-muted">اسم الموديل</td><td class="p-3 text-white font-bold">${model.name}</td></tr>
+                    <tr><td class="p-3 text-ultra-muted">السعر</td><td class="p-3 text-ultra-orange font-bold">${model.price} ج.م</td></tr>
                 </tbody>
             </table>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-                <h4 class="text-devo-orange font-bold mb-3 text-sm flex items-center gap-2"><i class="ph ph-ruler"></i> المقاسات المتاحة (${sizesCount} مقاسات)</h4>
-                <div class="flex flex-wrap gap-2">${renderSizesTags || '<span class="text-devo-muted text-xs">لا توجد مقاسات</span>'}</div>
+                <h4 class="text-ultra-orange font-bold mb-3 text-sm flex items-center gap-2"><i class="ph ph-ruler"></i> المقاسات المتاحة (${sizesCount} مقاسات)</h4>
+                <div class="flex flex-wrap gap-2">${renderSizesTags || '<span class="text-ultra-muted text-xs">لا توجد مقاسات</span>'}</div>
             </div>
             <div>
                 <div class="flex justify-between items-center mb-3">
-                    <h4 class="text-devo-orange font-bold text-sm flex items-center gap-2"><i class="ph ph-palette"></i> مخزون الألوان</h4>
-                    <button onclick="openAddStockModal('${model.id}')" class="text-xs bg-devo-success/10 text-devo-success hover:bg-devo-success hover:text-white px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1"><i class="ph ph-plus"></i> إضافة شحنة</button>
+                    <h4 class="text-ultra-orange font-bold text-sm flex items-center gap-2"><i class="ph ph-palette"></i> مخزون الألوان</h4>
+                    <button onclick="openAddStockModal('${model.id}')" class="text-xs bg-ultra-success/10 text-ultra-success hover:bg-ultra-success hover:text-white px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1"><i class="ph ph-plus"></i> إضافة شحنة</button>
                 </div>
                 <div id="live-modal-inventory" class="space-y-2"></div>
             </div>
         </div>
 
-        <div class="border-t border-devo-gray pt-6">
+        <div class="border-t border-ultra-gray pt-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-                <h4 class="text-devo-orange font-bold text-sm shrink-0"><i class="ph ph-list-numbers"></i> سجل حركة المخزون</h4>
+                <h4 class="text-ultra-orange font-bold text-sm shrink-0"><i class="ph ph-list-numbers"></i> سجل حركة المخزون</h4>
                 
-                <div class="w-full flex flex-wrap md:flex-nowrap gap-2 bg-devo-dark p-2 rounded-lg border border-devo-gray">
+                <div class="w-full flex flex-wrap md:flex-nowrap gap-2 bg-ultra-dark p-2 rounded-lg border border-ultra-gray">
                     <div class="relative flex-1 min-w-[120px]">
-                        <i class="ph ph-magnifying-glass absolute right-2 top-1/2 -translate-y-1/2 text-devo-muted text-xs"></i>
-                        <input type="text" id="hist-search" oninput="applyHistoryFilters()" placeholder="العميل أو الفاتورة..." class="w-full bg-devo-black border border-devo-gray rounded px-7 py-1.5 text-white text-xs outline-none focus:border-devo-orange">
+                        <i class="ph ph-magnifying-glass absolute right-2 top-1/2 -translate-y-1/2 text-ultra-muted text-xs"></i>
+                        <input type="text" id="hist-search" oninput="applyHistoryFilters()" placeholder="العميل أو الفاتورة..." class="w-full bg-ultra-black border border-ultra-gray rounded px-7 py-1.5 text-white text-xs outline-none focus:border-ultra-orange">
                     </div>
-                    <select id="hist-type" onchange="applyHistoryFilters()" class="flex-1 min-w-[90px] bg-devo-black border border-devo-gray rounded px-2 py-1.5 text-white text-xs outline-none focus:border-devo-orange cursor-pointer">
+                    <select id="hist-type" onchange="applyHistoryFilters()" class="flex-1 min-w-[90px] bg-ultra-black border border-ultra-gray rounded px-2 py-1.5 text-white text-xs outline-none focus:border-ultra-orange cursor-pointer">
                         <option value="">كل العمليات</option><option value="in">وارد (+)</option><option value="out">مبيعات (-)</option>
                     </select>
-                    <select id="hist-color" onchange="applyHistoryFilters()" class="flex-1 min-w-[90px] bg-devo-black border border-devo-gray rounded px-2 py-1.5 text-white text-xs outline-none focus:border-devo-orange cursor-pointer">
+                    <select id="hist-color" onchange="applyHistoryFilters()" class="flex-1 min-w-[90px] bg-ultra-black border border-ultra-gray rounded px-2 py-1.5 text-white text-xs outline-none focus:border-ultra-orange cursor-pointer">
                         <option value="">كل الألوان</option>
                         ${model.model_inventory.map(i => `<option value="${i.color_id}">${i.colors?.name}</option>`).join('')}
                     </select>
-                    <input type="date" id="hist-date" onchange="applyHistoryFilters()" class="flex-1 min-w-[110px] bg-devo-black border border-devo-gray rounded px-2 py-1.5 text-devo-muted text-xs outline-none cursor-pointer">
+                    <input type="date" id="hist-date" onchange="applyHistoryFilters()" class="flex-1 min-w-[110px] bg-ultra-black border border-ultra-gray rounded px-2 py-1.5 text-ultra-muted text-xs outline-none cursor-pointer">
                 </div>
             </div>
             
-            <div class="overflow-x-auto border border-devo-gray rounded-lg max-h-64 custom-scrollbar">
+            <div class="overflow-x-auto border border-ultra-gray rounded-lg max-h-64 custom-scrollbar">
                 <table class="w-full text-right text-sm">
-                    <thead class="bg-devo-black sticky top-0"><tr class="text-devo-muted">
-                        <th class="p-3 font-medium border-b border-devo-gray">النوع</th>
-                        <th class="p-3 font-medium border-b border-devo-gray">اللون</th>
-                        <th class="p-3 font-medium border-b border-devo-gray">الكمية</th>
-                        <th class="p-3 font-medium border-b border-devo-gray">العميل / المرجع</th>
-                        <th class="p-3 font-medium border-b border-devo-gray">التاريخ</th>
+                    <thead class="bg-ultra-black sticky top-0"><tr class="text-ultra-muted">
+                        <th class="p-3 font-medium border-b border-ultra-gray">النوع</th>
+                        <th class="p-3 font-medium border-b border-ultra-gray">اللون</th>
+                        <th class="p-3 font-medium border-b border-ultra-gray">الكمية</th>
+                        <th class="p-3 font-medium border-b border-ultra-gray">العميل / المرجع</th>
+                        <th class="p-3 font-medium border-b border-ultra-gray">التاريخ</th>
                     </tr></thead>
-                    <tbody id="live-modal-history-tbody" class="divide-y divide-devo-gray bg-devo-black/30">
+                    <tbody id="live-modal-history-tbody" class="divide-y divide-ultra-gray bg-ultra-black/30">
                         </tbody>
                 </table>
             </div>
@@ -776,22 +776,22 @@ function updateLiveModalInventory(model) {
     container.innerHTML = model.model_inventory?.map(inv => {
         const codeVal = inv.color_system_code || inv.color_factory_code || '';
         const codeBadge = codeVal 
-            ? `<span class="bg-devo-gray/50 border border-devo-gray text-devo-orange text-[11px] font-mono px-2 py-0.5 rounded font-bold mr-1.5 shadow-sm">${inv.color_system_code ? 'كود' : 'مصنع'}: ${codeVal}</span>` 
+            ? `<span class="bg-ultra-gray/50 border border-ultra-gray text-ultra-orange text-[11px] font-mono px-2 py-0.5 rounded font-bold mr-1.5 shadow-sm">${inv.color_system_code ? 'كود' : 'مصنع'}: ${codeVal}</span>` 
             : '';
 
         return `
-        <div class="flex justify-between p-3 bg-devo-black rounded-lg border border-devo-gray items-center transition-all duration-300">
+        <div class="flex justify-between p-3 bg-ultra-black rounded-lg border border-ultra-gray items-center transition-all duration-300">
             <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
                 <span class="text-white font-bold text-xs sm:text-sm">${inv.colors?.name || 'بدون اسم'}</span>
                 ${codeBadge}
             </div>
-            <span class="font-bold ${inv.available_series === 0 ? 'text-devo-error' : 'text-devo-orange'} text-xs sm:text-sm shrink-0">
+            <span class="font-bold ${inv.available_series === 0 ? 'text-ultra-error' : 'text-ultra-orange'} text-xs sm:text-sm shrink-0">
                 ${inv.available_series} سيريه 
-                <span class="text-xs text-devo-muted font-normal">(${inv.available_series * sizesCount} قطعة)</span>
+                <span class="text-xs text-ultra-muted font-normal">(${inv.available_series * sizesCount} قطعة)</span>
             </span>
         </div>
         `;
-    }).join('') || '<div class="text-devo-muted text-xs p-3">لا توجد ألوان.</div>';
+    }).join('') || '<div class="text-ultra-muted text-xs p-3">لا توجد ألوان.</div>';
 }
 
 // 🌟 تطبيق فلاتر الحركات (تشمل البحث باسم العميل) 🌟
@@ -821,7 +821,7 @@ window.applyHistoryFilters = () => {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-devo-muted text-xs">لا توجد حركات مطابقة.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-ultra-muted text-xs">لا توجد حركات مطابقة.</td></tr>`;
         return;
     }
 
@@ -832,17 +832,17 @@ window.applyHistoryFilters = () => {
         const customerName = mov.orders?.customer_name || mov.reference || '---';
         
         return `
-        <tr class="hover:bg-devo-black transition-colors">
-            <td class="p-3 ${mov.movement_type === 'in' ? 'text-devo-success' : 'text-devo-error'} font-bold text-xs">
+        <tr class="hover:bg-ultra-black transition-colors">
+            <td class="p-3 ${mov.movement_type === 'in' ? 'text-ultra-success' : 'text-ultra-error'} font-bold text-xs">
                 ${mov.movement_type === 'in' ? '<i class="ph ph-arrow-down-left"></i> وارد' : '<i class="ph ph-arrow-up-right"></i> مبيعات'}
             </td>
             <td class="p-3 text-white text-xs">${mov.colors?.name}</td>
             <td class="p-3 text-white font-bold leading-tight text-xs">
                 ${mov.quantity} <br>
-                <span class="text-[10px] text-devo-muted font-normal">(${mov.quantity * sizesCount} ق)</span>
+                <span class="text-[10px] text-ultra-muted font-normal">(${mov.quantity * sizesCount} ق)</span>
             </td>
             <td class="p-3 text-white text-xs font-mono" title="${customerName}">${customerName.length > 25 ? customerName.substring(0,25)+'...' : customerName}</td>
-            <td class="p-3 text-devo-muted text-[10px]">${new Date(mov.created_at).toLocaleString('ar-EG')}</td>
+            <td class="p-3 text-ultra-muted text-[10px]">${new Date(mov.created_at).toLocaleString('ar-EG')}</td>
         </tr>
     `}).join('');
 };
@@ -966,7 +966,7 @@ window.openModelModal = async (id = null) => {
         const initialClass = defCache.clss.find(c => c.id === model.class_id);
         currentModalClassSizesCount = (initialClass && initialClass.class_sizes && initialClass.class_sizes.length > 0) ? initialClass.class_sizes.length : 1;
 
-        modalTitle.innerHTML = `<i class="ph ph-pencil-simple text-devo-orange text-2xl"></i> تعديل الموديل`;
+        modalTitle.innerHTML = `<i class="ph ph-pencil-simple text-ultra-orange text-2xl"></i> تعديل الموديل`;
         submitBtn.innerHTML = `حفظ التعديلات`;
 
         // تعيين وضع الكود وتحديث الواجهة
@@ -993,7 +993,7 @@ window.openModelModal = async (id = null) => {
 
         renderAutoSizes(model.class_id);
 
-        invContainer.innerHTML = `<div class="py-4 text-center text-devo-muted"><i class="ph ph-spinner animate-spin text-2xl"></i></div>`;
+        invContainer.innerHTML = `<div class="py-4 text-center text-ultra-muted"><i class="ph ph-spinner animate-spin text-2xl"></i></div>`;
         const modal = document.getElementById('model-modal');
         modal.classList.remove('hidden');
         setTimeout(() => modal.classList.remove('opacity-0'), 10);
@@ -1044,7 +1044,7 @@ window.openModelModal = async (id = null) => {
                 badgeEl.textContent = `القالب المفعل: ${defProf.name}`;
             }
         });
-        modalTitle.innerHTML = `<i class="ph ph-plus-circle text-devo-orange text-2xl"></i> إضافة موديل`;
+        modalTitle.innerHTML = `<i class="ph ph-plus-circle text-ultra-orange text-2xl"></i> إضافة موديل`;
         submitBtn.innerHTML = `حفظ الموديل`;
         document.getElementById('m-status').checked = true;
         document.getElementById('m-status-text').textContent = 'نشط';
@@ -1062,14 +1062,14 @@ window.openModelModal = async (id = null) => {
 
 function renderAutoSizes(classId) {
     const sizesContainer = document.getElementById('m-sizes-container');
-    if (!classId) { sizesContainer.innerHTML = '<span class="text-devo-muted text-xs">يرجى اختيار الفئة...</span>'; return; }
+    if (!classId) { sizesContainer.innerHTML = '<span class="text-ultra-muted text-xs">يرجى اختيار الفئة...</span>'; return; }
     const selectedClass = defCache.clss.find(c => c.id === classId);
     if (!selectedClass || !selectedClass.class_sizes || selectedClass.class_sizes.length === 0) {
-        sizesContainer.innerHTML = '<span class="text-devo-error text-xs p-2 bg-devo-error/10 rounded flex items-center gap-2 border border-devo-error/20"><i class="ph ph-warning-circle text-lg"></i> الفئة خالية من المقاسات.</span>';
+        sizesContainer.innerHTML = '<span class="text-ultra-error text-xs p-2 bg-ultra-error/10 rounded flex items-center gap-2 border border-ultra-error/20"><i class="ph ph-warning-circle text-lg"></i> الفئة خالية من المقاسات.</span>';
         return;
     }
     const sortedSizes = [...(selectedClass.class_sizes || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-    sizesContainer.innerHTML = sortedSizes.map(cs => `<span class="bg-devo-black border border-devo-gray px-3 py-1.5 rounded text-white text-xs shadow-sm flex items-center gap-1 opacity-80"><i class="ph ph-lock-key text-devo-muted"></i> ${cs.sizes?.name || ''}</span>`).join('');
+    sizesContainer.innerHTML = sortedSizes.map(cs => `<span class="bg-ultra-black border border-ultra-gray px-3 py-1.5 rounded text-white text-xs shadow-sm flex items-center gap-1 opacity-80"><i class="ph ph-lock-key text-ultra-muted"></i> ${cs.sizes?.name || ''}</span>`).join('');
 }
 
 // 🔑 تغيير وضع تعيين الكود — يخفي/يظهر الحقول حسب الوضع المختار
@@ -1088,7 +1088,7 @@ window.onCodeModeChange = (mode) => {
         sysInput.required = false;
         facWrap.classList.remove('hidden');
         facInput.required = true;
-        facLabel.innerHTML = 'كود المصنع (الكود الموحد) <span class="text-devo-error">*</span>';
+        facLabel.innerHTML = 'كود المصنع (الكود الموحد) <span class="text-ultra-error">*</span>';
         hint.textContent = '⚠️ كود السيستم يختلف لكل لون — أدخله في خانة "كود سيستم اللون" بجانب كل لون. كود المصنع هو الكود الواحد الممثل للموديل ككل.';
     } else if (mode === 'color_factory_codes') {
         // كود المصنع على مستوى اللون — الموديل نفسه ليس له كود مصنع
@@ -1096,7 +1096,7 @@ window.onCodeModeChange = (mode) => {
         facInput.required = false;
         sysWrap.classList.remove('hidden');
         sysInput.required = true;
-        sysLabel.innerHTML = 'كود السيستم (الكود الموحد) <span class="text-devo-error">*</span>';
+        sysLabel.innerHTML = 'كود السيستم (الكود الموحد) <span class="text-ultra-error">*</span>';
         hint.textContent = '⚠️ كود المصنع يختلف لكل لون — أدخله في خانة "كود مصنع اللون" بجانب كل لون. كود السيستم هو الكود الواحد الممثل للموديل ككل.';
     } else {
         // standard: كلا الحقلين ظاهرين
@@ -1104,8 +1104,8 @@ window.onCodeModeChange = (mode) => {
         facWrap.classList.remove('hidden');
         sysInput.required = true;
         facInput.required = false;
-        sysLabel.innerHTML = 'كود السيستم <span class="text-devo-error">*</span>';
-        facLabel.innerHTML = 'كود المصنع <span class="text-devo-error">*</span>';
+        sysLabel.innerHTML = 'كود السيستم <span class="text-ultra-error">*</span>';
+        facLabel.innerHTML = 'كود المصنع <span class="text-ultra-error">*</span>';
         hint.textContent = '';
     }
     // تحديث خانات كود اللون في جدول المخزون
@@ -1140,19 +1140,19 @@ window.addInventoryRow = (colorId = '', totalQty = '', soldQty = 0, colorSystemC
     const colorCodeHidden = codeMode === 'standard' ? 'hidden' : '';
 
     row.innerHTML = `
-        <select name="inv-color" ${isExisting ? 'disabled' : ''} class="flex-[2] bg-devo-black border border-devo-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-devo-orange ${isExisting ? 'opacity-70 cursor-not-allowed' : ''}">
+        <select name="inv-color" ${isExisting ? 'disabled' : ''} class="flex-[2] bg-ultra-black border border-ultra-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-ultra-orange ${isExisting ? 'opacity-70 cursor-not-allowed' : ''}">
             <option value="" disabled ${!isExisting ? 'selected' : ''}>اختر اللون</option>
             ${window.allAvailableColors.map(c => `<option value="${c.id}" ${c.id === colorId ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
         ${isExisting ? `<input type="hidden" name="inv-color-val" value="${colorId}">` : ''}
-        <input type="number" name="inv-qty" placeholder="السريات المتاحة" min="0" value="${totalQty}" data-sold="${soldQty}" data-pieces="${initialPieces}" class="flex-1 bg-devo-black border border-devo-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-devo-orange">
+        <input type="number" name="inv-qty" placeholder="السريات المتاحة" min="0" value="${totalQty}" data-sold="${soldQty}" data-pieces="${initialPieces}" class="flex-1 bg-ultra-black border border-ultra-gray rounded px-3 py-2 text-white text-xs outline-none focus:border-ultra-orange">
         <div class="inv-color-code-wrap flex flex-col gap-0.5 ${colorCodeHidden}" style="min-width:90px">
-            <label class="text-[9px] text-devo-muted font-bold">${colorCodeLabel}</label>
-            <input type="text" name="inv-color-code" data-role="color-code" value="${colorCodeValue}" placeholder="${codeMode === 'color_system_codes' ? 'كود السيستم...' : 'كود المصنع...'}" class="bg-devo-black border border-devo-gray/50 rounded px-2 py-1.5 text-white text-xs outline-none focus:border-devo-orange w-full font-mono">
+            <label class="text-[9px] text-ultra-muted font-bold">${colorCodeLabel}</label>
+            <input type="text" name="inv-color-code" data-role="color-code" value="${colorCodeValue}" placeholder="${codeMode === 'color_system_codes' ? 'كود السيستم...' : 'كود المصنع...'}" class="bg-ultra-black border border-ultra-gray/50 rounded px-2 py-1.5 text-white text-xs outline-none focus:border-ultra-orange w-full font-mono">
         </div>
         ${isExisting && soldQty > 0 
-            ? `<button type="button" onclick="showToast('لا يمكن حذف لون تم السحب منه.', 'warning')" class="p-2 text-devo-grayHover cursor-not-allowed rounded"><i class="ph ph-trash"></i></button>` 
-            : `<button type="button" onclick="this.closest('.flex').remove()" class="p-2 text-devo-error hover:bg-devo-error/20 rounded transition-colors"><i class="ph ph-trash"></i></button>`
+            ? `<button type="button" onclick="showToast('لا يمكن حذف لون تم السحب منه.', 'warning')" class="p-2 text-ultra-grayHover cursor-not-allowed rounded"><i class="ph ph-trash"></i></button>` 
+            : `<button type="button" onclick="this.closest('.flex').remove()" class="p-2 text-ultra-error hover:bg-ultra-error/20 rounded transition-colors"><i class="ph ph-trash"></i></button>`
         }
     `;
     
@@ -1740,33 +1740,33 @@ function renderExcelPreviewTable() {
     if (!tbody) return;
 
     if (filteredExcelModels.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-devo-muted">لا توجد نتائج مطابقة للفلترة</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-ultra-muted">لا توجد نتائج مطابقة للفلترة</td></tr>`;
     } else {
         tbody.innerHTML = filteredExcelModels.map(m => {
             const primaryCode = (m.code_assignment_mode === 'color_system_codes' ? m.factory_code : m.system_code) || m.system_code || m.factory_code;
             const isChecked = selectedExcelModelCodes.has(primaryCode);
             const dupBadge = m.is_duplicate 
-                ? `<span class="bg-devo-error/20 border border-devo-error/40 text-devo-error px-2 py-0.5 rounded text-[10px] font-bold">مكرر بالسيستم</span>` 
-                : `<span class="bg-devo-success/20 border border-devo-success/40 text-devo-success px-2 py-0.5 rounded text-[10px] font-bold">جديد صالح للإضافة</span>`;
+                ? `<span class="bg-ultra-error/20 border border-ultra-error/40 text-ultra-error px-2 py-0.5 rounded text-[10px] font-bold">مكرر بالسيستم</span>` 
+                : `<span class="bg-ultra-success/20 border border-ultra-success/40 text-ultra-success px-2 py-0.5 rounded text-[10px] font-bold">جديد صالح للإضافة</span>`;
 
             return `
-                <tr class="hover:bg-devo-black/60 transition-colors ${m.is_duplicate ? 'bg-devo-error/5' : ''}">
-                    <td class="p-3 text-center border-l border-devo-gray/30">
-                        <input type="checkbox" data-syscode="${primaryCode}" ${isChecked ? 'checked' : ''} onchange="toggleExcelModelSelection('${primaryCode}', this.checked)" class="excel-row-checkbox accent-devo-orange w-4 h-4 cursor-pointer">
+                <tr class="hover:bg-ultra-black/60 transition-colors ${m.is_duplicate ? 'bg-ultra-error/5' : ''}">
+                    <td class="p-3 text-center border-l border-ultra-gray/30">
+                        <input type="checkbox" data-syscode="${primaryCode}" ${isChecked ? 'checked' : ''} onchange="toggleExcelModelSelection('${primaryCode}', this.checked)" class="excel-row-checkbox accent-ultra-orange w-4 h-4 cursor-pointer">
                     </td>
-                    <td class="p-3 font-mono font-bold text-devo-orange border-l border-devo-gray/30">
+                    <td class="p-3 font-mono font-bold text-ultra-orange border-l border-ultra-gray/30">
                         ${m.code_assignment_mode === 'color_system_codes' 
                             ? `<span class="text-[11px] font-bold text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/30">🎨 كود لكل لون</span>` 
                             : (m.system_code || '-')}
                     </td>
-                    <td class="p-3 font-bold text-white border-l border-devo-gray/30">${m.name}</td>
-                    <td class="p-3 font-mono text-devo-muted border-l border-devo-gray/30">
+                    <td class="p-3 font-bold text-white border-l border-ultra-gray/30">${m.name}</td>
+                    <td class="p-3 font-mono text-ultra-muted border-l border-ultra-gray/30">
                         ${m.code_assignment_mode === 'color_system_codes' 
-                            ? `<span class="text-amber-400 font-bold">${m.factory_code || '-'}</span> <span class="text-[10px] text-devo-muted">(الموحد)</span>` 
+                            ? `<span class="text-amber-400 font-bold">${m.factory_code || '-'}</span> <span class="text-[10px] text-ultra-muted">(الموحد)</span>` 
                             : (m.factory_code || '-')}
                     </td>
-                    <td class="p-3 text-devo-muted border-l border-devo-gray/30">${m.category_name || '-'}</td>
-                    <td class="p-3 text-center font-mono text-devo-orange border-l border-devo-gray/30">${m.price} ج.م</td>
+                    <td class="p-3 text-ultra-muted border-l border-ultra-gray/30">${m.category_name || '-'}</td>
+                    <td class="p-3 text-center font-mono text-ultra-orange border-l border-ultra-gray/30">${m.price} ج.م</td>
                     <td class="p-3 text-center">${dupBadge}</td>
                 </tr>
             `;

@@ -71,8 +71,8 @@ export async function initUltraSoftMall() {
     container.innerHTML = `
         <div class="us-mall-wrapper flex items-center justify-center min-h-[60vh]">
             <div class="text-center space-y-3">
-                <i class="ph ph-spinner animate-spin text-4xl text-devo-orange block mx-auto"></i>
-                <p class="text-sm font-bold text-devo-muted">جاري تحميل مول ألترا سوفت الرقمي...</p>
+                <i class="ph ph-spinner animate-spin text-4xl text-ultra-orange block mx-auto"></i>
+                <p class="text-sm font-bold text-ultra-muted">جاري تحميل مول ألترا سوفت الرقمي...</p>
             </div>
         </div>
     `;
@@ -119,8 +119,8 @@ function renderMallView(container, config) {
     container.innerHTML = `
         <style>
             .us-mall-wrapper {
-                background-color: var(--devo-black) !important;
-                color: var(--devo-text) !important;
+                background-color: var(--ultra-black) !important;
+                color: var(--ultra-text) !important;
                 min-height: 100vh;
                 padding-top: 16px;
                 padding-bottom: 80px;
@@ -140,9 +140,9 @@ function renderMallView(container, config) {
                 border-radius: 28px;
                 overflow: hidden;
                 position: relative;
-                background-color: var(--devo-dark);
+                background-color: var(--ultra-dark);
                 box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-                border: 1px solid var(--devo-gray);
+                border: 1px solid var(--ultra-gray);
                 user-select: none;
             }
 
@@ -187,10 +187,10 @@ function renderMallView(container, config) {
                 pointer-events: none;
                 background: linear-gradient(
                     90deg,
-                    color-mix(in srgb, var(--devo-dark) 85%, transparent) 0%,
-                    color-mix(in srgb, var(--devo-dark) 70%, transparent) 28%,
-                    color-mix(in srgb, var(--devo-dark) 45%, transparent) 48%,
-                    color-mix(in srgb, var(--devo-dark) 18%, transparent) 68%,
+                    color-mix(in srgb, var(--ultra-dark) 85%, transparent) 0%,
+                    color-mix(in srgb, var(--ultra-dark) 70%, transparent) 28%,
+                    color-mix(in srgb, var(--ultra-dark) 45%, transparent) 48%,
+                    color-mix(in srgb, var(--ultra-dark) 18%, transparent) 68%,
                     transparent 85%
                 );
             }
@@ -215,7 +215,7 @@ function renderMallView(container, config) {
                 font-size: 11px;
                 font-weight: 800;
                 letter-spacing: 0.28em;
-                color: var(--devo-muted);
+                color: var(--ultra-muted);
                 text-transform: uppercase;
                 margin-bottom: 8px;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -224,19 +224,19 @@ function renderMallView(container, config) {
             .us-mall-title-en {
                 font-size: 44px;
                 font-weight: 900;
-                color: var(--devo-text);
+                color: var(--ultra-text);
                 line-height: 1.08;
                 margin: 0 0 16px 0;
                 font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
                 text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
             }
             .us-mall-title-accent {
-                color: var(--devo-orange);
+                color: var(--ultra-orange);
             }
             .us-mall-desc-ar {
                 font-size: 16.5px;
                 font-weight: 800;
-                color: var(--devo-text);
+                color: var(--ultra-text);
                 margin-bottom: 6px;
                 line-height: 1.45;
                 font-family: 'Cairo', sans-serif;
@@ -245,7 +245,7 @@ function renderMallView(container, config) {
             .us-mall-sub-ar {
                 font-size: 12.5px;
                 font-weight: 600;
-                color: var(--devo-muted);
+                color: var(--ultra-muted);
                 margin-bottom: 26px;
                 font-family: 'Cairo', sans-serif;
                 text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
@@ -259,7 +259,7 @@ function renderMallView(container, config) {
                 flex-wrap: wrap;
             }
             .us-mall-btn-primary {
-                background-color: var(--devo-orange);
+                background-color: var(--ultra-orange);
                 color: #ffffff !important;
                 padding: 12px 24px;
                 border-radius: 12px;
@@ -271,18 +271,18 @@ function renderMallView(container, config) {
                 gap: 8px;
                 border: none;
                 cursor: pointer;
-                box-shadow: 0 4px 16px color-mix(in srgb, var(--devo-orange) 45%, transparent);
+                box-shadow: 0 4px 16px color-mix(in srgb, var(--ultra-orange) 45%, transparent);
                 transition: all 0.25s ease;
                 text-decoration: none;
             }
             .us-mall-btn-primary:hover {
-                background-color: var(--devo-orange-hover);
+                background-color: var(--ultra-orange-hover);
                 transform: translateY(-2px);
-                box-shadow: 0 6px 22px color-mix(in srgb, var(--devo-orange) 60%, transparent);
+                box-shadow: 0 6px 22px color-mix(in srgb, var(--ultra-orange) 60%, transparent);
             }
             .us-mall-btn-secondary {
-                background-color: color-mix(in srgb, var(--devo-dark) 85%, transparent);
-                color: var(--devo-text) !important;
+                background-color: color-mix(in srgb, var(--ultra-dark) 85%, transparent);
+                color: var(--ultra-text) !important;
                 padding: 12px 24px;
                 border-radius: 12px;
                 font-weight: 800;
@@ -291,7 +291,7 @@ function renderMallView(container, config) {
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
-                border: 1px solid var(--devo-gray);
+                border: 1px solid var(--ultra-gray);
                 cursor: pointer;
                 backdrop-filter: blur(8px);
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -299,9 +299,9 @@ function renderMallView(container, config) {
                 text-decoration: none;
             }
             .us-mall-btn-secondary:hover {
-                background-color: var(--devo-gray-hover);
-                border-color: var(--devo-orange);
-                color: var(--devo-text) !important;
+                background-color: var(--ultra-gray-hover);
+                border-color: var(--ultra-orange);
+                color: var(--ultra-text) !important;
                 transform: translateY(-2px);
             }
 
@@ -314,10 +314,10 @@ function renderMallView(container, config) {
                 width: 44px;
                 height: 44px;
                 border-radius: 50%;
-                background: color-mix(in srgb, var(--devo-dark) 85%, transparent);
+                background: color-mix(in srgb, var(--ultra-dark) 85%, transparent);
                 backdrop-filter: blur(8px);
-                border: 1px solid var(--devo-gray);
-                color: var(--devo-text);
+                border: 1px solid var(--ultra-gray);
+                color: var(--ultra-text);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -332,9 +332,9 @@ function renderMallView(container, config) {
             }
             .us-mall-slider-arrow:hover {
                 opacity: 1 !important;
-                background: var(--devo-orange) !important;
+                background: var(--ultra-orange) !important;
                 color: #ffffff !important;
-                border-color: var(--devo-orange) !important;
+                border-color: var(--ultra-orange) !important;
                 transform: translateY(-50%) scale(1.08);
             }
             .us-mall-slider-prev {
@@ -368,7 +368,7 @@ function renderMallView(container, config) {
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background-color: color-mix(in srgb, var(--devo-muted) 45%, transparent);
+                background-color: color-mix(in srgb, var(--ultra-muted) 45%, transparent);
                 transition: all 0.3s ease;
                 display: block;
             }
@@ -376,8 +376,8 @@ function renderMallView(container, config) {
                 width: 28px;
                 height: 8px;
                 border-radius: 9999px;
-                background-color: var(--devo-orange);
-                box-shadow: 0 0 12px var(--devo-orange);
+                background-color: var(--ultra-orange);
+                box-shadow: 0 0 12px var(--ultra-orange);
             }
 
             /* UNIFIED SECTION HEADER */
@@ -391,7 +391,7 @@ function renderMallView(container, config) {
                 margin-top: 48px;
                 margin-bottom: 28px;
                 padding-bottom: 20px;
-                border-bottom: 1px solid color-mix(in srgb, var(--devo-gray) 60%, transparent);
+                border-bottom: 1px solid color-mix(in srgb, var(--ultra-gray) 60%, transparent);
             }
             .us-mall-header-text {
                 display: flex;
@@ -401,7 +401,7 @@ function renderMallView(container, config) {
             .us-mall-section-title {
                 font-size: 26px;
                 font-weight: 900;
-                color: var(--devo-text) !important;
+                color: var(--ultra-text) !important;
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -414,14 +414,14 @@ function renderMallView(container, config) {
                 font-size: 12px;
                 font-weight: 800;
                 font-family: 'Cairo', sans-serif;
-                background-color: color-mix(in srgb, var(--devo-orange) 15%, transparent);
-                color: var(--devo-orange);
-                border: 1px solid color-mix(in srgb, var(--devo-orange) 30%, transparent);
+                background-color: color-mix(in srgb, var(--ultra-orange) 15%, transparent);
+                color: var(--ultra-orange);
+                border: 1px solid color-mix(in srgb, var(--ultra-orange) 30%, transparent);
             }
             .us-mall-section-sub {
                 font-size: 13.5px;
                 font-weight: 600;
-                color: var(--devo-muted) !important;
+                color: var(--ultra-muted) !important;
                 margin: 4px 0 0 0;
                 font-family: 'Cairo', sans-serif;
             }
@@ -437,28 +437,28 @@ function renderMallView(container, config) {
                 right: 14px;
                 top: 50%;
                 transform: translateY(-50%);
-                color: var(--devo-muted);
+                color: var(--ultra-muted);
                 font-size: 18px;
                 pointer-events: none;
             }
             .us-mall-search-input {
                 width: 100%;
-                background-color: var(--devo-dark);
-                border: 1px solid var(--devo-gray);
+                background-color: var(--ultra-dark);
+                border: 1px solid var(--ultra-gray);
                 border-radius: 12px;
                 padding: 10px 42px 10px 16px;
-                color: var(--devo-text);
+                color: var(--ultra-text);
                 font-size: 13.5px;
                 font-family: 'Cairo', sans-serif;
                 outline: none;
                 transition: border-color 0.2s ease, box-shadow 0.2s ease;
             }
             .us-mall-search-input:focus {
-                border-color: var(--devo-orange);
-                box-shadow: 0 0 0 3px color-mix(in srgb, var(--devo-orange) 20%, transparent);
+                border-color: var(--ultra-orange);
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--ultra-orange) 20%, transparent);
             }
             .us-mall-search-input::placeholder {
-                color: var(--devo-muted);
+                color: var(--ultra-muted);
                 opacity: 0.8;
             }
 
@@ -471,8 +471,8 @@ function renderMallView(container, config) {
 
             /* FACTORY CARD */
             .us-mall-card {
-                background-color: var(--devo-dark) !important;
-                border: 1px solid var(--devo-gray);
+                background-color: var(--ultra-dark) !important;
+                border: 1px solid var(--ultra-gray);
                 border-radius: 20px;
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
                 overflow: hidden;
@@ -485,7 +485,7 @@ function renderMallView(container, config) {
             .us-mall-card:hover {
                 transform: translateY(-5px);
                 box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
-                border-color: var(--devo-orange);
+                border-color: var(--ultra-orange);
             }
 
             /* FEATURED FACTORY CARD DISTINCTIONS (GOLDEN ROYAL THEME) */
@@ -528,7 +528,7 @@ function renderMallView(container, config) {
                 height: 160px;
                 width: 100%;
                 overflow: hidden;
-                background-color: var(--devo-black);
+                background-color: var(--ultra-black);
                 position: relative;
             }
             .us-mall-card-cover img {
@@ -544,8 +544,8 @@ function renderMallView(container, config) {
                 width: 76px;
                 height: 76px;
                 border-radius: 50%;
-                background-color: var(--devo-dark);
-                border: 4px solid var(--devo-dark);
+                background-color: var(--ultra-dark);
+                border: 4px solid var(--ultra-dark);
                 box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
                 margin: -38px auto 0 auto;
                 position: relative;
@@ -563,14 +563,14 @@ function renderMallView(container, config) {
             .us-mall-card-name {
                 font-size: 18px;
                 font-weight: 900;
-                color: var(--devo-text) !important;
+                color: var(--ultra-text) !important;
                 margin: 0 0 4px 0;
                 font-family: 'Cairo', sans-serif;
             }
             .us-mall-card-tagline {
                 font-size: 12px;
                 font-weight: 600;
-                color: var(--devo-muted) !important;
+                color: var(--ultra-muted) !important;
                 margin: 0 0 14px 0;
                 line-height: 1.4;
                 font-family: 'Cairo', sans-serif;
@@ -598,20 +598,20 @@ function renderMallView(container, config) {
                 transition: all 0.2s ease;
             }
             .us-mall-pill-brand {
-                background-color: color-mix(in srgb, var(--devo-orange) 14%, transparent);
-                color: var(--devo-orange) !important;
-                border: 1px solid color-mix(in srgb, var(--devo-orange) 30%, transparent);
+                background-color: color-mix(in srgb, var(--ultra-orange) 14%, transparent);
+                color: var(--ultra-orange) !important;
+                border: 1px solid color-mix(in srgb, var(--ultra-orange) 30%, transparent);
             }
             .us-mall-pill-muted {
-                background-color: color-mix(in srgb, var(--devo-gray) 60%, transparent);
-                color: var(--devo-muted) !important;
-                border: 1px solid var(--devo-gray);
+                background-color: color-mix(in srgb, var(--ultra-gray) 60%, transparent);
+                color: var(--ultra-muted) !important;
+                border: 1px solid var(--ultra-gray);
             }
             .us-mall-card-btn {
                 width: 100%;
-                background-color: color-mix(in srgb, var(--devo-orange) 15%, transparent);
-                color: var(--devo-orange) !important;
-                border: 1px solid color-mix(in srgb, var(--devo-orange) 30%, transparent);
+                background-color: color-mix(in srgb, var(--ultra-orange) 15%, transparent);
+                color: var(--ultra-orange) !important;
+                border: 1px solid color-mix(in srgb, var(--ultra-orange) 30%, transparent);
                 border-radius: 12px;
                 padding: 11px 16px;
                 font-size: 13px;
@@ -625,10 +625,10 @@ function renderMallView(container, config) {
                 transition: all 0.2s ease;
             }
             .us-mall-card-btn:hover {
-                background-color: var(--devo-orange);
+                background-color: var(--ultra-orange);
                 color: #ffffff !important;
-                border-color: var(--devo-orange);
-                box-shadow: 0 4px 14px color-mix(in srgb, var(--devo-orange) 40%, transparent);
+                border-color: var(--ultra-orange);
+                box-shadow: 0 4px 14px color-mix(in srgb, var(--ultra-orange) 40%, transparent);
             }
             .us-mall-card-btn-featured {
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
@@ -654,9 +654,9 @@ function renderMallView(container, config) {
                 .us-mall-slide-blend {
                     background: linear-gradient(
                         90deg,
-                        color-mix(in srgb, var(--devo-dark) 88%, transparent) 0%,
-                        color-mix(in srgb, var(--devo-dark) 72%, transparent) 40%,
-                        color-mix(in srgb, var(--devo-dark) 35%, transparent) 68%,
+                        color-mix(in srgb, var(--ultra-dark) 88%, transparent) 0%,
+                        color-mix(in srgb, var(--ultra-dark) 72%, transparent) 40%,
+                        color-mix(in srgb, var(--ultra-dark) 35%, transparent) 68%,
                         transparent 90%
                     );
                 }
@@ -672,9 +672,9 @@ function renderMallView(container, config) {
                 .us-mall-slide-blend {
                     background: linear-gradient(
                         to bottom,
-                        color-mix(in srgb, var(--devo-dark) 85%, transparent) 0%,
-                        color-mix(in srgb, var(--devo-dark) 70%, transparent) 60%,
-                        color-mix(in srgb, var(--devo-dark) 45%, transparent) 100%
+                        color-mix(in srgb, var(--ultra-dark) 85%, transparent) 0%,
+                        color-mix(in srgb, var(--ultra-dark) 70%, transparent) 60%,
+                        color-mix(in srgb, var(--ultra-dark) 45%, transparent) 100%
                     );
                 }
                 .us-mall-slide-content {
@@ -782,7 +782,7 @@ function renderMallView(container, config) {
                     <div class="us-mall-header-text">
                         <div class="flex items-center gap-3 flex-wrap">
                             <h2 class="us-mall-section-title">
-                                <i class="ph ph-storefront" style="color: var(--devo-orange); font-size: 28px;"></i>
+                                <i class="ph ph-storefront" style="color: var(--ultra-orange); font-size: 28px;"></i>
                                 <span>مصانع وشركات UltraSoft Mall</span>
                             </h2>
                             <span class="us-mall-count-badge">
@@ -808,10 +808,10 @@ function renderMallView(container, config) {
                         ${activeMallTenants.map(factory => renderFactoryCard(factory)).join('')}
                     </div>
                 ` : `
-                    <div class="bg-devo-dark border border-devo-gray rounded-2xl p-10 text-center space-y-3">
-                        <i class="ph ph-buildings text-4xl text-devo-muted opacity-50 block mx-auto"></i>
-                        <p class="text-base font-bold text-devo-text">لم يتم تفعيل مصانع في المول حتى الآن</p>
-                        <p class="text-xs text-devo-muted">يمكن لمدير النظام تفعيل المصانع للعرض في المول من لوحة السوبر أدمين.</p>
+                    <div class="bg-ultra-dark border border-ultra-gray rounded-2xl p-10 text-center space-y-3">
+                        <i class="ph ph-buildings text-4xl text-ultra-muted opacity-50 block mx-auto"></i>
+                        <p class="text-base font-bold text-ultra-text">لم يتم تفعيل مصانع في المول حتى الآن</p>
+                        <p class="text-xs text-ultra-muted">يمكن لمدير النظام تفعيل المصانع للعرض في المول من لوحة السوبر أدمين.</p>
                         <button onclick="window.enterDemoStoreMode ? window.enterDemoStoreMode() : window.switchSiteView('view-gallery')" class="us-mall-btn-primary mt-2">
                             <i class="ph ph-play"></i>
                             <span>استكشاف متجر تجريبي (Demo Mode)</span>
@@ -911,8 +911,8 @@ function getLogoHtml(factory) {
     const initial = (factory.displayName || factory.name || 'U').charAt(0).toUpperCase();
     return `
         <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="48" fill="var(--devo-black)" stroke="var(--devo-gray)" stroke-width="2.5" />
-            <text x="50" y="60" font-family="'Cairo', sans-serif" font-weight="900" font-size="36" text-anchor="middle" fill="var(--devo-text)">${initial}</text>
+            <circle cx="50" cy="50" r="48" fill="var(--ultra-black)" stroke="var(--ultra-gray)" stroke-width="2.5" />
+            <text x="50" y="60" font-family="'Cairo', sans-serif" font-weight="900" font-size="36" text-anchor="middle" fill="var(--ultra-text)">${initial}</text>
         </svg>
     `;
 }
@@ -940,10 +940,10 @@ function setupMallDirectoryListeners() {
 
             if (filtered.length === 0) {
                 cardsGrid.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-devo-muted">
+                    <div class="col-span-full py-16 text-center text-ultra-muted">
                         <i class="ph ph-magnifying-glass text-4xl mb-3 opacity-40 block mx-auto"></i>
-                        <p class="text-base font-bold text-devo-text mb-1">لا توجد مصانع مطابقة لبحثك: "${e.target.value}"</p>
-                        <p class="text-xs text-devo-muted">جرب البحث بكلمات أخرى أو تصفح كل المصانع المتاحة في المول.</p>
+                        <p class="text-base font-bold text-ultra-text mb-1">لا توجد مصانع مطابقة لبحثك: "${e.target.value}"</p>
+                        <p class="text-xs text-ultra-muted">جرب البحث بكلمات أخرى أو تصفح كل المصانع المتاحة في المول.</p>
                     </div>
                 `;
             } else {

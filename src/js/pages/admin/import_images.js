@@ -717,7 +717,7 @@ function renderStudioTable() {
     if (visibleGroups.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-12 text-devo-muted">
+                <td colspan="6" class="text-center py-12 text-ultra-muted">
                     <i class="ph ph-magnifying-glass text-3xl mb-2 block opacity-40"></i>
                     لا توجد نتائج تطابق خيارات الفلترة أو البحث الحالية
                 </td>
@@ -738,13 +738,13 @@ function renderStudioTable() {
             const m = group.systemModel;
             modelHtml = `
                 <div class="flex flex-col">
-                    <span class="font-bold text-white text-sm hover:text-devo-orange transition-colors">${m.name}</span>
-                    <span class="text-xs text-devo-muted mt-0.5">كود المصنع: <span class="font-mono text-white/90 font-bold">${m.factory_code}</span> | كود السيستم: ${m.system_code || '-'}</span>
+                    <span class="font-bold text-white text-sm hover:text-ultra-orange transition-colors">${m.name}</span>
+                    <span class="text-xs text-ultra-muted mt-0.5">كود المصنع: <span class="font-mono text-white/90 font-bold">${m.factory_code}</span> | كود السيستم: ${m.system_code || '-'}</span>
                 </div>
             `;
         } else {
             modelHtml = `
-                <div class="flex items-center gap-2 text-devo-error">
+                <div class="flex items-center gap-2 text-ultra-error">
                     <i class="ph ph-warning-circle text-lg"></i>
                     <span class="font-bold text-xs">غير مسجل بالنظام</span>
                 </div>
@@ -754,23 +754,23 @@ function renderStudioTable() {
         // Status Badge Column
         let statusBadge = '';
         if (!hasModel) {
-            statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-devo-error/15 text-devo-error border border-devo-error/30"><i class="ph ph-x-circle"></i> غير مسجل</span>`;
+            statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-ultra-error/15 text-ultra-error border border-ultra-error/30"><i class="ph ph-x-circle"></i> غير مسجل</span>`;
         } else if (group.status === 'has_prev') {
             statusBadge = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 shadow-sm"><i class="ph ph-camera"></i> لديه ${group.existingCount} صور سابقة</span>`;
         } else {
-            statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-devo-success/15 text-devo-success border border-devo-success/30"><i class="ph ph-check-circle"></i> جديد - لا يملك صوراً</span>`;
+            statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-ultra-success/15 text-ultra-success border border-ultra-success/30"><i class="ph ph-check-circle"></i> جديد - لا يملك صوراً</span>`;
         }
 
         // Thumbnails preview
         const thumbnailsHtml = group.files.map((file, idx) => {
             const isDup = file.isDuplicate;
-            const borderClass = isDup ? 'border-amber-500/60 ring-1 ring-amber-500/40' : 'border-devo-gray hover:border-devo-orange';
-            const badgeLabel = idx === 0 ? '<span class="absolute top-1 right-1 bg-devo-orange text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow">غلاف</span>' : '';
+            const borderClass = isDup ? 'border-amber-500/60 ring-1 ring-amber-500/40' : 'border-ultra-gray hover:border-ultra-orange';
+            const badgeLabel = idx === 0 ? '<span class="absolute top-1 right-1 bg-ultra-orange text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow">غلاف</span>' : '';
             const dupBadge = isDup ? '<span class="absolute bottom-1 left-1 bg-amber-600/90 text-white text-[8px] font-bold px-1 rounded shadow">مرفوعة مسبقاً</span>' : '';
 
             return `
                 <div class="relative group/thumb shrink-0 cursor-pointer" onclick="window.openDriveImageLightbox('${group.factoryCode}', ${idx})">
-                    <img src="${file.thumbnail}" alt="${file.name}" referrerpolicy="no-referrer" class="w-14 h-16 object-cover rounded-lg border ${borderClass} bg-devo-black shadow-sm transition-transform group-hover/thumb:scale-105" decoding="async" onerror="if (!this.dataset.fallback) { this.dataset.fallback = '1'; this.src = 'https://drive.google.com/thumbnail?id=${file.id}&sz=w400'; } else if (this.dataset.fallback === '1') { this.dataset.fallback = '2'; this.src = 'https://drive.google.com/uc?export=view&id=${file.id}'; } else { this.src='./src/assets/icons/devo.png'; }">
+                    <img src="${file.thumbnail}" alt="${file.name}" referrerpolicy="no-referrer" class="w-14 h-16 object-cover rounded-lg border ${borderClass} bg-ultra-black shadow-sm transition-transform group-hover/thumb:scale-105" decoding="async" onerror="if (!this.dataset.fallback) { this.dataset.fallback = '1'; this.src = 'https://drive.google.com/thumbnail?id=${file.id}&sz=w400'; } else if (this.dataset.fallback === '1') { this.dataset.fallback = '2'; this.src = 'https://drive.google.com/uc?export=view&id=${file.id}'; } else { this.src='./src/assets/icons/ultrasoft_transparent.png'; }">
                     ${badgeLabel}
                     ${dupBadge}
                 </div>
@@ -778,14 +778,14 @@ function renderStudioTable() {
         }).join('');
 
         html += `
-            <tr class="border-b border-devo-gray/50 hover:bg-white/[0.02] transition-colors ${!hasModel ? 'opacity-60 bg-red-950/10' : ''}">
+            <tr class="border-b border-ultra-gray/50 hover:bg-white/[0.02] transition-colors ${!hasModel ? 'opacity-60 bg-red-950/10' : ''}">
                 <td class="py-3 px-4 text-center">
-                    <input type="checkbox" data-factory="${group.factoryCode}" class="model-row-checkbox accent-devo-orange w-4 h-4 rounded cursor-pointer" ${isChecked ? 'checked' : ''} ${disabledAttr}>
+                    <input type="checkbox" data-factory="${group.factoryCode}" class="model-row-checkbox accent-ultra-orange w-4 h-4 rounded cursor-pointer" ${isChecked ? 'checked' : ''} ${disabledAttr}>
                 </td>
-                <td class="py-3 px-4 font-mono font-black text-devo-orange text-sm">
+                <td class="py-3 px-4 font-mono font-black text-ultra-orange text-sm">
                     <div class="flex items-center gap-2">
                         <span>${group.factoryCode}</span>
-                        ${group.folderName ? `<span class="text-[10px] text-devo-muted font-normal bg-devo-black px-1.5 py-0.5 rounded border border-devo-gray/40">مجلد</span>` : ''}
+                        ${group.folderName ? `<span class="text-[10px] text-ultra-muted font-normal bg-ultra-black px-1.5 py-0.5 rounded border border-ultra-gray/40">مجلد</span>` : ''}
                     </div>
                 </td>
                 <td class="py-3 px-4">${modelHtml}</td>
@@ -853,9 +853,9 @@ function switchFilterTab(filter) {
     document.querySelectorAll('.drive-filter-tab').forEach(t => {
         const f = t.getAttribute('data-filter') || 'all';
         if (f === filter) {
-            t.className = 'drive-filter-tab px-4 py-1.5 rounded-lg text-xs font-bold bg-devo-orange text-white shadow-sm transition-all';
+            t.className = 'drive-filter-tab px-4 py-1.5 rounded-lg text-xs font-bold bg-ultra-orange text-white shadow-sm transition-all';
         } else {
-            t.className = 'drive-filter-tab px-4 py-1.5 rounded-lg text-xs font-bold text-devo-muted hover:text-white bg-devo-black border border-devo-gray/60 transition-all';
+            t.className = 'drive-filter-tab px-4 py-1.5 rounded-lg text-xs font-bold text-ultra-muted hover:text-white bg-ultra-black border border-ultra-gray/60 transition-all';
         }
     });
     renderStudioTable();
@@ -880,10 +880,10 @@ function toggleFullscreen() {
 
     isFullscreen = !isFullscreen;
     if (isFullscreen) {
-        card.classList.add('fixed', 'inset-0', 'z-[180]', 'p-6', 'bg-devo-dark', 'overflow-y-auto');
+        card.classList.add('fixed', 'inset-0', 'z-[180]', 'p-6', 'bg-ultra-dark', 'overflow-y-auto');
         if (btn) btn.innerHTML = `<i class="ph ph-corners-in text-lg"></i> تصغير الشاشة`;
     } else {
-        card.classList.remove('fixed', 'inset-0', 'z-[180]', 'p-6', 'bg-devo-dark', 'overflow-y-auto');
+        card.classList.remove('fixed', 'inset-0', 'z-[180]', 'p-6', 'bg-ultra-dark', 'overflow-y-auto');
         if (btn) btn.innerHTML = `<i class="ph ph-corners-out text-lg"></i> ملء الشاشة`;
     }
 }
@@ -1544,10 +1544,10 @@ function attachSettingsEventListeners() {
         btnToggleVis.addEventListener('click', () => {
             if (input.type === 'password') {
                 input.type = 'text';
-                iconVis.className = 'ph ph-eye-slash text-lg text-devo-orange';
+                iconVis.className = 'ph ph-eye-slash text-lg text-ultra-orange';
             } else {
                 input.type = 'password';
-                iconVis.className = 'ph ph-eye text-lg text-devo-muted';
+                iconVis.className = 'ph ph-eye text-lg text-ultra-muted';
             }
         });
     }
@@ -1801,10 +1801,10 @@ function closeLightbox() {
 // ==========================================
 // 🖼️ 11. إعدادات الصورة الافتراضية للموديلات (Default Model Image)
 // ==========================================
-const DEFAULT_FALLBACK_IMG = './src/assets/icons/devo.png';
+const DEFAULT_FALLBACK_IMG = './src/assets/icons/ultrasoft_transparent.png';
 
 function getDefaultModelImgCacheKey(tenantId) {
-    return `devo_default_model_img_${tenantId || 'default'}`;
+    return `ultra_default_model_img_${tenantId || 'default'}`;
 }
 
 export async function loadDefaultModelImageConfig() {

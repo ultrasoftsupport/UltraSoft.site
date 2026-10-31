@@ -57,24 +57,24 @@ function renderResetView() {
         <div class="animate-fade-in relative pb-10 space-y-4 max-w-4xl mx-auto">
 
             <!-- Header — مطابق لباقي الصفحات -->
-            <div class="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center bg-devo-dark border border-devo-gray p-4 rounded-xl shadow-sm">
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center bg-ultra-dark border border-ultra-gray p-4 rounded-xl shadow-sm">
                 <div>
                     <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="ph ph-warning-octagon text-devo-error"></i> إعادة تهيئة النظام
+                        <i class="ph ph-warning-octagon text-ultra-error"></i> إعادة تهيئة النظام
                     </h2>
-                    <p class="text-devo-muted text-xs mt-0.5">منطقة الخطر — هذه الصفحة مرئية لمالك النظام فقط</p>
+                    <p class="text-ultra-muted text-xs mt-0.5">منطقة الخطر — هذه الصفحة مرئية لمالك النظام فقط</p>
                 </div>
-                <span class="flex items-center gap-1.5 text-xs text-devo-error bg-devo-error/10 border border-devo-error/20 px-3 py-1.5 rounded-lg font-bold shrink-0">
+                <span class="flex items-center gap-1.5 text-xs text-ultra-error bg-ultra-error/10 border border-ultra-error/20 px-3 py-1.5 rounded-lg font-bold shrink-0">
                     <i class="ph ph-lock-simple-open"></i> صلاحية: مالك النظام فقط
                 </span>
             </div>
 
             <!-- تحذير رئيسي -->
-            <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 flex items-start gap-3">
-                <i class="ph ph-seal-warning text-xl text-devo-error shrink-0 mt-0.5"></i>
+            <div class="bg-ultra-dark border border-ultra-gray rounded-xl p-4 flex items-start gap-3">
+                <i class="ph ph-seal-warning text-xl text-ultra-error shrink-0 mt-0.5"></i>
                 <div>
-                    <p class="text-devo-error font-bold text-sm mb-1">تحذير: هذه العملية لا يمكن التراجع عنها</p>
-                    <p class="text-devo-muted text-xs leading-relaxed">سيتم حذف جميع بيانات الموقع نهائياً وبشكل دائم. لا يمكن استعادة أي بيانات بعد تنفيذ هذه العملية.</p>
+                    <p class="text-ultra-error font-bold text-sm mb-1">تحذير: هذه العملية لا يمكن التراجع عنها</p>
+                    <p class="text-ultra-muted text-xs leading-relaxed">سيتم حذف جميع بيانات الموقع نهائياً وبشكل دائم. لا يمكن استعادة أي بيانات بعد تنفيذ هذه العملية.</p>
                 </div>
             </div>
 
@@ -82,14 +82,14 @@ function renderResetView() {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <!-- البيانات التي ستُحذف -->
-                <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 space-y-3">
-                    <p class="text-xs font-bold text-devo-error flex items-center gap-2 pb-2 border-b border-devo-gray">
+                <div class="bg-ultra-dark border border-ultra-gray rounded-xl p-4 space-y-3">
+                    <p class="text-xs font-bold text-ultra-error flex items-center gap-2 pb-2 border-b border-ultra-gray">
                         <i class="ph ph-trash text-base"></i> البيانات التي ستُحذف
                     </p>
                     <div class="space-y-2">
                         ${deletedItems.map(item => `
-                            <div class="flex items-center gap-2 text-xs text-devo-muted">
-                                <i class="ph ph-x-circle text-devo-error shrink-0"></i>
+                            <div class="flex items-center gap-2 text-xs text-ultra-muted">
+                                <i class="ph ph-x-circle text-ultra-error shrink-0"></i>
                                 <span>${item}</span>
                             </div>
                         `).join('')}
@@ -97,14 +97,14 @@ function renderResetView() {
                 </div>
 
                 <!-- البيانات المحفوظة -->
-                <div class="bg-devo-dark border border-devo-gray rounded-xl p-4 space-y-3">
-                    <p class="text-xs font-bold text-devo-success flex items-center gap-2 pb-2 border-b border-devo-gray">
+                <div class="bg-ultra-dark border border-ultra-gray rounded-xl p-4 space-y-3">
+                    <p class="text-xs font-bold text-ultra-success flex items-center gap-2 pb-2 border-b border-ultra-gray">
                         <i class="ph ph-shield-check text-base"></i> البيانات المحفوظة
                     </p>
                     <div class="space-y-2">
                         ${savedItems.map(item => `
-                            <div class="flex items-center gap-2 text-xs text-devo-muted">
-                                <i class="ph ph-check-circle text-devo-success shrink-0"></i>
+                            <div class="flex items-center gap-2 text-xs text-ultra-muted">
+                                <i class="ph ph-check-circle text-ultra-success shrink-0"></i>
                                 <span>${item}</span>
                             </div>
                         `).join('')}
@@ -113,17 +113,17 @@ function renderResetView() {
             </div>
 
             <!-- زر البدء -->
-            <div class="bg-devo-dark border border-devo-gray rounded-xl p-6 flex flex-col items-center gap-4 text-center">
-                <div class="w-16 h-16 rounded-full bg-devo-error/10 border border-devo-error/30 flex items-center justify-center">
-                    <i class="ph ph-warning-octagon text-3xl text-devo-error"></i>
+            <div class="bg-ultra-dark border border-ultra-gray rounded-xl p-6 flex flex-col items-center gap-4 text-center">
+                <div class="w-16 h-16 rounded-full bg-ultra-error/10 border border-ultra-error/30 flex items-center justify-center">
+                    <i class="ph ph-warning-octagon text-3xl text-ultra-error"></i>
                 </div>
                 <div>
                     <p class="text-white font-bold text-base mb-1">جاهز لإعادة التهيئة؟</p>
-                    <p class="text-devo-muted text-xs">ستمر بـ 3 مراحل تأكيد قبل تنفيذ أي عملية حذف</p>
+                    <p class="text-ultra-muted text-xs">ستمر بـ 3 مراحل تأكيد قبل تنفيذ أي عملية حذف</p>
                 </div>
                 <button
                     id="btn-start-reset"
-                    class="flex items-center gap-2 px-6 py-3 bg-devo-error/15 hover:bg-devo-error/25 border border-devo-error/40 hover:border-devo-error/60 rounded-xl text-devo-error font-bold text-sm transition-all duration-200 active:scale-95"
+                    class="flex items-center gap-2 px-6 py-3 bg-ultra-error/15 hover:bg-ultra-error/25 border border-ultra-error/40 hover:border-ultra-error/60 rounded-xl text-ultra-error font-bold text-sm transition-all duration-200 active:scale-95"
                 >
                     <i class="ph ph-warning text-base"></i>
                     بدء عملية إعادة التهيئة
@@ -135,25 +135,25 @@ function renderResetView() {
 
         <!-- ===== MODAL التأكيد الثلاثي ===== -->
         <div id="reset-modal-overlay" class="fixed inset-0 z-[9999] items-center justify-center bg-black/80 backdrop-blur-sm" style="display:none">
-            <div class="w-full max-w-md mx-4 bg-devo-dark border border-devo-gray rounded-2xl shadow-2xl overflow-hidden">
+            <div class="w-full max-w-md mx-4 bg-ultra-dark border border-ultra-gray rounded-2xl shadow-2xl overflow-hidden">
 
                 <!-- شريط التقدم -->
-                <div class="h-1 bg-devo-gray">
-                    <div id="reset-progress-bar" class="h-full bg-devo-error transition-all duration-500" style="width: 0%"></div>
+                <div class="h-1 bg-ultra-gray">
+                    <div id="reset-progress-bar" class="h-full bg-ultra-error transition-all duration-500" style="width: 0%"></div>
                 </div>
 
                 <!-- رأس الـ Modal -->
-                <div class="flex items-center justify-between p-5 border-b border-devo-gray">
+                <div class="flex items-center justify-between p-5 border-b border-ultra-gray">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-devo-error/15 flex items-center justify-center">
-                            <i class="ph ph-warning-octagon text-xl text-devo-error"></i>
+                        <div class="w-9 h-9 rounded-xl bg-ultra-error/15 flex items-center justify-center">
+                            <i class="ph ph-warning-octagon text-xl text-ultra-error"></i>
                         </div>
                         <div>
                             <p class="text-sm font-bold text-white" id="modal-stage-title">تأكيد العملية</p>
-                            <p class="text-xs text-devo-muted" id="modal-stage-counter">المرحلة 1 من 3</p>
+                            <p class="text-xs text-ultra-muted" id="modal-stage-counter">المرحلة 1 من 3</p>
                         </div>
                     </div>
-                    <button id="btn-close-reset-modal" class="w-8 h-8 rounded-lg bg-devo-gray hover:bg-devo-gray-hover flex items-center justify-center text-devo-muted hover:text-white transition-colors">
+                    <button id="btn-close-reset-modal" class="w-8 h-8 rounded-lg bg-ultra-gray hover:bg-ultra-gray-hover flex items-center justify-center text-ultra-muted hover:text-white transition-colors">
                         <i class="ph ph-x text-sm"></i>
                     </button>
                 </div>
@@ -164,18 +164,18 @@ function renderResetView() {
                     <!-- المرحلة 1 -->
                     <div id="stage-1" class="space-y-4">
                         <p class="text-white font-bold text-base text-center">هل أنت متأكد تماماً؟</p>
-                        <p class="text-devo-muted text-sm text-center leading-relaxed">
+                        <p class="text-ultra-muted text-sm text-center leading-relaxed">
                             ستقوم بحذف جميع بيانات الموقع بشكل نهائي.<br>هذا يشمل الأوردرات والموديلات والمخزون والمزيد.
                         </p>
-                        <div class="bg-devo-error/10 border border-devo-error/20 rounded-xl p-3 flex items-center gap-3">
-                            <i class="ph ph-info text-devo-error text-lg shrink-0"></i>
-                            <p class="text-xs text-devo-muted">بمجرد تأكيدك ستنتقل للمرحلة التالية. العملية تحتاج 3 تأكيدات.</p>
+                        <div class="bg-ultra-error/10 border border-ultra-error/20 rounded-xl p-3 flex items-center gap-3">
+                            <i class="ph ph-info text-ultra-error text-lg shrink-0"></i>
+                            <p class="text-xs text-ultra-muted">بمجرد تأكيدك ستنتقل للمرحلة التالية. العملية تحتاج 3 تأكيدات.</p>
                         </div>
                         <div class="flex gap-3 pt-2">
-                            <button id="btn-stage1-cancel" class="flex-1 py-3 rounded-xl border border-devo-gray text-devo-muted hover:bg-devo-gray hover:text-white transition-colors text-sm font-medium">
+                            <button id="btn-stage1-cancel" class="flex-1 py-3 rounded-xl border border-ultra-gray text-ultra-muted hover:bg-ultra-gray hover:text-white transition-colors text-sm font-medium">
                                 إلغاء
                             </button>
-                            <button id="btn-stage1-confirm" class="flex-1 py-3 rounded-xl bg-devo-error/20 hover:bg-devo-error/30 border border-devo-error/40 text-devo-error transition-colors text-sm font-bold">
+                            <button id="btn-stage1-confirm" class="flex-1 py-3 rounded-xl bg-ultra-error/20 hover:bg-ultra-error/30 border border-ultra-error/40 text-ultra-error transition-colors text-sm font-bold">
                                 نعم، أنا موافق — أكمل
                             </button>
                         </div>
@@ -184,7 +184,7 @@ function renderResetView() {
                     <!-- المرحلة 2: كلمة المرور -->
                     <div id="stage-2" class="space-y-4 hidden">
                         <p class="text-white font-bold text-base text-center">أدخل كلمة مرور إعادة التهيئة</p>
-                        <p class="text-devo-muted text-sm text-center leading-relaxed">
+                        <p class="text-ultra-muted text-sm text-center leading-relaxed">
                             كلمة المرور هذه مخصصة لهذه العملية فقط وتختلف عن كلمة مرور حسابك.
                         </p>
                         <div class="relative">
@@ -192,22 +192,22 @@ function renderResetView() {
                                 type="password"
                                 id="reset-password-input"
                                 placeholder="أدخل كلمة مرور إعادة التهيئة"
-                                class="w-full bg-devo-black border border-devo-gray focus:border-devo-error/70 rounded-xl px-4 py-3 text-sm text-white placeholder-devo-muted outline-none transition-colors"
+                                class="w-full bg-ultra-black border border-ultra-gray focus:border-ultra-error/70 rounded-xl px-4 py-3 text-sm text-white placeholder-ultra-muted outline-none transition-colors"
                                 autocomplete="off"
                             >
-                            <button type="button" id="toggle-reset-password" class="absolute left-3 top-1/2 -translate-y-1/2 text-devo-muted hover:text-white transition-colors">
+                            <button type="button" id="toggle-reset-password" class="absolute left-3 top-1/2 -translate-y-1/2 text-ultra-muted hover:text-white transition-colors">
                                 <i class="ph ph-eye text-lg" id="toggle-reset-password-icon"></i>
                             </button>
                         </div>
-                        <div id="password-error" class="hidden text-xs text-devo-error items-center gap-1.5">
+                        <div id="password-error" class="hidden text-xs text-ultra-error items-center gap-1.5">
                             <i class="ph ph-x-circle shrink-0"></i>
                             <span>كلمة المرور غير صحيحة، حاول مرة أخرى.</span>
                         </div>
                         <div class="flex gap-3 pt-2">
-                            <button id="btn-stage2-back" class="flex-1 py-3 rounded-xl border border-devo-gray text-devo-muted hover:bg-devo-gray hover:text-white transition-colors text-sm font-medium">
+                            <button id="btn-stage2-back" class="flex-1 py-3 rounded-xl border border-ultra-gray text-ultra-muted hover:bg-ultra-gray hover:text-white transition-colors text-sm font-medium">
                                 رجوع
                             </button>
-                            <button id="btn-stage2-confirm" class="flex-1 py-3 rounded-xl bg-devo-error/20 hover:bg-devo-error/30 border border-devo-error/40 text-devo-error transition-colors text-sm font-bold">
+                            <button id="btn-stage2-confirm" class="flex-1 py-3 rounded-xl bg-ultra-error/20 hover:bg-ultra-error/30 border border-ultra-error/40 text-ultra-error transition-colors text-sm font-bold">
                                 تحقق من كلمة المرور
                             </button>
                         </div>
@@ -216,31 +216,31 @@ function renderResetView() {
                     <!-- المرحلة 3: جملة التأكيد -->
                     <div id="stage-3" class="space-y-4 hidden">
                         <p class="text-white font-bold text-base text-center">التأكيد النهائي</p>
-                        <p class="text-devo-muted text-sm text-center leading-relaxed">
+                        <p class="text-ultra-muted text-sm text-center leading-relaxed">
                             لإتمام العملية، اكتب الجملة التالية بالضبط في المربع أدناه:
                         </p>
-                        <div class="bg-devo-black border border-devo-gray rounded-xl p-3 text-center">
-                            <p class="text-devo-error font-mono text-sm font-bold select-none" id="confirm-phrase-display"></p>
+                        <div class="bg-ultra-black border border-ultra-gray rounded-xl p-3 text-center">
+                            <p class="text-ultra-error font-mono text-sm font-bold select-none" id="confirm-phrase-display"></p>
                         </div>
                         <input
                             type="text"
                             id="confirm-phrase-input"
                             placeholder="اكتب الجملة هنا..."
-                            class="w-full bg-devo-black border border-devo-gray focus:border-devo-error/70 rounded-xl px-4 py-3 text-sm text-white placeholder-devo-muted outline-none transition-colors"
+                            class="w-full bg-ultra-black border border-ultra-gray focus:border-ultra-error/70 rounded-xl px-4 py-3 text-sm text-white placeholder-ultra-muted outline-none transition-colors"
                             autocomplete="off"
                             autocorrect="off"
                             autocapitalize="off"
                             spellcheck="false"
                         >
-                        <div id="phrase-error" class="hidden text-xs text-devo-error items-center gap-1.5">
+                        <div id="phrase-error" class="hidden text-xs text-ultra-error items-center gap-1.5">
                             <i class="ph ph-x-circle shrink-0"></i>
                             <span>الجملة غير مطابقة، يرجى الكتابة بشكل دقيق.</span>
                         </div>
                         <div class="flex gap-3 pt-2">
-                            <button id="btn-stage3-back" class="flex-1 py-3 rounded-xl border border-devo-gray text-devo-muted hover:bg-devo-gray hover:text-white transition-colors text-sm font-medium">
+                            <button id="btn-stage3-back" class="flex-1 py-3 rounded-xl border border-ultra-gray text-ultra-muted hover:bg-ultra-gray hover:text-white transition-colors text-sm font-medium">
                                 رجوع
                             </button>
-                            <button id="btn-stage3-execute" class="flex-1 py-3 rounded-xl bg-devo-error hover:bg-red-700 border border-red-700 text-white transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                            <button id="btn-stage3-execute" class="flex-1 py-3 rounded-xl bg-ultra-error hover:bg-red-700 border border-red-700 text-white transition-colors text-sm font-bold flex items-center justify-center gap-2">
                                 <i class="ph ph-trash text-base"></i>
                                 تنفيذ الحذف النهائي
                             </button>
@@ -249,19 +249,19 @@ function renderResetView() {
 
                     <!-- مرحلة التحميل -->
                     <div id="stage-loading" class="hidden py-8 flex-col items-center gap-4 text-center">
-                        <div class="w-16 h-16 rounded-full border-4 border-devo-gray border-t-devo-error animate-spin"></div>
+                        <div class="w-16 h-16 rounded-full border-4 border-ultra-gray border-t-ultra-error animate-spin"></div>
                         <p class="text-white font-bold text-base">جاري تنفيذ العملية...</p>
-                        <p class="text-devo-muted text-sm">يرجى الانتظار، لا تغلق الصفحة</p>
+                        <p class="text-ultra-muted text-sm">يرجى الانتظار، لا تغلق الصفحة</p>
                     </div>
 
                     <!-- مرحلة النجاح -->
                     <div id="stage-success" class="hidden py-6 flex-col items-center gap-4 text-center">
-                        <div class="w-20 h-20 rounded-full bg-devo-success/10 border-2 border-devo-success/30 flex items-center justify-center">
-                            <i class="ph ph-check-circle text-5xl text-devo-success"></i>
+                        <div class="w-20 h-20 rounded-full bg-ultra-success/10 border-2 border-ultra-success/30 flex items-center justify-center">
+                            <i class="ph ph-check-circle text-5xl text-ultra-success"></i>
                         </div>
                         <p class="text-white font-bold text-lg">تمت إعادة التهيئة بنجاح! ✅</p>
-                        <p class="text-devo-muted text-sm leading-relaxed">تم مسح جميع بيانات الموقع. النظام الآن جاهز للبداية من جديد.</p>
-                        <button id="btn-close-after-success" class="mt-2 px-6 py-3 rounded-xl bg-devo-orange hover:bg-devo-orange-hover text-white font-bold text-sm transition-colors">
+                        <p class="text-ultra-muted text-sm leading-relaxed">تم مسح جميع بيانات الموقع. النظام الآن جاهز للبداية من جديد.</p>
+                        <button id="btn-close-after-success" class="mt-2 px-6 py-3 rounded-xl bg-ultra-orange hover:bg-ultra-orange-hover text-white font-bold text-sm transition-colors">
                             إغلاق
                         </button>
                     </div>
@@ -492,8 +492,8 @@ async function executeReset() {
         const progressBar = document.getElementById('reset-progress-bar');
         if (progressBar) {
             progressBar.style.width = '100%';
-            progressBar.classList.remove('bg-devo-error');
-            progressBar.classList.add('bg-devo-success');
+            progressBar.classList.remove('bg-ultra-error');
+            progressBar.classList.add('bg-ultra-success');
         }
         document.getElementById('btn-close-reset-modal')?.classList.remove('opacity-0', 'pointer-events-none');
 

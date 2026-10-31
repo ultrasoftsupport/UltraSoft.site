@@ -84,11 +84,11 @@ export function switchReportTab(tabName) {
     const sublinks = document.querySelectorAll('.report-sublink');
     sublinks.forEach(link => {
         if (link.getAttribute('data-report-tab') === tabName) {
-            link.classList.remove('text-devo-muted');
-            link.classList.add('text-devo-orange', 'bg-devo-orange/15', 'font-bold');
+            link.classList.remove('text-ultra-muted');
+            link.classList.add('text-ultra-orange', 'bg-ultra-orange/15', 'font-bold');
         } else {
-            link.classList.remove('text-devo-orange', 'bg-devo-orange/15', 'font-bold');
-            link.classList.add('text-devo-muted');
+            link.classList.remove('text-ultra-orange', 'bg-ultra-orange/15', 'font-bold');
+            link.classList.add('text-ultra-muted');
         }
     });
 
@@ -505,8 +505,8 @@ function showLoadingStates() {
         if (el && el.innerHTML.trim() === '') {
             el.innerHTML = `
                 <tr>
-                    <td colspan="10" class="p-8 text-center text-devo-muted">
-                        <i class="ph ph-spinner animate-spin text-3xl text-devo-orange mb-2 block"></i>
+                    <td colspan="10" class="p-8 text-center text-ultra-muted">
+                        <i class="ph ph-spinner animate-spin text-3xl text-ultra-orange mb-2 block"></i>
                         <span>جاري جلب وحساب البيانات...</span>
                     </td>
                 </tr>
@@ -662,8 +662,8 @@ function renderSalesView(orders) {
     if (orders.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="9" class="p-8 text-center text-devo-muted">
-                    <i class="ph ph-receipt-x text-4xl mb-2 block text-devo-gray"></i>
+                <td colspan="9" class="p-8 text-center text-ultra-muted">
+                    <i class="ph ph-receipt-x text-4xl mb-2 block text-ultra-gray"></i>
                     <span>لا توجد أوردرات تطابق خيارات الفلترة الحالية</span>
                 </td>
             </tr>
@@ -702,25 +702,25 @@ function renderSalesView(orders) {
             : '<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] px-1.5 py-0.5 rounded font-sans font-bold ml-1 inline-block">نشط</span>';
 
         return `
-            <tr class="hover:bg-devo-dark/50 transition-colors border-b border-devo-gray/40 text-xs">
-                <td class="px-3 py-3 text-center text-devo-muted">${idx + 1}</td>
-                <td class="px-3 py-3 font-mono font-bold text-devo-orange whitespace-nowrap">#${orderNum} ${archiveBadge}</td>
+            <tr class="hover:bg-ultra-dark/50 transition-colors border-b border-ultra-gray/40 text-xs">
+                <td class="px-3 py-3 text-center text-ultra-muted">${idx + 1}</td>
+                <td class="px-3 py-3 font-mono font-bold text-ultra-orange whitespace-nowrap">#${orderNum} ${archiveBadge}</td>
                 <td class="px-3 py-3 whitespace-nowrap">
                     <div class="font-medium text-white">${dateStr}</div>
-                    <div class="text-[10px] text-devo-muted">${timeStr}</div>
+                    <div class="text-[10px] text-ultra-muted">${timeStr}</div>
                 </td>
                 <td class="px-3 py-3 font-semibold text-white">
                     ${custName}
-                    <div class="text-[10px] text-devo-muted font-mono" dir="ltr">${phone}</div>
+                    <div class="text-[10px] text-ultra-muted font-mono" dir="ltr">${phone}</div>
                 </td>
-                <td class="px-3 py-3 text-devo-text">${workerName}</td>
+                <td class="px-3 py-3 text-ultra-text">${workerName}</td>
                 <td class="px-3 py-3 text-center">${statusBadge}</td>
-                <td class="px-3 py-3 text-center font-bold text-devo-text">
-                    ${orderSeries} سيري <span class="text-[10px] text-devo-muted font-normal">(${orderPieces} ق)</span>
+                <td class="px-3 py-3 text-center font-bold text-ultra-text">
+                    ${orderSeries} سيري <span class="text-[10px] text-ultra-muted font-normal">(${orderPieces} ق)</span>
                 </td>
                 <td class="px-3 py-3 font-bold text-white whitespace-nowrap">${orderTotal.toLocaleString('ar-EG')} ج.م</td>
-                <td class="px-3 py-3 font-bold text-devo-success whitespace-nowrap">
-                    ${depositVal > 0 ? `${depositVal.toLocaleString('ar-EG')} ج.م` : '<span class="text-devo-muted font-normal">-</span>'}
+                <td class="px-3 py-3 font-bold text-ultra-success whitespace-nowrap">
+                    ${depositVal > 0 ? `${depositVal.toLocaleString('ar-EG')} ج.م` : '<span class="text-ultra-muted font-normal">-</span>'}
                 </td>
             </tr>
         `;
@@ -728,11 +728,11 @@ function renderSalesView(orders) {
 
     if (tFoot) {
         tFoot.innerHTML = `
-            <tr class="bg-devo-dark font-bold text-white border-t-2 border-devo-orange/50 text-xs">
+            <tr class="bg-ultra-dark font-bold text-white border-t-2 border-ultra-orange/50 text-xs">
                 <td colspan="6" class="px-4 py-3 text-left">إجمالي المبيعات المفلترة (${orders.length} أوردر):</td>
-                <td class="px-3 py-3 text-center text-devo-orange">${totalSeries.toLocaleString('ar-EG')} سيري (${totalPieces.toLocaleString('ar-EG')} ق)</td>
+                <td class="px-3 py-3 text-center text-ultra-orange">${totalSeries.toLocaleString('ar-EG')} سيري (${totalPieces.toLocaleString('ar-EG')} ق)</td>
                 <td class="px-3 py-3 text-white text-sm whitespace-nowrap">${totalSales.toLocaleString('ar-EG')} ج.م</td>
-                <td class="px-3 py-3 text-devo-success text-sm whitespace-nowrap">${totalDeposits.toLocaleString('ar-EG')} ج.م</td>
+                <td class="px-3 py-3 text-ultra-success text-sm whitespace-nowrap">${totalDeposits.toLocaleString('ar-EG')} ج.م</td>
             </tr>
         `;
     }
@@ -802,8 +802,8 @@ function renderDepositsView(orders) {
     if (orders.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="8" class="p-8 text-center text-devo-muted">
-                    <i class="ph ph-hand-coins text-4xl mb-2 block text-devo-gray"></i>
+                <td colspan="8" class="p-8 text-center text-ultra-muted">
+                    <i class="ph ph-hand-coins text-4xl mb-2 block text-ultra-gray"></i>
                     <span>لا توجد تقارير عربون تطابق خيارات الفلترة المحددة</span>
                 </td>
             </tr>
@@ -829,29 +829,29 @@ function renderDepositsView(orders) {
             : '<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] px-1.5 py-0.5 rounded font-sans font-bold ml-1 inline-block">نشط</span>';
 
         return `
-            <tr class="hover:bg-devo-dark/50 transition-colors border-b border-devo-gray/40 text-xs">
-                <td class="px-3 py-3 text-center text-devo-muted">${idx + 1}</td>
-                <td class="px-3 py-3 font-mono font-bold text-devo-orange whitespace-nowrap">#${orderNum} ${archiveBadge}</td>
+            <tr class="hover:bg-ultra-dark/50 transition-colors border-b border-ultra-gray/40 text-xs">
+                <td class="px-3 py-3 text-center text-ultra-muted">${idx + 1}</td>
+                <td class="px-3 py-3 font-mono font-bold text-ultra-orange whitespace-nowrap">#${orderNum} ${archiveBadge}</td>
                 <td class="px-3 py-3 whitespace-nowrap">
                     <div class="font-medium text-white">${dateStr}</div>
-                    <div class="text-[10px] text-devo-muted">${timeStr}</div>
+                    <div class="text-[10px] text-ultra-muted">${timeStr}</div>
                 </td>
                 <td class="px-3 py-3 font-semibold text-white">
                     ${custName}
-                    <div class="text-[10px] text-devo-muted font-mono" dir="ltr">${phone}</div>
+                    <div class="text-[10px] text-ultra-muted font-mono" dir="ltr">${phone}</div>
                 </td>
-                <td class="px-3 py-3 text-devo-text">${workerName}</td>
+                <td class="px-3 py-3 text-ultra-text">${workerName}</td>
                 <td class="px-3 py-3">
-                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-devo-gray text-white border border-devo-grayHover inline-block">
+                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-ultra-gray text-white border border-ultra-grayHover inline-block">
                         ${depositReceiver}
                     </span>
                 </td>
-                <td class="px-3 py-3 font-bold text-devo-success text-sm whitespace-nowrap">
+                <td class="px-3 py-3 font-bold text-ultra-success text-sm whitespace-nowrap">
                     ${depositVal.toLocaleString('ar-EG')} ج.م
                 </td>
-                <td class="px-3 py-3 text-devo-muted whitespace-nowrap">
+                <td class="px-3 py-3 text-ultra-muted whitespace-nowrap">
                     ${totalVal.toLocaleString('ar-EG')} ج.م
-                    <div class="text-[10px] text-devo-orange">متبقي: ${remVal.toLocaleString('ar-EG')} ج.م</div>
+                    <div class="text-[10px] text-ultra-orange">متبقي: ${remVal.toLocaleString('ar-EG')} ج.م</div>
                 </td>
             </tr>
         `;
@@ -859,9 +859,9 @@ function renderDepositsView(orders) {
 
     if (tFoot) {
         tFoot.innerHTML = `
-            <tr class="bg-devo-dark font-bold text-white border-t-2 border-devo-orange/50 text-xs">
+            <tr class="bg-ultra-dark font-bold text-white border-t-2 border-ultra-orange/50 text-xs">
                 <td colspan="6" class="px-4 py-3 text-left">إجمالي مبالغ العربون المحصلة (${count} حركة):</td>
-                <td class="px-3 py-3 text-devo-success text-base whitespace-nowrap">${totalSum.toLocaleString('ar-EG')} ج.م</td>
+                <td class="px-3 py-3 text-ultra-success text-base whitespace-nowrap">${totalSum.toLocaleString('ar-EG')} ج.م</td>
                 <td></td>
             </tr>
         `;
@@ -970,8 +970,8 @@ function renderInventoryView(items) {
     if (items.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="8" class="p-8 text-center text-devo-muted">
-                    <i class="ph ph-warehouse text-4xl mb-2 block text-devo-gray"></i>
+                <td colspan="8" class="p-8 text-center text-ultra-muted">
+                    <i class="ph ph-warehouse text-4xl mb-2 block text-ultra-gray"></i>
                     <span>لا توجد موديلات أو أرصدة تطابق خيارات الفلترة المحددة</span>
                 </td>
             </tr>
@@ -990,45 +990,45 @@ function renderInventoryView(items) {
             ? m.variants.map(v => {
                 const cCode = v.color_system_code ? `[${v.color_system_code}]` : (v.color_factory_code ? `[${v.color_factory_code}]` : '');
                 return `
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-devo-dark border border-devo-grayHover text-white">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-ultra-dark border border-ultra-grayHover text-white">
                     <span>${v.colors?.name || 'لون'} ${cCode}</span>
-                    <span class="font-bold font-mono text-devo-orange">${v.available_series || 0}</span>
+                    <span class="font-bold font-mono text-ultra-orange">${v.available_series || 0}</span>
                 </span>
                 `;
             }).join(' ')
-            : '<span class="text-devo-muted text-[10px]">لا يوجد تفاصيل ألوان</span>';
+            : '<span class="text-ultra-muted text-[10px]">لا يوجد تفاصيل ألوان</span>';
 
         const stockBadge = m.totalSeries === 0
-            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-devo-error/20 text-devo-error border border-devo-error/40">نافد الرصيد</span>'
+            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-ultra-error/20 text-ultra-error border border-ultra-error/40">نافد الرصيد</span>'
             : m.totalSeries <= 5
             ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">رصيد منخفض</span>'
-            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-devo-success/20 text-devo-success border border-devo-success/40">متوفر</span>';
+            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-ultra-success/20 text-ultra-success border border-ultra-success/40">متوفر</span>';
 
         return `
-            <tr class="hover:bg-devo-dark/50 transition-colors border-b border-devo-gray/40 text-xs">
-                <td class="px-3 py-3 text-center text-devo-muted">${idx + 1}</td>
+            <tr class="hover:bg-ultra-dark/50 transition-colors border-b border-ultra-gray/40 text-xs">
+                <td class="px-3 py-3 text-center text-ultra-muted">${idx + 1}</td>
                 <td class="px-3 py-3">
                     <div class="font-bold text-white text-sm">${m.name}</div>
-                    <div class="flex items-center gap-2 mt-0.5 text-[10px] text-devo-muted font-mono">
-                        <span>مصنع: <b class="text-devo-text">${m.factory_code || (m.code_assignment_mode === 'color_factory_codes' ? 'لكل لون' : '-')}</b></span>
+                    <div class="flex items-center gap-2 mt-0.5 text-[10px] text-ultra-muted font-mono">
+                        <span>مصنع: <b class="text-ultra-text">${m.factory_code || (m.code_assignment_mode === 'color_factory_codes' ? 'لكل لون' : '-')}</b></span>
                         <span>•</span>
-                        <span>سيستم: <b class="text-devo-orange">${m.system_code || (m.code_assignment_mode === 'color_system_codes' ? 'لكل لون' : '-')}</b></span>
+                        <span>سيستم: <b class="text-ultra-orange">${m.system_code || (m.code_assignment_mode === 'color_system_codes' ? 'لكل لون' : '-')}</b></span>
                     </div>
                 </td>
-                <td class="px-3 py-3 text-devo-text">
+                <td class="px-3 py-3 text-ultra-text">
                     <div>${catName}</div>
-                    <div class="text-[10px] text-devo-muted">${className}</div>
+                    <div class="text-[10px] text-ultra-muted">${className}</div>
                 </td>
                 <td class="px-3 py-3 max-w-[280px]">
                     <div class="flex flex-wrap gap-1">${colorsHtml}</div>
                 </td>
                 <td class="px-3 py-3 text-center">
                     <div class="font-bold text-white text-sm">${m.totalSeries} سيري</div>
-                    <div class="text-[10px] text-devo-muted">(${m.totalPieces} قطعة)</div>
+                    <div class="text-[10px] text-ultra-muted">(${m.totalPieces} قطعة)</div>
                     <div class="mt-1">${stockBadge}</div>
                 </td>
                 <td class="px-3 py-3 font-bold text-white whitespace-nowrap">${price.toLocaleString('ar-EG')} ج.م</td>
-                <td class="px-3 py-3 font-bold text-devo-orange text-sm whitespace-nowrap">
+                <td class="px-3 py-3 font-bold text-ultra-orange text-sm whitespace-nowrap">
                     ${m.totalStockValue.toLocaleString('ar-EG')} ج.م
                 </td>
             </tr>
@@ -1037,11 +1037,11 @@ function renderInventoryView(items) {
 
     if (tFoot) {
         tFoot.innerHTML = `
-            <tr class="bg-devo-dark font-bold text-white border-t-2 border-devo-orange/50 text-xs">
+            <tr class="bg-ultra-dark font-bold text-white border-t-2 border-ultra-orange/50 text-xs">
                 <td colspan="4" class="px-4 py-3 text-left">إجمالي المخزون المفلتر (${items.length} موديل):</td>
                 <td class="px-3 py-3 text-center text-white text-sm">${totalStockSeries.toLocaleString('ar-EG')} سيري (${totalStockPieces.toLocaleString('ar-EG')} ق)</td>
                 <td></td>
-                <td class="px-3 py-3 text-devo-orange text-base whitespace-nowrap">${totalMonetaryValue.toLocaleString('ar-EG')} ج.م</td>
+                <td class="px-3 py-3 text-ultra-orange text-base whitespace-nowrap">${totalMonetaryValue.toLocaleString('ar-EG')} ج.م</td>
             </tr>
         `;
     }
@@ -1170,8 +1170,8 @@ function renderModelsPerformanceView(models) {
     if (models.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="8" class="p-8 text-center text-devo-muted">
-                    <i class="ph ph-t-shirt text-4xl mb-2 block text-devo-gray"></i>
+                <td colspan="8" class="p-8 text-center text-ultra-muted">
+                    <i class="ph ph-t-shirt text-4xl mb-2 block text-ultra-gray"></i>
                     <span>لا توجد موديلات تطابق خيارات التصفية المحددة</span>
                 </td>
             </tr>
@@ -1185,27 +1185,27 @@ function renderModelsPerformanceView(models) {
         const price = parseFloat(m.price) || 0;
 
         return `
-            <tr class="hover:bg-devo-dark/50 transition-colors border-b border-devo-gray/40 text-xs">
-                <td class="px-3 py-3 text-center text-devo-muted">${idx + 1}</td>
+            <tr class="hover:bg-ultra-dark/50 transition-colors border-b border-ultra-gray/40 text-xs">
+                <td class="px-3 py-3 text-center text-ultra-muted">${idx + 1}</td>
                 <td class="px-3 py-3">
                     <div class="font-bold text-white text-sm">${m.name}</div>
-                    <div class="flex items-center gap-2 mt-0.5 text-[10px] text-devo-muted font-mono">
-                        <span>كود المصنع: <b class="text-devo-text">${m.factory_code || '-'}</b></span>
+                    <div class="flex items-center gap-2 mt-0.5 text-[10px] text-ultra-muted font-mono">
+                        <span>كود المصنع: <b class="text-ultra-text">${m.factory_code || '-'}</b></span>
                         <span>•</span>
-                        <span>السيستم: <b class="text-devo-orange">${m.system_code || '-'}</b></span>
+                        <span>السيستم: <b class="text-ultra-orange">${m.system_code || '-'}</b></span>
                     </div>
                 </td>
-                <td class="px-3 py-3 text-devo-text">${catName}</td>
+                <td class="px-3 py-3 text-ultra-text">${catName}</td>
                 <td class="px-3 py-3 font-bold text-white whitespace-nowrap">${price.toLocaleString('ar-EG')} ج.م</td>
-                <td class="px-3 py-3 text-center font-bold text-devo-orange text-sm">
+                <td class="px-3 py-3 text-center font-bold text-ultra-orange text-sm">
                     ${m.soldSeries} سيري
-                    <div class="text-[10px] text-devo-muted font-normal">(${m.soldPieces} قطعة)</div>
+                    <div class="text-[10px] text-ultra-muted font-normal">(${m.soldPieces} قطعة)</div>
                 </td>
-                <td class="px-3 py-3 font-bold text-devo-success text-sm whitespace-nowrap">
+                <td class="px-3 py-3 font-bold text-ultra-success text-sm whitespace-nowrap">
                     ${m.totalRevenue.toLocaleString('ar-EG')} ج.م
                 </td>
                 <td class="px-3 py-3 text-center">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${m.currentStockSeries > 0 ? 'bg-devo-gray text-white' : 'bg-devo-error/20 text-devo-error'} border border-devo-grayHover inline-block">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${m.currentStockSeries > 0 ? 'bg-ultra-gray text-white' : 'bg-ultra-error/20 text-ultra-error'} border border-ultra-grayHover inline-block">
                         ${m.currentStockSeries} سيري
                     </span>
                 </td>
@@ -1215,10 +1215,10 @@ function renderModelsPerformanceView(models) {
 
     if (tFoot) {
         tFoot.innerHTML = `
-            <tr class="bg-devo-dark font-bold text-white border-t-2 border-devo-orange/50 text-xs">
+            <tr class="bg-ultra-dark font-bold text-white border-t-2 border-ultra-orange/50 text-xs">
                 <td colspan="4" class="px-4 py-3 text-left">إجمالي المبيعات المحققة للموديلات:</td>
-                <td class="px-3 py-3 text-center text-devo-orange text-sm">${totalSoldSeries.toLocaleString('ar-EG')} سيري (${totalSoldPieces.toLocaleString('ar-EG')} ق)</td>
-                <td class="px-3 py-3 text-devo-success text-base whitespace-nowrap">${totalRevenue.toLocaleString('ar-EG')} ج.م</td>
+                <td class="px-3 py-3 text-center text-ultra-orange text-sm">${totalSoldSeries.toLocaleString('ar-EG')} سيري (${totalSoldPieces.toLocaleString('ar-EG')} ق)</td>
+                <td class="px-3 py-3 text-ultra-success text-base whitespace-nowrap">${totalRevenue.toLocaleString('ar-EG')} ج.م</td>
                 <td></td>
             </tr>
         `;
@@ -1328,8 +1328,8 @@ function renderStaffPerformanceView(staffList) {
     if (staffList.length === 0) {
         tBody.innerHTML = `
             <tr>
-                <td colspan="8" class="p-8 text-center text-devo-muted">
-                    <i class="ph ph-users text-4xl mb-2 block text-devo-gray"></i>
+                <td colspan="8" class="p-8 text-center text-ultra-muted">
+                    <i class="ph ph-users text-4xl mb-2 block text-ultra-gray"></i>
                     <span>لا توجد حسابات أو عمال تطابق خيارات الفلترة المحددة</span>
                 </td>
             </tr>
@@ -1340,17 +1340,17 @@ function renderStaffPerformanceView(staffList) {
 
     tBody.innerHTML = staffList.map((u, idx) => {
         const roleName = u.role === 'owner' ? 'مالك النظام' : u.role === 'admin' ? 'مدير نظام' : 'بائع / موظف';
-        const roleClass = u.role === 'owner' ? 'text-red-400 bg-red-500/10 border-red-500/30' : u.role === 'admin' ? 'text-devo-orange bg-devo-orange/10 border-devo-orange/30' : 'text-blue-400 bg-blue-500/10 border-blue-500/30';
+        const roleClass = u.role === 'owner' ? 'text-red-400 bg-red-500/10 border-red-500/30' : u.role === 'admin' ? 'text-ultra-orange bg-ultra-orange/10 border-ultra-orange/30' : 'text-blue-400 bg-blue-500/10 border-blue-500/30';
         const statusBadge = u.is_active
-            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-devo-success/20 text-devo-success border border-devo-success/40">نشط</span>'
-            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-devo-gray text-devo-muted border border-devo-gray">معطل</span>';
+            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-ultra-success/20 text-ultra-success border border-ultra-success/40">نشط</span>'
+            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-ultra-gray text-ultra-muted border border-ultra-gray">معطل</span>';
 
         return `
-            <tr class="hover:bg-devo-dark/50 transition-colors border-b border-devo-gray/40 text-xs">
-                <td class="px-3 py-3 text-center text-devo-muted">${idx + 1}</td>
+            <tr class="hover:bg-ultra-dark/50 transition-colors border-b border-ultra-gray/40 text-xs">
+                <td class="px-3 py-3 text-center text-ultra-muted">${idx + 1}</td>
                 <td class="px-3 py-3 font-semibold text-white">
                     ${u.full_name}
-                    <div class="text-[10px] text-devo-muted font-mono">@${u.username}</div>
+                    <div class="text-[10px] text-ultra-muted font-mono">@${u.username}</div>
                 </td>
                 <td class="px-3 py-3">
                     <span class="px-2.5 py-1 rounded-md text-[10px] font-bold border inline-block ${roleClass}">
@@ -1360,13 +1360,13 @@ function renderStaffPerformanceView(staffList) {
                 <td class="px-3 py-3 text-center">${statusBadge}</td>
                 <td class="px-3 py-3 text-center font-bold text-white text-sm">
                     ${u.ordersCount.toLocaleString('ar-EG')}
-                    <div class="text-[10px] text-devo-muted font-normal">(${u.soldSeries} سيري)</div>
+                    <div class="text-[10px] text-ultra-muted font-normal">(${u.soldSeries} سيري)</div>
                 </td>
-                <td class="px-3 py-3 font-bold text-devo-orange text-sm whitespace-nowrap">
+                <td class="px-3 py-3 font-bold text-ultra-orange text-sm whitespace-nowrap">
                     ${u.totalSales.toLocaleString('ar-EG')} ج.م
                 </td>
-                <td class="px-3 py-3 font-bold text-devo-success whitespace-nowrap">
-                    ${u.totalDeposit > 0 ? `${u.totalDeposit.toLocaleString('ar-EG')} ج.م` : '<span class="text-devo-muted font-normal">-</span>'}
+                <td class="px-3 py-3 font-bold text-ultra-success whitespace-nowrap">
+                    ${u.totalDeposit > 0 ? `${u.totalDeposit.toLocaleString('ar-EG')} ج.م` : '<span class="text-ultra-muted font-normal">-</span>'}
                 </td>
                 <td class="px-3 py-3 text-white whitespace-nowrap">
                     ${Math.round(u.avgOrderVal).toLocaleString('ar-EG')} ج.م
@@ -1377,11 +1377,11 @@ function renderStaffPerformanceView(staffList) {
 
     if (tFoot) {
         tFoot.innerHTML = `
-            <tr class="bg-devo-dark font-bold text-white border-t-2 border-devo-orange/50 text-xs">
+            <tr class="bg-ultra-dark font-bold text-white border-t-2 border-ultra-orange/50 text-xs">
                 <td colspan="4" class="px-4 py-3 text-left">إجمالي إنتاجية الفريق المفلترة (${staffList.length} موظف):</td>
                 <td class="px-3 py-3 text-center text-white text-sm">${totalTeamOrders.toLocaleString('ar-EG')} أوردر</td>
-                <td class="px-3 py-3 text-devo-orange text-base whitespace-nowrap">${totalTeamSales.toLocaleString('ar-EG')} ج.م</td>
-                <td class="px-3 py-3 text-devo-success text-base whitespace-nowrap">${totalTeamDeposits.toLocaleString('ar-EG')} ج.م</td>
+                <td class="px-3 py-3 text-ultra-orange text-base whitespace-nowrap">${totalTeamSales.toLocaleString('ar-EG')} ج.م</td>
+                <td class="px-3 py-3 text-ultra-success text-base whitespace-nowrap">${totalTeamDeposits.toLocaleString('ar-EG')} ج.م</td>
                 <td></td>
             </tr>
         `;
@@ -1855,7 +1855,7 @@ export function executeActiveReportPrint(withCards = true) {
         <body>
             <div class="report-header">
                 <div>
-                    <div class="brand-title">DEVO COLLECTION</div>
+                    <div class="brand-title">ULTRASOFT PLATFORM</div>
                     <div class="meta-info">منظومة الإدارة والمبيعات</div>
                 </div>
                 <div style="text-align: center;">
@@ -1911,11 +1911,11 @@ function getStatusBadge(status) {
         case 'prepared':
             return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/40">تم التجهيز</span>';
         case 'completed':
-            return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-devo-success/20 text-devo-success border border-devo-success/40">مكتمل</span>';
+            return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-ultra-success/20 text-ultra-success border border-ultra-success/40">مكتمل</span>';
         case 'cancelled':
-            return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-devo-error/20 text-devo-error border border-devo-error/40">ملغي</span>';
+            return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-ultra-error/20 text-ultra-error border border-ultra-error/40">ملغي</span>';
         default:
-            return `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-devo-gray text-white">${status || '-'}</span>`;
+            return `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-ultra-gray text-white">${status || '-'}</span>`;
     }
 }
 
@@ -2116,7 +2116,7 @@ export async function sendTelegramCurrentReport() {
             `🗓️ <b>اليوم:</b> ${dayName}\n` +
             `📅 <b>التاريخ:</b> ${dateStr}\n` +
             `⏰ <b>الوقت:</b> ${timeStr}\n` +
-            `🏭 <b>المصنع:</b> DEVO Factory System\n` +
+            `🏭 <b>المصنع:</b> UltraSoft Factory System\n` +
             `━━━━━━━━━━━━\n\n` +
             `${detailsText}\n` +
             `━━━━━━━━━━━━\n` +

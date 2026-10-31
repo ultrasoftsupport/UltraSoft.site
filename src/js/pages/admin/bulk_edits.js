@@ -111,7 +111,7 @@ window.updateMultiSelectLabel = (key) => {
     
     if (count === 0) {
         labelEl.textContent = isExclude ? `استثناء: لا شيء (الكل)` : defaultLabel;
-        labelEl.classList.remove('text-devo-orange');
+        labelEl.classList.remove('text-ultra-orange');
     } else {
         const names = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
         if (isExclude) {
@@ -120,14 +120,14 @@ window.updateMultiSelectLabel = (key) => {
             } else {
                 labelEl.textContent = `الكل عدا ${count}`;
             }
-            labelEl.classList.add('text-devo-orange');
+            labelEl.classList.add('text-ultra-orange');
         } else {
             if (count <= 2) {
                 labelEl.textContent = names.join('، ');
             } else {
                 labelEl.textContent = `${count} محددة`;
             }
-            labelEl.classList.add('text-devo-orange');
+            labelEl.classList.add('text-ultra-orange');
         }
     }
 };
@@ -158,8 +158,8 @@ export async function fetchBulkFilterOptions() {
             const container = document.getElementById(containerId);
             if (container && data) {
                 container.innerHTML = data.map(item => `
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-devo-black/40 rounded cursor-pointer text-xs text-white select-none" onclick="event.stopPropagation()">
-                        <input type="checkbox" value="${item.id}" name="bulk-filter-${key}" class="accent-devo-orange w-3.5 h-3.5 rounded cursor-pointer" onchange="updateMultiSelectLabel('${key}')">
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-ultra-black/40 rounded cursor-pointer text-xs text-white select-none" onclick="event.stopPropagation()">
+                        <input type="checkbox" value="${item.id}" name="bulk-filter-${key}" class="accent-ultra-orange w-3.5 h-3.5 rounded cursor-pointer" onchange="updateMultiSelectLabel('${key}')">
                         <span class="truncate">${item.name}</span>
                     </label>
                 `).join('');
@@ -194,7 +194,7 @@ export async function fetchBulkFilterOptions() {
 
 export async function fetchBulkModels() {
     const tbody = document.getElementById('bulk-table-body');
-    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i> جاري تحميل كل الموديلات...</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i> جاري تحميل كل الموديلات...</td></tr>`;
 
     let allFetchedData = [];
     let from = 0;
@@ -416,7 +416,7 @@ function renderBulkPage() {
 
     if (filteredBulkModels.length === 0) {
         if(masterCb) { masterCb.checked = false; masterCb.disabled = true; }
-        if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-devo-muted">لا توجد نتائج مطابقة للبحث</td></tr>`;
+        if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-ultra-muted">لا توجد نتائج مطابقة للبحث</td></tr>`;
         if (paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -440,21 +440,21 @@ function renderBulkPage() {
         tbody.innerHTML = pageData.map(m => {
             const totalQty = m.model_inventory?.reduce((sum, inv) => sum + (inv.available_series || 0), 0) || 0;
             return `
-            <tr class="hover:bg-devo-black/50 transition-colors border-b border-devo-gray/50">
-                <td class="p-3 text-center border-l border-devo-gray/30">
-                    <input type="checkbox" value="${m.id}" onchange="toggleSingleBulkCheck(this)" class="bulk-item-cb accent-devo-orange w-4 h-4 cursor-pointer" ${selectedModelIds.has(m.id) ? 'checked' : ''}>
+            <tr class="hover:bg-ultra-black/50 transition-colors border-b border-ultra-gray/50">
+                <td class="p-3 text-center border-l border-ultra-gray/30">
+                    <input type="checkbox" value="${m.id}" onchange="toggleSingleBulkCheck(this)" class="bulk-item-cb accent-ultra-orange w-4 h-4 cursor-pointer" ${selectedModelIds.has(m.id) ? 'checked' : ''}>
                 </td>
                 <td class="p-3">
-                    <p class="text-[10px] text-devo-muted font-mono tracking-wider">${m.factory_code || m.system_code}</p>
+                    <p class="text-[10px] text-ultra-muted font-mono tracking-wider">${m.factory_code || m.system_code}</p>
                     <p class="font-bold text-white text-xs mt-0.5">${m.name}</p>
                 </td>
-                <td class="p-3 text-center font-black text-devo-orange text-sm">${m.price}</td>
-                <td class="p-3 text-center text-xs text-devo-muted">
+                <td class="p-3 text-center font-black text-ultra-orange text-sm">${m.price}</td>
+                <td class="p-3 text-center text-xs text-ultra-muted">
                     <span class="block mb-1">${m.categories?.name || '-'} / ${m.classes?.name || '-'}</span>
-                    <span class="${totalQty === 0 ? 'text-devo-error' : 'text-devo-success'} font-bold text-[10px] bg-devo-black px-2 py-0.5 rounded border border-devo-gray">${totalQty === 0 ? 'نفذت الكمية' : `متبقي: ${totalQty}`}</span>
+                    <span class="${totalQty === 0 ? 'text-ultra-error' : 'text-ultra-success'} font-bold text-[10px] bg-ultra-black px-2 py-0.5 rounded border border-ultra-gray">${totalQty === 0 ? 'نفذت الكمية' : `متبقي: ${totalQty}`}</span>
                 </td>
                 <td class="p-3 text-center">
-                    ${m.is_active ? `<span class="bg-devo-success/10 border border-devo-success/20 text-devo-success text-[10px] font-bold px-2 py-1 rounded">نشط</span>` : `<span class="bg-devo-gray/30 border border-devo-gray text-white text-[10px] font-bold px-2 py-1 rounded">معطل</span>`}
+                    ${m.is_active ? `<span class="bg-ultra-success/10 border border-ultra-success/20 text-ultra-success text-[10px] font-bold px-2 py-1 rounded">نشط</span>` : `<span class="bg-ultra-gray/30 border border-ultra-gray text-white text-[10px] font-bold px-2 py-1 rounded">معطل</span>`}
                 </td>
             </tr>
         `}).join('');
@@ -473,9 +473,9 @@ function renderBulkPaginationControls(totalPages) {
     }
 
     let html = '';
-    html += `<button onclick="changeBulkPage(${bulkCurrentPage - 1})" ${bulkCurrentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-devo-gray bg-devo-black text-white hover:bg-devo-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs"><i class="ph ph-caret-right"></i> السابق</button>`;
-    html += `<span class="px-4 py-1.5 rounded bg-devo-dark text-devo-orange font-bold border border-devo-gray text-xs">صفحة ${bulkCurrentPage} من ${totalPages}</span>`;
-    html += `<button onclick="changeBulkPage(${bulkCurrentPage + 1})" ${bulkCurrentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-devo-gray bg-devo-black text-white hover:bg-devo-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs">التالي <i class="ph ph-caret-left"></i></button>`;
+    html += `<button onclick="changeBulkPage(${bulkCurrentPage - 1})" ${bulkCurrentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-ultra-gray bg-ultra-black text-white hover:bg-ultra-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs"><i class="ph ph-caret-right"></i> السابق</button>`;
+    html += `<span class="px-4 py-1.5 rounded bg-ultra-dark text-ultra-orange font-bold border border-ultra-gray text-xs">صفحة ${bulkCurrentPage} من ${totalPages}</span>`;
+    html += `<button onclick="changeBulkPage(${bulkCurrentPage + 1})" ${bulkCurrentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded border border-ultra-gray bg-ultra-black text-white hover:bg-ultra-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-xs">التالي <i class="ph ph-caret-left"></i></button>`;
 
     container.innerHTML = html;
 }

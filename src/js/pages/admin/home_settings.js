@@ -221,7 +221,7 @@ window.saveInvoiceSettings = async function() {
         } catch(e) {}
 
         // مسح كاش الإعدادات المحلي
-        const cacheKey = `devo_cached_hero_settings_${currentTenantId}`;
+        const cacheKey = `ultra_cached_hero_settings_${currentTenantId}`;
         localStorage.removeItem(cacheKey);
 
         showToast('تم حفظ وتطبيق إعدادات الفاتورة بنجاح ✓', 'success');
@@ -513,7 +513,7 @@ window.saveHeroSettings = async () => {
         } catch(e) {}
 
         // مسح الكاش المحلي فورياً للتاكيد
-        const cacheKey = `devo_cached_hero_settings_${currentTenantId}`;
+        const cacheKey = `ultra_cached_hero_settings_${currentTenantId}`;
         localStorage.removeItem(cacheKey);
 
         // إعادة تطبيق البيانات مباشرة بالواجهة والمعاينة الحية
@@ -535,7 +535,7 @@ window.saveHeroSettings = async () => {
 // ==========================================
 async function loadPromoCards() {
     const container = document.getElementById('promo-cards-container');
-    container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-info"></i></div>`;
+    container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-info"></i></div>`;
 
     const currentTenantId = getCurrentTenantId();
     let query = supabase.from('promo_cards').select('*');
@@ -546,7 +546,7 @@ async function loadPromoCards() {
     const { data, error } = await query.order('created_at', { ascending: true });
     
     if (error) {
-        container.innerHTML = `<div class="col-span-full text-center text-devo-error">خطأ في تحميل الكروت</div>`;
+        container.innerHTML = `<div class="col-span-full text-center text-ultra-error">خطأ في تحميل الكروت</div>`;
         return;
     }
 
@@ -557,7 +557,7 @@ async function loadPromoCards() {
 function renderPromoCards() {
     const container = document.getElementById('promo-cards-container');
     if (promoCards.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-8 text-center text-devo-muted border border-dashed border-devo-gray rounded-xl">لا توجد كروت إعلانية مسجلة. اضغط على إضافة عرض جديد.</div>`;
+        container.innerHTML = `<div class="col-span-full py-8 text-center text-ultra-muted border border-dashed border-ultra-gray rounded-xl">لا توجد كروت إعلانية مسجلة. اضغط على إضافة عرض جديد.</div>`;
         return;
     }
 
@@ -565,21 +565,21 @@ function renderPromoCards() {
     container.innerHTML = promoCards.map(card => {
         const imgUrl = resolveImageUrl(card.image_url);
         const imgHtml = imgUrl 
-            ? `<img src="${imgUrl}" class="w-12 h-12 rounded-lg object-cover border border-devo-gray shrink-0">` 
-            : `<div class="w-12 h-12 rounded-lg bg-devo-gray flex items-center justify-center text-white shrink-0"><i class="ph ph-star text-xl"></i></div>`;
+            ? `<img src="${imgUrl}" class="w-12 h-12 rounded-lg object-cover border border-ultra-gray shrink-0">` 
+            : `<div class="w-12 h-12 rounded-lg bg-ultra-gray flex items-center justify-center text-white shrink-0"><i class="ph ph-star text-xl"></i></div>`;
 
         const lines = card.description ? card.description.split('\n').map(l => l.trim()).filter(l => l.length > 0) : [];
         let descHtml = '';
         if (lines.length > 1) {
-            descHtml = `<ul class="text-devo-muted text-[10px] sm:text-xs leading-relaxed space-y-0.5 flex flex-col items-start w-full list-none">` + 
-                lines.map(line => `<li class="flex items-center gap-1.5 text-right"><span class="w-1 h-1 rounded-full bg-devo-orange shrink-0"></span><span>${line}</span></li>`).join('') + 
+            descHtml = `<ul class="text-ultra-muted text-[10px] sm:text-xs leading-relaxed space-y-0.5 flex flex-col items-start w-full list-none">` + 
+                lines.map(line => `<li class="flex items-center gap-1.5 text-right"><span class="w-1 h-1 rounded-full bg-ultra-orange shrink-0"></span><span>${line}</span></li>`).join('') + 
                 `</ul>`;
         } else {
-            descHtml = `<p class="text-devo-muted text-xs leading-relaxed line-clamp-2">${card.description || ''}</p>`;
+            descHtml = `<p class="text-ultra-muted text-xs leading-relaxed line-clamp-2">${card.description || ''}</p>`;
         }
 
         return `
-        <div class="bg-devo-black border border-devo-gray rounded-xl p-4 relative flex flex-col transition-colors hover:border-devo-info ${!card.is_active ? 'opacity-50 grayscale' : ''}">
+        <div class="bg-ultra-black border border-ultra-gray rounded-xl p-4 relative flex flex-col transition-colors hover:border-ultra-info ${!card.is_active ? 'opacity-50 grayscale' : ''}">
             ${card.badge_text ? `<span class="absolute top-0 right-0 ${card.badge_color} text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg rounded-tr-xl">${card.badge_text}</span>` : ''}
             
             <div class="flex items-start gap-3 mt-2">
@@ -590,9 +590,9 @@ function renderPromoCards() {
                 </div>
             </div>
 
-            <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-devo-gray">
-                <button onclick="openPromoModal('${card.id}')" class="text-devo-info hover:bg-devo-info/10 p-1.5 rounded transition-colors" title="تعديل"><i class="ph ph-pencil-simple text-lg"></i></button>
-                <button onclick="deletePromoCard('${card.id}')" class="text-devo-error hover:bg-devo-error/10 p-1.5 rounded transition-colors" title="حذف"><i class="ph ph-trash text-lg"></i></button>
+            <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-ultra-gray">
+                <button onclick="openPromoModal('${card.id}')" class="text-ultra-info hover:bg-ultra-info/10 p-1.5 rounded transition-colors" title="تعديل"><i class="ph ph-pencil-simple text-lg"></i></button>
+                <button onclick="deletePromoCard('${card.id}')" class="text-ultra-error hover:bg-ultra-error/10 p-1.5 rounded transition-colors" title="حذف"><i class="ph ph-trash text-lg"></i></button>
             </div>
         </div>
         `;
@@ -640,7 +640,7 @@ window.openPromoModal = async (id = null) => {
             if (document.getElementById('pm-image')) document.getElementById('pm-image').value = card.image_url || '';
             if (modelSelect) modelSelect.value = card.model_id || '';
             document.getElementById('pm-badge').value = card.badge_text || '';
-            document.getElementById('pm-color').value = card.badge_color || 'bg-devo-orange';
+            document.getElementById('pm-color').value = card.badge_color || 'bg-ultra-orange';
             document.getElementById('pm-status').checked = card.is_active;
         }
     } else {
@@ -760,7 +760,7 @@ function loadGalleryFilterSettingsAdmin(map) {
             prefs = { ...prefs, ...JSON.parse(raw) };
         } catch (e) {}
     } else {
-        const local = localStorage.getItem(`devo_gallery_filter_prefs_${getCurrentTenantId() || 'default'}`);
+        const local = localStorage.getItem(`ultra_gallery_filter_prefs_${getCurrentTenantId() || 'default'}`);
         if (local) {
             try {
                 prefs = { ...prefs, ...JSON.parse(local) };
@@ -816,7 +816,7 @@ window.saveGalleryFilterSettingsAdmin = async function() {
 
         if (error) throw error;
 
-        localStorage.setItem(`devo_gallery_filter_prefs_${currentTenantId || 'default'}`, jsonStr);
+        localStorage.setItem(`ultra_gallery_filter_prefs_${currentTenantId || 'default'}`, jsonStr);
 
         showToast('تم حفظ وتطبيق إعدادات فلاتر المعرض بنجاح ✓', 'success');
     } catch (err) {

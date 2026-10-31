@@ -14,7 +14,7 @@ DECLARE
     v_hashed_password TEXT;
 BEGIN
     FOR r IN SELECT * FROM public.system_users LOOP
-        v_email := r.username || '@staff.devo.internal';
+        v_email := r.username || '@staff.ultrasoft.internal';
         
         -- التحقق من عدم وجود المستخدم مسبقاً في auth.users لتجنب التكرار
         IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = r.id OR email = v_email) THEN
@@ -127,7 +127,7 @@ BEGIN
     END IF;
 
     v_user_id := gen_random_uuid();
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
     v_hashed_password := crypt(p_password, gen_salt('bf'));
 
     -- إنشاء الحساب في جدول auth.users الخاص بـ Supabase Auth
@@ -204,7 +204,7 @@ BEGIN
         RAISE EXCEPTION 'لا يمكنك تغيير صلاحيتك أو تعطيل حسابك الشخصي.';
     END IF;
 
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
 
     -- تحديث جدول system_users
     UPDATE public.system_users SET

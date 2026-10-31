@@ -682,7 +682,7 @@ export async function deductTenantCredits(operationType, locationName, creditsTo
     let savedUser = null;
     try {
         const activeSlug = getTenantSlugFromURL() || 'default';
-        const localSession = localStorage.getItem(`devo_session_${activeSlug}`) || localStorage.getItem('devo_session');
+        const localSession = localStorage.getItem(`ultra_session_${activeSlug}`) || localStorage.getItem('ultra_session');
         if (localSession) {
             savedUser = JSON.parse(localSession);
         }
@@ -691,8 +691,8 @@ export async function deductTenantCredits(operationType, locationName, creditsTo
     let userName = window.currentUser?.full_name 
         || window.currentUserProfile?.full_name 
         || savedUser?.full_name 
-        || localStorage.getItem('devo_user_fullname') 
-        || localStorage.getItem('devo_user_name');
+        || localStorage.getItem('ultra_user_fullname') 
+        || localStorage.getItem('ultra_user_name');
 
     if (!userName || userName.includes('@') || userName.toLowerCase() === 'admin') {
         try {

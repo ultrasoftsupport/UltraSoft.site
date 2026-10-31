@@ -1,6 +1,6 @@
 # توثيق نظام الأمان وصلاحيات قاعدة البيانات (Supabase Auth & RLS)
 
-تم تحديث وتأمين نظام المبيعات والمخازن (DEVO Collection) بالكامل عن طريق الانتقال إلى نظام **Supabase Auth (GoTrue)** وتفعيل **أمان صفوف الجداول (Row Level Security - RLS)**. 
+تم تحديث وتأمين نظام المبيعات والمخازن (UltraSoft Collection) بالكامل عن طريق الانتقال إلى نظام **Supabase Auth (GoTrue)** وتفعيل **أمان صفوف الجداول (Row Level Security - RLS)**. 
 
 يوضح هذا الملف البنية التحتية البرمجية الجديدة، السياسات المطبقة، والميزات الأمنية.
 
@@ -12,7 +12,7 @@
 
 1. **نظام الهوية الداخلي (`auth.users` & `auth.identities`):**
    * يديره Supabase بالكامل بشكل معزول ومحمي.
-   * يُخزن البريد الإلكتروني (المنشأ من اسم المستخدم متبوعاً بـ `@staff.devo.internal`).
+   * يُخزن البريد الإلكتروني (المنشأ من اسم المستخدم متبوعاً بـ `@staff.ultrasoft.internal`).
    * يُخزن كلمة المرور مشفرة بخوارزمية `Bcrypt`.
 2. **الملف الوظيفي للموظف (`public.system_users`):**
    * يحتوي على الاسم، الصلاحية (`role`: `owner`, `admin`, `worker`).
@@ -125,4 +125,4 @@ CREATE OR REPLACE FUNCTION public.admin_create_worker(
 
 ## 🔒 5. سكريبت التهيئة الشامل (SQL Code)
 مرفق سكريبت التحديثات الفعلي المطبق في ملف الميجريشن:
-[migration.sql](file:///g:/work/DEVO.SITE/supabase/migration.sql)
+[migration.sql](file:///g:/work/UltraSoft.site/supabase/migration.sql)

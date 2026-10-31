@@ -316,28 +316,28 @@ function renderExportColumns(type = 'orders') {
 
     const cols = config.columns || [];
     container.innerHTML = cols.map((col, idx) => `
-        <tr class="border-b border-devo-gray/30 hover:bg-devo-black/30 transition-colors">
+        <tr class="border-b border-ultra-gray/30 hover:bg-ultra-black/30 transition-colors">
             <td class="p-2.5 text-center">
-                <input type="checkbox" data-col-idx="${idx}" class="col-enable-checkbox w-4 h-4 rounded text-devo-orange focus:ring-0 bg-devo-black border-devo-gray" ${col.enabled !== false ? 'checked' : ''}>
+                <input type="checkbox" data-col-idx="${idx}" class="col-enable-checkbox w-4 h-4 rounded text-ultra-orange focus:ring-0 bg-ultra-black border-ultra-gray" ${col.enabled !== false ? 'checked' : ''}>
             </td>
-            <td class="p-2.5 font-mono text-xs text-devo-orange font-bold">
+            <td class="p-2.5 font-mono text-xs text-ultra-orange font-bold">
                 ${col.key}
             </td>
             <td class="p-2.5">
-                <input type="text" data-col-idx="${idx}" class="col-label-input w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-devo-orange outline-none" value="${escapeHtml(col.label || '')}">
+                <input type="text" data-col-idx="${idx}" class="col-label-input w-full bg-ultra-black border border-ultra-gray rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-ultra-orange outline-none" value="${escapeHtml(col.label || '')}">
             </td>
             <td class="p-2.5">
-                <input type="text" data-col-idx="${idx}" class="col-default-input w-full bg-devo-black border border-devo-gray rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-devo-orange outline-none" value="${escapeHtml(col.defaultValue || '')}" placeholder="قيمة افتراضية إن وجد">
+                <input type="text" data-col-idx="${idx}" class="col-default-input w-full bg-ultra-black border border-ultra-gray rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-ultra-orange outline-none" value="${escapeHtml(col.defaultValue || '')}" placeholder="قيمة افتراضية إن وجد">
             </td>
             <td class="p-2.5 text-center">
-                <input type="number" data-col-idx="${idx}" class="col-width-input w-20 bg-devo-black border border-devo-gray rounded-lg px-2 py-1.5 text-xs text-white text-center focus:border-devo-orange outline-none" value="${col.width || 15}" min="5" max="100">
+                <input type="number" data-col-idx="${idx}" class="col-width-input w-20 bg-ultra-black border border-ultra-gray rounded-lg px-2 py-1.5 text-xs text-white text-center focus:border-ultra-orange outline-none" value="${col.width || 15}" min="5" max="100">
             </td>
             <td class="p-2.5 text-center">
                 <div class="flex items-center justify-center gap-1">
-                    <button type="button" onclick="window.moveExcelExportColumn('${type}', ${idx}, -1)" class="p-1 text-devo-muted hover:text-white rounded hover:bg-devo-gray/50 ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}" title="تحريك لأعلى" ${idx === 0 ? 'disabled' : ''}>
+                    <button type="button" onclick="window.moveExcelExportColumn('${type}', ${idx}, -1)" class="p-1 text-ultra-muted hover:text-white rounded hover:bg-ultra-gray/50 ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}" title="تحريك لأعلى" ${idx === 0 ? 'disabled' : ''}>
                         <i class="ph ph-arrow-up"></i>
                     </button>
-                    <button type="button" onclick="window.moveExcelExportColumn('${type}', ${idx}, 1)" class="p-1 text-devo-muted hover:text-white rounded hover:bg-devo-gray/50 ${idx === cols.length - 1 ? 'opacity-20 cursor-not-allowed' : ''}" title="تحريك لأسفل" ${idx === cols.length - 1 ? 'disabled' : ''}>
+                    <button type="button" onclick="window.moveExcelExportColumn('${type}', ${idx}, 1)" class="p-1 text-ultra-muted hover:text-white rounded hover:bg-ultra-gray/50 ${idx === cols.length - 1 ? 'opacity-20 cursor-not-allowed' : ''}" title="تحريك لأسفل" ${idx === cols.length - 1 ? 'disabled' : ''}>
                         <i class="ph ph-arrow-down"></i>
                     </button>
                 </div>
@@ -600,12 +600,12 @@ export async function runSimulatorFileAnalysis() {
 
             const { newColors, duplicates } = parseColorsDataWithProfile(dataObjects, activeProfile, new Set());
             simStats.innerHTML = `
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-emerald-500/30">
-                    <span class="text-xs text-devo-muted block">الألوان الجديدة الصالحة</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-emerald-500/30">
+                    <span class="text-xs text-ultra-muted block">الألوان الجديدة الصالحة</span>
                     <span class="text-xl font-bold text-emerald-400 font-mono">${newColors.length}</span>
                 </div>
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-devo-gray">
-                    <span class="text-xs text-devo-muted block">الألوان المكررة أو المتجاهلة</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-ultra-gray">
+                    <span class="text-xs text-ultra-muted block">الألوان المكررة أو المتجاهلة</span>
                     <span class="text-xl font-bold text-amber-400 font-mono">${duplicates.length}</span>
                 </div>
             `;
@@ -613,7 +613,7 @@ export async function runSimulatorFileAnalysis() {
             simTable.innerHTML = `
                 <table class="w-full text-xs text-right border-collapse">
                     <thead>
-                        <tr class="bg-devo-black text-devo-muted border-b border-devo-gray">
+                        <tr class="bg-ultra-black text-ultra-muted border-b border-ultra-gray">
                             <th class="p-2.5">#</th>
                             <th class="p-2.5">كود اللون المستخرج</th>
                             <th class="p-2.5">اسم اللون المستخرج</th>
@@ -622,9 +622,9 @@ export async function runSimulatorFileAnalysis() {
                     </thead>
                     <tbody>
                         ${newColors.slice(0, 30).map((c, i) => `
-                            <tr class="border-b border-devo-gray/30 hover:bg-devo-black/40">
-                                <td class="p-2 text-devo-muted">${i + 1}</td>
-                                <td class="p-2 font-mono text-devo-orange font-bold">${escapeHtml(c.color_code)}</td>
+                            <tr class="border-b border-ultra-gray/30 hover:bg-ultra-black/40">
+                                <td class="p-2 text-ultra-muted">${i + 1}</td>
+                                <td class="p-2 font-mono text-ultra-orange font-bold">${escapeHtml(c.color_code)}</td>
                                 <td class="p-2 font-bold text-white">${escapeHtml(c.name)}</td>
                                 <td class="p-2 text-emerald-400">✓ صالح للاستيراد</td>
                             </tr>
@@ -646,12 +646,12 @@ export async function runSimulatorFileAnalysis() {
             const { excelModels, categories, newCount } = parseModelsDataWithProfile(dataObjects, activeProfile, new Set());
 
             simStats.innerHTML = `
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-emerald-500/30">
-                    <span class="text-xs text-devo-muted block">الموديلات المقروءة</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-emerald-500/30">
+                    <span class="text-xs text-ultra-muted block">الموديلات المقروءة</span>
                     <span class="text-xl font-bold text-emerald-400 font-mono">${newCount}</span>
                 </div>
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-blue-500/30">
-                    <span class="text-xs text-devo-muted block">التصنيفات المكتشفة</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-blue-500/30">
+                    <span class="text-xs text-ultra-muted block">التصنيفات المكتشفة</span>
                     <span class="text-xl font-bold text-blue-400 font-mono">${categories.length}</span>
                 </div>
             `;
@@ -659,7 +659,7 @@ export async function runSimulatorFileAnalysis() {
             simTable.innerHTML = `
                 <table class="w-full text-xs text-right border-collapse">
                     <thead>
-                        <tr class="bg-devo-black text-devo-muted border-b border-devo-gray">
+                        <tr class="bg-ultra-black text-ultra-muted border-b border-ultra-gray">
                             <th class="p-2.5">#</th>
                             <th class="p-2.5">كود السيستم</th>
                             <th class="p-2.5">كود المصنع</th>
@@ -670,13 +670,13 @@ export async function runSimulatorFileAnalysis() {
                     </thead>
                     <tbody>
                         ${excelModels.slice(0, 30).map((m, i) => `
-                            <tr class="border-b border-devo-gray/30 hover:bg-devo-black/40">
-                                <td class="p-2 text-devo-muted">${i + 1}</td>
-                                <td class="p-2 font-mono text-devo-orange font-bold">${escapeHtml(m.system_code)}</td>
+                            <tr class="border-b border-ultra-gray/30 hover:bg-ultra-black/40">
+                                <td class="p-2 text-ultra-muted">${i + 1}</td>
+                                <td class="p-2 font-mono text-ultra-orange font-bold">${escapeHtml(m.system_code)}</td>
                                 <td class="p-2 font-mono text-amber-300 font-bold">${escapeHtml(m.factory_code || '-')}</td>
                                 <td class="p-2 text-white font-bold">${escapeHtml(m.name)}</td>
                                 <td class="p-2 font-mono text-emerald-400">${m.price} ج.م</td>
-                                <td class="p-2 text-devo-muted">${escapeHtml(m.category_name || '-')}</td>
+                                <td class="p-2 text-ultra-muted">${escapeHtml(m.category_name || '-')}</td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -689,16 +689,16 @@ export async function runSimulatorFileAnalysis() {
             const { excelRawData, detectedHeaders } = parsed;
 
             simStats.innerHTML = `
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-emerald-500/30">
-                    <span class="text-xs text-devo-muted block">إجمالي الأصناف والكميات</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-emerald-500/30">
+                    <span class="text-xs text-ultra-muted block">إجمالي الأصناف والكميات</span>
                     <span class="text-xl font-bold text-emerald-400 font-mono">${excelRawData.length}</span>
                 </div>
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-purple-500/30">
-                    <span class="text-xs text-devo-muted block">رقم صف الهيدر المكتشف</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-purple-500/30">
+                    <span class="text-xs text-ultra-muted block">رقم صف الهيدر المكتشف</span>
                     <span class="text-xl font-bold text-purple-400 font-mono">صف ${detectedHeaders.headerRowIdx + 1}</span>
                 </div>
-                <div class="bg-devo-black/60 p-3 rounded-lg border border-devo-gray">
-                    <span class="text-xs text-devo-muted block">مواقع الأعمدة (Code/Name/Color/Qty)</span>
+                <div class="bg-ultra-black/60 p-3 rounded-lg border border-ultra-gray">
+                    <span class="text-xs text-ultra-muted block">مواقع الأعمدة (Code/Name/Color/Qty)</span>
                     <span class="text-xs font-mono text-white mt-1 block">
                         كود: [${detectedHeaders.codeIdx}] | اسم: [${detectedHeaders.nameIdx}] | لون: [${detectedHeaders.colorIdx}] | كمية: [${detectedHeaders.qtyUnitIdx}]
                     </span>
@@ -708,7 +708,7 @@ export async function runSimulatorFileAnalysis() {
             simTable.innerHTML = `
                 <table class="w-full text-xs text-right border-collapse">
                     <thead>
-                        <tr class="bg-devo-black text-devo-muted border-b border-devo-gray">
+                        <tr class="bg-ultra-black text-ultra-muted border-b border-ultra-gray">
                             <th class="p-2.5">#</th>
                             <th class="p-2.5">كود الموديل</th>
                             <th class="p-2.5">اسم الصنف</th>
@@ -719,12 +719,12 @@ export async function runSimulatorFileAnalysis() {
                     </thead>
                     <tbody>
                         ${excelRawData.slice(0, 30).map((r, i) => `
-                            <tr class="border-b border-devo-gray/30 hover:bg-devo-black/40">
-                                <td class="p-2 text-devo-muted">${i + 1}</td>
-                                <td class="p-2 font-mono text-devo-orange font-bold">${escapeHtml(r.systemCode)}</td>
+                            <tr class="border-b border-ultra-gray/30 hover:bg-ultra-black/40">
+                                <td class="p-2 text-ultra-muted">${i + 1}</td>
+                                <td class="p-2 font-mono text-ultra-orange font-bold">${escapeHtml(r.systemCode)}</td>
                                 <td class="p-2 text-white font-bold">${escapeHtml(r.rawName)}</td>
                                 <td class="p-2 text-amber-300">${escapeHtml(r.colorName)}</td>
-                                <td class="p-2 font-mono text-devo-muted">${r.price} ج.م</td>
+                                <td class="p-2 font-mono text-ultra-muted">${r.price} ج.م</td>
                                 <td class="p-2 font-mono font-bold ${r.balance > 0 ? 'text-emerald-400' : 'text-rose-400'}">${r.balance}</td>
                             </tr>
                         `).join('')}
@@ -756,9 +756,9 @@ export function switchExcelSettingsTab(tabId) {
     tabs.forEach(t => t.classList.add('hidden'));
     tabBtns.forEach(btn => {
         if (btn.getAttribute('data-excel-tab') === tabId) {
-            btn.className = 'excel-tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-devo-orange text-white shadow-md cursor-pointer';
+            btn.className = 'excel-tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-ultra-orange text-white shadow-md cursor-pointer';
         } else {
-            btn.className = 'excel-tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-devo-muted hover:bg-devo-gray/50 hover:text-white cursor-pointer';
+            btn.className = 'excel-tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-ultra-muted hover:bg-ultra-gray/50 hover:text-white cursor-pointer';
         }
     });
 

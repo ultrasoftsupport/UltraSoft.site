@@ -39,7 +39,7 @@ window.switchDefTab = async (tabId) => {
     const addNewBtn = document.querySelector('button[onclick="openDefinitionModalFromCurrent()"]');
 
     if (tabId === 'colors' && addNewBtn) {
-        const btnHtml = `<button id="btn-import-colors" onclick="openColorExcelModal()" class="bg-devo-success/10 hover:bg-devo-success text-devo-success hover:text-white px-4 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 border border-devo-success/20"><i class="ph ph-file-xls text-xl"></i> استيراد (Excel)</button>`;
+        const btnHtml = `<button id="btn-import-colors" onclick="openColorExcelModal()" class="bg-ultra-success/10 hover:bg-ultra-success text-ultra-success hover:text-white px-4 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 border border-ultra-success/20"><i class="ph ph-file-xls text-xl"></i> استيراد (Excel)</button>`;
         
         // 🌟 إضافته "قبل" زر الإضافة (بجانبه وليس بداخله) 🌟
         addNewBtn.insertAdjacentHTML('beforebegin', btnHtml);
@@ -60,7 +60,7 @@ export async function loadCurrentTabData() {
     const tableBody = document.getElementById('def-table-body');
     const emptyState = document.getElementById('def-empty-state');
     
-    tableBody.innerHTML = `<tr><td colspan="4" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-devo-orange"></i></td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="4" class="p-10 text-center"><i class="ph ph-spinner animate-spin text-3xl text-ultra-orange"></i></td></tr>`;
     emptyState.classList.add('hidden');
 
     const currentTenantId = getCurrentTenantId();
@@ -91,21 +91,21 @@ function renderTable(data) {
 
     emptyState.classList.add('hidden');
     tableBody.innerHTML = data.map((item, index) => `
-        <tr class="hover:bg-devo-black/50 transition-colors group border-b border-devo-gray/50">
-            <td class="p-4 text-center text-devo-muted font-mono text-sm">${index + 1}</td>
-            <td class="p-4 font-bold text-devo-text">
-                ${currentTab === 'colors' && item.color_code ? `<span class="bg-devo-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">${item.color_code}</span>` : ''}
+        <tr class="hover:bg-ultra-black/50 transition-colors group border-b border-ultra-gray/50">
+            <td class="p-4 text-center text-ultra-muted font-mono text-sm">${index + 1}</td>
+            <td class="p-4 font-bold text-ultra-text">
+                ${currentTab === 'colors' && item.color_code ? `<span class="bg-ultra-gray text-white px-2 py-0.5 rounded text-[10px] ml-2 font-mono">${item.color_code}</span>` : ''}
                 ${item.name}
             </td>
-            <td class="p-4 text-devo-muted text-xs">${new Date(item.created_at).toLocaleDateString('ar-EG')}</td>
+            <td class="p-4 text-ultra-muted text-xs">${new Date(item.created_at).toLocaleDateString('ar-EG')}</td>
             <td class="p-4">
                 <div class="flex justify-center gap-2">
                     <button onclick="openDefinitionModal('${currentTab}', '${item.id}', '${item.name}', '${item.color_code || ''}')" 
-                        class="w-9 h-9 rounded-lg flex items-center justify-center text-devo-info hover:bg-devo-info/10 transition-all" title="تعديل">
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-ultra-info hover:bg-ultra-info/10 transition-all" title="تعديل">
                         <i class="ph ph-pencil-simple text-xl"></i>
                     </button>
                     <button onclick="handleDeleteDefinition('${currentTab}', '${item.id}')" 
-                        class="w-9 h-9 rounded-lg flex items-center justify-center text-devo-error hover:bg-devo-error/10 transition-all" title="حذف">
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-ultra-error hover:bg-ultra-error/10 transition-all" title="حذف">
                         <i class="ph ph-trash text-xl"></i>
                     </button>
                 </div>
@@ -140,7 +140,7 @@ window.openDefinitionModal = async (table, id = null, name = '', code = '') => {
     // 🌟 معالجة إظهار المقاسات إذا كانت التابة هي الفئات العمرية 🌟
     if (table === 'classes') {
         sizesWrapper.classList.remove('hidden');
-        sizesContainer.innerHTML = '<div class="text-devo-muted text-xs p-2"><i class="ph ph-spinner animate-spin"></i> جاري جلب المقاسات...</div>';
+        sizesContainer.innerHTML = '<div class="text-ultra-muted text-xs p-2"><i class="ph ph-spinner animate-spin"></i> جاري جلب المقاسات...</div>';
         
         // جلب المقاسات الخاصة بالمصنع نفسه
         const currentTenantId = getCurrentTenantId();
@@ -215,10 +215,10 @@ function renderClassSizesUI() {
         const isChecked = currentClassOrderedSizes.includes(s.id);
         const orderIdx = isChecked ? (currentClassOrderedSizes.indexOf(s.id) + 1) : null;
         return `
-            <label class="flex items-center gap-1.5 bg-devo-dark border ${isChecked ? 'border-devo-orange bg-devo-orange/10' : 'border-devo-gray'} px-2.5 py-1.5 rounded-lg cursor-pointer text-xs transition-all hover:border-devo-orange select-none">
-                <input type="checkbox" onchange="window.toggleClassSize('${s.id}')" ${isChecked ? 'checked' : ''} class="accent-devo-orange"> 
+            <label class="flex items-center gap-1.5 bg-ultra-dark border ${isChecked ? 'border-ultra-orange bg-ultra-orange/10' : 'border-ultra-gray'} px-2.5 py-1.5 rounded-lg cursor-pointer text-xs transition-all hover:border-ultra-orange select-none">
+                <input type="checkbox" onchange="window.toggleClassSize('${s.id}')" ${isChecked ? 'checked' : ''} class="accent-ultra-orange"> 
                 <span class="text-white font-medium">${s.name}</span>
-                ${orderIdx ? `<span class="bg-devo-orange text-white text-[10px] font-mono px-1 rounded font-bold">#${orderIdx}</span>` : ''}
+                ${orderIdx ? `<span class="bg-ultra-orange text-white text-[10px] font-mono px-1 rounded font-bold">#${orderIdx}</span>` : ''}
             </label>
         `;
     }).join('');
@@ -226,28 +226,28 @@ function renderClassSizesUI() {
     let orderListHtml = '';
     if (currentClassOrderedSizes.length > 0) {
         orderListHtml = `
-            <div class="mt-3 pt-3 border-t border-devo-gray/60 w-full">
+            <div class="mt-3 pt-3 border-t border-ultra-gray/60 w-full">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-bold text-devo-orange flex items-center gap-1">
+                    <span class="text-[11px] font-bold text-ultra-orange flex items-center gap-1">
                         <i class="ph ph-sort-ascending"></i> ترتيب المقاسات (${currentClassOrderedSizes.length} محدد):
                     </span>
-                    <span class="text-[10px] text-devo-muted">استخدم الأسهم لتحديد الترتيب المنطقي</span>
+                    <span class="text-[10px] text-ultra-muted">استخدم الأسهم لتحديد الترتيب المنطقي</span>
                 </div>
                 <div class="flex flex-col gap-1.5 max-h-44 overflow-y-auto pr-1 custom-scrollbar">
                     ${currentClassOrderedSizes.map((sizeId, idx) => `
-                        <div class="flex items-center justify-between bg-devo-black/70 border border-devo-gray/60 px-3 py-1.5 rounded-lg text-xs group hover:border-devo-orange/50 transition-colors">
+                        <div class="flex items-center justify-between bg-ultra-black/70 border border-ultra-gray/60 px-3 py-1.5 rounded-lg text-xs group hover:border-ultra-orange/50 transition-colors">
                             <div class="flex items-center gap-2">
-                                <span class="w-5 h-5 rounded bg-devo-orange/20 text-devo-orange font-bold text-[10px] flex items-center justify-center font-mono">#${idx + 1}</span>
+                                <span class="w-5 h-5 rounded bg-ultra-orange/20 text-ultra-orange font-bold text-[10px] flex items-center justify-center font-mono">#${idx + 1}</span>
                                 <span class="font-bold text-white">${sizesMap[sizeId] || sizeId}</span>
                             </div>
                             <div class="flex items-center gap-1">
-                                <button type="button" onclick="window.moveClassSizeOrder(${idx}, ${idx - 1})" ${idx === 0 ? 'disabled' : ''} class="w-6 h-6 rounded bg-devo-dark hover:bg-devo-orange disabled:opacity-20 disabled:hover:bg-devo-dark text-white flex items-center justify-center text-xs transition-colors" title="تقديم">
+                                <button type="button" onclick="window.moveClassSizeOrder(${idx}, ${idx - 1})" ${idx === 0 ? 'disabled' : ''} class="w-6 h-6 rounded bg-ultra-dark hover:bg-ultra-orange disabled:opacity-20 disabled:hover:bg-ultra-dark text-white flex items-center justify-center text-xs transition-colors" title="تقديم">
                                     <i class="ph ph-caret-up"></i>
                                 </button>
-                                <button type="button" onclick="window.moveClassSizeOrder(${idx}, ${idx + 1})" ${idx === currentClassOrderedSizes.length - 1 ? 'disabled' : ''} class="w-6 h-6 rounded bg-devo-dark hover:bg-devo-orange disabled:opacity-20 disabled:hover:bg-devo-dark text-white flex items-center justify-center text-xs transition-colors" title="تأخير">
+                                <button type="button" onclick="window.moveClassSizeOrder(${idx}, ${idx + 1})" ${idx === currentClassOrderedSizes.length - 1 ? 'disabled' : ''} class="w-6 h-6 rounded bg-ultra-dark hover:bg-ultra-orange disabled:opacity-20 disabled:hover:bg-ultra-dark text-white flex items-center justify-center text-xs transition-colors" title="تأخير">
                                     <i class="ph ph-caret-down"></i>
                                 </button>
-                                <button type="button" onclick="window.toggleClassSize('${sizeId}')" class="w-6 h-6 rounded bg-devo-dark hover:bg-devo-error text-devo-muted hover:text-white flex items-center justify-center text-xs transition-colors mr-1" title="إلغاء التحديد">
+                                <button type="button" onclick="window.toggleClassSize('${sizeId}')" class="w-6 h-6 rounded bg-ultra-dark hover:bg-ultra-error text-ultra-muted hover:text-white flex items-center justify-center text-xs transition-colors mr-1" title="إلغاء التحديد">
                                     <i class="ph ph-x"></i>
                                 </button>
                             </div>
@@ -260,7 +260,7 @@ function renderClassSizesUI() {
 
     container.innerHTML = `
         <div class="w-full">
-            <div class="flex flex-wrap gap-1.5 p-2 bg-devo-black/40 border border-devo-gray/40 rounded-xl max-h-32 overflow-y-auto custom-scrollbar">
+            <div class="flex flex-wrap gap-1.5 p-2 bg-ultra-black/40 border border-ultra-gray/40 rounded-xl max-h-32 overflow-y-auto custom-scrollbar">
                 ${checkboxesHtml}
             </div>
             ${orderListHtml}
@@ -527,7 +527,7 @@ window.processColorExcelPreview = async () => {
         
         if (duplicates.length > 0) {
             dupWarning.classList.remove('hidden');
-            dupList.innerHTML = duplicates.map(d => `<div class="p-2 border-b border-devo-error/20 last:border-0"><span class="font-mono text-devo-error ml-2">[${d.code}]</span> <span class="text-white">${d.name}</span></div>`).join('');
+            dupList.innerHTML = duplicates.map(d => `<div class="p-2 border-b border-ultra-error/20 last:border-0"><span class="font-mono text-ultra-error ml-2">[${d.code}]</span> <span class="text-white">${d.name}</span></div>`).join('');
         } else {
             dupWarning.classList.add('hidden');
         }

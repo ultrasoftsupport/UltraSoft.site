@@ -234,7 +234,7 @@ DECLARE
     v_password_hash text;
 BEGIN
     v_clean_username := LOWER(TRIM(p_username));
-    v_clean_email := LOWER(TRIM(COALESCE(NULLIF(TRIM(p_email), ''), p_username || '@staff.devo.internal')));
+    v_clean_email := LOWER(TRIM(COALESCE(NULLIF(TRIM(p_email), ''), p_username || '@staff.ultrasoft.internal')));
 
     IF v_clean_username IS NULL OR v_clean_username = '' THEN
         RETURN jsonb_build_object('success', false, 'message', 'يرجى كتابة اسم المستخدم');

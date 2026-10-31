@@ -136,7 +136,7 @@ function updateMetricCard(idPrefix, current, max, unitLabel) {
     }
 
     // إضافة زر تواصل مخصص عند الوصول إلى 90% أو أكثر من الحد (pct >= 90)
-    const cardParent = barEl.closest('.bg-devo-dark');
+    const cardParent = barEl.closest('.bg-ultra-dark');
     if (cardParent) {
         let actionBtn = cardParent.querySelector('.quota-card-action-btn');
         if (pct >= 90 && max !== 99999 && max !== 999999) {
@@ -146,8 +146,8 @@ function updateMetricCard(idPrefix, current, max, unitLabel) {
                 cardParent.appendChild(actionBtn);
             }
 
-            const tenantName = window.activeTenant?.name || localStorage.getItem('devo_active_tenant_name') || 'المصنع';
-            const userName = window.currentUser?.full_name || localStorage.getItem('devo_user_fullname') || 'المالك';
+            const tenantName = window.activeTenant?.name || localStorage.getItem('ultra_active_tenant_name') || 'المصنع';
+            const userName = window.currentUser?.full_name || localStorage.getItem('ultra_user_fullname') || 'المالك';
 
             let labelText = '';
             let waMsg = '';
@@ -203,7 +203,7 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
 
     if (isPurple) {
         cardHtml = `
-            <div class="bg-gradient-to-b from-purple-500/15 via-devo-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+            <div class="bg-gradient-to-b from-purple-500/15 via-ultra-dark to-purple-600/20 border-2 border-purple-500/70 hover:border-purple-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                 
                 <!-- Top Header Badge -->
                 <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-purple-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
@@ -217,64 +217,64 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
 
                 <div>
                     <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                        <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">تجربة مجانية (5 أيام)</h3>
+                        <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">تجربة مجانية (5 أيام)</h3>
                         <span class="px-2 py-0.5 rounded-full bg-purple-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">5 أيام تجريبية</span>
                     </div>
 
                     <div class="mb-5">
                         <div class="flex items-baseline gap-1.5">
                             <span class="text-3xl sm:text-5xl font-black text-purple-400">مجاناً</span>
-                            <span class="text-devo-muted text-xs font-bold">(5 أيام تجريبية)</span>
+                            <span class="text-ultra-muted text-xs font-bold">(5 أيام تجريبية)</span>
                         </div>
                         <p class="text-[11px] sm:text-xs text-purple-300/90 font-bold mt-1">كافة خصائص ومميزات باقة الـ 6 أشهر مجاناً وبدون أي رسوم لمدة 5 أيام</p>
                     </div>
 
                     <!-- Spec Box -->
-                    <div class="bg-devo-black/80 border border-purple-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                    <div class="bg-ultra-black/80 border border-purple-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 1,500 م (1.9x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 600 م (2x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
                             <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 3,000 ف (2x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                             <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">500 ⚡/ش (1.3x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                             <span class="font-black text-slate-950 bg-purple-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 10 فرد (2.5x)</span>
                         </div>
                     </div>
 
-                    <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                    <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                             <span>تجربة مجانية بالكامل بدون أي رسوم أو فيزا</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                             <span>كافة خصائص ومميزات باقة الـ 6 أشهر</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                             <span>حتى 600 موديل نشط بالمعرض</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                             <span>500 كريديت رفع وتعديل (Excel)</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                             <span>حتى 10 مستخدمين وفريق عمل كامل</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-purple-400 text-base shrink-0"></i>
                             <span>دعم فني وتدريب كامل خلال فترة التجربة</span>
                         </li>
@@ -289,7 +289,7 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
         `;
     } else if (isEmerald) {
         cardHtml = `
-            <div class="bg-gradient-to-b from-emerald-500/10 via-devo-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+            <div class="bg-gradient-to-b from-emerald-500/10 via-ultra-dark to-emerald-600/15 border-2 border-emerald-500/60 hover:border-emerald-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                 <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                     <i class="ph-fill ph-sparkle text-slate-950"></i>
                     <span>باقة البداية الاقتصادية</span>
@@ -297,52 +297,52 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
 
                 <div>
                     <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                        <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 3 أشهر</h3>
+                        <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">اشتراك 3 أشهر</h3>
                         <span class="px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm whitespace-nowrap">ربع سنوي</span>
                     </div>
 
                     <div class="mb-5">
                         <div class="flex items-baseline gap-1.5">
                             <span class="text-3xl sm:text-5xl font-black text-emerald-400">7,000</span>
-                            <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                            <span class="text-ultra-muted text-xs sm:text-sm font-bold">ج.م</span>
                         </div>
                         <p class="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1">الباقة الأساسية للمحلات والمتاجر الناشئة</p>
                     </div>
 
                     <!-- Spec Box -->
-                    <div class="bg-devo-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                    <div class="bg-ultra-black/80 border border-emerald-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 800 م</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 300 م</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
                             <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 1,500 ف</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                             <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">400 ⚡/ش</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                             <span class="font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 4 فرد</span>
                         </div>
                     </div>
 
-                    <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                    <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                             <span>إدارة المعرض وتصدير فواتير A4 والحراري</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                             <span>إشعارات وتنبيهات الأوردرات الفورية</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-emerald-400 text-base shrink-0"></i>
                             <span>دعم فني وتحديثات دورية مستمرة</span>
                         </li>
@@ -357,7 +357,7 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
         `;
     } else if (isSky) {
         cardHtml = `
-            <div class="bg-gradient-to-b from-sky-500/10 via-devo-dark to-sky-600/15 border-2 border-sky-500/60 hover:border-sky-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+            <div class="bg-gradient-to-b from-sky-500/10 via-ultra-dark to-sky-600/15 border-2 border-sky-500/60 hover:border-sky-500 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                 <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-sky-500 text-white font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                     <i class="ph-fill ph-rocket text-amber-300"></i>
                     <span>الباقة الأكثر طلباً</span>
@@ -369,56 +369,56 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
 
                 <div>
                     <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                        <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك 6 أشهر</h3>
+                        <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">اشتراك 6 أشهر</h3>
                         <span class="px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">نصف سنوي</span>
                     </div>
 
                     <div class="mb-5">
                         <div class="flex items-baseline gap-1.5">
                             <span class="text-3xl sm:text-5xl font-black text-sky-400">10,000</span>
-                            <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                            <span class="text-ultra-muted text-xs sm:text-sm font-bold">ج.م</span>
                         </div>
                         <p class="text-[11px] sm:text-xs text-sky-400 font-bold mt-1">الباقة المتكاملة لنشاط تجاري متوسط ومتوسع</p>
                     </div>
 
                     <!-- Spec Box -->
-                    <div class="bg-devo-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                    <div class="bg-ultra-black/80 border border-sky-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 1,500 م (1.9x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 600 م (2x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
                             <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 3,000 ف (2x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                             <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">500 ⚡/ش (1.3x)</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                             <span class="font-black text-slate-950 bg-sky-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 10 فرد (2.5x)</span>
                         </div>
                     </div>
 
-                    <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                    <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                             <span>جميع مميزات وتسهيلات باقة الـ 3 أشهر</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                             <span>توفير اقتصادي ممتاز بنسبة 28%</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                             <span>تخصيص الشعار والألوان والهوية على الفاتورة</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-sky-400 text-base shrink-0"></i>
                             <span>أولوية مرتفعة في الدعم الفني والتدريب</span>
                         </li>
@@ -433,7 +433,7 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
         `;
     } else {
         cardHtml = `
-            <div class="bg-gradient-to-b from-amber-500/15 via-devo-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
+            <div class="bg-gradient-to-b from-amber-500/15 via-ultra-dark to-amber-600/20 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-4 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-xl relative">
                 <div class="absolute -top-4 right-1/2 translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 whitespace-nowrap z-10">
                     <i class="ph-fill ph-crown text-slate-950"></i>
                     <span>أفضل قيمة وتوفير</span>
@@ -443,52 +443,52 @@ function renderExactActivePricingCard(planKey, maxProducts, maxUsers, maxExcelCr
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-3 pt-3 gap-2">
-                        <h3 class="text-base sm:text-xl font-black text-devo-text whitespace-nowrap inline-block">اشتراك سنة كاملة</h3>
+                        <h3 class="text-base sm:text-xl font-black text-ultra-text whitespace-nowrap inline-block">اشتراك سنة كاملة</h3>
                         <span class="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs whitespace-nowrap shadow-sm">توفير 13,000 ج.م</span>
                     </div>
 
                     <div class="mb-5">
                         <div class="flex items-baseline gap-1.5">
                             <span class="text-3xl sm:text-5xl font-black text-amber-400">15,000</span>
-                            <span class="text-devo-muted text-xs sm:text-sm font-bold">ج.م</span>
+                            <span class="text-ultra-muted text-xs sm:text-sm font-bold">ج.م</span>
                         </div>
                         <p class="text-[11px] sm:text-xs text-amber-400/90 font-bold mt-1">الباقة الملكية الشاملة بأعلى مستويات الحدود والتوفير</p>
                     </div>
 
                     <!-- Spec Box -->
-                    <div class="bg-devo-black/80 border border-amber-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
+                    <div class="bg-ultra-black/80 border border-amber-500/40 p-3 sm:p-4 rounded-2xl mb-6 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">إجمالي الموديلات بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 3,000 م</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">الموديلات النشطة بالمعرض:</span>
                             <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 1,000 م</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">حد الفواتير المسموح بها:</span>
                             <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 10,000 ف</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">رصيد الرفع والتعديل (Excel):</span>
                             <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">2,000 ⚡/ش</span>
                         </div>
-                        <div class="flex items-center justify-between text-devo-text gap-2">
-                            <span class="text-devo-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
+                        <div class="flex items-center justify-between text-ultra-text gap-2">
+                            <span class="text-ultra-muted font-bold text-[11px] sm:text-xs shrink-0">مستخدمو فريق العمل:</span>
                             <span class="font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded-md text-[11px] sm:text-xs whitespace-nowrap shadow-sm font-mono shrink-0">حتى 25 فرد</span>
                         </div>
                     </div>
 
-                    <ul class="space-y-2.5 text-xs sm:text-sm text-devo-muted mb-6">
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                    <ul class="space-y-2.5 text-xs sm:text-sm text-ultra-muted mb-6">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                             <span>جميع الخصائص والتسهيلات بلا قيود</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                             <span>أقصى نسبة توفير مالي سنوياً</span>
                         </li>
-                        <li class="flex items-center gap-2 text-devo-text font-bold">
+                        <li class="flex items-center gap-2 text-ultra-text font-bold">
                             <i class="ph-fill ph-check-circle text-amber-400 text-base shrink-0"></i>
                             <span>أولوية قصوى 24/7 والدعم المباشر</span>
                         </li>
@@ -533,7 +533,7 @@ function renderActivePlanDedicatedTable(planKey, maxProducts, maxUsers, maxExcel
     }
 
     headerEl.textContent = planLabel;
-    headerEl.className = `p-3.5 text-center font-black ${themeColorClass} bg-devo-black/80 border-r border-devo-gray text-xs sm:text-sm`;
+    headerEl.className = `p-3.5 text-center font-black ${themeColorClass} bg-ultra-black/80 border-r border-ultra-gray text-xs sm:text-sm`;
 
     const specsRows = [
         { title: 'حدود الموديلات النشطة بالمعرض', icon: 'ph-t-shirt text-ultra-400', val: `حتى ${maxProducts === 99999 ? 'غير محدود' : maxProducts.toLocaleString()} موديل` },
@@ -556,12 +556,12 @@ function renderActivePlanDedicatedTable(planKey, maxProducts, maxUsers, maxExcel
     ];
 
     tbody.innerHTML = specsRows.map(r => `
-        <tr class="hover:bg-devo-gray/30 transition">
+        <tr class="hover:bg-ultra-gray/30 transition">
             <td class="p-3.5 font-bold text-white flex items-center gap-2.5">
                 <i class="ph ${r.icon} text-base shrink-0"></i>
                 <span>${r.title}</span>
             </td>
-            <td class="p-3.5 text-center font-bold ${themeColorClass} bg-devo-black/40 border-r border-devo-gray font-mono">
+            <td class="p-3.5 text-center font-bold ${themeColorClass} bg-ultra-black/40 border-r border-ultra-gray font-mono">
                 ${r.val}
             </td>
         </tr>
@@ -577,10 +577,10 @@ function setupInnerSubTabs() {
 
             btns.forEach(b => {
                 b.classList.remove('bg-ultra-500/15', 'text-ultra-400', 'border-ultra-500/30', 'font-black');
-                b.classList.add('text-devo-muted', 'hover:bg-devo-gray', 'hover:text-white', 'font-bold');
+                b.classList.add('text-ultra-muted', 'hover:bg-ultra-gray', 'hover:text-white', 'font-bold');
             });
 
-            e.currentTarget.classList.remove('text-devo-muted', 'hover:bg-devo-gray', 'hover:text-white', 'font-bold');
+            e.currentTarget.classList.remove('text-ultra-muted', 'hover:bg-ultra-gray', 'hover:text-white', 'font-bold');
             e.currentTarget.classList.add('bg-ultra-500/15', 'text-ultra-400', 'border-ultra-500/30', 'font-black');
 
             document.querySelectorAll('.sub-tab-view').forEach(v => v.classList.add('hidden'));
@@ -602,7 +602,7 @@ export async function loadCreditsLogTable() {
     const currentTenantId = activeTenant?.id || getCurrentTenantId();
     if (!currentTenantId) return;
 
-    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center"><i class="ph ph-spinner animate-spin text-2xl text-purple-400"></i><p class="text-xs text-devo-muted mt-2">جاري تحميل سجل استهلاك الكريديت...</p></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center"><i class="ph ph-spinner animate-spin text-2xl text-purple-400"></i><p class="text-xs text-ultra-muted mt-2">جاري تحميل سجل استهلاك الكريديت...</p></td></tr>`;
 
     try {
         // 1. جلب سجلات جدول الكريديت المباشر
@@ -669,13 +669,13 @@ export async function loadCreditsLogTable() {
         const sortedLogs = Array.from(combinedMap.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         if (sortedLogs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-devo-muted italic">لا توجد عمليات استهلاك كريديت مسجلة مؤخراً.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-ultra-muted italic">لا توجد عمليات استهلاك كريديت مسجلة مؤخراً.</td></tr>`;
             return;
         }
 
         const activeOwnerName = window.currentUserProfile?.full_name 
             || window.currentUser?.full_name 
-            || localStorage.getItem('devo_user_fullname');
+            || localStorage.getItem('ultra_user_fullname');
 
         tbody.innerHTML = sortedLogs.map(log => {
             const dateStr = new Date(log.created_at).toLocaleString('ar-EG');
@@ -695,11 +695,11 @@ export async function loadCreditsLogTable() {
             const creditsColorClass = isAddition ? 'text-emerald-400 font-extrabold' : 'text-amber-400 font-black';
 
             return `
-                <tr class="hover:bg-devo-gray/30 transition-colors">
-                    <td class="p-3.5 font-mono text-xs text-devo-muted font-bold">${dateStr}</td>
+                <tr class="hover:bg-ultra-gray/30 transition-colors">
+                    <td class="p-3.5 font-mono text-xs text-ultra-muted font-bold">${dateStr}</td>
                     <td class="p-3.5">
                         <span class="font-bold text-white block text-sm">${log.operation_type}</span>
-                        <span class="text-xs text-devo-muted block mt-0.5">${subText}</span>
+                        <span class="text-xs text-ultra-muted block mt-0.5">${subText}</span>
                     </td>
                     <td class="p-3.5 text-sm text-white font-extrabold">
                         <div class="flex items-center gap-1.5">
@@ -710,11 +710,11 @@ export async function loadCreditsLogTable() {
                     <td class="p-3.5 text-sm ${creditsColorClass}">
                         ${creditsText}
                     </td>
-                    <td class="p-3.5 text-xs text-devo-muted">
+                    <td class="p-3.5 text-xs text-ultra-muted">
                         <div class="flex items-center gap-2">
-                            ${log.items_count ? `<span class="px-2.5 py-1 rounded bg-devo-black/60 border border-devo-gray/40 text-devo-orange font-bold text-xs inline-flex items-center gap-1"><i class="ph ph-stack text-amber-400"></i> ${log.items_count} عنصر</span>` : `<span class="px-2.5 py-1 rounded bg-devo-black/40 text-devo-muted font-medium text-xs">عملية مجمعة</span>`}
+                            ${log.items_count ? `<span class="px-2.5 py-1 rounded bg-ultra-black/60 border border-ultra-gray/40 text-ultra-orange font-bold text-xs inline-flex items-center gap-1"><i class="ph ph-stack text-amber-400"></i> ${log.items_count} عنصر</span>` : `<span class="px-2.5 py-1 rounded bg-ultra-black/40 text-ultra-muted font-medium text-xs">عملية مجمعة</span>`}
                             ${log.audit_id ? `
-                                <button onclick="window.showAuditLogDetails('${log.audit_id}')" class="px-2.5 py-1 rounded bg-devo-gray/40 hover:bg-devo-orange/20 hover:text-devo-orange text-white text-xs font-bold border border-devo-gray/50 transition-colors inline-flex items-center gap-1">
+                                <button onclick="window.showAuditLogDetails('${log.audit_id}')" class="px-2.5 py-1 rounded bg-ultra-gray/40 hover:bg-ultra-orange/20 hover:text-ultra-orange text-white text-xs font-bold border border-ultra-gray/50 transition-colors inline-flex items-center gap-1">
                                     <i class="ph ph-eye text-sm"></i> التفاصيل
                                 </button>
                             ` : ''}

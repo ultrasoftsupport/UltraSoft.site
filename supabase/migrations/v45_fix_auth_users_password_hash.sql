@@ -51,7 +51,7 @@ BEGIN
     END IF;
 
     v_user_id := gen_random_uuid();
-    v_email := lower(trim(p_username)) || '@staff.devo.internal';
+    v_email := lower(trim(p_username)) || '@staff.ultrasoft.internal';
     v_hashed_password := crypt(p_password, gen_salt('bf', 10));
 
     INSERT INTO auth.users (
