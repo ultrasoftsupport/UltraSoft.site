@@ -4,6 +4,7 @@ import { showToast } from '../../components/toast.js';
 import { confirmDialog, showSubscriptionUpgradeModal } from '../../components/modal.js'; 
 import { printOrderCustomerInvoice, fetchInvoicePrintSettings } from '../../utils/print.js?v=2';
 import { getCurrentTenantId, getCurrentTenant, getTenantSlugFromURL, getTenantStorageKey, getTenantOrderQuotaDetails } from '../../services/tenant_service.js';
+import { ErpIntegrationService } from '../../services/erp_integration_service.js';
 import { logAuditEvent } from '../../services/audit_service.js';
 import { escapeHtml } from '../../utils/sanitize.js';
 
@@ -987,13 +988,58 @@ async function handleCheckout(e) {
             piece_price: item.price
         }));
 
-        const { data: rpcData, error: rpcError } = await supabase.rpc('process_order_transaction', {
-            p_order_id: editingOrderId || null,
-            p_order_data: orderData,
-            p_order_items: orderItemsData
-        });
+        // Check if current store context has an active ERP connection via secure RPC
+        let erpConn = null;
+        try {
+            erpConn = await ErpIntegrationService.getActiveConnection();
+        } catch (e) {}
 
-        if (rpcError) throw rpcError;
+        let rpcData = null;
+
+        if (erpConn && !editingOrderId) {
+            // ERP-Integrated Order Path:
+            // 1. Prepare items payload for atomic Reservation Group with real variant mapping
+            const reservationItems = cartItems.map(item => ({
+                model_id: item.modelId,
+                color_id: item.colorId,
+                variant_external_id: item.variantExternalId || null,
+                quantity: item.qty,
+                unit: 'series'
+            }));
+
+            // 2. Request atomic reservation group for all items
+            const resResult = await ErpIntegrationService.requestReservationGroup({
+                items: reservationItems,
+                websiteOrderId: null
+            });
+
+            if (!resResult.success) {
+                btn.disabled = false;
+                btn.innerHTML = editingOrderId ? `حفظ التعديلات` : `تأكيد وإصدار الفاتورة`;
+                showToast(resResult.message || 'عفواً، الكمية المطلوبة غير متوفرة حالياً في رصيد المصنع.', 'error');
+                return;
+            }
+
+            // 3. Submit integrated order with reservation group reference without independent stock deduction
+            rpcData = await ErpIntegrationService.submitIntegratedOrder({
+                orderData,
+                orderItems: orderItemsData,
+                reservationGroupId: resResult.reservationGroupId
+            });
+
+            if (rpcData && rpcData.integration_status === 'awaiting_stock_confirmation') {
+                showToast('تم استلام الطلب وبانتظار تأكيد توافر المخزون من المصنع.', 'info');
+            }
+        } else {
+            // Standalone non-ERP tenant path
+            const { data, error: rpcError } = await supabase.rpc('process_order_transaction', {
+                p_order_id: editingOrderId || null,
+                p_order_data: orderData,
+                p_order_items: orderItemsData
+            });
+            if (rpcError) throw rpcError;
+            rpcData = data;
+        }
 
         const orderIdToPrint = editingOrderId || rpcData.order_id;
         const finalOrderObj = { id: orderIdToPrint, invoice_number: rpcData.invoice_number, ...orderData };
